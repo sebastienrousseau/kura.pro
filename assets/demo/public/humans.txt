@@ -1,1 +1,0 @@
-Skeletonic CSS - A lightweight, intuitive, accessible and ultra-responsive CSS Framework - Skeletonic CSS is a lightweight, intuitive and ultra-responsive CSS framework designed for any platform, browser or device.

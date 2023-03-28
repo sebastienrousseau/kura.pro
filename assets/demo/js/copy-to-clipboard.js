@@ -1,1 +1,0 @@
-function copyToClipboard(o){navigator.clipboard.writeText(o)}

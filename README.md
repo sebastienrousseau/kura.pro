@@ -10,4 +10,4 @@
 
 A fast and robust CDN designed for seamless delivery of static content with ease.
 
-[banner]: https://kura.pro/shokunin/images/titles/title-kura.svg "Banner for Kura (倉) - Static Content Delivery Network (CDN)"
+[banner]: https://kura.pro/kura/images/titles/title-kura.svg "Banner for Kura (倉) - Static Content Delivery Network (CDN)"

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const CDN_BASE = 'https://kura.pro/';
+  const CDN_BASE = 'https://cloudcdn.pro/';
   const PAGE_SIZE = 60;
 
   let manifest = [];

@@ -25,7 +25,7 @@
   // --- Init ---
   async function init() {
     try {
-      const res = await fetch('../manifest.json');
+      const res = await fetch('/manifest.json');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       manifest = await res.json();
     } catch (err) {

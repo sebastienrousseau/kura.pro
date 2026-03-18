@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kura (倉) — Asset Manager</title>
+  <meta name="description" content="Browse and manage static assets on the Kura CDN">
+  <link rel="icon" href="/kura/images/icons/ico-kura.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            surface: '#0f1117',
+            card: '#1a1d27',
+            border: '#2a2d3a',
+            accent: '#6366f1',
+            'accent-hover': '#818cf8',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-surface text-gray-200 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4 flex-wrap">
+      <div class="flex items-center gap-3 shrink-0">
+        <img src="/kura/images/logos/kura.svg" alt="Kura" width="36" height="36" class="rounded">
+        <h1 class="text-xl font-bold text-white">Kura <span class="text-accent">(倉)</span></h1>
+      </div>
+
+      <!-- Search -->
+      <div class="flex-1 min-w-[200px] max-w-xl">
+        <input
+          type="search"
+          id="search"
+          placeholder="Search assets..."
+          class="w-full bg-card border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-accent transition"
+        >
+      </div>
+
+      <!-- Filters -->
+      <div class="flex gap-2 items-center flex-wrap">
+        <select id="filter-project" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+          <option value="">All Projects</option>
+        </select>
+        <select id="filter-format" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+          <option value="">All Formats</option>
+          <option value="png">PNG</option>
+          <option value="webp">WebP</option>
+          <option value="avif">AVIF</option>
+          <option value="svg">SVG</option>
+          <option value="ico">ICO</option>
+        </select>
+        <select id="filter-category" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats Bar -->
+  <div class="bg-card/50 border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-6 text-xs text-gray-400">
+      <span id="stat-total">Loading...</span>
+      <span id="stat-showing" class="hidden">Showing: —</span>
+      <span id="stat-size" class="hidden">Total size: —</span>
+    </div>
+  </div>
+
+  <!-- Gallery Grid -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
+    <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      <!-- Cards rendered by app.js -->
+    </div>
+
+    <!-- Load More -->
+    <div id="load-more" class="hidden text-center py-8">
+      <button
+        id="load-more-btn"
+        class="bg-accent hover:bg-accent-hover text-white font-medium px-6 py-2 rounded-lg transition"
+      >
+        Load More
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-20 text-gray-500">
+      <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <p class="text-lg">No assets match your filters</p>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-accent text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-sm font-medium">
+    Copied to clipboard!
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

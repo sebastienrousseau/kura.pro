@@ -1,0 +1,70 @@
+name: Compress Images
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+  workflow_dispatch:
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install sharp
+        run: npm install sharp
+
+      - name: Find and convert new images
+        run: |
+          node -e "
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const path = require('path');
+          const { execSync } = require('child_process');
+
+          const diff = execSync('git diff --name-only --diff-filter=A HEAD~1 HEAD').toString().trim();
+          if (!diff) { console.log('No new files'); process.exit(0); }
+
+          const files = diff.split('\n').filter(f =>
+            /\.(png|jpe?g)$/i.test(f) && fs.existsSync(f)
+          );
+
+          if (files.length === 0) { console.log('No new images to convert'); process.exit(0); }
+
+          (async () => {
+            for (const file of files) {
+              const base = file.replace(/\.(png|jpe?g)$/i, '');
+              const webpOut = base + '.webp';
+              const avifOut = base + '.avif';
+
+              try {
+                if (!fs.existsSync(webpOut)) {
+                  await sharp(file).webp({ quality: 80 }).toFile(webpOut);
+                  console.log('WebP:', webpOut);
+                }
+                if (!fs.existsSync(avifOut)) {
+                  await sharp(file).avif({ quality: 65 }).toFile(avifOut);
+                  console.log('AVIF:', avifOut);
+                }
+              } catch (err) {
+                console.error('Error converting', file, err.message);
+              }
+            }
+          })();
+          "
+
+      - name: Commit converted images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A '*.webp' '*.avif'
+          git diff --cached --quiet && echo "No new conversions" || (git commit -m "chore: auto-convert images to WebP/AVIF [skip ci]" && git push)

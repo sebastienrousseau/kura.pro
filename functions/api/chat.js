@@ -19,9 +19,9 @@ export async function onRequestPost(context) {
     } catch {}
 
     if (monthCount >= MONTHLY_LIMIT) {
-      return new Response(
-        JSON.stringify({ error: 'limit_reached', message: 'Monthly query limit reached. The Concierge will be back next month.' }),
-        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      return Response.json(
+        { error: 'limit_reached', message: 'Monthly query limit reached. The Concierge will be back next month.' },
+        { status: 429 }
       );
     }
   }
@@ -32,26 +32,20 @@ export async function onRequestPost(context) {
     message = body.message;
     history = body.history || [];
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
   if (!message || typeof message !== 'string' || message.trim().length === 0) {
-    return new Response(JSON.stringify({ error: 'Message is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json({ error: 'Message is required' }, { status: 400 });
   }
 
   try {
-    // 1. Generate embedding for the user's question
+    // 1. Embed the user's question
     const { data: queryVector } = await AI.run('@cf/baai/bge-base-en-v1.5', {
       text: [message],
     });
 
-    // 2. Query Vectorize for the top 5 most relevant context chunks
+    // 2. Query Vectorize for top-5 relevant chunks
     const matches = await VECTOR_INDEX.query(queryVector[0], {
       topK: 5,
       returnMetadata: 'all',
@@ -68,7 +62,7 @@ export async function onRequestPost(context) {
       : 0;
     const confidence = avgScore > 0.75 ? 'high' : avgScore > 0.6 ? 'medium' : 'low';
 
-    // 3. Build the System Prompt
+    // 3. System prompt
     const systemPrompt = `You are the CloudCDN Concierge — a knowledgeable, concise, and professional AI assistant for cloudcdn.pro.
 
 RULES:
@@ -87,23 +81,14 @@ RULES:
 CONTEXT:
 ${contextText || 'No relevant context found for this query.'}`;
 
-    // 4. Run streaming inference with conversation history
+    // 4. Build messages
     const messages = [
       { role: 'system', content: systemPrompt },
-      ...history.slice(-5).map((m) => ({
-        role: m.role,
-        content: m.content,
-      })),
+      ...history.slice(-5).map((m) => ({ role: m.role, content: m.content })),
       { role: 'user', content: message },
     ];
 
-    const stream = await AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
-      messages,
-      max_tokens: 512,
-      stream: true,
-    });
-
-    // 5. Increment counters
+    // 5. Increment counters early (before streaming)
     if (RATE_KV) {
       try {
         await RATE_KV.put(monthKey, String(monthCount + 1), { expirationTtl: 86400 * 35 });
@@ -111,86 +96,112 @@ ${contextText || 'No relevant context found for this query.'}`;
       } catch {}
     }
 
-    // 6. Create SSE response that sends metadata first, then streams tokens
-    const encoder = new TextEncoder();
     const remaining = RATE_KV ? MONTHLY_LIMIT - monthCount - 1 : null;
 
-    const transformedStream = new ReadableStream({
-      async start(controller) {
-        // Send metadata event first
-        controller.enqueue(
+    // 6. Stream inference via TransformStream
+    const aiStream = await AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
+      messages,
+      max_tokens: 512,
+      stream: true,
+    });
+
+    const encoder = new TextEncoder();
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+
+    // Process in background — return Response immediately
+    (async () => {
+      try {
+        // Send metadata event
+        await writer.write(
           encoder.encode(`event: metadata\ndata: ${JSON.stringify({ sources, confidence, remaining })}\n\n`)
         );
 
-        // Read the AI stream and forward tokens
-        const reader = stream.getReader();
+        // Read AI stream and forward tokens
+        const reader = aiStream.getReader();
+        const decoder = new TextDecoder();
         let fullText = '';
+        let lineBuffer = '';
 
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-            // Cloudflare AI stream returns Uint8Array chunks in SSE format
-            const chunk = typeof value === 'string' ? value : new TextDecoder().decode(value);
+          const chunk = typeof value === 'string' ? value : decoder.decode(value, { stream: true });
+          lineBuffer += chunk;
 
-            // Parse the SSE data from Cloudflare AI
-            const lines = chunk.split('\n');
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const data = line.slice(6);
-                if (data === '[DONE]') continue;
-                try {
-                  const parsed = JSON.parse(data);
-                  if (parsed.response) {
-                    fullText += parsed.response;
-                    controller.enqueue(
-                      encoder.encode(`event: token\ndata: ${JSON.stringify({ text: parsed.response })}\n\n`)
-                    );
-                  }
-                } catch {}
-              }
+          // Process complete lines only
+          const parts = lineBuffer.split('\n');
+          lineBuffer = parts.pop() || '';
+
+          for (const line of parts) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6).trim();
+              if (data === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.response) {
+                  fullText += parsed.response;
+                  await writer.write(
+                    encoder.encode(`event: token\ndata: ${JSON.stringify({ text: parsed.response })}\n\n`)
+                  );
+                }
+              } catch {}
             }
           }
-        } catch (err) {
-          controller.enqueue(
-            encoder.encode(`event: error\ndata: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`)
-          );
         }
 
-        // Parse follow-ups from the full text
+        // Process any remaining buffer
+        if (lineBuffer.startsWith('data: ')) {
+          const data = lineBuffer.slice(6).trim();
+          if (data && data !== '[DONE]') {
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.response) {
+                fullText += parsed.response;
+                await writer.write(
+                  encoder.encode(`event: token\ndata: ${JSON.stringify({ text: parsed.response })}\n\n`)
+                );
+              }
+            } catch {}
+          }
+        }
+
+        // Parse follow-ups from full text
         let followUps = [];
         const fuMatch = fullText.match(/FOLLOW_UPS:\s*(.+)/);
         if (fuMatch) {
-          followUps = fuMatch[1].split('|').map(s => s.trim()).filter(Boolean).slice(0, 3);
+          followUps = fuMatch[1].split('|').map((s) => s.trim()).filter(Boolean).slice(0, 3);
         }
 
-        // Send done event with follow-ups
-        controller.enqueue(
+        // Send done event
+        await writer.write(
           encoder.encode(`event: done\ndata: ${JSON.stringify({ followUps })}\n\n`)
         );
+      } catch (err) {
+        try {
+          await writer.write(
+            encoder.encode(`event: error\ndata: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`)
+          );
+        } catch {}
+      } finally {
+        try { await writer.close(); } catch {}
+      }
+    })();
 
-        controller.close();
-      },
-    });
-
-    return new Response(transformedStream, {
+    return new Response(readable, {
       headers: {
         'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-store',
+        'Cache-Control': 'no-cache, no-store',
         'Connection': 'keep-alive',
         'Access-Control-Allow-Origin': '*',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
   } catch (err) {
-    return new Response(
-      JSON.stringify({
-        error: 'An internal error occurred. Please try again.',
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
+    return Response.json(
+      { error: 'An internal error occurred. Please try again.' },
+      { status: 500 }
     );
   }
 }

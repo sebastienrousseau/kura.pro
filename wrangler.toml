@@ -1,0 +1,9 @@
+name = "cloudcdn-pro"
+pages_build_output_dir = "."
+
+[ai]
+binding = "AI"
+
+[[vectorize]]
+binding = "VECTOR_INDEX"
+index_name = "cloudcdn-knowledge"

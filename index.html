@@ -903,7 +903,8 @@
         });
 
         // Handle non-streaming error responses (429, 400, 500)
-        if (!res.ok || res.headers.get('Content-Type')?.includes('application/json')) {
+        const ct = res.headers.get('Content-Type') || '';
+        if (!res.ok || (ct.includes('application/json') && !ct.includes('text/event-stream'))) {
           skeleton.remove();
           stopBtn.remove();
           aiMsg.remove();

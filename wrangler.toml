@@ -7,3 +7,7 @@ binding = "AI"
 [[vectorize]]
 binding = "VECTOR_INDEX"
 index_name = "cloudcdn-knowledge"
+
+[[kv_namespaces]]
+binding = "RATE_KV"
+id = "e5688bf85dff4b16988c4a3853bb7171"

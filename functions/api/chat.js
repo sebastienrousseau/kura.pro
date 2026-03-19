@@ -1,5 +1,30 @@
+const MONTHLY_LIMIT = 1000;
+const DAILY_SOFT_LIMIT = 100;
+
 export async function onRequestPost(context) {
-  const { AI, VECTOR_INDEX } = context.env;
+  const { AI, VECTOR_INDEX, RATE_KV } = context.env;
+
+  // --- Rate limiting via KV ---
+  const now = new Date();
+  const monthKey = `queries:${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+  const dayKey = `queries:${now.toISOString().slice(0, 10)}`;
+
+  let monthCount = 0;
+  let dayCount = 0;
+
+  if (RATE_KV) {
+    try {
+      monthCount = parseInt(await RATE_KV.get(monthKey)) || 0;
+      dayCount = parseInt(await RATE_KV.get(dayKey)) || 0;
+    } catch {}
+
+    if (monthCount >= MONTHLY_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: 'limit_reached', message: 'Monthly query limit reached. The Concierge will be back next month.' }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  }
 
   let message, history;
   try {
@@ -74,10 +99,19 @@ ${contextText || 'No relevant context found for this query.'}`;
       ),
     ];
 
+    // 5. Increment counters
+    if (RATE_KV) {
+      try {
+        await RATE_KV.put(monthKey, String(monthCount + 1), { expirationTtl: 86400 * 35 });
+        await RATE_KV.put(dayKey, String(dayCount + 1), { expirationTtl: 86400 * 2 });
+      } catch {}
+    }
+
     return new Response(
       JSON.stringify({
         response: response.response,
         sources,
+        remaining: RATE_KV ? MONTHLY_LIMIT - monthCount - 1 : null,
       }),
       {
         headers: {

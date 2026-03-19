@@ -431,22 +431,8 @@
 
     let history = [];
     let sending = false;
-
-    // Restore session
-    try {
-      const saved = sessionStorage.getItem('cloudcdn-chat');
-      if (saved) {
-        const data = JSON.parse(saved);
-        history = data.history || [];
-        if (history.length > 0) {
-          messagesEl.innerHTML = '<div class="msg msg-ai">Hi! I\'m the CloudCDN Concierge. Ask me about pricing, setup, features, or anything about our CDN.</div>';
-          for (const m of history) {
-            appendMessage(m.role === 'user' ? 'user' : 'ai', m.content);
-          }
-          quickReplies.style.display = 'none';
-        }
-      }
-    } catch {}
+    let queryCount = 0;
+    const SESSION_QUERY_LIMIT = 100;
 
     // Toggle
     trigger.addEventListener('click', () => {
@@ -500,21 +486,30 @@
 
         typing.remove();
 
+        if (res.status === 429 || data.error === 'limit_reached') {
+          typing.remove();
+          appendMessage('ai', data.message || 'The Concierge has reached its monthly limit. Please try again next month.');
+          hideWidget();
+          return;
+        }
+
         if (data.error) {
           appendMessage('ai', 'Sorry, something went wrong. Please try again.');
         } else {
           appendMessage('ai', data.response, data.sources);
           history.push({ role: 'assistant', content: data.response });
+          queryCount++;
+
+          if (queryCount >= SESSION_QUERY_LIMIT) {
+            appendMessage('ai', 'You\'ve reached the session query limit. Please reload the page to continue.');
+            hideWidget();
+            return;
+          }
         }
       } catch {
         typing.remove();
         appendMessage('ai', 'Unable to reach the Concierge. Please check your connection.');
       }
-
-      // Persist
-      try {
-        sessionStorage.setItem('cloudcdn-chat', JSON.stringify({ history: history.slice(-20) }));
-      } catch {}
 
       sending = false;
       sendBtn.disabled = false;
@@ -543,6 +538,12 @@
 
     function scrollToBottom() {
       messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function hideWidget() {
+      sendBtn.disabled = true;
+      input.disabled = true;
+      input.placeholder = 'Concierge unavailable';
     }
 
     function formatMarkdown(text) {

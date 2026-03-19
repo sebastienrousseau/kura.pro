@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "description": "Local image conversion scripts for kura.pro CDN",
+  "scripts": {
+    "test": "npm test --prefix ..",
+    "test:watch": "npm run test:watch --prefix .."
+  },
   "dependencies": {
     "sharp": "^0.33.0"
   }

@@ -2,3 +2,5 @@
 node_modules/
 *.log
 scripts/node_modules/
+coverage/
+scripts/coverage/

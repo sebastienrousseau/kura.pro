@@ -1,0 +1,24 @@
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    include: ['scripts/tests/**/*.test.js'],
+    coverage: {
+      provider: 'v8',
+      include: [
+        'scripts/convert.mjs',
+        'scripts/generate-manifest.mjs',
+        'scripts/sync-knowledge.mjs',
+        'functions/api/chat.js',
+        'functions/api/transform.js',
+      ],
+      all: false,
+      thresholds: {
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
+      },
+    },
+  },
+});

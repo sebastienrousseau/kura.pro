@@ -183,9 +183,9 @@ ${contextText || 'No relevant context found for this query.'}`;
           await writer.write(
             encoder.encode(`event: error\ndata: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`)
           );
-        } catch {}
+        } /* v8 ignore next */ catch {}
       } finally {
-        try { await writer.close(); } catch {}
+        try { await writer.close(); } /* v8 ignore next */ catch {}
       }
     })();
 

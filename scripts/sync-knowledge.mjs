@@ -1,24 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 
-const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 const INDEX_NAME = 'cloudcdn-knowledge';
-const CONTENT_DIR = path.resolve(process.argv[2] || '../content');
-
-if (!ACCOUNT_ID || !API_TOKEN) {
-  console.error('Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN environment variables');
-  process.exit(1);
-}
-
-const CF_API = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}`;
-const headers = {
-  Authorization: `Bearer ${API_TOKEN}`,
-  'Content-Type': 'application/json',
-};
 
 // --- Chunking ---
-function chunkText(text, source, maxTokens = 500, overlap = 100) {
+export function chunkText(text, source, maxTokens = 500, overlap = 100) {
   const sentences = text.split(/(?<=[.!?])\s+/);
   const chunks = [];
   let current = [];
@@ -55,7 +41,7 @@ function chunkText(text, source, maxTokens = 500, overlap = 100) {
 }
 
 // --- Embedding via Workers AI REST API ---
-async function embedTexts(texts) {
+export async function embedTexts(texts, CF_API, headers) {
   const res = await fetch(
     `${CF_API}/ai/run/@cf/baai/bge-base-en-v1.5`,
     {
@@ -72,7 +58,7 @@ async function embedTexts(texts) {
 }
 
 // --- Upsert to Vectorize ---
-async function upsertVectors(vectors) {
+export async function upsertVectors(vectors, CF_API, API_TOKEN) {
   // Vectorize expects NDJSON format for upsert
   const ndjson = vectors.map((v) => JSON.stringify(v)).join('\n');
 
@@ -95,7 +81,22 @@ async function upsertVectors(vectors) {
 }
 
 // --- Main ---
-async function main() {
+export async function main() {
+  const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
+  const CONTENT_DIR = path.resolve(process.argv[2] || '../content');
+
+  if (!ACCOUNT_ID || !API_TOKEN) {
+    console.error('Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN environment variables');
+    process.exit(1);
+  }
+
+  const CF_API = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}`;
+  const headers = {
+    Authorization: `Bearer ${API_TOKEN}`,
+    'Content-Type': 'application/json',
+  };
+
   if (!fs.existsSync(CONTENT_DIR)) {
     console.error(`Content directory not found: ${CONTENT_DIR}`);
     process.exit(1);
@@ -123,7 +124,7 @@ async function main() {
   for (let i = 0; i < allChunks.length; i += BATCH_SIZE) {
     const batch = allChunks.slice(i, i + BATCH_SIZE);
     const texts = batch.map((c) => c.content);
-    const embeddings = await embedTexts(texts);
+    const embeddings = await embedTexts(texts, CF_API, headers);
 
     for (let j = 0; j < batch.length; j++) {
       vectors.push({
@@ -144,14 +145,18 @@ async function main() {
   // Upsert in batches of 100
   for (let i = 0; i < vectors.length; i += 100) {
     const batch = vectors.slice(i, i + 100);
-    await upsertVectors(batch);
+    await upsertVectors(batch, CF_API, API_TOKEN);
     console.log(`  Upserted batch ${Math.floor(i / 100) + 1}/${Math.ceil(vectors.length / 100)}`);
   }
 
   console.log('\nKnowledge sync complete!');
 }
 
-main().catch((err) => {
-  console.error('Sync failed:', err.message);
-  process.exit(1);
-});
+/* v8 ignore next 7 */
+const isMain = import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('sync-knowledge.mjs');
+if (isMain) {
+  main().catch((err) => {
+    console.error('Sync failed:', err.message);
+    process.exit(1);
+  });
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudCDN — Global Edge Content Delivery</title>
+  <meta name="description" content="High-performance static asset delivery powered by Cloudflare's global edge network.">
+  <link rel="icon" href="/kura/images/icons/ico-kura.ico">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #08090d;
+      color: #e2e4ea;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Animated gradient orb */
+    .orb {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulse 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+      50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    }
+
+    /* Grid lines */
+    .grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      max-width: 640px;
+    }
+
+    .logo {
+      width: 72px;
+      height: 72px;
+      margin-bottom: 2rem;
+      border-radius: 16px;
+      opacity: 0.9;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    h1 span {
+      background: linear-gradient(135deg, #6366f1, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      font-size: 1.125rem;
+      color: #8b8fa3;
+      line-height: 1.6;
+      margin-bottom: 3rem;
+    }
+
+    /* Status indicators */
+    .stats {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: #5b5f73;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 0.25rem;
+    }
+
+    /* Status pill */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 999px;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      color: #4ade80;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    footer {
+      position: fixed;
+      bottom: 2rem;
+      font-size: 0.75rem;
+      color: #3a3d4a;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="orb"></div>
+  <div class="grid"></div>
+
+  <main>
+    <img src="/kura/images/logos/kura.svg" alt="CloudCDN" class="logo">
+    <h1>Cloud<span>CDN</span></h1>
+    <p class="tagline">High-performance static asset delivery, powered by Cloudflare's global edge network. Sub-100ms latency across 300+ points of presence.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">300+</div>
+        <div class="stat-label">Edge Locations</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">&lt;100ms</div>
+        <div class="stat-label">Global TTFB</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">99.9%</div>
+        <div class="stat-label">Uptime SLA</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <div class="status-dot"></div>
+      All systems operational
+    </div>
+  </main>
+
+  <footer>&copy; 2026 CloudCDN. All rights reserved.</footer>
+</body>
+</html>

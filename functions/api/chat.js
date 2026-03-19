@@ -57,10 +57,16 @@ export async function onRequestPost(context) {
       returnMetadata: 'all',
     });
 
-    const contextText = matches.matches
-      .filter((m) => m.score > 0.5)
-      .map((m) => `[Source: ${m.metadata.source}]\n${m.metadata.content}`)
+    const relevantMatches = matches.matches.filter((m) => m.score > 0.5);
+    const contextText = relevantMatches
+      .map((m, i) => `[${i + 1}] [Source: ${m.metadata.source}]\n${m.metadata.content}`)
       .join('\n\n---\n\n');
+
+    const sources = [...new Set(relevantMatches.map((m) => m.metadata.source))];
+    const avgScore = relevantMatches.length > 0
+      ? relevantMatches.reduce((sum, m) => sum + m.score, 0) / relevantMatches.length
+      : 0;
+    const confidence = avgScore > 0.75 ? 'high' : avgScore > 0.6 ? 'medium' : 'low';
 
     // 3. Build the System Prompt
     const systemPrompt = `You are the CloudCDN Concierge — a knowledgeable, concise, and professional AI assistant for cloudcdn.pro.
@@ -75,11 +81,13 @@ RULES:
 - Use markdown for **bold** emphasis and \`code\` but keep it minimal.
 - When showing CLI commands, use proper code blocks.
 - Never invent pricing, features, or limits not in the context.
+- Reference your source numbers inline like [1], [2] when citing specific facts.
+- At the END of your response, on a new line, output exactly: FOLLOW_UPS: followed by 2-3 short follow-up questions the user might ask next, separated by |. Example: FOLLOW_UPS: How do I upgrade?|What formats are supported?|Is there a free trial?
 
 CONTEXT:
 ${contextText || 'No relevant context found for this query.'}`;
 
-    // 4. Run inference with conversation history
+    // 4. Run streaming inference with conversation history
     const messages = [
       { role: 'system', content: systemPrompt },
       ...history.slice(-5).map((m) => ({
@@ -89,18 +97,11 @@ ${contextText || 'No relevant context found for this query.'}`;
       { role: 'user', content: message },
     ];
 
-    const response = await AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
+    const stream = await AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
       messages,
       max_tokens: 512,
+      stream: true,
     });
-
-    const sources = [
-      ...new Set(
-        matches.matches
-          .filter((m) => m.score > 0.5)
-          .map((m) => m.metadata.source)
-      ),
-    ];
 
     // 5. Increment counters
     if (RATE_KV) {
@@ -110,19 +111,77 @@ ${contextText || 'No relevant context found for this query.'}`;
       } catch {}
     }
 
-    return new Response(
-      JSON.stringify({
-        response: response.response,
-        sources,
-        remaining: RATE_KV ? MONTHLY_LIMIT - monthCount - 1 : null,
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-        },
-      }
-    );
+    // 6. Create SSE response that sends metadata first, then streams tokens
+    const encoder = new TextEncoder();
+    const remaining = RATE_KV ? MONTHLY_LIMIT - monthCount - 1 : null;
+
+    const transformedStream = new ReadableStream({
+      async start(controller) {
+        // Send metadata event first
+        controller.enqueue(
+          encoder.encode(`event: metadata\ndata: ${JSON.stringify({ sources, confidence, remaining })}\n\n`)
+        );
+
+        // Read the AI stream and forward tokens
+        const reader = stream.getReader();
+        let fullText = '';
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            // Cloudflare AI stream returns Uint8Array chunks in SSE format
+            const chunk = typeof value === 'string' ? value : new TextDecoder().decode(value);
+
+            // Parse the SSE data from Cloudflare AI
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') continue;
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.response) {
+                    fullText += parsed.response;
+                    controller.enqueue(
+                      encoder.encode(`event: token\ndata: ${JSON.stringify({ text: parsed.response })}\n\n`)
+                    );
+                  }
+                } catch {}
+              }
+            }
+          }
+        } catch (err) {
+          controller.enqueue(
+            encoder.encode(`event: error\ndata: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`)
+          );
+        }
+
+        // Parse follow-ups from the full text
+        let followUps = [];
+        const fuMatch = fullText.match(/FOLLOW_UPS:\s*(.+)/);
+        if (fuMatch) {
+          followUps = fuMatch[1].split('|').map(s => s.trim()).filter(Boolean).slice(0, 3);
+        }
+
+        // Send done event with follow-ups
+        controller.enqueue(
+          encoder.encode(`event: done\ndata: ${JSON.stringify({ followUps })}\n\n`)
+        );
+
+        controller.close();
+      },
+    });
+
+    return new Response(transformedStream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-store',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
   } catch (err) {
     return new Response(
       JSON.stringify({

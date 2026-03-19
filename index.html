@@ -553,11 +553,18 @@
         .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
         // Inline code
         .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // Headings (### H3, ## H2)
+        .replace(/^### (.+)$/gm, '<strong style="display:block;margin:0.5em 0 0.25em;font-size:0.85em;color:#a5b4fc;">$1</strong>')
+        .replace(/^## (.+)$/gm, '<strong style="display:block;margin:0.5em 0 0.25em;color:#a5b4fc;">$1</strong>')
         // Bold
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         // Italic
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        // Line breaks
+        // Bullet lists
+        .replace(/^[-*] (.+)$/gm, '<li style="margin-left:1em;list-style:disc;font-size:0.8em;">$1</li>')
+        // Wrap consecutive <li> in <ul>
+        .replace(/((?:<li[^>]*>.*?<\/li>\n?)+)/g, '<ul style="margin:0.25em 0;padding-left:0.5em;">$1</ul>')
+        // Line breaks (but not inside pre/ul)
         .replace(/\n/g, '<br>');
     }
   })();

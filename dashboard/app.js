@@ -325,18 +325,21 @@
   // Asset picker — populate with image assets from manifest
   const tfPicker = document.getElementById('tf-picker');
   function populateAssetPicker() {
-    const images = manifest.filter(a => ['png', 'webp', 'avif', 'svg'].includes(a.format));
-    // Group by project, pick one representative per project (prefer logos/banners)
-    const seen = new Set();
-    const picks = [];
-    for (const a of images) {
-      if (!seen.has(a.project) && (a.category === 'logos' || a.category === 'banners' || picks.length < 50)) {
-        seen.add(a.project);
-        picks.push(a);
+    // Prefer .png and .svg sources (best input for transforms), skip derivatives
+    const sources = manifest.filter(a => a.format === 'png' || a.format === 'svg');
+    // Group by project — pick one representative (prefer logos > banners > any)
+    const byProject = {};
+    for (const a of sources) {
+      const existing = byProject[a.project];
+      if (!existing) {
+        byProject[a.project] = a;
+      } else {
+        const rank = (x) => x.category === 'logos' ? 0 : x.category === 'banners' ? 1 : 2;
+        if (rank(a) < rank(existing)) byProject[a.project] = a;
       }
     }
-    picks.sort((a, b) => a.project.localeCompare(b.project));
-    for (const a of picks.slice(0, 50)) {
+    const picks = Object.values(byProject).sort((a, b) => a.project.localeCompare(b.project));
+    for (const a of picks) {
       const opt = document.createElement('option');
       opt.value = '/' + a.path;
       opt.textContent = `${a.project} / ${a.name}`;

@@ -67,9 +67,9 @@ export async function trackRequest(env, request, response) {
   const date = today();
   const url = new URL(request.url);
   const path = url.pathname;
-  const country = request.headers.get("cf-ipcountry") || "XX";
+  const country = request.cf?.country || request.headers.get("cf-ipcountry") || "XX";
   const bytes = parseInt(response.headers.get("content-length") || "0", 10);
-  const cacheStatus = (response.headers.get("cf-cache-status") || "MISS").toUpperCase();
+  const cacheStatus = (request.cf?.cacheStatus || response.headers.get("cf-cache-status") || "MISS").toUpperCase();
   const isHit = cacheStatus === "HIT" ? "hit" : "miss";
 
   await Promise.all([

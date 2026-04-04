@@ -66,6 +66,7 @@
     }
 
     populateFilters();
+    populateAssetPicker();
     applyFilters();
 
     search.addEventListener('input', debounce(applyFilters, 150));
@@ -281,6 +282,17 @@
     const previewUrl = buildTransformUrl(true);
     tfOutput.textContent = url || 'Enter a source image URL';
 
+    // Code snippets
+    if (url) {
+      document.getElementById('tf-snippet-html').textContent = `<img src="${url}" alt="Asset" loading="lazy">`;
+      document.getElementById('tf-snippet-md').textContent = `![Asset](${url})`;
+      document.getElementById('tf-snippet-css').textContent = `background-image: url('${url}');`;
+    } else {
+      document.getElementById('tf-snippet-html').textContent = '';
+      document.getElementById('tf-snippet-md').textContent = '';
+      document.getElementById('tf-snippet-css').textContent = '';
+    }
+
     // Debounce preview load
     clearTimeout(previewTimer);
     if (previewUrl) {
@@ -308,6 +320,49 @@
   tfCopy.addEventListener('click', () => {
     const url = buildTransformUrl(false);
     if (url) copyToClipboard(url, 'Transform URL');
+  });
+
+  // Asset picker — populate with image assets from manifest
+  const tfPicker = document.getElementById('tf-picker');
+  function populateAssetPicker() {
+    const images = manifest.filter(a => ['png', 'webp', 'avif', 'svg'].includes(a.format));
+    // Group by project, pick one representative per project (prefer logos/banners)
+    const seen = new Set();
+    const picks = [];
+    for (const a of images) {
+      if (!seen.has(a.project) && (a.category === 'logos' || a.category === 'banners' || picks.length < 50)) {
+        seen.add(a.project);
+        picks.push(a);
+      }
+    }
+    picks.sort((a, b) => a.project.localeCompare(b.project));
+    for (const a of picks.slice(0, 50)) {
+      const opt = document.createElement('option');
+      opt.value = '/' + a.path;
+      opt.textContent = `${a.project} / ${a.name}`;
+      tfPicker.appendChild(opt);
+    }
+  }
+
+  tfPicker.addEventListener('change', () => {
+    if (tfPicker.value) {
+      tfUrl.value = tfPicker.value;
+      updateTransform();
+    }
+  });
+
+  // Presets
+  document.querySelectorAll('.tf-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      tfW.value = btn.dataset.w || '0';
+      tfH.value = btn.dataset.h || '0';
+      tfFit.value = btn.dataset.fit || '';
+      tfFormat.value = btn.dataset.fmt || 'webp';
+      tfQ.value = btn.dataset.q || '80';
+      tfBlur.value = btn.dataset.blur || '0';
+      tfSharp.value = '0';
+      updateTransform();
+    });
   });
 
   // Initial render
@@ -358,12 +413,15 @@
     }
 
     document.getElementById('ins-total-hits').textContent = totalHits.toLocaleString();
-    document.getElementById('ins-total-bw').textContent = formatBytes(totalBw);
+    // Estimate bandwidth from hits if byte tracking is 0 (Pages doesn't always set content-length)
+    document.getElementById('ins-total-bw').textContent = totalBw > 0
+      ? formatBytes(totalBw)
+      : totalHits > 0 ? `~${formatBytes(totalHits * 25000)}` : '0 B';
     const cacheTotal = totalCacheHit + totalCacheMiss;
     document.getElementById('ins-cache-ratio').textContent = cacheTotal > 0
       ? ((totalCacheHit / cacheTotal) * 100).toFixed(1) + '%'
-      : 'N/A';
-    document.getElementById('ins-countries').textContent = Object.keys(allGeo).length;
+      : totalHits > 0 ? 'Collecting...' : 'N/A';
+    document.getElementById('ins-countries').textContent = Object.keys(allGeo).length || (totalHits > 0 ? 'Collecting...' : '0');
 
     // Bar chart (daily hits)
     const chart = document.getElementById('ins-chart');
@@ -371,39 +429,47 @@
     const reversed = [...data].reverse();
     const maxHits = Math.max(...reversed.map(d => d.hits), 1);
 
-    for (const day of reversed) {
-      const pct = (day.hits / maxHits) * 100;
-      const bar = document.createElement('div');
-      bar.className = 'bar-col';
-      bar.style.height = Math.max(pct, 2) + '%';
-      bar.innerHTML = `
-        <span class="bar-value">${day.hits}</span>
-        <span class="bar-label">${day.date.slice(5)}</span>
-      `;
-      bar.title = `${day.date}: ${day.hits} hits, ${day.bandwidth.human}`;
-      chart.appendChild(bar);
+    if (totalHits === 0) {
+      chart.innerHTML = '<p class="text-gray-500 text-sm w-full text-center py-8">No traffic recorded yet. Analytics populate as assets are requested in production.</p>';
+    } else {
+      for (const day of reversed) {
+        const pct = (day.hits / maxHits) * 100;
+        const bar = document.createElement('div');
+        bar.className = 'bar-col';
+        bar.style.height = Math.max(pct, 2) + '%';
+        const bwLabel = day.bandwidth.bytes > 0 ? day.bandwidth.human : `~${formatBytes(day.hits * 25000)}`;
+        bar.innerHTML = `
+          <span class="bar-value">${day.hits}</span>
+          <span class="bar-label">${day.date.slice(5)}</span>
+        `;
+        bar.title = `${day.date}: ${day.hits.toLocaleString()} hits, ${bwLabel}`;
+        chart.appendChild(bar);
+      }
     }
 
     // Top assets
     const topEl = document.getElementById('ins-top-assets');
     const sortedTop = Object.entries(allTop).sort((a, b) => b[1] - a[1]).slice(0, 20);
     if (sortedTop.length === 0) {
-      topEl.innerHTML = '<p class="text-gray-500">No data yet</p>';
+      topEl.innerHTML = '<p class="text-gray-500">No data yet. Assets will appear here as they are requested.</p>';
     } else {
-      topEl.innerHTML = sortedTop.map(([path, count]) =>
-        `<div class="flex justify-between gap-2"><span class="truncate text-gray-300" title="${path}">${path}</span><span class="text-gray-500 shrink-0">${count}</span></div>`
-      ).join('');
+      topEl.innerHTML = sortedTop.map(([path, count]) => {
+        const shortPath = path.length > 50 ? '...' + path.slice(-47) : path;
+        return `<div class="flex justify-between gap-2"><span class="truncate text-gray-300 font-mono text-[11px]" title="${path}">${shortPath}</span><span class="text-accent-hover shrink-0 font-mono">${count}</span></div>`;
+      }).join('');
     }
 
     // Geo
     const geoEl = document.getElementById('ins-geo');
     const sortedGeo = Object.entries(allGeo).sort((a, b) => b[1] - a[1]);
     if (sortedGeo.length === 0) {
-      geoEl.innerHTML = '<p class="text-gray-500">No data yet</p>';
+      geoEl.innerHTML = '<p class="text-gray-500">No geographic data yet. Country data populates from Cloudflare headers.</p>';
     } else {
-      geoEl.innerHTML = sortedGeo.map(([country, count]) =>
-        `<div class="flex justify-between gap-2"><span class="text-gray-300">${country}</span><span class="text-gray-500">${count.toLocaleString()}</span></div>`
-      ).join('');
+      const maxGeo = sortedGeo[0][1];
+      geoEl.innerHTML = sortedGeo.map(([country, count]) => {
+        const pct = (count / maxGeo) * 100;
+        return `<div class="flex items-center gap-2"><span class="text-gray-300 w-8 shrink-0">${country}</span><div class="flex-1 bg-surface rounded-full h-2 overflow-hidden"><div class="bg-accent h-full rounded-full" style="width:${pct}%"></div></div><span class="text-gray-500 text-[11px] font-mono w-12 text-right shrink-0">${count.toLocaleString()}</span></div>`;
+      }).join('');
     }
   }
 

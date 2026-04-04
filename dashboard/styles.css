@@ -44,6 +44,55 @@
   white-space: nowrap;
 }
 
+/* Transform slide-out panel */
+.tf-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 80;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.tf-backdrop.open { opacity: 1; }
+
+.tf-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 380px;
+  max-width: 100vw;
+  background: #1a1d27;
+  border-left: 1px solid #2a2d3a;
+  z-index: 90;
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.tf-panel.open { transform: translateX(0); }
+
+.tf-panel-header {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #2a2d3a;
+  flex-shrink: 0;
+}
+.tf-panel-header button {
+  font-size: 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+.tf-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

@@ -26,7 +26,6 @@
       <!-- Tabs -->
       <nav class="flex gap-1 ml-4" role="tablist">
         <button class="tab-btn active" data-tab="assets" role="tab" aria-selected="true">Assets</button>
-        <button class="tab-btn" data-tab="transform" role="tab" aria-selected="false">Transform</button>
         <button class="tab-btn" data-tab="insights" role="tab" aria-selected="false">Insights</button>
       </nav>
 
@@ -83,63 +82,55 @@
   </main>
 
   <!-- ===== TAB: Transform (URL Builder) ===== -->
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-transform" style="display:none;">
-    <!-- How it works -->
-    <div class="bg-card border border-border rounded-lg p-5 mb-6">
-      <h2 class="text-lg font-semibold text-white mb-2">On-the-Fly Image Transforms</h2>
-      <p class="text-sm text-gray-400 mb-4">Resize, convert, and optimize any CDN image by appending query parameters to the <code class="text-accent">/api/transform</code> endpoint. The result is generated at the edge and cached globally.</p>
-      <div class="grid sm:grid-cols-3 gap-3 text-xs">
-        <div class="bg-surface rounded-lg p-3">
-          <p class="text-accent font-semibold mb-1">1. Pick an image</p>
-          <p class="text-gray-400">Select a source from your assets or paste any CDN path.</p>
-        </div>
-        <div class="bg-surface rounded-lg p-3">
-          <p class="text-accent font-semibold mb-1">2. Adjust parameters</p>
-          <p class="text-gray-400">Set width, format, quality, blur, or sharpen using the controls below.</p>
-        </div>
-        <div class="bg-surface rounded-lg p-3">
-          <p class="text-accent font-semibold mb-1">3. Copy the URL</p>
-          <p class="text-gray-400">Use the generated URL in your HTML, CSS, or API calls. Cached at 300+ PoPs.</p>
-        </div>
-      </div>
+  <!-- ===== Transform Slide-Out Panel ===== -->
+  <div id="tf-backdrop" class="tf-backdrop" style="display:none;"></div>
+  <aside id="tf-panel" class="tf-panel" aria-label="Image Transform">
+    <div class="tf-panel-header">
+      <h2 class="text-sm font-semibold text-white">Transform</h2>
+      <span id="tf-asset-name" class="text-xs text-gray-400 truncate flex-1 ml-2"></span>
+      <button id="tf-close" class="text-gray-500 hover:text-white transition" aria-label="Close">&times;</button>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-6">
+    <div class="tf-panel-body">
+      <!-- Source (read-only, set from card click) -->
+      <input type="hidden" id="tf-url" value="">
+      <input type="hidden" id="tf-picker" value="">
+
+      <!-- Preview -->
+      <div class="bg-surface rounded-lg flex items-center justify-center overflow-hidden mb-4" style="height:180px;">
+        <img id="tf-preview" src="" alt="Preview" class="max-w-full max-h-full object-contain" style="display:none;">
+        <p id="tf-placeholder" class="text-gray-500 text-xs text-center px-4">Preview loads in production</p>
+      </div>
+
+      <!-- Presets -->
+      <div class="mb-4">
+        <p class="text-[10px] text-gray-500 uppercase mb-1.5">Quick presets</p>
+        <div class="flex flex-wrap gap-1.5">
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="64" data-h="64" data-fit="cover" data-fmt="webp" data-q="80">64x64</button>
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="180" data-h="180" data-fit="cover" data-fmt="png" data-q="90">180x180</button>
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="400" data-h="0" data-fit="" data-fmt="avif" data-q="65">400w avif</button>
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="1200" data-h="630" data-fit="cover" data-fmt="webp" data-q="85">OG 1200x630</button>
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="0" data-h="0" data-fit="" data-fmt="webp" data-q="1" data-blur="20">Blur</button>
+        </div>
+      </div>
+
       <!-- Controls -->
-      <div class="space-y-4">
-        <!-- Source picker -->
-        <div>
-          <label class="block text-xs text-gray-400 mb-1">Source Image</label>
-          <div class="flex gap-2">
-            <input type="text" id="tf-url" placeholder="/project/images/logos/logo.png" value="/shared/images/logos/cmn.png"
-              class="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
-            <select id="tf-picker" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent" style="max-width:180px;">
-              <option value="">Pick from assets...</option>
-            </select>
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Width <span id="tf-w-val" class="text-accent">800</span>px</label>
+            <input type="range" id="tf-w" min="0" max="4096" value="800" step="16" class="w-full accent-accent">
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Height <span id="tf-h-val" class="text-accent">auto</span></label>
+            <input type="range" id="tf-h" min="0" max="4096" value="0" step="16" class="w-full accent-accent">
           </div>
         </div>
-
-        <!-- Dimensions -->
-        <fieldset class="border border-border rounded-lg p-3">
-          <legend class="text-xs text-gray-400 px-1">Dimensions</legend>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs text-gray-400 mb-1">Width <span id="tf-w-val" class="text-accent font-mono">800</span>px</label>
-              <input type="range" id="tf-w" min="0" max="4096" value="800" step="16" class="w-full accent-accent">
-            </div>
-            <div>
-              <label class="block text-xs text-gray-400 mb-1">Height <span id="tf-h-val" class="text-accent font-mono">auto</span></label>
-              <input type="range" id="tf-h" min="0" max="4096" value="0" step="16" class="w-full accent-accent">
-            </div>
-          </div>
-        </fieldset>
-
-        <!-- Format & Fit -->
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-3 gap-2">
           <div>
-            <label class="block text-xs text-gray-400 mb-1">Format</label>
-            <select id="tf-format" class="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
-              <option value="auto">Auto (best)</option>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Format</label>
+            <select id="tf-format" class="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:border-accent">
+              <option value="auto">Auto</option>
               <option value="webp" selected>WebP</option>
               <option value="avif">AVIF</option>
               <option value="png">PNG</option>
@@ -147,95 +138,57 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs text-gray-400 mb-1">Fit Mode</label>
-            <select id="tf-fit" class="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+            <label class="block text-[10px] text-gray-500 mb-0.5">Fit</label>
+            <select id="tf-fit" class="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:border-accent">
               <option value="">Default</option>
-              <option value="cover">Cover (crop)</option>
-              <option value="contain">Contain (fit)</option>
-              <option value="fill">Fill (stretch)</option>
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="fill">Fill</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs text-gray-400 mb-1">Focus Point</label>
-            <select id="tf-gravity" class="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+            <label class="block text-[10px] text-gray-500 mb-0.5">Focus</label>
+            <select id="tf-gravity" class="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:border-accent">
               <option value="">Default</option>
               <option value="center">Center</option>
-              <option value="face">Face detect</option>
+              <option value="face">Face</option>
               <option value="auto">Auto</option>
             </select>
           </div>
         </div>
-
-        <!-- Quality & Effects -->
-        <fieldset class="border border-border rounded-lg p-3">
-          <legend class="text-xs text-gray-400 px-1">Quality &amp; Effects</legend>
-          <div class="grid grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs text-gray-400 mb-1">Quality <span id="tf-q-val" class="text-accent font-mono">80</span>%</label>
-              <input type="range" id="tf-q" min="1" max="100" value="80" class="w-full accent-accent">
-            </div>
-            <div>
-              <label class="block text-xs text-gray-400 mb-1">Blur <span id="tf-blur-val" class="text-accent font-mono">0</span></label>
-              <input type="range" id="tf-blur" min="0" max="250" value="0" class="w-full accent-accent">
-            </div>
-            <div>
-              <label class="block text-xs text-gray-400 mb-1">Sharpen <span id="tf-sharp-val" class="text-accent font-mono">0</span></label>
-              <input type="range" id="tf-sharp" min="0" max="10" value="0" class="w-full accent-accent">
-            </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Quality <span id="tf-q-val" class="text-accent">80</span>%</label>
+            <input type="range" id="tf-q" min="1" max="100" value="80" class="w-full accent-accent">
           </div>
-        </fieldset>
-
-        <!-- Output URL -->
-        <div class="bg-card border border-accent/30 rounded-lg p-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-white">Generated URL</span>
-            <button id="tf-copy" class="text-xs bg-accent/20 text-accent-hover px-3 py-1 rounded hover:bg-accent/30 transition">Copy URL</button>
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Blur <span id="tf-blur-val" class="text-accent">0</span></label>
+            <input type="range" id="tf-blur" min="0" max="250" value="0" class="w-full accent-accent">
           </div>
-          <code id="tf-output" class="block text-xs text-green-400 break-all select-all leading-relaxed font-mono"></code>
-        </div>
-
-        <!-- Code snippets -->
-        <div class="bg-card border border-border rounded-lg p-3">
-          <p class="text-xs text-gray-400 mb-2">Use in your code:</p>
-          <div class="space-y-2">
-            <div>
-              <span class="text-[10px] text-gray-500 uppercase">HTML</span>
-              <code id="tf-snippet-html" class="block text-[11px] text-gray-300 bg-surface rounded p-2 break-all select-all font-mono"></code>
-            </div>
-            <div>
-              <span class="text-[10px] text-gray-500 uppercase">Markdown</span>
-              <code id="tf-snippet-md" class="block text-[11px] text-gray-300 bg-surface rounded p-2 break-all select-all font-mono"></code>
-            </div>
-            <div>
-              <span class="text-[10px] text-gray-500 uppercase">CSS Background</span>
-              <code id="tf-snippet-css" class="block text-[11px] text-gray-300 bg-surface rounded p-2 break-all select-all font-mono"></code>
-            </div>
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Sharpen <span id="tf-sharp-val" class="text-accent">0</span></label>
+            <input type="range" id="tf-sharp" min="0" max="10" value="0" class="w-full accent-accent">
           </div>
         </div>
       </div>
 
-      <!-- Live Preview -->
-      <div>
-        <h3 class="text-xs text-gray-400 mb-2 font-semibold uppercase tracking-wide">Live Preview</h3>
-        <div class="bg-card border border-border rounded-lg flex items-center justify-center overflow-hidden relative" style="min-height:400px;">
-          <img id="tf-preview" src="" alt="Transform preview" class="max-w-full max-h-[500px] object-contain" style="display:none;">
-          <p id="tf-placeholder" class="text-gray-500 text-sm text-center px-6">Pick a source image and adjust parameters to see a live preview</p>
+      <!-- Output -->
+      <div class="mt-4 bg-surface border border-accent/30 rounded-lg p-3">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-semibold text-white uppercase">Generated URL</span>
+          <button id="tf-copy" class="text-[11px] bg-accent text-white px-3 py-1 rounded hover:bg-accent-hover transition">Copy</button>
         </div>
+        <code id="tf-output" class="block text-[11px] text-green-400 break-all select-all leading-relaxed font-mono"></code>
+      </div>
 
-        <!-- Quick presets -->
-        <div class="mt-3">
-          <p class="text-xs text-gray-400 mb-2">Quick presets:</p>
-          <div class="flex flex-wrap gap-2">
-            <button class="tf-preset text-xs bg-card border border-border rounded-lg px-3 py-1.5 text-gray-300 hover:border-accent transition" data-w="64" data-h="64" data-fit="cover" data-fmt="webp" data-q="80">Favicon 64x64</button>
-            <button class="tf-preset text-xs bg-card border border-border rounded-lg px-3 py-1.5 text-gray-300 hover:border-accent transition" data-w="180" data-h="180" data-fit="cover" data-fmt="png" data-q="90">Apple Touch 180x180</button>
-            <button class="tf-preset text-xs bg-card border border-border rounded-lg px-3 py-1.5 text-gray-300 hover:border-accent transition" data-w="1200" data-h="630" data-fit="cover" data-fmt="webp" data-q="85">OG Image 1200x630</button>
-            <button class="tf-preset text-xs bg-card border border-border rounded-lg px-3 py-1.5 text-gray-300 hover:border-accent transition" data-w="400" data-h="0" data-fit="" data-fmt="avif" data-q="65">Thumbnail AVIF 400w</button>
-            <button class="tf-preset text-xs bg-card border border-border rounded-lg px-3 py-1.5 text-gray-300 hover:border-accent transition" data-w="0" data-h="0" data-fit="" data-fmt="webp" data-q="1" data-blur="20">Blur Placeholder</button>
-          </div>
-        </div>
+      <!-- Snippets -->
+      <div class="mt-3 space-y-1.5">
+        <div><span class="text-[9px] text-gray-500 uppercase">HTML</span><code id="tf-snippet-html" class="block text-[10px] text-gray-300 bg-surface rounded p-1.5 break-all select-all font-mono"></code></div>
+        <div><span class="text-[9px] text-gray-500 uppercase">Markdown</span><code id="tf-snippet-md" class="block text-[10px] text-gray-300 bg-surface rounded p-1.5 break-all select-all font-mono"></code></div>
+        <div><span class="text-[9px] text-gray-500 uppercase">CSS</span><code id="tf-snippet-css" class="block text-[10px] text-gray-300 bg-surface rounded p-1.5 break-all select-all font-mono"></code></div>
       </div>
     </div>
-  </main>
+  </aside>
 
   <!-- ===== TAB: Insights ===== -->
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-insights" style="display:none;">

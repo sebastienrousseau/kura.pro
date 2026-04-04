@@ -66,7 +66,6 @@
     }
 
     populateFilters();
-    populateAssetPicker();
     applyFilters();
 
     search.addEventListener('input', debounce(applyFilters, 150));
@@ -176,6 +175,7 @@
             <button class="copy-btn" data-type="url" title="Copy CDN URL">URL</button>
             <button class="copy-btn copy-btn-alt" data-type="markdown" title="Copy Markdown">MD</button>
             <button class="copy-btn copy-btn-alt" data-type="html" title="Copy HTML img tag">HTML</button>
+            <button class="copy-btn copy-btn-alt" data-type="transform" title="Open transform builder">Transform</button>
           </div>
         </div>
       </div>
@@ -195,6 +195,7 @@
       if (type === 'url') copyToClipboard(cdnUrl, 'URL');
       else if (type === 'markdown') copyToClipboard(`![${asset.name}](${cdnUrl})`, 'Markdown');
       else if (type === 'html') copyToClipboard(`<img src="${cdnUrl}" alt="${asset.name}">`, 'HTML');
+      else if (type === 'transform') openTransformPanel('/' + asset.path, asset.name);
     });
     return card;
   }
@@ -226,8 +227,11 @@
   }
 
   // ===================================================================
-  // TRANSFORM (URL BUILDER) TAB
+  // TRANSFORM SLIDE-OUT PANEL
   // ===================================================================
+  const tfPanel = document.getElementById('tf-panel');
+  const tfBackdrop = document.getElementById('tf-backdrop');
+  const tfClose = document.getElementById('tf-close');
   const tfUrl = document.getElementById('tf-url');
   const tfW = document.getElementById('tf-w');
   const tfH = document.getElementById('tf-h');
@@ -241,6 +245,33 @@
   const tfPreview = document.getElementById('tf-preview');
   const tfPlaceholder = document.getElementById('tf-placeholder');
   const tfCopy = document.getElementById('tf-copy');
+  const tfAssetName = document.getElementById('tf-asset-name');
+
+  function openTransformPanel(path, name) {
+    tfUrl.value = path;
+    tfAssetName.textContent = name;
+    // Reset to defaults
+    tfW.value = 800; tfH.value = 0; tfFormat.value = 'webp'; tfFit.value = '';
+    tfGravity.value = ''; tfQ.value = 80; tfBlur.value = 0; tfSharp.value = 0;
+    updateTransform();
+    tfBackdrop.style.display = '';
+    requestAnimationFrame(() => {
+      tfBackdrop.classList.add('open');
+      tfPanel.classList.add('open');
+    });
+  }
+
+  function closeTransformPanel() {
+    tfPanel.classList.remove('open');
+    tfBackdrop.classList.remove('open');
+    setTimeout(() => { tfBackdrop.style.display = 'none'; }, 250);
+  }
+
+  tfClose.addEventListener('click', closeTransformPanel);
+  tfBackdrop.addEventListener('click', closeTransformPanel);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && tfPanel.classList.contains('open')) closeTransformPanel();
+  });
 
   function buildTransformUrl(forPreview) {
     const base = (forPreview ? window.location.origin : 'https://cloudcdn.pro') + '/api/transform';
@@ -269,7 +300,6 @@
 
   let previewTimer = null;
   function updateTransform() {
-    // Update labels
     const w = parseInt(tfW.value);
     document.getElementById('tf-w-val').textContent = w > 0 ? w : 'auto';
     const h = parseInt(tfH.value);
@@ -280,39 +310,25 @@
 
     const url = buildTransformUrl(false);
     const previewUrl = buildTransformUrl(true);
-    tfOutput.textContent = url || 'Enter a source image URL';
+    tfOutput.textContent = url || '';
 
-    // Code snippets
     if (url) {
       document.getElementById('tf-snippet-html').textContent = `<img src="${url}" alt="Asset" loading="lazy">`;
       document.getElementById('tf-snippet-md').textContent = `![Asset](${url})`;
       document.getElementById('tf-snippet-css').textContent = `background-image: url('${url}');`;
-    } else {
-      document.getElementById('tf-snippet-html').textContent = '';
-      document.getElementById('tf-snippet-md').textContent = '';
-      document.getElementById('tf-snippet-css').textContent = '';
     }
 
-    // Debounce preview load
     clearTimeout(previewTimer);
     if (previewUrl) {
-      const url = previewUrl;
       previewTimer = setTimeout(() => {
-        tfPreview.onerror = () => {
-          tfPreview.style.display = 'none';
-          tfPlaceholder.style.display = '';
-          tfPlaceholder.innerHTML = 'Preview unavailable locally.<br><span style="font-size:0.75rem;color:var(--text-dim);">The Transform API requires Cloudflare Image Resizing.<br>Deploy to production or run with <code style="color:#a5b4fc;">wrangler pages dev</code>.</span>';
-        };
-        tfPreview.onload = () => {
-          tfPreview.style.display = '';
-          tfPlaceholder.style.display = 'none';
-        };
-        tfPreview.src = url;
-      }, 500);
+        tfPreview.onerror = () => { tfPreview.style.display = 'none'; tfPlaceholder.style.display = ''; };
+        tfPreview.onload = () => { tfPreview.style.display = ''; tfPlaceholder.style.display = 'none'; };
+        tfPreview.src = previewUrl;
+      }, 400);
     }
   }
 
-  [tfUrl, tfW, tfH, tfFormat, tfFit, tfGravity, tfQ, tfBlur, tfSharp].forEach(el => {
+  [tfW, tfH, tfFormat, tfFit, tfGravity, tfQ, tfBlur, tfSharp].forEach(el => {
     el.addEventListener('input', updateTransform);
     el.addEventListener('change', updateTransform);
   });
@@ -322,39 +338,6 @@
     if (url) copyToClipboard(url, 'Transform URL');
   });
 
-  // Asset picker — populate with image assets from manifest
-  const tfPicker = document.getElementById('tf-picker');
-  function populateAssetPicker() {
-    // Prefer .png and .svg sources (best input for transforms), skip derivatives
-    const sources = manifest.filter(a => a.format === 'png' || a.format === 'svg');
-    // Group by project — pick one representative (prefer logos > banners > any)
-    const byProject = {};
-    for (const a of sources) {
-      const existing = byProject[a.project];
-      if (!existing) {
-        byProject[a.project] = a;
-      } else {
-        const rank = (x) => x.category === 'logos' ? 0 : x.category === 'banners' ? 1 : 2;
-        if (rank(a) < rank(existing)) byProject[a.project] = a;
-      }
-    }
-    const picks = Object.values(byProject).sort((a, b) => a.project.localeCompare(b.project));
-    for (const a of picks) {
-      const opt = document.createElement('option');
-      opt.value = '/' + a.path;
-      opt.textContent = `${a.project} / ${a.name}`;
-      tfPicker.appendChild(opt);
-    }
-  }
-
-  tfPicker.addEventListener('change', () => {
-    if (tfPicker.value) {
-      tfUrl.value = tfPicker.value;
-      updateTransform();
-    }
-  });
-
-  // Presets
   document.querySelectorAll('.tf-preset').forEach(btn => {
     btn.addEventListener('click', () => {
       tfW.value = btn.dataset.w || '0';
@@ -367,9 +350,6 @@
       updateTransform();
     });
   });
-
-  // Initial render
-  updateTransform();
 
   // ===================================================================
   // INSIGHTS TAB

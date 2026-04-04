@@ -19432,2150 +19432,6 @@
     "size": 3084
   },
   {
-    "name": "banner-cmn.avif",
-    "path": "cmn/images/banners/banner-cmn.avif",
-    "project": "cmn",
-    "category": "banners",
-    "format": "avif",
-    "size": 18595
-  },
-  {
-    "name": "banner-cmn.png",
-    "path": "cmn/images/banners/banner-cmn.png",
-    "project": "cmn",
-    "category": "banners",
-    "format": "png",
-    "size": 41711
-  },
-  {
-    "name": "banner-cmn.svg",
-    "path": "cmn/images/banners/banner-cmn.svg",
-    "project": "cmn",
-    "category": "banners",
-    "format": "svg",
-    "size": 80004
-  },
-  {
-    "name": "banner-cmn.webp",
-    "path": "cmn/images/banners/banner-cmn.webp",
-    "project": "cmn",
-    "category": "banners",
-    "format": "webp",
-    "size": 25982
-  },
-  {
-    "name": "favicon.ico",
-    "path": "cmn/images/favicon.ico",
-    "project": "cmn",
-    "category": "favicon.ico",
-    "format": "ico",
-    "size": 397669
-  },
-  {
-    "name": "github-cmn.avif",
-    "path": "cmn/images/github/github-cmn.avif",
-    "project": "cmn",
-    "category": "github",
-    "format": "avif",
-    "size": 53626
-  },
-  {
-    "name": "github-cmn.png",
-    "path": "cmn/images/github/github-cmn.png",
-    "project": "cmn",
-    "category": "github",
-    "format": "png",
-    "size": 164713
-  },
-  {
-    "name": "github-cmn.svg",
-    "path": "cmn/images/github/github-cmn.svg",
-    "project": "cmn",
-    "category": "github",
-    "format": "svg",
-    "size": 956935
-  },
-  {
-    "name": "github-cmn.webp",
-    "path": "cmn/images/github/github-cmn.webp",
-    "project": "cmn",
-    "category": "github",
-    "format": "webp",
-    "size": 88864
-  },
-  {
-    "name": "114x114.avif",
-    "path": "cmn/images/icons/114x114.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 4676
-  },
-  {
-    "name": "114x114.png",
-    "path": "cmn/images/icons/114x114.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 7228
-  },
-  {
-    "name": "114x114.webp",
-    "path": "cmn/images/icons/114x114.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 4382
-  },
-  {
-    "name": "114x114@2x.avif",
-    "path": "cmn/images/icons/114x114@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 8908
-  },
-  {
-    "name": "114x114@2x.png",
-    "path": "cmn/images/icons/114x114@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 15816
-  },
-  {
-    "name": "114x114@2x.webp",
-    "path": "cmn/images/icons/114x114@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 9516
-  },
-  {
-    "name": "114x114@3x.avif",
-    "path": "cmn/images/icons/114x114@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 12582
-  },
-  {
-    "name": "114x114@3x.png",
-    "path": "cmn/images/icons/114x114@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 25379
-  },
-  {
-    "name": "114x114@3x.webp",
-    "path": "cmn/images/icons/114x114@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 14480
-  },
-  {
-    "name": "120x120.avif",
-    "path": "cmn/images/icons/120x120.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 4837
-  },
-  {
-    "name": "120x120.png",
-    "path": "cmn/images/icons/120x120.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 7657
-  },
-  {
-    "name": "120x120.webp",
-    "path": "cmn/images/icons/120x120.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 4604
-  },
-  {
-    "name": "120x120@2x.avif",
-    "path": "cmn/images/icons/120x120@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 9238
-  },
-  {
-    "name": "120x120@2x.png",
-    "path": "cmn/images/icons/120x120@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 16811
-  },
-  {
-    "name": "120x120@2x.webp",
-    "path": "cmn/images/icons/120x120@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 9888
-  },
-  {
-    "name": "120x120@3x.avif",
-    "path": "cmn/images/icons/120x120@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 12949
-  },
-  {
-    "name": "120x120@3x.png",
-    "path": "cmn/images/icons/120x120@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 27127
-  },
-  {
-    "name": "120x120@3x.webp",
-    "path": "cmn/images/icons/120x120@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 15596
-  },
-  {
-    "name": "130x130.avif",
-    "path": "cmn/images/icons/130x130.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 5198
-  },
-  {
-    "name": "130x130.png",
-    "path": "cmn/images/icons/130x130.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 8418
-  },
-  {
-    "name": "130x130.webp",
-    "path": "cmn/images/icons/130x130.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 5036
-  },
-  {
-    "name": "130x130@2x.avif",
-    "path": "cmn/images/icons/130x130@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 9866
-  },
-  {
-    "name": "130x130@2x.png",
-    "path": "cmn/images/icons/130x130@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 18531
-  },
-  {
-    "name": "130x130@2x.webp",
-    "path": "cmn/images/icons/130x130@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 10900
-  },
-  {
-    "name": "130x130@3x.avif",
-    "path": "cmn/images/icons/130x130@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 14007
-  },
-  {
-    "name": "130x130@3x.png",
-    "path": "cmn/images/icons/130x130@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 29920
-  },
-  {
-    "name": "130x130@3x.webp",
-    "path": "cmn/images/icons/130x130@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 16520
-  },
-  {
-    "name": "144x144.avif",
-    "path": "cmn/images/icons/144x144.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 5785
-  },
-  {
-    "name": "144x144.png",
-    "path": "cmn/images/icons/144x144.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 9379
-  },
-  {
-    "name": "144x144.webp",
-    "path": "cmn/images/icons/144x144.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 5580
-  },
-  {
-    "name": "144x144@2x.avif",
-    "path": "cmn/images/icons/144x144@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 10777
-  },
-  {
-    "name": "144x144@2x.png",
-    "path": "cmn/images/icons/144x144@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 20861
-  },
-  {
-    "name": "144x144@2x.webp",
-    "path": "cmn/images/icons/144x144@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 12044
-  },
-  {
-    "name": "144x144@3x.avif",
-    "path": "cmn/images/icons/144x144@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 15251
-  },
-  {
-    "name": "144x144@3x.png",
-    "path": "cmn/images/icons/144x144@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 33610
-  },
-  {
-    "name": "144x144@3x.webp",
-    "path": "cmn/images/icons/144x144@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 18700
-  },
-  {
-    "name": "150x150.avif",
-    "path": "cmn/images/icons/150x150.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 6058
-  },
-  {
-    "name": "150x150.png",
-    "path": "cmn/images/icons/150x150.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 9871
-  },
-  {
-    "name": "150x150.webp",
-    "path": "cmn/images/icons/150x150.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 5958
-  },
-  {
-    "name": "150x150@2x.avif",
-    "path": "cmn/images/icons/150x150@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 11122
-  },
-  {
-    "name": "150x150@2x.png",
-    "path": "cmn/images/icons/150x150@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 21760
-  },
-  {
-    "name": "150x150@2x.webp",
-    "path": "cmn/images/icons/150x150@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 12544
-  },
-  {
-    "name": "150x150@3x.avif",
-    "path": "cmn/images/icons/150x150@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 16780
-  },
-  {
-    "name": "150x150@3x.png",
-    "path": "cmn/images/icons/150x150@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 36278
-  },
-  {
-    "name": "150x150@3x.webp",
-    "path": "cmn/images/icons/150x150@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 19898
-  },
-  {
-    "name": "152x152.avif",
-    "path": "cmn/images/icons/152x152.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 6206
-  },
-  {
-    "name": "152x152.png",
-    "path": "cmn/images/icons/152x152.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 9913
-  },
-  {
-    "name": "152x152.webp",
-    "path": "cmn/images/icons/152x152.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 6000
-  },
-  {
-    "name": "152x152@2x.avif",
-    "path": "cmn/images/icons/152x152@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 11455
-  },
-  {
-    "name": "152x152@2x.png",
-    "path": "cmn/images/icons/152x152@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 22328
-  },
-  {
-    "name": "152x152@2x.webp",
-    "path": "cmn/images/icons/152x152@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 12906
-  },
-  {
-    "name": "152x152@3x.avif",
-    "path": "cmn/images/icons/152x152@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 16705
-  },
-  {
-    "name": "152x152@3x.png",
-    "path": "cmn/images/icons/152x152@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 36737
-  },
-  {
-    "name": "152x152@3x.webp",
-    "path": "cmn/images/icons/152x152@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 19920
-  },
-  {
-    "name": "167x167.avif",
-    "path": "cmn/images/icons/167x167.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 6681
-  },
-  {
-    "name": "167x167.png",
-    "path": "cmn/images/icons/167x167.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 11026
-  },
-  {
-    "name": "167x167.webp",
-    "path": "cmn/images/icons/167x167.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 6742
-  },
-  {
-    "name": "167x167@2x.avif",
-    "path": "cmn/images/icons/167x167@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 12418
-  },
-  {
-    "name": "167x167@2x.png",
-    "path": "cmn/images/icons/167x167@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 24683
-  },
-  {
-    "name": "167x167@2x.webp",
-    "path": "cmn/images/icons/167x167@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 14166
-  },
-  {
-    "name": "167x167@3x.avif",
-    "path": "cmn/images/icons/167x167@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 18385
-  },
-  {
-    "name": "167x167@3x.png",
-    "path": "cmn/images/icons/167x167@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 41096
-  },
-  {
-    "name": "167x167@3x.webp",
-    "path": "cmn/images/icons/167x167@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 22330
-  },
-  {
-    "name": "16x16.avif",
-    "path": "cmn/images/icons/16x16.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 839
-  },
-  {
-    "name": "16x16.png",
-    "path": "cmn/images/icons/16x16.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 660
-  },
-  {
-    "name": "16x16.webp",
-    "path": "cmn/images/icons/16x16.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 426
-  },
-  {
-    "name": "16x16@2x.avif",
-    "path": "cmn/images/icons/16x16@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 1493
-  },
-  {
-    "name": "16x16@2x.png",
-    "path": "cmn/images/icons/16x16@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 1659
-  },
-  {
-    "name": "16x16@2x.webp",
-    "path": "cmn/images/icons/16x16@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 1036
-  },
-  {
-    "name": "16x16@3x.avif",
-    "path": "cmn/images/icons/16x16@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 2135
-  },
-  {
-    "name": "16x16@3x.png",
-    "path": "cmn/images/icons/16x16@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 2666
-  },
-  {
-    "name": "16x16@3x.webp",
-    "path": "cmn/images/icons/16x16@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 1624
-  },
-  {
-    "name": "180x180.avif",
-    "path": "cmn/images/icons/180x180.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 7240
-  },
-  {
-    "name": "180x180.png",
-    "path": "cmn/images/icons/180x180.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 12144
-  },
-  {
-    "name": "180x180.webp",
-    "path": "cmn/images/icons/180x180.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 7242
-  },
-  {
-    "name": "180x180@2x.avif",
-    "path": "cmn/images/icons/180x180@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 12949
-  },
-  {
-    "name": "180x180@2x.png",
-    "path": "cmn/images/icons/180x180@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 27127
-  },
-  {
-    "name": "180x180@2x.webp",
-    "path": "cmn/images/icons/180x180@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 15596
-  },
-  {
-    "name": "180x180@3x.avif",
-    "path": "cmn/images/icons/180x180@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 20395
-  },
-  {
-    "name": "180x180@3x.png",
-    "path": "cmn/images/icons/180x180@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 44575
-  },
-  {
-    "name": "180x180@3x.webp",
-    "path": "cmn/images/icons/180x180@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 24184
-  },
-  {
-    "name": "192x192.avif",
-    "path": "cmn/images/icons/192x192.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 7525
-  },
-  {
-    "name": "192x192.png",
-    "path": "cmn/images/icons/192x192.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 13102
-  },
-  {
-    "name": "192x192.webp",
-    "path": "cmn/images/icons/192x192.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 7710
-  },
-  {
-    "name": "192x192@2x.avif",
-    "path": "cmn/images/icons/192x192@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 14041
-  },
-  {
-    "name": "192x192@2x.png",
-    "path": "cmn/images/icons/192x192@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 29352
-  },
-  {
-    "name": "192x192@2x.webp",
-    "path": "cmn/images/icons/192x192@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 16306
-  },
-  {
-    "name": "192x192@3x.avif",
-    "path": "cmn/images/icons/192x192@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 21270
-  },
-  {
-    "name": "192x192@3x.png",
-    "path": "cmn/images/icons/192x192@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 48161
-  },
-  {
-    "name": "192x192@3x.webp",
-    "path": "cmn/images/icons/192x192@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 25514
-  },
-  {
-    "name": "196x196.avif",
-    "path": "cmn/images/icons/196x196.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 7673
-  },
-  {
-    "name": "196x196.png",
-    "path": "cmn/images/icons/196x196.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 13327
-  },
-  {
-    "name": "196x196.webp",
-    "path": "cmn/images/icons/196x196.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 8028
-  },
-  {
-    "name": "196x196@2x.avif",
-    "path": "cmn/images/icons/196x196@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 14273
-  },
-  {
-    "name": "196x196@2x.png",
-    "path": "cmn/images/icons/196x196@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 29941
-  },
-  {
-    "name": "196x196@2x.webp",
-    "path": "cmn/images/icons/196x196@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 16650
-  },
-  {
-    "name": "196x196@3x.avif",
-    "path": "cmn/images/icons/196x196@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 21603
-  },
-  {
-    "name": "196x196@3x.png",
-    "path": "cmn/images/icons/196x196@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 49362
-  },
-  {
-    "name": "196x196@3x.webp",
-    "path": "cmn/images/icons/196x196@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 26798
-  },
-  {
-    "name": "256x256.avif",
-    "path": "cmn/images/icons/256x256.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 9864
-  },
-  {
-    "name": "256x256.png",
-    "path": "cmn/images/icons/256x256.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 18236
-  },
-  {
-    "name": "256x256.webp",
-    "path": "cmn/images/icons/256x256.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 10698
-  },
-  {
-    "name": "256x256@2x.avif",
-    "path": "cmn/images/icons/256x256@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 19532
-  },
-  {
-    "name": "256x256@2x.png",
-    "path": "cmn/images/icons/256x256@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 42080
-  },
-  {
-    "name": "256x256@2x.webp",
-    "path": "cmn/images/icons/256x256@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 22476
-  },
-  {
-    "name": "256x256@3x.avif",
-    "path": "cmn/images/icons/256x256@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 25614
-  },
-  {
-    "name": "256x256@3x.png",
-    "path": "cmn/images/icons/256x256@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 66415
-  },
-  {
-    "name": "256x256@3x.webp",
-    "path": "cmn/images/icons/256x256@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 34868
-  },
-  {
-    "name": "310x310.avif",
-    "path": "cmn/images/icons/310x310.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 11582
-  },
-  {
-    "name": "310x310.png",
-    "path": "cmn/images/icons/310x310.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 22606
-  },
-  {
-    "name": "310x310.webp",
-    "path": "cmn/images/icons/310x310.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 12924
-  },
-  {
-    "name": "310x310@2x.avif",
-    "path": "cmn/images/icons/310x310@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 23056
-  },
-  {
-    "name": "310x310@2x.png",
-    "path": "cmn/images/icons/310x310@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 52235
-  },
-  {
-    "name": "310x310@2x.webp",
-    "path": "cmn/images/icons/310x310@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 28232
-  },
-  {
-    "name": "310x310@3x.avif",
-    "path": "cmn/images/icons/310x310@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 33648
-  },
-  {
-    "name": "310x310@3x.png",
-    "path": "cmn/images/icons/310x310@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 83688
-  },
-  {
-    "name": "310x310@3x.webp",
-    "path": "cmn/images/icons/310x310@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 45256
-  },
-  {
-    "name": "32x32.avif",
-    "path": "cmn/images/icons/32x32.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 1493
-  },
-  {
-    "name": "32x32.png",
-    "path": "cmn/images/icons/32x32.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 1659
-  },
-  {
-    "name": "32x32.webp",
-    "path": "cmn/images/icons/32x32.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 1036
-  },
-  {
-    "name": "32x32@2x.avif",
-    "path": "cmn/images/icons/32x32@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 2817
-  },
-  {
-    "name": "32x32@2x.png",
-    "path": "cmn/images/icons/32x32@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 3815
-  },
-  {
-    "name": "32x32@2x.webp",
-    "path": "cmn/images/icons/32x32@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 2194
-  },
-  {
-    "name": "32x32@3x.avif",
-    "path": "cmn/images/icons/32x32@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 4017
-  },
-  {
-    "name": "32x32@3x.png",
-    "path": "cmn/images/icons/32x32@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 6043
-  },
-  {
-    "name": "32x32@3x.webp",
-    "path": "cmn/images/icons/32x32@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 3610
-  },
-  {
-    "name": "384x384.avif",
-    "path": "cmn/images/icons/384x384.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 14041
-  },
-  {
-    "name": "384x384.png",
-    "path": "cmn/images/icons/384x384.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 29352
-  },
-  {
-    "name": "384x384.webp",
-    "path": "cmn/images/icons/384x384.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 16306
-  },
-  {
-    "name": "384x384@2x.avif",
-    "path": "cmn/images/icons/384x384@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 28269
-  },
-  {
-    "name": "384x384@2x.png",
-    "path": "cmn/images/icons/384x384@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 67187
-  },
-  {
-    "name": "384x384@2x.webp",
-    "path": "cmn/images/icons/384x384@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 35468
-  },
-  {
-    "name": "384x384@3x.avif",
-    "path": "cmn/images/icons/384x384@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 42149
-  },
-  {
-    "name": "384x384@3x.png",
-    "path": "cmn/images/icons/384x384@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 107732
-  },
-  {
-    "name": "384x384@3x.webp",
-    "path": "cmn/images/icons/384x384@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 56550
-  },
-  {
-    "name": "48x48.avif",
-    "path": "cmn/images/icons/48x48.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 2135
-  },
-  {
-    "name": "48x48.png",
-    "path": "cmn/images/icons/48x48.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 2666
-  },
-  {
-    "name": "48x48.webp",
-    "path": "cmn/images/icons/48x48.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 1624
-  },
-  {
-    "name": "48x48@2x.avif",
-    "path": "cmn/images/icons/48x48@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 4017
-  },
-  {
-    "name": "48x48@2x.png",
-    "path": "cmn/images/icons/48x48@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 6043
-  },
-  {
-    "name": "48x48@2x.webp",
-    "path": "cmn/images/icons/48x48@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 3610
-  },
-  {
-    "name": "48x48@3x.avif",
-    "path": "cmn/images/icons/48x48@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 5785
-  },
-  {
-    "name": "48x48@3x.png",
-    "path": "cmn/images/icons/48x48@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 9379
-  },
-  {
-    "name": "48x48@3x.webp",
-    "path": "cmn/images/icons/48x48@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 5580
-  },
-  {
-    "name": "512x512.avif",
-    "path": "cmn/images/icons/512x512.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 19532
-  },
-  {
-    "name": "512x512.png",
-    "path": "cmn/images/icons/512x512.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 42080
-  },
-  {
-    "name": "512x512.webp",
-    "path": "cmn/images/icons/512x512.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 22476
-  },
-  {
-    "name": "512x512@2x.avif",
-    "path": "cmn/images/icons/512x512@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 36861
-  },
-  {
-    "name": "512x512@2x.png",
-    "path": "cmn/images/icons/512x512@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 93780
-  },
-  {
-    "name": "512x512@2x.webp",
-    "path": "cmn/images/icons/512x512@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 48950
-  },
-  {
-    "name": "512x512@3x.avif",
-    "path": "cmn/images/icons/512x512@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 55716
-  },
-  {
-    "name": "512x512@3x.png",
-    "path": "cmn/images/icons/512x512@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 151561
-  },
-  {
-    "name": "512x512@3x.webp",
-    "path": "cmn/images/icons/512x512@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 80234
-  },
-  {
-    "name": "57x57.avif",
-    "path": "cmn/images/icons/57x57.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 2628
-  },
-  {
-    "name": "57x57.png",
-    "path": "cmn/images/icons/57x57.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 3297
-  },
-  {
-    "name": "57x57.webp",
-    "path": "cmn/images/icons/57x57.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 2054
-  },
-  {
-    "name": "57x57@2x.avif",
-    "path": "cmn/images/icons/57x57@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 4676
-  },
-  {
-    "name": "57x57@2x.png",
-    "path": "cmn/images/icons/57x57@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 7228
-  },
-  {
-    "name": "57x57@2x.webp",
-    "path": "cmn/images/icons/57x57@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 4382
-  },
-  {
-    "name": "57x57@3x.avif",
-    "path": "cmn/images/icons/57x57@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 6929
-  },
-  {
-    "name": "57x57@3x.png",
-    "path": "cmn/images/icons/57x57@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 11373
-  },
-  {
-    "name": "57x57@3x.webp",
-    "path": "cmn/images/icons/57x57@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 6842
-  },
-  {
-    "name": "60x60.avif",
-    "path": "cmn/images/icons/60x60.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 2687
-  },
-  {
-    "name": "60x60.png",
-    "path": "cmn/images/icons/60x60.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 3482
-  },
-  {
-    "name": "60x60.webp",
-    "path": "cmn/images/icons/60x60.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 2176
-  },
-  {
-    "name": "60x60@2x.avif",
-    "path": "cmn/images/icons/60x60@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 4837
-  },
-  {
-    "name": "60x60@2x.png",
-    "path": "cmn/images/icons/60x60@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 7657
-  },
-  {
-    "name": "60x60@2x.webp",
-    "path": "cmn/images/icons/60x60@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 4604
-  },
-  {
-    "name": "60x60@3x.avif",
-    "path": "cmn/images/icons/60x60@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 7240
-  },
-  {
-    "name": "60x60@3x.png",
-    "path": "cmn/images/icons/60x60@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 12144
-  },
-  {
-    "name": "60x60@3x.webp",
-    "path": "cmn/images/icons/60x60@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 7242
-  },
-  {
-    "name": "70x70.avif",
-    "path": "cmn/images/icons/70x70.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 3032
-  },
-  {
-    "name": "70x70.png",
-    "path": "cmn/images/icons/70x70.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 4247
-  },
-  {
-    "name": "70x70.webp",
-    "path": "cmn/images/icons/70x70.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 2538
-  },
-  {
-    "name": "70x70@2x.avif",
-    "path": "cmn/images/icons/70x70@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 5778
-  },
-  {
-    "name": "70x70@2x.png",
-    "path": "cmn/images/icons/70x70@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 9134
-  },
-  {
-    "name": "70x70@2x.webp",
-    "path": "cmn/images/icons/70x70@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 5506
-  },
-  {
-    "name": "70x70@3x.avif",
-    "path": "cmn/images/icons/70x70@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 8238
-  },
-  {
-    "name": "70x70@3x.png",
-    "path": "cmn/images/icons/70x70@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 14353
-  },
-  {
-    "name": "70x70@3x.webp",
-    "path": "cmn/images/icons/70x70@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 8564
-  },
-  {
-    "name": "72x72.avif",
-    "path": "cmn/images/icons/72x72.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 3019
-  },
-  {
-    "name": "72x72.png",
-    "path": "cmn/images/icons/72x72.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 4311
-  },
-  {
-    "name": "72x72.webp",
-    "path": "cmn/images/icons/72x72.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 2578
-  },
-  {
-    "name": "72x72@2x.avif",
-    "path": "cmn/images/icons/72x72@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 5785
-  },
-  {
-    "name": "72x72@2x.png",
-    "path": "cmn/images/icons/72x72@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 9379
-  },
-  {
-    "name": "72x72@2x.webp",
-    "path": "cmn/images/icons/72x72@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 5580
-  },
-  {
-    "name": "72x72@3x.avif",
-    "path": "cmn/images/icons/72x72@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 8431
-  },
-  {
-    "name": "72x72@3x.png",
-    "path": "cmn/images/icons/72x72@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 14881
-  },
-  {
-    "name": "72x72@3x.webp",
-    "path": "cmn/images/icons/72x72@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 8844
-  },
-  {
-    "name": "76x76.avif",
-    "path": "cmn/images/icons/76x76.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 3265
-  },
-  {
-    "name": "76x76.png",
-    "path": "cmn/images/icons/76x76.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 4606
-  },
-  {
-    "name": "76x76.webp",
-    "path": "cmn/images/icons/76x76.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 2748
-  },
-  {
-    "name": "76x76@2x.avif",
-    "path": "cmn/images/icons/76x76@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 6206
-  },
-  {
-    "name": "76x76@2x.png",
-    "path": "cmn/images/icons/76x76@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 9913
-  },
-  {
-    "name": "76x76@2x.webp",
-    "path": "cmn/images/icons/76x76@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 6000
-  },
-  {
-    "name": "76x76@3x.avif",
-    "path": "cmn/images/icons/76x76@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 8908
-  },
-  {
-    "name": "76x76@3x.png",
-    "path": "cmn/images/icons/76x76@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 15816
-  },
-  {
-    "name": "76x76@3x.webp",
-    "path": "cmn/images/icons/76x76@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 9516
-  },
-  {
-    "name": "96x96.avif",
-    "path": "cmn/images/icons/96x96.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 4017
-  },
-  {
-    "name": "96x96.png",
-    "path": "cmn/images/icons/96x96.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 6043
-  },
-  {
-    "name": "96x96.webp",
-    "path": "cmn/images/icons/96x96.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 3610
-  },
-  {
-    "name": "96x96@2x.avif",
-    "path": "cmn/images/icons/96x96@2x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 7525
-  },
-  {
-    "name": "96x96@2x.png",
-    "path": "cmn/images/icons/96x96@2x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 13102
-  },
-  {
-    "name": "96x96@2x.webp",
-    "path": "cmn/images/icons/96x96@2x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 7710
-  },
-  {
-    "name": "96x96@3x.avif",
-    "path": "cmn/images/icons/96x96@3x.avif",
-    "project": "cmn",
-    "category": "icons",
-    "format": "avif",
-    "size": 10777
-  },
-  {
-    "name": "96x96@3x.png",
-    "path": "cmn/images/icons/96x96@3x.png",
-    "project": "cmn",
-    "category": "icons",
-    "format": "png",
-    "size": 20861
-  },
-  {
-    "name": "96x96@3x.webp",
-    "path": "cmn/images/icons/96x96@3x.webp",
-    "project": "cmn",
-    "category": "icons",
-    "format": "webp",
-    "size": 12044
-  },
-  {
-    "name": "cmn.avif",
-    "path": "cmn/images/logos/cmn.avif",
-    "project": "cmn",
-    "category": "logos",
-    "format": "avif",
-    "size": 128278
-  },
-  {
-    "name": "cmn.png",
-    "path": "cmn/images/logos/cmn.png",
-    "project": "cmn",
-    "category": "logos",
-    "format": "png",
-    "size": 359622
-  },
-  {
-    "name": "cmn.svg",
-    "path": "cmn/images/logos/cmn.svg",
-    "project": "cmn",
-    "category": "logos",
-    "format": "svg",
-    "size": 955807
-  },
-  {
-    "name": "cmn.webp",
-    "path": "cmn/images/logos/cmn.webp",
-    "project": "cmn",
-    "category": "logos",
-    "format": "webp",
-    "size": 137902
-  },
-  {
-    "name": "title-cmn.avif",
-    "path": "cmn/images/titles/title-cmn.avif",
-    "project": "cmn",
-    "category": "titles",
-    "format": "avif",
-    "size": 8932
-  },
-  {
-    "name": "title-cmn.png",
-    "path": "cmn/images/titles/title-cmn.png",
-    "project": "cmn",
-    "category": "titles",
-    "format": "png",
-    "size": 9687
-  },
-  {
-    "name": "title-cmn.svg",
-    "path": "cmn/images/titles/title-cmn.svg",
-    "project": "cmn",
-    "category": "titles",
-    "format": "svg",
-    "size": 38378
-  },
-  {
-    "name": "title-cmn.webp",
-    "path": "cmn/images/titles/title-cmn.webp",
-    "project": "cmn",
-    "category": "titles",
-    "format": "webp",
-    "size": 8970
-  },
-  {
-    "name": "button-browser.avif",
-    "path": "common/images/buttons/button-browser.avif",
-    "project": "common",
-    "category": "buttons",
-    "format": "avif",
-    "size": 1071
-  },
-  {
-    "name": "button-browser.png",
-    "path": "common/images/buttons/button-browser.png",
-    "project": "common",
-    "category": "buttons",
-    "format": "png",
-    "size": 1028
-  },
-  {
-    "name": "button-browser.svg",
-    "path": "common/images/buttons/button-browser.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1024
-  },
-  {
-    "name": "button-browser.webp",
-    "path": "common/images/buttons/button-browser.webp",
-    "project": "common",
-    "category": "buttons",
-    "format": "webp",
-    "size": 624
-  },
-  {
-    "name": "button-primary.svg",
-    "path": "common/images/buttons/button-primary.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 6995
-  },
-  {
-    "name": "button-secondary.svg",
-    "path": "common/images/buttons/button-secondary.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 3767
-  },
-  {
-    "name": "facebook-black.svg",
-    "path": "common/images/buttons/facebook-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 436
-  },
-  {
-    "name": "facebook-speech-bubble-21674.svg",
-    "path": "common/images/buttons/facebook-speech-bubble-21674.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 514
-  },
-  {
-    "name": "facebook-white.svg",
-    "path": "common/images/buttons/facebook-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 571
-  },
-  {
-    "name": "github-black.svg",
-    "path": "common/images/buttons/github-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 959
-  },
-  {
-    "name": "github-speech-bubble-21690.svg",
-    "path": "common/images/buttons/github-speech-bubble-21690.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1002
-  },
-  {
-    "name": "github-white.svg",
-    "path": "common/images/buttons/github-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1281
-  },
-  {
-    "name": "instagram-black.svg",
-    "path": "common/images/buttons/instagram-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 929
-  },
-  {
-    "name": "instagram-speech-bubble-21669.svg",
-    "path": "common/images/buttons/instagram-speech-bubble-21669.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 785
-  },
-  {
-    "name": "instagram-white.svg",
-    "path": "common/images/buttons/instagram-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1173
-  },
-  {
-    "name": "linkedin-black.svg",
-    "path": "common/images/buttons/linkedin-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 620
-  },
-  {
-    "name": "linkedin-speech-bubble--21671.svg",
-    "path": "common/images/buttons/linkedin-speech-bubble--21671.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 710
-  },
-  {
-    "name": "linkedin-white.svg",
-    "path": "common/images/buttons/linkedin-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 824
-  },
-  {
-    "name": "medium-black.svg",
-    "path": "common/images/buttons/medium-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 652
-  },
-  {
-    "name": "medium-speech-bubble-21698.svg",
-    "path": "common/images/buttons/medium-speech-bubble-21698.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 739
-  },
-  {
-    "name": "medium-white.svg",
-    "path": "common/images/buttons/medium-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 884
-  },
-  {
-    "name": "skype-black.svg",
-    "path": "common/images/buttons/skype-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1391
-  },
-  {
-    "name": "skype-blue-speech-bubble-21697.svg",
-    "path": "common/images/buttons/skype-blue-speech-bubble-21697.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1399
-  },
-  {
-    "name": "skype-white.svg",
-    "path": "common/images/buttons/skype-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1865
-  },
-  {
-    "name": "threads-black.svg",
-    "path": "common/images/buttons/threads-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 3742
-  },
-  {
-    "name": "threads-color.svg",
-    "path": "common/images/buttons/threads-color.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 2662
-  },
-  {
-    "name": "threads-white.svg",
-    "path": "common/images/buttons/threads-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 2553
-  },
-  {
-    "name": "whatsapp-black.svg",
-    "path": "common/images/buttons/whatsapp-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1365
-  },
-  {
-    "name": "whatsapp-speech-bubble-21687.svg",
-    "path": "common/images/buttons/whatsapp-speech-bubble-21687.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1374
-  },
-  {
-    "name": "whatsapp-white.svg",
-    "path": "common/images/buttons/whatsapp-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 1839
-  },
-  {
-    "name": "x-black.svg",
-    "path": "common/images/buttons/x-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 485
-  },
-  {
-    "name": "x-speech-bubble-blue-logo-21670.svg",
-    "path": "common/images/buttons/x-speech-bubble-blue-logo-21670.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 551
-  },
-  {
-    "name": "x-white.svg",
-    "path": "common/images/buttons/x-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 557
-  },
-  {
-    "name": "youtube-black.svg",
-    "path": "common/images/buttons/youtube-black.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 716
-  },
-  {
-    "name": "youtube-speech-bubble-21668.svg",
-    "path": "common/images/buttons/youtube-speech-bubble-21668.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 351
-  },
-  {
-    "name": "youtube-white.svg",
-    "path": "common/images/buttons/youtube-white.svg",
-    "project": "common",
-    "category": "buttons",
-    "format": "svg",
-    "size": 893
-  },
-  {
-    "name": "divider.svg",
-    "path": "common/images/elements/divider.svg",
-    "project": "common",
-    "category": "elements",
-    "format": "svg",
-    "size": 145
-  },
-  {
-    "name": "publication.webp",
-    "path": "common/images/elements/publication.webp",
-    "project": "common",
-    "category": "elements",
-    "format": "webp",
-    "size": 72524
-  },
-  {
-    "name": "made-with-go.svg",
-    "path": "common/images/shields/made-with-go.svg",
-    "project": "common",
-    "category": "shields",
-    "format": "svg",
-    "size": 1672
-  },
-  {
-    "name": "made-with-jupyter.svg",
-    "path": "common/images/shields/made-with-jupyter.svg",
-    "project": "common",
-    "category": "shields",
-    "format": "svg",
-    "size": 1875
-  },
-  {
-    "name": "made-with-love.svg",
-    "path": "common/images/shields/made-with-love.svg",
-    "project": "common",
-    "category": "shields",
-    "format": "svg",
-    "size": 1406
-  },
-  {
-    "name": "made-with-python.svg",
-    "path": "common/images/shields/made-with-python.svg",
-    "project": "common",
-    "category": "shields",
-    "format": "svg",
-    "size": 3485
-  },
-  {
-    "name": "made-with-rust.svg",
-    "path": "common/images/shields/made-with-rust.svg",
-    "project": "common",
-    "category": "shields",
-    "format": "svg",
-    "size": 3736
-  },
-  {
-    "name": "view-documentation.svg",
-    "path": "common/images/shields/view-documentation.svg",
-    "project": "common",
-    "category": "shields",
-    "format": "svg",
-    "size": 500
-  },
-  {
     "name": "DieHardWithAScracth.svg",
     "path": "cs50x/DieHardWithAScracth.svg",
     "project": "cs50x",
@@ -41816,230 +39672,6 @@
     "size": 12584
   },
   {
-    "name": "akqa.avif",
-    "path": "logos/akqa.avif",
-    "project": "logos",
-    "category": "general",
-    "format": "avif",
-    "size": 81728
-  },
-  {
-    "name": "akqa.png",
-    "path": "logos/akqa.png",
-    "project": "logos",
-    "category": "general",
-    "format": "png",
-    "size": 422526
-  },
-  {
-    "name": "akqa.svg",
-    "path": "logos/akqa.svg",
-    "project": "logos",
-    "category": "general",
-    "format": "svg",
-    "size": 656168
-  },
-  {
-    "name": "akqa.webp",
-    "path": "logos/akqa.webp",
-    "project": "logos",
-    "category": "general",
-    "format": "webp",
-    "size": 149194
-  },
-  {
-    "name": "barclays.avif",
-    "path": "logos/barclays.avif",
-    "project": "logos",
-    "category": "general",
-    "format": "avif",
-    "size": 165804
-  },
-  {
-    "name": "barclays.png",
-    "path": "logos/barclays.png",
-    "project": "logos",
-    "category": "general",
-    "format": "png",
-    "size": 732290
-  },
-  {
-    "name": "barclays.svg",
-    "path": "logos/barclays.svg",
-    "project": "logos",
-    "category": "general",
-    "format": "svg",
-    "size": 1462143
-  },
-  {
-    "name": "barclays.webp",
-    "path": "logos/barclays.webp",
-    "project": "logos",
-    "category": "general",
-    "format": "webp",
-    "size": 546962
-  },
-  {
-    "name": "capgemini.svg",
-    "path": "logos/capgemini.svg",
-    "project": "logos",
-    "category": "general",
-    "format": "svg",
-    "size": 4387
-  },
-  {
-    "name": "hsbc.avif",
-    "path": "logos/hsbc.avif",
-    "project": "logos",
-    "category": "general",
-    "format": "avif",
-    "size": 66704
-  },
-  {
-    "name": "hsbc.png",
-    "path": "logos/hsbc.png",
-    "project": "logos",
-    "category": "general",
-    "format": "png",
-    "size": 400036
-  },
-  {
-    "name": "hsbc.svg",
-    "path": "logos/hsbc.svg",
-    "project": "logos",
-    "category": "general",
-    "format": "svg",
-    "size": 813554
-  },
-  {
-    "name": "hsbc.webp",
-    "path": "logos/hsbc.webp",
-    "project": "logos",
-    "category": "general",
-    "format": "webp",
-    "size": 179698
-  },
-  {
-    "name": "paypal.avif",
-    "path": "logos/paypal.avif",
-    "project": "logos",
-    "category": "general",
-    "format": "avif",
-    "size": 116415
-  },
-  {
-    "name": "paypal.png",
-    "path": "logos/paypal.png",
-    "project": "logos",
-    "category": "general",
-    "format": "png",
-    "size": 482765
-  },
-  {
-    "name": "paypal.svg",
-    "path": "logos/paypal.svg",
-    "project": "logos",
-    "category": "general",
-    "format": "svg",
-    "size": 67630
-  },
-  {
-    "name": "paypal.webp",
-    "path": "logos/paypal.webp",
-    "project": "logos",
-    "category": "general",
-    "format": "webp",
-    "size": 342436
-  },
-  {
-    "name": "rufusleonard.avif",
-    "path": "logos/rufusleonard.avif",
-    "project": "logos",
-    "category": "general",
-    "format": "avif",
-    "size": 2409
-  },
-  {
-    "name": "rufusleonard.png",
-    "path": "logos/rufusleonard.png",
-    "project": "logos",
-    "category": "general",
-    "format": "png",
-    "size": 20381
-  },
-  {
-    "name": "rufusleonard.webp",
-    "path": "logos/rufusleonard.webp",
-    "project": "logos",
-    "category": "general",
-    "format": "webp",
-    "size": 2560
-  },
-  {
-    "name": "shazam.avif",
-    "path": "logos/shazam.avif",
-    "project": "logos",
-    "category": "general",
-    "format": "avif",
-    "size": 44538
-  },
-  {
-    "name": "shazam.png",
-    "path": "logos/shazam.png",
-    "project": "logos",
-    "category": "general",
-    "format": "png",
-    "size": 313830
-  },
-  {
-    "name": "shazam.svg",
-    "path": "logos/shazam.svg",
-    "project": "logos",
-    "category": "general",
-    "format": "svg",
-    "size": 687715
-  },
-  {
-    "name": "shazam.webp",
-    "path": "logos/shazam.webp",
-    "project": "logos",
-    "category": "general",
-    "format": "webp",
-    "size": 194362
-  },
-  {
-    "name": "virgin.avif",
-    "path": "logos/virgin.avif",
-    "project": "logos",
-    "category": "general",
-    "format": "avif",
-    "size": 56575
-  },
-  {
-    "name": "virgin.png",
-    "path": "logos/virgin.png",
-    "project": "logos",
-    "category": "general",
-    "format": "png",
-    "size": 229804
-  },
-  {
-    "name": "virgin.svg",
-    "path": "logos/virgin.svg",
-    "project": "logos",
-    "category": "general",
-    "format": "svg",
-    "size": 328640
-  },
-  {
-    "name": "virgin.webp",
-    "path": "logos/virgin.webp",
-    "project": "logos",
-    "category": "general",
-    "format": "webp",
-    "size": 79672
-  },
-  {
     "name": "maccfg.webp",
     "path": "maccfg/images/banners/maccfg.webp",
     "project": "maccfg",
@@ -55640,6 +53272,262 @@
     "size": 11112
   },
   {
+    "name": "banner-pipelines.png",
+    "path": "pipelines/images/banners/banner-pipelines.png",
+    "project": "pipelines",
+    "category": "banners",
+    "format": "png",
+    "size": 50861
+  },
+  {
+    "name": "banner-pipelines.webp",
+    "path": "pipelines/images/banners/banner-pipelines.webp",
+    "project": "pipelines",
+    "category": "banners",
+    "format": "webp",
+    "size": 36322
+  },
+  {
+    "name": "favicon.ico",
+    "path": "pipelines/images/favicon.ico",
+    "project": "pipelines",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 76284
+  },
+  {
+    "name": "github-pipelines.png",
+    "path": "pipelines/images/github/github-pipelines.png",
+    "project": "pipelines",
+    "category": "github",
+    "format": "png",
+    "size": 235595
+  },
+  {
+    "name": "github-pipelines.svg",
+    "path": "pipelines/images/github/github-pipelines.svg",
+    "project": "pipelines",
+    "category": "github",
+    "format": "svg",
+    "size": 904421
+  },
+  {
+    "name": "github-pipelines.webp",
+    "path": "pipelines/images/github/github-pipelines.webp",
+    "project": "pipelines",
+    "category": "github",
+    "format": "webp",
+    "size": 144928
+  },
+  {
+    "name": "114x114.png",
+    "path": "pipelines/images/icons/114x114.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 12138
+  },
+  {
+    "name": "120x120.png",
+    "path": "pipelines/images/icons/120x120.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 13053
+  },
+  {
+    "name": "130x130.png",
+    "path": "pipelines/images/icons/130x130.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 14522
+  },
+  {
+    "name": "144x144.png",
+    "path": "pipelines/images/icons/144x144.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 16334
+  },
+  {
+    "name": "150x150.png",
+    "path": "pipelines/images/icons/150x150.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 17307
+  },
+  {
+    "name": "152x152.png",
+    "path": "pipelines/images/icons/152x152.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 17462
+  },
+  {
+    "name": "167x167.png",
+    "path": "pipelines/images/icons/167x167.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 19633
+  },
+  {
+    "name": "16x16.png",
+    "path": "pipelines/images/icons/16x16.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 741
+  },
+  {
+    "name": "180x180.png",
+    "path": "pipelines/images/icons/180x180.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 21656
+  },
+  {
+    "name": "192x192.png",
+    "path": "pipelines/images/icons/192x192.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 23567
+  },
+  {
+    "name": "196x196.png",
+    "path": "pipelines/images/icons/196x196.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 24156
+  },
+  {
+    "name": "256x256.png",
+    "path": "pipelines/images/icons/256x256.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 34443
+  },
+  {
+    "name": "310x310.png",
+    "path": "pipelines/images/icons/310x310.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 44785
+  },
+  {
+    "name": "32x32.png",
+    "path": "pipelines/images/icons/32x32.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 2328
+  },
+  {
+    "name": "384x384.png",
+    "path": "pipelines/images/icons/384x384.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 60721
+  },
+  {
+    "name": "48x48.png",
+    "path": "pipelines/images/icons/48x48.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 4038
+  },
+  {
+    "name": "512x512.png",
+    "path": "pipelines/images/icons/512x512.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 91234
+  },
+  {
+    "name": "57x57.png",
+    "path": "pipelines/images/icons/57x57.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 5119
+  },
+  {
+    "name": "60x60.png",
+    "path": "pipelines/images/icons/60x60.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 5407
+  },
+  {
+    "name": "70x70.png",
+    "path": "pipelines/images/icons/70x70.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 6649
+  },
+  {
+    "name": "72x72.png",
+    "path": "pipelines/images/icons/72x72.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 6898
+  },
+  {
+    "name": "76x76.png",
+    "path": "pipelines/images/icons/76x76.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 7412
+  },
+  {
+    "name": "96x96.png",
+    "path": "pipelines/images/icons/96x96.png",
+    "project": "pipelines",
+    "category": "icons",
+    "format": "png",
+    "size": 9784
+  },
+  {
+    "name": "pipelines.png",
+    "path": "pipelines/images/logos/pipelines.png",
+    "project": "pipelines",
+    "category": "logos",
+    "format": "png",
+    "size": 352243
+  },
+  {
+    "name": "pipelines.svg",
+    "path": "pipelines/images/logos/pipelines.svg",
+    "project": "pipelines",
+    "category": "logos",
+    "format": "svg",
+    "size": 329672
+  },
+  {
+    "name": "pipelines.webp",
+    "path": "pipelines/images/logos/pipelines.webp",
+    "project": "pipelines",
+    "category": "logos",
+    "format": "webp",
+    "size": 202976
+  },
+  {
     "name": "pm2md.webp",
     "path": "pm2md/images/banners/pm2md.webp",
     "project": "pm2md",
@@ -65422,6 +63310,2374 @@
     "category": "titles",
     "format": "webp",
     "size": 6474
+  },
+  {
+    "name": "banner-cmn.avif",
+    "path": "shared/images/banners/banner-cmn.avif",
+    "project": "shared",
+    "category": "banners",
+    "format": "avif",
+    "size": 18595
+  },
+  {
+    "name": "banner-cmn.png",
+    "path": "shared/images/banners/banner-cmn.png",
+    "project": "shared",
+    "category": "banners",
+    "format": "png",
+    "size": 41711
+  },
+  {
+    "name": "banner-cmn.svg",
+    "path": "shared/images/banners/banner-cmn.svg",
+    "project": "shared",
+    "category": "banners",
+    "format": "svg",
+    "size": 80004
+  },
+  {
+    "name": "banner-cmn.webp",
+    "path": "shared/images/banners/banner-cmn.webp",
+    "project": "shared",
+    "category": "banners",
+    "format": "webp",
+    "size": 25982
+  },
+  {
+    "name": "button-browser.avif",
+    "path": "shared/images/buttons/button-browser.avif",
+    "project": "shared",
+    "category": "buttons",
+    "format": "avif",
+    "size": 1071
+  },
+  {
+    "name": "button-browser.png",
+    "path": "shared/images/buttons/button-browser.png",
+    "project": "shared",
+    "category": "buttons",
+    "format": "png",
+    "size": 1028
+  },
+  {
+    "name": "button-browser.svg",
+    "path": "shared/images/buttons/button-browser.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1024
+  },
+  {
+    "name": "button-browser.webp",
+    "path": "shared/images/buttons/button-browser.webp",
+    "project": "shared",
+    "category": "buttons",
+    "format": "webp",
+    "size": 624
+  },
+  {
+    "name": "button-primary.svg",
+    "path": "shared/images/buttons/button-primary.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 6995
+  },
+  {
+    "name": "button-secondary.svg",
+    "path": "shared/images/buttons/button-secondary.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 3767
+  },
+  {
+    "name": "facebook-black.svg",
+    "path": "shared/images/buttons/facebook-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 436
+  },
+  {
+    "name": "facebook-speech-bubble-21674.svg",
+    "path": "shared/images/buttons/facebook-speech-bubble-21674.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 514
+  },
+  {
+    "name": "facebook-white.svg",
+    "path": "shared/images/buttons/facebook-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 571
+  },
+  {
+    "name": "github-black.svg",
+    "path": "shared/images/buttons/github-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 959
+  },
+  {
+    "name": "github-speech-bubble-21690.svg",
+    "path": "shared/images/buttons/github-speech-bubble-21690.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1002
+  },
+  {
+    "name": "github-white.svg",
+    "path": "shared/images/buttons/github-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1281
+  },
+  {
+    "name": "instagram-black.svg",
+    "path": "shared/images/buttons/instagram-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 929
+  },
+  {
+    "name": "instagram-speech-bubble-21669.svg",
+    "path": "shared/images/buttons/instagram-speech-bubble-21669.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 785
+  },
+  {
+    "name": "instagram-white.svg",
+    "path": "shared/images/buttons/instagram-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1173
+  },
+  {
+    "name": "linkedin-black.svg",
+    "path": "shared/images/buttons/linkedin-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 620
+  },
+  {
+    "name": "linkedin-speech-bubble--21671.svg",
+    "path": "shared/images/buttons/linkedin-speech-bubble--21671.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 710
+  },
+  {
+    "name": "linkedin-white.svg",
+    "path": "shared/images/buttons/linkedin-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 824
+  },
+  {
+    "name": "medium-black.svg",
+    "path": "shared/images/buttons/medium-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 652
+  },
+  {
+    "name": "medium-speech-bubble-21698.svg",
+    "path": "shared/images/buttons/medium-speech-bubble-21698.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 739
+  },
+  {
+    "name": "medium-white.svg",
+    "path": "shared/images/buttons/medium-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 884
+  },
+  {
+    "name": "skype-black.svg",
+    "path": "shared/images/buttons/skype-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1391
+  },
+  {
+    "name": "skype-blue-speech-bubble-21697.svg",
+    "path": "shared/images/buttons/skype-blue-speech-bubble-21697.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1399
+  },
+  {
+    "name": "skype-white.svg",
+    "path": "shared/images/buttons/skype-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1865
+  },
+  {
+    "name": "threads-black.svg",
+    "path": "shared/images/buttons/threads-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 3742
+  },
+  {
+    "name": "threads-color.svg",
+    "path": "shared/images/buttons/threads-color.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 2662
+  },
+  {
+    "name": "threads-white.svg",
+    "path": "shared/images/buttons/threads-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 2553
+  },
+  {
+    "name": "whatsapp-black.svg",
+    "path": "shared/images/buttons/whatsapp-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1365
+  },
+  {
+    "name": "whatsapp-speech-bubble-21687.svg",
+    "path": "shared/images/buttons/whatsapp-speech-bubble-21687.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1374
+  },
+  {
+    "name": "whatsapp-white.svg",
+    "path": "shared/images/buttons/whatsapp-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1839
+  },
+  {
+    "name": "x-black.svg",
+    "path": "shared/images/buttons/x-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 485
+  },
+  {
+    "name": "x-speech-bubble-blue-logo-21670.svg",
+    "path": "shared/images/buttons/x-speech-bubble-blue-logo-21670.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 551
+  },
+  {
+    "name": "x-white.svg",
+    "path": "shared/images/buttons/x-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 557
+  },
+  {
+    "name": "youtube-black.svg",
+    "path": "shared/images/buttons/youtube-black.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 716
+  },
+  {
+    "name": "youtube-speech-bubble-21668.svg",
+    "path": "shared/images/buttons/youtube-speech-bubble-21668.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 351
+  },
+  {
+    "name": "youtube-white.svg",
+    "path": "shared/images/buttons/youtube-white.svg",
+    "project": "shared",
+    "category": "buttons",
+    "format": "svg",
+    "size": 893
+  },
+  {
+    "name": "divider.svg",
+    "path": "shared/images/elements/divider.svg",
+    "project": "shared",
+    "category": "elements",
+    "format": "svg",
+    "size": 145
+  },
+  {
+    "name": "publication.webp",
+    "path": "shared/images/elements/publication.webp",
+    "project": "shared",
+    "category": "elements",
+    "format": "webp",
+    "size": 72524
+  },
+  {
+    "name": "favicon.ico",
+    "path": "shared/images/favicon.ico",
+    "project": "shared",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 397669
+  },
+  {
+    "name": "github-cmn.avif",
+    "path": "shared/images/github/github-cmn.avif",
+    "project": "shared",
+    "category": "github",
+    "format": "avif",
+    "size": 53626
+  },
+  {
+    "name": "github-cmn.png",
+    "path": "shared/images/github/github-cmn.png",
+    "project": "shared",
+    "category": "github",
+    "format": "png",
+    "size": 164713
+  },
+  {
+    "name": "github-cmn.svg",
+    "path": "shared/images/github/github-cmn.svg",
+    "project": "shared",
+    "category": "github",
+    "format": "svg",
+    "size": 956935
+  },
+  {
+    "name": "github-cmn.webp",
+    "path": "shared/images/github/github-cmn.webp",
+    "project": "shared",
+    "category": "github",
+    "format": "webp",
+    "size": 88864
+  },
+  {
+    "name": "114x114.avif",
+    "path": "shared/images/icons/114x114.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 4676
+  },
+  {
+    "name": "114x114.png",
+    "path": "shared/images/icons/114x114.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 7228
+  },
+  {
+    "name": "114x114.webp",
+    "path": "shared/images/icons/114x114.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 4382
+  },
+  {
+    "name": "114x114@2x.avif",
+    "path": "shared/images/icons/114x114@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 8908
+  },
+  {
+    "name": "114x114@2x.png",
+    "path": "shared/images/icons/114x114@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 15816
+  },
+  {
+    "name": "114x114@2x.webp",
+    "path": "shared/images/icons/114x114@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 9516
+  },
+  {
+    "name": "114x114@3x.avif",
+    "path": "shared/images/icons/114x114@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 12582
+  },
+  {
+    "name": "114x114@3x.png",
+    "path": "shared/images/icons/114x114@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 25379
+  },
+  {
+    "name": "114x114@3x.webp",
+    "path": "shared/images/icons/114x114@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 14480
+  },
+  {
+    "name": "120x120.avif",
+    "path": "shared/images/icons/120x120.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 4837
+  },
+  {
+    "name": "120x120.png",
+    "path": "shared/images/icons/120x120.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 7657
+  },
+  {
+    "name": "120x120.webp",
+    "path": "shared/images/icons/120x120.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 4604
+  },
+  {
+    "name": "120x120@2x.avif",
+    "path": "shared/images/icons/120x120@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 9238
+  },
+  {
+    "name": "120x120@2x.png",
+    "path": "shared/images/icons/120x120@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 16811
+  },
+  {
+    "name": "120x120@2x.webp",
+    "path": "shared/images/icons/120x120@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 9888
+  },
+  {
+    "name": "120x120@3x.avif",
+    "path": "shared/images/icons/120x120@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 12949
+  },
+  {
+    "name": "120x120@3x.png",
+    "path": "shared/images/icons/120x120@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 27127
+  },
+  {
+    "name": "120x120@3x.webp",
+    "path": "shared/images/icons/120x120@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 15596
+  },
+  {
+    "name": "130x130.avif",
+    "path": "shared/images/icons/130x130.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 5198
+  },
+  {
+    "name": "130x130.png",
+    "path": "shared/images/icons/130x130.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 8418
+  },
+  {
+    "name": "130x130.webp",
+    "path": "shared/images/icons/130x130.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 5036
+  },
+  {
+    "name": "130x130@2x.avif",
+    "path": "shared/images/icons/130x130@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 9866
+  },
+  {
+    "name": "130x130@2x.png",
+    "path": "shared/images/icons/130x130@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 18531
+  },
+  {
+    "name": "130x130@2x.webp",
+    "path": "shared/images/icons/130x130@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 10900
+  },
+  {
+    "name": "130x130@3x.avif",
+    "path": "shared/images/icons/130x130@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 14007
+  },
+  {
+    "name": "130x130@3x.png",
+    "path": "shared/images/icons/130x130@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 29920
+  },
+  {
+    "name": "130x130@3x.webp",
+    "path": "shared/images/icons/130x130@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 16520
+  },
+  {
+    "name": "144x144.avif",
+    "path": "shared/images/icons/144x144.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 5785
+  },
+  {
+    "name": "144x144.png",
+    "path": "shared/images/icons/144x144.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 9379
+  },
+  {
+    "name": "144x144.webp",
+    "path": "shared/images/icons/144x144.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 5580
+  },
+  {
+    "name": "144x144@2x.avif",
+    "path": "shared/images/icons/144x144@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 10777
+  },
+  {
+    "name": "144x144@2x.png",
+    "path": "shared/images/icons/144x144@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 20861
+  },
+  {
+    "name": "144x144@2x.webp",
+    "path": "shared/images/icons/144x144@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 12044
+  },
+  {
+    "name": "144x144@3x.avif",
+    "path": "shared/images/icons/144x144@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 15251
+  },
+  {
+    "name": "144x144@3x.png",
+    "path": "shared/images/icons/144x144@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 33610
+  },
+  {
+    "name": "144x144@3x.webp",
+    "path": "shared/images/icons/144x144@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 18700
+  },
+  {
+    "name": "150x150.avif",
+    "path": "shared/images/icons/150x150.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 6058
+  },
+  {
+    "name": "150x150.png",
+    "path": "shared/images/icons/150x150.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 9871
+  },
+  {
+    "name": "150x150.webp",
+    "path": "shared/images/icons/150x150.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 5958
+  },
+  {
+    "name": "150x150@2x.avif",
+    "path": "shared/images/icons/150x150@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 11122
+  },
+  {
+    "name": "150x150@2x.png",
+    "path": "shared/images/icons/150x150@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 21760
+  },
+  {
+    "name": "150x150@2x.webp",
+    "path": "shared/images/icons/150x150@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 12544
+  },
+  {
+    "name": "150x150@3x.avif",
+    "path": "shared/images/icons/150x150@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 16780
+  },
+  {
+    "name": "150x150@3x.png",
+    "path": "shared/images/icons/150x150@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 36278
+  },
+  {
+    "name": "150x150@3x.webp",
+    "path": "shared/images/icons/150x150@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 19898
+  },
+  {
+    "name": "152x152.avif",
+    "path": "shared/images/icons/152x152.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 6206
+  },
+  {
+    "name": "152x152.png",
+    "path": "shared/images/icons/152x152.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 9913
+  },
+  {
+    "name": "152x152.webp",
+    "path": "shared/images/icons/152x152.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 6000
+  },
+  {
+    "name": "152x152@2x.avif",
+    "path": "shared/images/icons/152x152@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 11455
+  },
+  {
+    "name": "152x152@2x.png",
+    "path": "shared/images/icons/152x152@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 22328
+  },
+  {
+    "name": "152x152@2x.webp",
+    "path": "shared/images/icons/152x152@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 12906
+  },
+  {
+    "name": "152x152@3x.avif",
+    "path": "shared/images/icons/152x152@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 16705
+  },
+  {
+    "name": "152x152@3x.png",
+    "path": "shared/images/icons/152x152@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 36737
+  },
+  {
+    "name": "152x152@3x.webp",
+    "path": "shared/images/icons/152x152@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 19920
+  },
+  {
+    "name": "167x167.avif",
+    "path": "shared/images/icons/167x167.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 6681
+  },
+  {
+    "name": "167x167.png",
+    "path": "shared/images/icons/167x167.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 11026
+  },
+  {
+    "name": "167x167.webp",
+    "path": "shared/images/icons/167x167.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 6742
+  },
+  {
+    "name": "167x167@2x.avif",
+    "path": "shared/images/icons/167x167@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 12418
+  },
+  {
+    "name": "167x167@2x.png",
+    "path": "shared/images/icons/167x167@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 24683
+  },
+  {
+    "name": "167x167@2x.webp",
+    "path": "shared/images/icons/167x167@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 14166
+  },
+  {
+    "name": "167x167@3x.avif",
+    "path": "shared/images/icons/167x167@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 18385
+  },
+  {
+    "name": "167x167@3x.png",
+    "path": "shared/images/icons/167x167@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 41096
+  },
+  {
+    "name": "167x167@3x.webp",
+    "path": "shared/images/icons/167x167@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 22330
+  },
+  {
+    "name": "16x16.avif",
+    "path": "shared/images/icons/16x16.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 839
+  },
+  {
+    "name": "16x16.png",
+    "path": "shared/images/icons/16x16.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 660
+  },
+  {
+    "name": "16x16.webp",
+    "path": "shared/images/icons/16x16.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 426
+  },
+  {
+    "name": "16x16@2x.avif",
+    "path": "shared/images/icons/16x16@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 1493
+  },
+  {
+    "name": "16x16@2x.png",
+    "path": "shared/images/icons/16x16@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 1659
+  },
+  {
+    "name": "16x16@2x.webp",
+    "path": "shared/images/icons/16x16@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 1036
+  },
+  {
+    "name": "16x16@3x.avif",
+    "path": "shared/images/icons/16x16@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 2135
+  },
+  {
+    "name": "16x16@3x.png",
+    "path": "shared/images/icons/16x16@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 2666
+  },
+  {
+    "name": "16x16@3x.webp",
+    "path": "shared/images/icons/16x16@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 1624
+  },
+  {
+    "name": "180x180.avif",
+    "path": "shared/images/icons/180x180.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 7240
+  },
+  {
+    "name": "180x180.png",
+    "path": "shared/images/icons/180x180.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 12144
+  },
+  {
+    "name": "180x180.webp",
+    "path": "shared/images/icons/180x180.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 7242
+  },
+  {
+    "name": "180x180@2x.avif",
+    "path": "shared/images/icons/180x180@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 12949
+  },
+  {
+    "name": "180x180@2x.png",
+    "path": "shared/images/icons/180x180@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 27127
+  },
+  {
+    "name": "180x180@2x.webp",
+    "path": "shared/images/icons/180x180@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 15596
+  },
+  {
+    "name": "180x180@3x.avif",
+    "path": "shared/images/icons/180x180@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 20395
+  },
+  {
+    "name": "180x180@3x.png",
+    "path": "shared/images/icons/180x180@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 44575
+  },
+  {
+    "name": "180x180@3x.webp",
+    "path": "shared/images/icons/180x180@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 24184
+  },
+  {
+    "name": "192x192.avif",
+    "path": "shared/images/icons/192x192.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 7525
+  },
+  {
+    "name": "192x192.png",
+    "path": "shared/images/icons/192x192.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 13102
+  },
+  {
+    "name": "192x192.webp",
+    "path": "shared/images/icons/192x192.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 7710
+  },
+  {
+    "name": "192x192@2x.avif",
+    "path": "shared/images/icons/192x192@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 14041
+  },
+  {
+    "name": "192x192@2x.png",
+    "path": "shared/images/icons/192x192@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 29352
+  },
+  {
+    "name": "192x192@2x.webp",
+    "path": "shared/images/icons/192x192@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 16306
+  },
+  {
+    "name": "192x192@3x.avif",
+    "path": "shared/images/icons/192x192@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 21270
+  },
+  {
+    "name": "192x192@3x.png",
+    "path": "shared/images/icons/192x192@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 48161
+  },
+  {
+    "name": "192x192@3x.webp",
+    "path": "shared/images/icons/192x192@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 25514
+  },
+  {
+    "name": "196x196.avif",
+    "path": "shared/images/icons/196x196.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 7673
+  },
+  {
+    "name": "196x196.png",
+    "path": "shared/images/icons/196x196.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 13327
+  },
+  {
+    "name": "196x196.webp",
+    "path": "shared/images/icons/196x196.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 8028
+  },
+  {
+    "name": "196x196@2x.avif",
+    "path": "shared/images/icons/196x196@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 14273
+  },
+  {
+    "name": "196x196@2x.png",
+    "path": "shared/images/icons/196x196@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 29941
+  },
+  {
+    "name": "196x196@2x.webp",
+    "path": "shared/images/icons/196x196@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 16650
+  },
+  {
+    "name": "196x196@3x.avif",
+    "path": "shared/images/icons/196x196@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 21603
+  },
+  {
+    "name": "196x196@3x.png",
+    "path": "shared/images/icons/196x196@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 49362
+  },
+  {
+    "name": "196x196@3x.webp",
+    "path": "shared/images/icons/196x196@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 26798
+  },
+  {
+    "name": "256x256.avif",
+    "path": "shared/images/icons/256x256.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 9864
+  },
+  {
+    "name": "256x256.png",
+    "path": "shared/images/icons/256x256.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 18236
+  },
+  {
+    "name": "256x256.webp",
+    "path": "shared/images/icons/256x256.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 10698
+  },
+  {
+    "name": "256x256@2x.avif",
+    "path": "shared/images/icons/256x256@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 19532
+  },
+  {
+    "name": "256x256@2x.png",
+    "path": "shared/images/icons/256x256@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 42080
+  },
+  {
+    "name": "256x256@2x.webp",
+    "path": "shared/images/icons/256x256@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 22476
+  },
+  {
+    "name": "256x256@3x.avif",
+    "path": "shared/images/icons/256x256@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 25614
+  },
+  {
+    "name": "256x256@3x.png",
+    "path": "shared/images/icons/256x256@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 66415
+  },
+  {
+    "name": "256x256@3x.webp",
+    "path": "shared/images/icons/256x256@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 34868
+  },
+  {
+    "name": "310x310.avif",
+    "path": "shared/images/icons/310x310.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 11582
+  },
+  {
+    "name": "310x310.png",
+    "path": "shared/images/icons/310x310.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 22606
+  },
+  {
+    "name": "310x310.webp",
+    "path": "shared/images/icons/310x310.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 12924
+  },
+  {
+    "name": "310x310@2x.avif",
+    "path": "shared/images/icons/310x310@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 23056
+  },
+  {
+    "name": "310x310@2x.png",
+    "path": "shared/images/icons/310x310@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 52235
+  },
+  {
+    "name": "310x310@2x.webp",
+    "path": "shared/images/icons/310x310@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 28232
+  },
+  {
+    "name": "310x310@3x.avif",
+    "path": "shared/images/icons/310x310@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 33648
+  },
+  {
+    "name": "310x310@3x.png",
+    "path": "shared/images/icons/310x310@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 83688
+  },
+  {
+    "name": "310x310@3x.webp",
+    "path": "shared/images/icons/310x310@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 45256
+  },
+  {
+    "name": "32x32.avif",
+    "path": "shared/images/icons/32x32.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 1493
+  },
+  {
+    "name": "32x32.png",
+    "path": "shared/images/icons/32x32.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 1659
+  },
+  {
+    "name": "32x32.webp",
+    "path": "shared/images/icons/32x32.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 1036
+  },
+  {
+    "name": "32x32@2x.avif",
+    "path": "shared/images/icons/32x32@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 2817
+  },
+  {
+    "name": "32x32@2x.png",
+    "path": "shared/images/icons/32x32@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 3815
+  },
+  {
+    "name": "32x32@2x.webp",
+    "path": "shared/images/icons/32x32@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 2194
+  },
+  {
+    "name": "32x32@3x.avif",
+    "path": "shared/images/icons/32x32@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 4017
+  },
+  {
+    "name": "32x32@3x.png",
+    "path": "shared/images/icons/32x32@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 6043
+  },
+  {
+    "name": "32x32@3x.webp",
+    "path": "shared/images/icons/32x32@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 3610
+  },
+  {
+    "name": "384x384.avif",
+    "path": "shared/images/icons/384x384.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 14041
+  },
+  {
+    "name": "384x384.png",
+    "path": "shared/images/icons/384x384.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 29352
+  },
+  {
+    "name": "384x384.webp",
+    "path": "shared/images/icons/384x384.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 16306
+  },
+  {
+    "name": "384x384@2x.avif",
+    "path": "shared/images/icons/384x384@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 28269
+  },
+  {
+    "name": "384x384@2x.png",
+    "path": "shared/images/icons/384x384@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 67187
+  },
+  {
+    "name": "384x384@2x.webp",
+    "path": "shared/images/icons/384x384@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 35468
+  },
+  {
+    "name": "384x384@3x.avif",
+    "path": "shared/images/icons/384x384@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 42149
+  },
+  {
+    "name": "384x384@3x.png",
+    "path": "shared/images/icons/384x384@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 107732
+  },
+  {
+    "name": "384x384@3x.webp",
+    "path": "shared/images/icons/384x384@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 56550
+  },
+  {
+    "name": "48x48.avif",
+    "path": "shared/images/icons/48x48.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 2135
+  },
+  {
+    "name": "48x48.png",
+    "path": "shared/images/icons/48x48.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 2666
+  },
+  {
+    "name": "48x48.webp",
+    "path": "shared/images/icons/48x48.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 1624
+  },
+  {
+    "name": "48x48@2x.avif",
+    "path": "shared/images/icons/48x48@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 4017
+  },
+  {
+    "name": "48x48@2x.png",
+    "path": "shared/images/icons/48x48@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 6043
+  },
+  {
+    "name": "48x48@2x.webp",
+    "path": "shared/images/icons/48x48@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 3610
+  },
+  {
+    "name": "48x48@3x.avif",
+    "path": "shared/images/icons/48x48@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 5785
+  },
+  {
+    "name": "48x48@3x.png",
+    "path": "shared/images/icons/48x48@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 9379
+  },
+  {
+    "name": "48x48@3x.webp",
+    "path": "shared/images/icons/48x48@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 5580
+  },
+  {
+    "name": "512x512.avif",
+    "path": "shared/images/icons/512x512.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 19532
+  },
+  {
+    "name": "512x512.png",
+    "path": "shared/images/icons/512x512.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 42080
+  },
+  {
+    "name": "512x512.webp",
+    "path": "shared/images/icons/512x512.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 22476
+  },
+  {
+    "name": "512x512@2x.avif",
+    "path": "shared/images/icons/512x512@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 36861
+  },
+  {
+    "name": "512x512@2x.png",
+    "path": "shared/images/icons/512x512@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 93780
+  },
+  {
+    "name": "512x512@2x.webp",
+    "path": "shared/images/icons/512x512@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 48950
+  },
+  {
+    "name": "512x512@3x.avif",
+    "path": "shared/images/icons/512x512@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 55716
+  },
+  {
+    "name": "512x512@3x.png",
+    "path": "shared/images/icons/512x512@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 151561
+  },
+  {
+    "name": "512x512@3x.webp",
+    "path": "shared/images/icons/512x512@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 80234
+  },
+  {
+    "name": "57x57.avif",
+    "path": "shared/images/icons/57x57.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 2628
+  },
+  {
+    "name": "57x57.png",
+    "path": "shared/images/icons/57x57.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 3297
+  },
+  {
+    "name": "57x57.webp",
+    "path": "shared/images/icons/57x57.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 2054
+  },
+  {
+    "name": "57x57@2x.avif",
+    "path": "shared/images/icons/57x57@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 4676
+  },
+  {
+    "name": "57x57@2x.png",
+    "path": "shared/images/icons/57x57@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 7228
+  },
+  {
+    "name": "57x57@2x.webp",
+    "path": "shared/images/icons/57x57@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 4382
+  },
+  {
+    "name": "57x57@3x.avif",
+    "path": "shared/images/icons/57x57@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 6929
+  },
+  {
+    "name": "57x57@3x.png",
+    "path": "shared/images/icons/57x57@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 11373
+  },
+  {
+    "name": "57x57@3x.webp",
+    "path": "shared/images/icons/57x57@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 6842
+  },
+  {
+    "name": "60x60.avif",
+    "path": "shared/images/icons/60x60.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 2687
+  },
+  {
+    "name": "60x60.png",
+    "path": "shared/images/icons/60x60.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 3482
+  },
+  {
+    "name": "60x60.webp",
+    "path": "shared/images/icons/60x60.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 2176
+  },
+  {
+    "name": "60x60@2x.avif",
+    "path": "shared/images/icons/60x60@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 4837
+  },
+  {
+    "name": "60x60@2x.png",
+    "path": "shared/images/icons/60x60@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 7657
+  },
+  {
+    "name": "60x60@2x.webp",
+    "path": "shared/images/icons/60x60@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 4604
+  },
+  {
+    "name": "60x60@3x.avif",
+    "path": "shared/images/icons/60x60@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 7240
+  },
+  {
+    "name": "60x60@3x.png",
+    "path": "shared/images/icons/60x60@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 12144
+  },
+  {
+    "name": "60x60@3x.webp",
+    "path": "shared/images/icons/60x60@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 7242
+  },
+  {
+    "name": "70x70.avif",
+    "path": "shared/images/icons/70x70.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 3032
+  },
+  {
+    "name": "70x70.png",
+    "path": "shared/images/icons/70x70.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 4247
+  },
+  {
+    "name": "70x70.webp",
+    "path": "shared/images/icons/70x70.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 2538
+  },
+  {
+    "name": "70x70@2x.avif",
+    "path": "shared/images/icons/70x70@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 5778
+  },
+  {
+    "name": "70x70@2x.png",
+    "path": "shared/images/icons/70x70@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 9134
+  },
+  {
+    "name": "70x70@2x.webp",
+    "path": "shared/images/icons/70x70@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 5506
+  },
+  {
+    "name": "70x70@3x.avif",
+    "path": "shared/images/icons/70x70@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 8238
+  },
+  {
+    "name": "70x70@3x.png",
+    "path": "shared/images/icons/70x70@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 14353
+  },
+  {
+    "name": "70x70@3x.webp",
+    "path": "shared/images/icons/70x70@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 8564
+  },
+  {
+    "name": "72x72.avif",
+    "path": "shared/images/icons/72x72.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 3019
+  },
+  {
+    "name": "72x72.png",
+    "path": "shared/images/icons/72x72.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 4311
+  },
+  {
+    "name": "72x72.webp",
+    "path": "shared/images/icons/72x72.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 2578
+  },
+  {
+    "name": "72x72@2x.avif",
+    "path": "shared/images/icons/72x72@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 5785
+  },
+  {
+    "name": "72x72@2x.png",
+    "path": "shared/images/icons/72x72@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 9379
+  },
+  {
+    "name": "72x72@2x.webp",
+    "path": "shared/images/icons/72x72@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 5580
+  },
+  {
+    "name": "72x72@3x.avif",
+    "path": "shared/images/icons/72x72@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 8431
+  },
+  {
+    "name": "72x72@3x.png",
+    "path": "shared/images/icons/72x72@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 14881
+  },
+  {
+    "name": "72x72@3x.webp",
+    "path": "shared/images/icons/72x72@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 8844
+  },
+  {
+    "name": "76x76.avif",
+    "path": "shared/images/icons/76x76.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 3265
+  },
+  {
+    "name": "76x76.png",
+    "path": "shared/images/icons/76x76.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 4606
+  },
+  {
+    "name": "76x76.webp",
+    "path": "shared/images/icons/76x76.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 2748
+  },
+  {
+    "name": "76x76@2x.avif",
+    "path": "shared/images/icons/76x76@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 6206
+  },
+  {
+    "name": "76x76@2x.png",
+    "path": "shared/images/icons/76x76@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 9913
+  },
+  {
+    "name": "76x76@2x.webp",
+    "path": "shared/images/icons/76x76@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 6000
+  },
+  {
+    "name": "76x76@3x.avif",
+    "path": "shared/images/icons/76x76@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 8908
+  },
+  {
+    "name": "76x76@3x.png",
+    "path": "shared/images/icons/76x76@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 15816
+  },
+  {
+    "name": "76x76@3x.webp",
+    "path": "shared/images/icons/76x76@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 9516
+  },
+  {
+    "name": "96x96.avif",
+    "path": "shared/images/icons/96x96.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 4017
+  },
+  {
+    "name": "96x96.png",
+    "path": "shared/images/icons/96x96.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 6043
+  },
+  {
+    "name": "96x96.webp",
+    "path": "shared/images/icons/96x96.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 3610
+  },
+  {
+    "name": "96x96@2x.avif",
+    "path": "shared/images/icons/96x96@2x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 7525
+  },
+  {
+    "name": "96x96@2x.png",
+    "path": "shared/images/icons/96x96@2x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 13102
+  },
+  {
+    "name": "96x96@2x.webp",
+    "path": "shared/images/icons/96x96@2x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 7710
+  },
+  {
+    "name": "96x96@3x.avif",
+    "path": "shared/images/icons/96x96@3x.avif",
+    "project": "shared",
+    "category": "icons",
+    "format": "avif",
+    "size": 10777
+  },
+  {
+    "name": "96x96@3x.png",
+    "path": "shared/images/icons/96x96@3x.png",
+    "project": "shared",
+    "category": "icons",
+    "format": "png",
+    "size": 20861
+  },
+  {
+    "name": "96x96@3x.webp",
+    "path": "shared/images/icons/96x96@3x.webp",
+    "project": "shared",
+    "category": "icons",
+    "format": "webp",
+    "size": 12044
+  },
+  {
+    "name": "akqa.avif",
+    "path": "shared/images/logos/akqa.avif",
+    "project": "shared",
+    "category": "logos",
+    "format": "avif",
+    "size": 81728
+  },
+  {
+    "name": "akqa.png",
+    "path": "shared/images/logos/akqa.png",
+    "project": "shared",
+    "category": "logos",
+    "format": "png",
+    "size": 422526
+  },
+  {
+    "name": "akqa.svg",
+    "path": "shared/images/logos/akqa.svg",
+    "project": "shared",
+    "category": "logos",
+    "format": "svg",
+    "size": 656168
+  },
+  {
+    "name": "akqa.webp",
+    "path": "shared/images/logos/akqa.webp",
+    "project": "shared",
+    "category": "logos",
+    "format": "webp",
+    "size": 149194
+  },
+  {
+    "name": "barclays.avif",
+    "path": "shared/images/logos/barclays.avif",
+    "project": "shared",
+    "category": "logos",
+    "format": "avif",
+    "size": 165804
+  },
+  {
+    "name": "barclays.png",
+    "path": "shared/images/logos/barclays.png",
+    "project": "shared",
+    "category": "logos",
+    "format": "png",
+    "size": 732290
+  },
+  {
+    "name": "barclays.svg",
+    "path": "shared/images/logos/barclays.svg",
+    "project": "shared",
+    "category": "logos",
+    "format": "svg",
+    "size": 1462143
+  },
+  {
+    "name": "barclays.webp",
+    "path": "shared/images/logos/barclays.webp",
+    "project": "shared",
+    "category": "logos",
+    "format": "webp",
+    "size": 546962
+  },
+  {
+    "name": "capgemini.svg",
+    "path": "shared/images/logos/capgemini.svg",
+    "project": "shared",
+    "category": "logos",
+    "format": "svg",
+    "size": 4387
+  },
+  {
+    "name": "cmn.avif",
+    "path": "shared/images/logos/cmn.avif",
+    "project": "shared",
+    "category": "logos",
+    "format": "avif",
+    "size": 128278
+  },
+  {
+    "name": "cmn.png",
+    "path": "shared/images/logos/cmn.png",
+    "project": "shared",
+    "category": "logos",
+    "format": "png",
+    "size": 359622
+  },
+  {
+    "name": "cmn.svg",
+    "path": "shared/images/logos/cmn.svg",
+    "project": "shared",
+    "category": "logos",
+    "format": "svg",
+    "size": 955807
+  },
+  {
+    "name": "cmn.webp",
+    "path": "shared/images/logos/cmn.webp",
+    "project": "shared",
+    "category": "logos",
+    "format": "webp",
+    "size": 137902
+  },
+  {
+    "name": "hsbc.avif",
+    "path": "shared/images/logos/hsbc.avif",
+    "project": "shared",
+    "category": "logos",
+    "format": "avif",
+    "size": 66704
+  },
+  {
+    "name": "hsbc.png",
+    "path": "shared/images/logos/hsbc.png",
+    "project": "shared",
+    "category": "logos",
+    "format": "png",
+    "size": 400036
+  },
+  {
+    "name": "hsbc.svg",
+    "path": "shared/images/logos/hsbc.svg",
+    "project": "shared",
+    "category": "logos",
+    "format": "svg",
+    "size": 813554
+  },
+  {
+    "name": "hsbc.webp",
+    "path": "shared/images/logos/hsbc.webp",
+    "project": "shared",
+    "category": "logos",
+    "format": "webp",
+    "size": 179698
+  },
+  {
+    "name": "paypal.avif",
+    "path": "shared/images/logos/paypal.avif",
+    "project": "shared",
+    "category": "logos",
+    "format": "avif",
+    "size": 116415
+  },
+  {
+    "name": "paypal.png",
+    "path": "shared/images/logos/paypal.png",
+    "project": "shared",
+    "category": "logos",
+    "format": "png",
+    "size": 482765
+  },
+  {
+    "name": "paypal.svg",
+    "path": "shared/images/logos/paypal.svg",
+    "project": "shared",
+    "category": "logos",
+    "format": "svg",
+    "size": 67630
+  },
+  {
+    "name": "paypal.webp",
+    "path": "shared/images/logos/paypal.webp",
+    "project": "shared",
+    "category": "logos",
+    "format": "webp",
+    "size": 342436
+  },
+  {
+    "name": "rufusleonard.avif",
+    "path": "shared/images/logos/rufusleonard.avif",
+    "project": "shared",
+    "category": "logos",
+    "format": "avif",
+    "size": 2409
+  },
+  {
+    "name": "rufusleonard.png",
+    "path": "shared/images/logos/rufusleonard.png",
+    "project": "shared",
+    "category": "logos",
+    "format": "png",
+    "size": 20381
+  },
+  {
+    "name": "rufusleonard.webp",
+    "path": "shared/images/logos/rufusleonard.webp",
+    "project": "shared",
+    "category": "logos",
+    "format": "webp",
+    "size": 2560
+  },
+  {
+    "name": "shazam.avif",
+    "path": "shared/images/logos/shazam.avif",
+    "project": "shared",
+    "category": "logos",
+    "format": "avif",
+    "size": 44538
+  },
+  {
+    "name": "shazam.png",
+    "path": "shared/images/logos/shazam.png",
+    "project": "shared",
+    "category": "logos",
+    "format": "png",
+    "size": 313830
+  },
+  {
+    "name": "shazam.svg",
+    "path": "shared/images/logos/shazam.svg",
+    "project": "shared",
+    "category": "logos",
+    "format": "svg",
+    "size": 687715
+  },
+  {
+    "name": "shazam.webp",
+    "path": "shared/images/logos/shazam.webp",
+    "project": "shared",
+    "category": "logos",
+    "format": "webp",
+    "size": 194362
+  },
+  {
+    "name": "virgin.avif",
+    "path": "shared/images/logos/virgin.avif",
+    "project": "shared",
+    "category": "logos",
+    "format": "avif",
+    "size": 56575
+  },
+  {
+    "name": "virgin.png",
+    "path": "shared/images/logos/virgin.png",
+    "project": "shared",
+    "category": "logos",
+    "format": "png",
+    "size": 229804
+  },
+  {
+    "name": "virgin.svg",
+    "path": "shared/images/logos/virgin.svg",
+    "project": "shared",
+    "category": "logos",
+    "format": "svg",
+    "size": 328640
+  },
+  {
+    "name": "virgin.webp",
+    "path": "shared/images/logos/virgin.webp",
+    "project": "shared",
+    "category": "logos",
+    "format": "webp",
+    "size": 79672
+  },
+  {
+    "name": "made-with-go.svg",
+    "path": "shared/images/shields/made-with-go.svg",
+    "project": "shared",
+    "category": "shields",
+    "format": "svg",
+    "size": 1672
+  },
+  {
+    "name": "made-with-jupyter.svg",
+    "path": "shared/images/shields/made-with-jupyter.svg",
+    "project": "shared",
+    "category": "shields",
+    "format": "svg",
+    "size": 1875
+  },
+  {
+    "name": "made-with-love.svg",
+    "path": "shared/images/shields/made-with-love.svg",
+    "project": "shared",
+    "category": "shields",
+    "format": "svg",
+    "size": 1406
+  },
+  {
+    "name": "made-with-python.svg",
+    "path": "shared/images/shields/made-with-python.svg",
+    "project": "shared",
+    "category": "shields",
+    "format": "svg",
+    "size": 3485
+  },
+  {
+    "name": "made-with-rust.svg",
+    "path": "shared/images/shields/made-with-rust.svg",
+    "project": "shared",
+    "category": "shields",
+    "format": "svg",
+    "size": 3736
+  },
+  {
+    "name": "view-documentation.svg",
+    "path": "shared/images/shields/view-documentation.svg",
+    "project": "shared",
+    "category": "shields",
+    "format": "svg",
+    "size": 500
+  },
+  {
+    "name": "title-cmn.avif",
+    "path": "shared/images/titles/title-cmn.avif",
+    "project": "shared",
+    "category": "titles",
+    "format": "avif",
+    "size": 8932
+  },
+  {
+    "name": "title-cmn.png",
+    "path": "shared/images/titles/title-cmn.png",
+    "project": "shared",
+    "category": "titles",
+    "format": "png",
+    "size": 9687
+  },
+  {
+    "name": "title-cmn.svg",
+    "path": "shared/images/titles/title-cmn.svg",
+    "project": "shared",
+    "category": "titles",
+    "format": "svg",
+    "size": 38378
+  },
+  {
+    "name": "title-cmn.webp",
+    "path": "shared/images/titles/title-cmn.webp",
+    "project": "shared",
+    "category": "titles",
+    "format": "webp",
+    "size": 8970
   },
   {
     "name": "banner-shokunin.avif",

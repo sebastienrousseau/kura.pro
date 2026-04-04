@@ -11,6 +11,8 @@ on:
 jobs:
   compress:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,9 +64,55 @@ jobs:
           })();
           "
 
-      - name: Commit converted images
+      - name: Commit converted images via API (signed)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          set -euo pipefail
+
+          # Stage new files and check for changes
           git add -A '*.webp' '*.avif'
-          git diff --cached --quiet && echo "No new conversions" || (git commit -m "chore: auto-convert images to WebP/AVIF [skip ci]" && git push)
+          if git diff --cached --quiet; then
+            echo "No new conversions"
+            exit 0
+          fi
+
+          # Get current HEAD info
+          REPO="${{ github.repository }}"
+          BRANCH="main"
+          HEAD_SHA=$(gh api "repos/$REPO/git/ref/heads/$BRANCH" --jq '.object.sha')
+          BASE_TREE=$(gh api "repos/$REPO/git/commits/$HEAD_SHA" --jq '.tree.sha')
+
+          # Build tree entries from staged files
+          TREE_ENTRIES="[]"
+          for FILE in $(git diff --cached --name-only); do
+            BLOB_SHA=$(gh api "repos/$REPO/git/blobs" \
+              -f encoding=base64 \
+              -f content="$(base64 < "$FILE")" \
+              --jq '.sha')
+            TREE_ENTRIES=$(echo "$TREE_ENTRIES" | jq \
+              --arg path "$FILE" \
+              --arg sha "$BLOB_SHA" \
+              '. + [{"path": $path, "mode": "100644", "type": "blob", "sha": $sha}]')
+          done
+
+          # Create tree
+          TREE_SHA=$(echo "$TREE_ENTRIES" | jq -n \
+            --arg base "$BASE_TREE" \
+            --argjson tree "$(cat)" \
+            '{"base_tree": $base, "tree": $tree}' \
+            | gh api "repos/$REPO/git/trees" --input - --jq '.sha')
+
+          # Create commit (automatically signed by GitHub)
+          COMMIT_SHA=$(jq -n \
+            --arg msg "chore: auto-convert images to WebP/AVIF [skip ci]" \
+            --argjson parents "[\"$HEAD_SHA\"]" \
+            --arg tree "$TREE_SHA" \
+            '{"message": $msg, "parents": $parents, "tree": $tree}' \
+            | gh api "repos/$REPO/git/commits" --input - --jq '.sha')
+
+          # Update branch ref
+          gh api "repos/$REPO/git/refs/heads/$BRANCH" \
+            -X PATCH -f sha="$COMMIT_SHA" --silent
+
+          echo "Committed $COMMIT_SHA (signed by GitHub)"

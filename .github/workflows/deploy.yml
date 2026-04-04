@@ -5,7 +5,63 @@ on:
   workflow_dispatch:
 
 jobs:
+  verify-signatures:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+
+      - name: Verify all commits are signed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          REPO="${{ github.repository }}"
+
+          # For push events, verify all commits in the push payload
+          # For workflow_dispatch, verify HEAD only
+          if [ "${{ github.event_name }}" = "push" ]; then
+            BEFORE="${{ github.event.before }}"
+            # Handle initial push (all zeros)
+            if echo "$BEFORE" | grep -qE '^0+$'; then
+              COMMITS="${{ github.sha }}"
+            else
+              COMMITS=$(git rev-list "$BEFORE".."${{ github.sha }}")
+            fi
+          else
+            COMMITS="${{ github.sha }}"
+          fi
+
+          FAILED=0
+          for SHA in $COMMITS; do
+            VERIFIED=$(gh api "repos/$REPO/git/commits/$SHA" --jq '.verification.verified')
+            REASON=$(gh api "repos/$REPO/git/commits/$SHA" --jq '.verification.reason')
+            SHORT=$(git rev-parse --short "$SHA")
+            SUBJECT=$(git log -1 --format='%s' "$SHA")
+
+            if [ "$VERIFIED" = "true" ]; then
+              echo "✓ $SHORT $SUBJECT (reason: $REASON)"
+            else
+              echo "✗ $SHORT $SUBJECT — NOT VERIFIED (reason: $REASON)"
+              FAILED=1
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "::error::Deployment blocked: one or more commits are not cryptographically signed."
+            echo "All commits must be GPG or SSH signed before deploying to the edge."
+            exit 1
+          fi
+
+          echo ""
+          echo "All commits verified. Proceeding to deploy."
+
   deploy:
+    needs: verify-signatures
     runs-on: ubuntu-latest
     permissions:
       contents: read

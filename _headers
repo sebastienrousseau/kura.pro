@@ -1,25 +1,31 @@
 /*.webp
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
+  X-Robots-Tag: noindex
 
 /*.avif
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
+  X-Robots-Tag: noindex
 
 /*.png
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
+  X-Robots-Tag: noindex
 
 /*.svg
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
+  X-Robots-Tag: noindex
 
 /*.ico
   Cache-Control: public, max-age=31536000, immutable
+  X-Robots-Tag: noindex
 
 /*.mp4
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
+  X-Robots-Tag: noindex
 
 /manifest.json
   Cache-Control: public, max-age=300

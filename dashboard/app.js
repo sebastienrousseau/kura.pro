@@ -286,20 +286,16 @@
     if (previewUrl) {
       const url = previewUrl;
       previewTimer = setTimeout(() => {
-        // Test if the transform API is reachable before loading preview
-        fetch(url, { method: 'HEAD' }).then(r => {
-          if (r.ok && (r.headers.get('content-type') || '').startsWith('image/')) {
-            tfPreview.src = url;
-            tfPreview.style.display = '';
-            tfPlaceholder.style.display = 'none';
-          } else {
-            throw new Error('not an image');
-          }
-        }).catch(() => {
+        tfPreview.onerror = () => {
           tfPreview.style.display = 'none';
           tfPlaceholder.style.display = '';
           tfPlaceholder.innerHTML = 'Preview unavailable locally.<br><span style="font-size:0.75rem;color:var(--text-dim);">The Transform API requires Cloudflare Image Resizing.<br>Deploy to production or run with <code style="color:#a5b4fc;">wrangler pages dev</code>.</span>';
-        });
+        };
+        tfPreview.onload = () => {
+          tfPreview.style.display = '';
+          tfPlaceholder.style.display = 'none';
+        };
+        tfPreview.src = url;
       }, 500);
     }
   }

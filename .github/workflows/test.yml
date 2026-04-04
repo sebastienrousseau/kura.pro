@@ -8,77 +8,69 @@ on:
       - 'functions/**'
       - 'vitest.config.js'
       - 'dashboard/**'
+      - 'package.json'
   pull_request:
     paths:
       - 'scripts/**'
       - 'functions/**'
       - 'vitest.config.js'
       - 'dashboard/**'
+      - 'package.json'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  unit-and-integration:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # Node.js CI via reusable pipelines — SHA-pinned actions, caching, coverage
+  ci:
+    uses: sebastienrousseau/pipelines/.github/workflows/node-ci.yml@main
+    with:
+      node-version: '20'
+      package-manager: 'npm'
+      run-lint: false
+      run-typecheck: false
+      run-build: false
+      test-coverage: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+  # Security scanning via reusable pipelines — npm audit, CodeQL, dependency review
+  security:
+    uses: sebastienrousseau/pipelines/.github/workflows/security.yml@main
+    with:
+      language: node
+      severity-threshold: high
+      fail-on-vulnerability: false
+    permissions:
+      security-events: write
+      contents: read
 
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Install script dependencies
-        run: npm ci
-        working-directory: scripts
-
-      - name: Run unit + integration tests
-        run: npm test
-
-      - name: Run tests with coverage
-        run: npx vitest run --coverage
-        continue-on-error: true
-
-  security-audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Audit root dependencies
-        run: npm audit --audit-level=high
-        continue-on-error: true
-
-      - name: Audit script dependencies
-        run: npm audit --audit-level=high
-        working-directory: scripts
-        continue-on-error: true
-
+  # Visual regression — Playwright (project-specific, not in pipelines)
   visual-regression:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
-          node-version: 20
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
 
       - name: Start local server
         run: python3 -m http.server 8788 &
-        working-directory: .
 
       - name: Wait for server
         run: sleep 2 && curl -sf http://localhost:8788/ > /dev/null
@@ -89,7 +81,8 @@ jobs:
 
       - name: Upload visual diff artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: visual-regression-report
           path: test-results/
+          retention-days: 3

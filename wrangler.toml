@@ -1,4 +1,4 @@
-name = "cloudcdn-pro"
+name = "kura-pro"
 pages_build_output_dir = "."
 
 [ai]

@@ -1,3 +1,49 @@
+/* Tabs */
+.tab-btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+  color: #8b8fa3;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+.tab-btn:hover { color: #e2e4ea; background: rgba(99,102,241,0.08); }
+.tab-btn.active { color: #a5b4fc; background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.25); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Bar chart */
+.bar-col {
+  flex: 1;
+  min-width: 8px;
+  background: linear-gradient(to top, #6366f1, #818cf8);
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  transition: height 0.3s;
+}
+.bar-col:hover { opacity: 0.85; }
+.bar-label {
+  position: absolute;
+  bottom: -1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5rem;
+  color: #5b5f73;
+  white-space: nowrap;
+}
+.bar-value {
+  position: absolute;
+  top: -1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5625rem;
+  color: #8b8fa3;
+  white-space: nowrap;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -67,6 +113,10 @@
 .asset-card:hover .copy-overlay {
   opacity: 1;
 }
+.copy-actions {
+  display: flex;
+  gap: 0.375rem;
+}
 .copy-btn {
   background: #6366f1;
   color: white;
@@ -80,6 +130,12 @@
 }
 .copy-btn:hover {
   background: #818cf8;
+}
+.copy-btn-alt {
+  background: rgba(255,255,255,0.1);
+}
+.copy-btn-alt:hover {
+  background: rgba(255,255,255,0.2);
 }
 
 /* Format badge */

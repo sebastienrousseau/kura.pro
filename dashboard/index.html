@@ -6,6 +6,7 @@
   <title>CloudCDN — Asset Manager</title>
   <meta name="description" content="Browse and manage static assets on the Kura CDN">
   <link rel="icon" href="/kura/images/favicon.ico">
+  <link rel="preload" href="/manifest.json" as="fetch" crossorigin="anonymous">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -38,8 +39,15 @@
         <h1 class="text-xl font-bold text-white">Cloud<span class="text-accent">CDN</span></h1>
       </div>
 
-      <!-- Search -->
-      <div class="flex-1 min-w-[200px] max-w-xl">
+      <!-- Tabs -->
+      <nav class="flex gap-1 ml-4" role="tablist">
+        <button class="tab-btn active" data-tab="assets" role="tab" aria-selected="true">Assets</button>
+        <button class="tab-btn" data-tab="transform" role="tab" aria-selected="false">Transform</button>
+        <button class="tab-btn" data-tab="insights" role="tab" aria-selected="false">Insights</button>
+      </nav>
+
+      <!-- Search (assets tab) -->
+      <div class="flex-1 min-w-[200px] max-w-xl" id="search-bar">
         <input
           type="search"
           id="search"
@@ -48,8 +56,8 @@
         >
       </div>
 
-      <!-- Filters -->
-      <div class="flex gap-2 items-center flex-wrap">
+      <!-- Filters (assets tab) -->
+      <div class="flex gap-2 items-center flex-wrap" id="filter-bar">
         <select id="filter-project" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
           <option value="">All Projects</option>
         </select>
@@ -68,8 +76,8 @@
     </div>
   </header>
 
-  <!-- Stats Bar -->
-  <div class="bg-card/50 border-b border-border">
+  <!-- Stats Bar (assets tab) -->
+  <div class="bg-card/50 border-b border-border" id="stats-bar">
     <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-6 text-xs text-gray-400">
       <span id="stat-total">Loading...</span>
       <span id="stat-showing" class="hidden">Showing: —</span>
@@ -77,28 +85,164 @@
     </div>
   </div>
 
-  <!-- Gallery Grid -->
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
+  <!-- ===== TAB: Assets ===== -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel active" id="panel-assets">
     <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-      <!-- Cards rendered by app.js -->
     </div>
-
-    <!-- Load More -->
-    <div id="load-more" class="hidden text-center py-8">
-      <button
-        id="load-more-btn"
-        class="bg-accent hover:bg-accent-hover text-white font-medium px-6 py-2 rounded-lg transition"
-      >
-        Load More
-      </button>
-    </div>
-
-    <!-- Empty State -->
+    <div id="load-more" class="hidden"></div>
     <div id="empty-state" class="hidden text-center py-20 text-gray-500">
       <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
       <p class="text-lg">No assets match your filters</p>
+    </div>
+  </main>
+
+  <!-- ===== TAB: Transform (URL Builder) ===== -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-transform" style="display:none;">
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Controls -->
+      <div class="space-y-5">
+        <h2 class="text-lg font-semibold text-white">Image Transform URL Builder</h2>
+        <p class="text-sm text-gray-400">Build transformation URLs using the <code class="text-accent">/api/transform</code> endpoint. Adjust parameters and copy the generated URL.</p>
+
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Source Image URL</label>
+          <input type="text" id="tf-url" placeholder="/shared/images/logos/cmn.png" value="/shared/images/logos/cmn.png"
+            class="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Width <span id="tf-w-val" class="text-accent">800</span>px</label>
+            <input type="range" id="tf-w" min="0" max="4096" value="800" step="16" class="w-full accent-accent">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Height <span id="tf-h-val" class="text-accent">auto</span></label>
+            <input type="range" id="tf-h" min="0" max="4096" value="0" step="16" class="w-full accent-accent">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Format</label>
+            <select id="tf-format" class="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+              <option value="auto">Auto</option>
+              <option value="webp" selected>WebP</option>
+              <option value="avif">AVIF</option>
+              <option value="png">PNG</option>
+              <option value="jpeg">JPEG</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Fit</label>
+            <select id="tf-fit" class="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+              <option value="">Default</option>
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="fill">Fill</option>
+              <option value="inside">Inside</option>
+              <option value="outside">Outside</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Gravity</label>
+            <select id="tf-gravity" class="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+              <option value="">Default</option>
+              <option value="center">Center</option>
+              <option value="face">Face</option>
+              <option value="auto">Auto</option>
+              <option value="north">North</option>
+              <option value="south">South</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Quality <span id="tf-q-val" class="text-accent">80</span></label>
+            <input type="range" id="tf-q" min="1" max="100" value="80" class="w-full accent-accent">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Blur <span id="tf-blur-val" class="text-accent">0</span></label>
+            <input type="range" id="tf-blur" min="0" max="250" value="0" class="w-full accent-accent">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Sharpen <span id="tf-sharp-val" class="text-accent">0</span></label>
+            <input type="range" id="tf-sharp" min="0" max="10" value="0" class="w-full accent-accent">
+          </div>
+        </div>
+
+        <!-- Generated URL -->
+        <div class="bg-card border border-border rounded-lg p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs text-gray-400">Generated URL</span>
+            <button id="tf-copy" class="text-xs text-accent hover:text-accent-hover transition">Copy URL</button>
+          </div>
+          <code id="tf-output" class="block text-xs text-green-400 break-all select-all leading-relaxed"></code>
+        </div>
+      </div>
+
+      <!-- Live Preview -->
+      <div>
+        <h3 class="text-sm text-gray-400 mb-2">Live Preview</h3>
+        <div class="bg-card border border-border rounded-lg flex items-center justify-center overflow-hidden" style="min-height:400px;">
+          <img id="tf-preview" src="" alt="Transform preview" class="max-w-full max-h-[500px] object-contain" style="display:none;">
+          <p id="tf-placeholder" class="text-gray-500 text-sm">Adjust parameters to generate preview</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== TAB: Insights ===== -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-insights" style="display:none;">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-lg font-semibold text-white">Edge Insights</h2>
+      <select id="insights-days" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+        <option value="7">Last 7 days</option>
+        <option value="14">Last 14 days</option>
+        <option value="30">Last 30 days</option>
+      </select>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-card border border-border rounded-lg p-4">
+        <p class="text-xs text-gray-400">Total Requests</p>
+        <p id="ins-total-hits" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+      <div class="bg-card border border-border rounded-lg p-4">
+        <p class="text-xs text-gray-400">Bandwidth</p>
+        <p id="ins-total-bw" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+      <div class="bg-card border border-border rounded-lg p-4">
+        <p class="text-xs text-gray-400">Cache Hit Ratio</p>
+        <p id="ins-cache-ratio" class="text-2xl font-bold text-green-400 mt-1">--</p>
+      </div>
+      <div class="bg-card border border-border rounded-lg p-4">
+        <p class="text-xs text-gray-400">Countries</p>
+        <p id="ins-countries" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+    </div>
+
+    <!-- Daily Breakdown Chart -->
+    <div class="bg-card border border-border rounded-lg p-4 mb-6">
+      <h3 class="text-sm font-medium text-gray-300 mb-3">Daily Requests</h3>
+      <div id="ins-chart" class="flex items-end gap-1" style="height:160px;"></div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <!-- Top Assets -->
+      <div class="bg-card border border-border rounded-lg p-4">
+        <h3 class="text-sm font-medium text-gray-300 mb-3">Top Assets</h3>
+        <div id="ins-top-assets" class="space-y-2 max-h-80 overflow-y-auto text-xs"></div>
+      </div>
+
+      <!-- Geo Distribution -->
+      <div class="bg-card border border-border rounded-lg p-4">
+        <h3 class="text-sm font-medium text-gray-300 mb-3">Geographic Distribution</h3>
+        <div id="ins-geo" class="space-y-2 max-h-80 overflow-y-auto text-xs"></div>
+      </div>
     </div>
   </main>
 

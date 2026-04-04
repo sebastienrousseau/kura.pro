@@ -9,6 +9,9 @@
     "test:watch": "npm run test:watch --prefix .."
   },
   "dependencies": {
-    "sharp": "^0.33.0"
+    "sharp": "0.33.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.59.1"
   }
 }

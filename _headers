@@ -36,6 +36,17 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
 
+/dist/*
+  Cache-Control: no-cache
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
+/api/stream
+  Access-Control-Allow-Origin: *
+
+/api/analytics
+  Access-Control-Allow-Origin: *
+
 /api/transform
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *

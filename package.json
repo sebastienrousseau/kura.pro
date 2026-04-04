@@ -6,9 +6,17 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:visual": "playwright test scripts/tests/visual/",
+    "test:visual:update": "playwright test scripts/tests/visual/ --update-snapshots",
+    "test:load": "k6 run scripts/tests/load.k6.js",
+    "test:load:smoke": "k6 run --duration 10s --vus 10 scripts/tests/load.k6.js",
+    "test:audit": "npm audit --audit-level=high",
+    "test:all": "npm test && npm run test:visual",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@playwright/test": "1.59.1",
     "@vitest/coverage-v8": "3.2.4",
     "vitest": "3.2.4"
   }

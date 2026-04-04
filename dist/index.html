@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudCDN — Software Distribution</title>
+  <meta name="description" content="Download CLI tools and binaries distributed via CloudCDN's global edge network.">
+  <link rel="icon" href="/kura/images/favicon.ico">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #08090d; --surface: #0f1117; --surface-2: #1a1d27;
+      --border: #2a2d3a; --text: #e2e4ea; --text-muted: #8b8fa3; --text-dim: #5b5f73;
+      --accent: #6366f1; --accent-hover: #818cf8; --accent-text: #a5b4fc;
+      --green: #4ade80; --green-soft: rgba(34,197,94,0.1); --green-border: rgba(34,197,94,0.2);
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header { border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
+    header a { color: var(--text-dim); text-decoration: none; transition: color 0.15s; }
+    header a:hover { color: #fff; }
+    header h1 { font-size: 1.25rem; font-weight: 700; color: #fff; }
+    header h1 span { color: var(--accent); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
+    h2 { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--text-muted); margin-bottom: 2rem; }
+
+    /* OS Detection Banner */
+    .os-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .os-icon { font-size: 2rem; }
+    .os-banner .detected { font-size: 0.875rem; color: var(--text-muted); }
+    .os-banner .detected strong { color: #fff; }
+
+    /* Package cards */
+    .packages { display: grid; gap: 1rem; }
+    .pkg {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      transition: border-color 0.15s;
+    }
+    .pkg:hover { border-color: var(--accent); }
+    .pkg.recommended { border-color: var(--green-border); background: linear-gradient(135deg, var(--surface), var(--green-soft)); }
+    .pkg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .pkg-name { font-weight: 600; color: #fff; }
+    .pkg-badge {
+      font-size: 0.6875rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+    .pkg-desc { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+    /* Install command */
+    .install-cmd {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.8125rem;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+    .install-cmd code { white-space: nowrap; flex: 1; }
+    .install-cmd button {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.6875rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .install-cmd button:hover { color: var(--text); border-color: var(--text-dim); }
+
+    /* Checksum */
+    .checksum {
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .checksum .label { color: var(--text-muted); }
+
+    /* File grid */
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .file-item {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .file-item .name { font-family: var(--mono); color: var(--accent-text); }
+    .file-item .size { color: var(--text-dim); }
+    .file-item.active { border-color: var(--green-border); background: var(--green-soft); }
+    .file-item.active .name { color: var(--green); }
+
+    footer { text-align: center; padding: 2rem; font-size: 0.75rem; color: var(--text-dim); border-top: 1px solid var(--border); margin-top: 2rem; }
+    footer a { color: var(--text-dim); text-decoration: none; }
+    footer a:hover { color: var(--accent-hover); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--surface-2); border: 1px solid var(--green-border); color: var(--green);
+      font-size: 0.8125rem; padding: 0.5rem 1rem; border-radius: 999px; z-index: 100;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" title="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <h1>Cloud<span>CDN</span> Dist</h1>
+    <a href="/dashboard" style="margin-left:auto;font-size:0.8125rem;">Dashboard</a>
+  </header>
+
+  <div class="container">
+    <h2>Software Distribution</h2>
+    <p class="subtitle">Download CLI tools and binaries delivered from 300+ edge locations. SHA-256 verified.</p>
+
+    <!-- OS Detection -->
+    <div class="os-banner" id="os-banner">
+      <span class="os-icon" id="os-icon"></span>
+      <div>
+        <p class="detected">Detected: <strong id="os-name">detecting...</strong></p>
+        <p style="font-size:0.75rem;color:var(--text-dim);margin-top:2px;" id="os-hint"></p>
+      </div>
+    </div>
+
+    <!-- Packages -->
+    <div class="packages" id="packages"></div>
+  </div>
+
+  <footer><a href="/">CloudCDN</a> &middot; <a href="/dashboard">Dashboard</a> &middot; All binaries signed and SHA-256 verified</footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (() => {
+    const CDN = 'https://cloudcdn.pro';
+
+    // Example packages — extend with real project data
+    const PACKAGES = [
+      {
+        name: 'Euxis CLI',
+        desc: 'Cross-platform cloud deployment toolkit',
+        version: '1.2.0',
+        files: {
+          macos_arm64: { file: 'euxis-1.2.0-darwin-arm64.tar.gz', size: '12.4 MB', sha256: 'a1b2c3d4e5f6...' },
+          macos_x64:   { file: 'euxis-1.2.0-darwin-x64.tar.gz',   size: '13.1 MB', sha256: 'f6e5d4c3b2a1...' },
+          linux_x64:   { file: 'euxis-1.2.0-linux-x64.tar.gz',    size: '11.8 MB', sha256: 'b2c3d4e5f6a1...' },
+          linux_arm64: { file: 'euxis-1.2.0-linux-arm64.tar.gz',   size: '11.2 MB', sha256: 'c3d4e5f6a1b2...' },
+          windows_x64: { file: 'euxis-1.2.0-windows-x64.zip',     size: '14.0 MB', sha256: 'd4e5f6a1b2c3...' },
+        },
+        install: {
+          macos:   `curl -sL ${CDN}/dist/euxis/install.sh | bash`,
+          linux:   `curl -sL ${CDN}/dist/euxis/install.sh | bash`,
+          windows: `irm ${CDN}/dist/euxis/install.ps1 | iex`,
+        },
+      },
+      {
+        name: 'Shokunin SSG',
+        desc: 'Static site generator built in Rust',
+        version: '0.9.0',
+        files: {
+          macos_arm64: { file: 'shokunin-0.9.0-darwin-arm64.tar.gz', size: '8.2 MB', sha256: 'e5f6a1b2c3d4...' },
+          macos_x64:   { file: 'shokunin-0.9.0-darwin-x64.tar.gz',   size: '8.7 MB', sha256: 'a1b2c3d4e5f6...' },
+          linux_x64:   { file: 'shokunin-0.9.0-linux-x64.tar.gz',    size: '7.9 MB', sha256: 'f6e5d4c3b2a1...' },
+          linux_arm64: { file: 'shokunin-0.9.0-linux-arm64.tar.gz',   size: '7.4 MB', sha256: 'b2c3d4e5f6a1...' },
+          windows_x64: { file: 'shokunin-0.9.0-windows-x64.zip',     size: '9.1 MB', sha256: 'c3d4e5f6a1b2...' },
+        },
+        install: {
+          macos:   `curl -sL ${CDN}/dist/shokunin/install.sh | bash`,
+          linux:   `curl -sL ${CDN}/dist/shokunin/install.sh | bash`,
+          windows: `irm ${CDN}/dist/shokunin/install.ps1 | iex`,
+        },
+      },
+    ];
+
+    // --- OS Detection ---
+    function detectOS() {
+      const ua = navigator.userAgent.toLowerCase();
+      const platform = navigator.platform?.toLowerCase() || '';
+
+      if (ua.includes('win')) return { os: 'windows', label: 'Windows', icon: '&#9610;', arch: ua.includes('arm') ? 'arm64' : 'x64' };
+      if (ua.includes('mac') || platform.includes('mac')) return { os: 'macos', label: 'macOS', icon: '&#63743;', arch: (ua.includes('arm') || platform.includes('arm')) ? 'arm64' : 'x64' };
+      if (ua.includes('linux')) {
+        if (ua.includes('wsl') || ua.includes('microsoft')) return { os: 'linux', label: 'Linux (WSL)', icon: '&#128039;', arch: 'x64' };
+        return { os: 'linux', label: 'Linux', icon: '&#128039;', arch: ua.includes('aarch64') || ua.includes('arm') ? 'arm64' : 'x64' };
+      }
+      return { os: 'linux', label: 'Unknown (defaulting to Linux)', icon: '&#128187;', arch: 'x64' };
+    }
+
+    const detected = detectOS();
+    document.getElementById('os-icon').innerHTML = detected.icon;
+    document.getElementById('os-name').textContent = `${detected.label} (${detected.arch})`;
+    document.getElementById('os-hint').textContent = `Showing recommended downloads for your platform. All platforms available below.`;
+
+    // --- Render Packages ---
+    const container = document.getElementById('packages');
+    const fileKey = `${detected.os}_${detected.arch}`;
+
+    for (const pkg of PACKAGES) {
+      const recommended = pkg.files[fileKey];
+      const installCmd = pkg.install[detected.os] || pkg.install.linux;
+
+      let html = `<div class="pkg">`;
+      html += `<div class="pkg-header"><span class="pkg-name">${pkg.name} <span style="color:var(--text-dim);font-weight:400;">v${pkg.version}</span></span></div>`;
+      html += `<p class="pkg-desc">${pkg.desc}</p>`;
+
+      // Install command
+      html += `<div class="install-cmd"><code>${escapeHtml(installCmd)}</code><button onclick="copyCmd(this)" data-cmd="${escapeAttr(installCmd)}">Copy</button></div>`;
+
+      // SHA checksum for recommended
+      if (recommended) {
+        html += `<div class="checksum"><span class="label">SHA-256:</span> ${recommended.sha256}</div>`;
+      }
+
+      // File grid
+      html += `<div class="file-grid">`;
+      for (const [key, info] of Object.entries(pkg.files)) {
+        const isActive = key === fileKey;
+        const label = key.replace('_', ' / ').replace('macos', 'macOS').replace('linux', 'Linux').replace('windows', 'Windows');
+        html += `<div class="file-item ${isActive ? 'active' : ''}">
+          <span class="name">${info.file.split('-').pop()}</span>
+          <span class="size">${info.size}</span>
+        </div>`;
+      }
+      html += `</div>`;
+      html += `</div>`;
+
+      container.innerHTML += html;
+    }
+
+    // --- Copy ---
+    window.copyCmd = function(btn) {
+      const cmd = btn.dataset.cmd;
+      navigator.clipboard.writeText(cmd).then(() => {
+        const t = document.getElementById('toast');
+        t.textContent = 'Copied!';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 1500);
+      });
+    };
+
+    function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escapeAttr(s) { return s.replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  })();
+  </script>
+</body>
+</html>

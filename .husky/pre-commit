@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run tests
+npm test
+
+# Regenerate manifest and stage if changed
+node scripts/generate-manifest.mjs
+
+if ! git diff --quiet manifest.json 2>/dev/null; then
+  git add manifest.json
+fi

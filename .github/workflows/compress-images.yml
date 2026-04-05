@@ -86,9 +86,12 @@ jobs:
           # Build tree entries from staged files
           TREE_ENTRIES="[]"
           for FILE in $(git diff --cached --name-only); do
-            BLOB_SHA=$(jq -n --arg content "$(base64 < "$FILE")" \
-              '{"encoding": "base64", "content": $content}' \
-              | gh api "repos/$REPO/git/blobs" --input - --jq '.sha')
+            PAYLOAD=$(mktemp)
+            printf '{"encoding":"base64","content":"' > "$PAYLOAD"
+            base64 < "$FILE" | tr -d '\n' >> "$PAYLOAD"
+            printf '"}' >> "$PAYLOAD"
+            BLOB_SHA=$(gh api "repos/$REPO/git/blobs" --input "$PAYLOAD" --jq '.sha')
+            rm -f "$PAYLOAD"
             TREE_ENTRIES=$(echo "$TREE_ENTRIES" | jq \
               --arg path "$FILE" \
               --arg sha "$BLOB_SHA" \

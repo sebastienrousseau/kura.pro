@@ -16,6 +16,7 @@ function makeCtx(options = {}) {
     env: {
       DASHBOARD_SECRET: options.secret,
       DASHBOARD_PASSWORD: options.password,
+      ASSETS: { fetch: vi.fn().mockResolvedValue(new Response('ok', { status: 200 })) },
     },
     next: vi.fn().mockResolvedValue(new Response('ok', { status: 200 })),
   };
@@ -50,7 +51,7 @@ describe('Dist Auth Middleware', () => {
 
     const ctx = makeCtx({ secret, cookie });
     const res = await onRequest(ctx);
-    expect(ctx.next).toHaveBeenCalled();
+    expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
   });
 
   it('expired session redirects to login', async () => {
@@ -102,7 +103,7 @@ describe('Dist Auth Middleware', () => {
 
     const ctx = makeCtx({ password, cookie });
     const res = await onRequest(ctx);
-    expect(ctx.next).toHaveBeenCalled();
+    expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
   });
 
   it('redirects to login with correct origin', async () => {
@@ -163,6 +164,6 @@ describe('Dist Auth Middleware', () => {
     const cookie = `other_cookie=foo; cdn_session=${futureExpiry}.${sig}; another=bar`;
     const ctx = makeCtx({ secret, cookie });
     const res = await onRequest(ctx);
-    expect(ctx.next).toHaveBeenCalled();
+    expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
   });
 });

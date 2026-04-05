@@ -27,11 +27,14 @@ function makeContext(options = {}) {
 
   const nextResponse = new Response('OK from next()', { status: 200 });
 
+  const assetsResponse = new Response('OK from ASSETS', { status: 200 });
+
   return {
     request,
     env: {
       DASHBOARD_PASSWORD: env.DASHBOARD_PASSWORD,
       DASHBOARD_SECRET: env.DASHBOARD_SECRET,
+      ASSETS: { fetch: vi.fn().mockResolvedValue(assetsResponse) },
       ...env,
     },
     next: vi.fn().mockResolvedValue(nextResponse),
@@ -179,7 +182,7 @@ describe('Dashboard Auth Middleware', () => {
 
   // ── Session cookie validation ──
   describe('session cookie — valid', () => {
-    it('passes through to next() with a valid session cookie', async () => {
+    it('serves page via ASSETS.fetch with a valid session cookie', async () => {
       const secret = 'secret123';
       const futureExpiry = Math.floor(Date.now() / 1000) + 3600;
       const cookie = await makeSessionCookie(secret, futureExpiry);
@@ -190,7 +193,7 @@ describe('Dashboard Auth Middleware', () => {
         env: { DASHBOARD_PASSWORD: secret },
       });
       const res = await onRequest(ctx);
-      expect(ctx.next).toHaveBeenCalled();
+      expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
       expect(res.status).toBe(200);
     });
   });
@@ -278,7 +281,7 @@ describe('Dashboard Auth Middleware', () => {
         env: { DASHBOARD_PASSWORD: secret },
       });
       const res = await onRequest(ctx);
-      expect(ctx.next).toHaveBeenCalled();
+      expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
       expect(res.status).toBe(200);
     });
 
@@ -359,7 +362,7 @@ describe('Dashboard Auth Middleware', () => {
         env: { DASHBOARD_PASSWORD: secret },
       });
       const res = await onRequest(ctx);
-      expect(ctx.next).toHaveBeenCalled();
+      expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
       expect(res.status).toBe(200);
     });
   });

@@ -28,7 +28,10 @@ export async function onRequest(context) {
         const valid = await hmacVerifyCached(secret, token, sig);
         const expires = parseInt(token, 10);
         if (valid && expires > Date.now() / 1000) {
-          return context.next();
+          // Rewrite /dist/* to /website/dist/* for static asset serving
+          const url = new URL(request.url);
+          url.pathname = '/website' + url.pathname;
+          return env.ASSETS.fetch(new Request(url.toString(), request));
         }
       }
     }

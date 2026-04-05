@@ -159,7 +159,10 @@ export async function onRequest(context) {
         const valid = await hmacVerifyCached(secret, token, sig);
         const expires = parseInt(token, 10);
         if (valid && expires > Date.now() / 1000) {
-          return context.next();
+          // Rewrite /dashboard/* to /website/dashboard/* for static asset serving
+          const rewrittenUrl = new URL(request.url);
+          rewrittenUrl.pathname = '/website' + url.pathname;
+          return env.ASSETS.fetch(new Request(rewrittenUrl.toString(), request));
         }
       }
     }

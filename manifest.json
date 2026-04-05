@@ -1,5 +1,13 @@
 [
   {
+    "name": "favicon.ico",
+    "path": "akande/favicon.ico",
+    "project": "akande",
+    "category": "general",
+    "format": "ico",
+    "size": 384743
+  },
+  {
     "name": "banner-akande.svg",
     "path": "akande/v1/banners/banner-akande.svg",
     "project": "akande",
@@ -102,6 +110,14 @@
     "category": "titles",
     "format": "svg",
     "size": 273
+  },
+  {
+    "name": "favicon.ico",
+    "path": "alienstudio/favicon.ico",
+    "project": "alienstudio",
+    "category": "general",
+    "format": "ico",
+    "size": 402524
   },
   {
     "name": "banner-alienstudio.svg",
@@ -3768,6 +3784,14 @@
     "size": 10897
   },
   {
+    "name": "favicon.ico",
+    "path": "audioanalyser/favicon.ico",
+    "project": "audioanalyser",
+    "category": "general",
+    "format": "ico",
+    "size": 380951
+  },
+  {
     "name": "action-analyse.svg",
     "path": "audioanalyser/v1/actions/action-analyse.svg",
     "project": "audioanalyser",
@@ -3936,6 +3960,14 @@
     "size": 309
   },
   {
+    "name": "favicon.ico",
+    "path": "audiotextpro/favicon.ico",
+    "project": "audiotextpro",
+    "category": "general",
+    "format": "ico",
+    "size": 383923
+  },
+  {
     "name": "banner-audiotextpro.svg",
     "path": "audiotextpro/v1/banners/banner-audiotextpro.svg",
     "project": "audiotextpro",
@@ -4008,6 +4040,14 @@
     "size": 24415
   },
   {
+    "name": "favicon.ico",
+    "path": "bankingonai/favicon.ico",
+    "project": "bankingonai",
+    "category": "general",
+    "format": "ico",
+    "size": 383561
+  },
+  {
     "name": "banner-bankingonai.svg",
     "path": "bankingonai/v1/banners/banner-bankingonai.svg",
     "project": "bankingonai",
@@ -4070,6 +4110,14 @@
     "category": "titles",
     "format": "svg",
     "size": 5346
+  },
+  {
+    "name": "favicon.ico",
+    "path": "bankingonquantum/favicon.ico",
+    "project": "bankingonquantum",
+    "category": "general",
+    "format": "ico",
+    "size": 402865
   },
   {
     "name": "banner-bankingonquantum.svg",
@@ -4144,6 +4192,14 @@
     "size": 1313735
   },
   {
+    "name": "favicon.ico",
+    "path": "bankstatementparser/favicon.ico",
+    "project": "bankstatementparser",
+    "category": "general",
+    "format": "ico",
+    "size": 411884
+  },
+  {
     "name": "banner-bankstatementparser.svg",
     "path": "bankstatementparser/v1/banners/banner-bankstatementparser.svg",
     "project": "bankstatementparser",
@@ -4208,6 +4264,14 @@
     "size": 321
   },
   {
+    "name": "favicon.ico",
+    "path": "beonux/favicon.ico",
+    "project": "beonux",
+    "category": "general",
+    "format": "ico",
+    "size": 54735
+  },
+  {
     "name": "banner-beonux.svg",
     "path": "beonux/v1/banners/banner-beonux.svg",
     "project": "beonux",
@@ -4270,6 +4334,14 @@
     "category": "titles",
     "format": "svg",
     "size": 275
+  },
+  {
+    "name": "favicon.ico",
+    "path": "cloudcdn/favicon.ico",
+    "project": "cloudcdn",
+    "category": "general",
+    "format": "ico",
+    "size": 403108
   },
   {
     "name": "banner-cloudcdn.svg",
@@ -5536,6 +5608,14 @@
     "size": 67386
   },
   {
+    "name": "favicon.ico",
+    "path": "dtt/favicon.ico",
+    "project": "dtt",
+    "category": "general",
+    "format": "ico",
+    "size": 401534
+  },
+  {
     "name": "banner-dtt.svg",
     "path": "dtt/v1/banners/banner-dtt.svg",
     "project": "dtt",
@@ -5598,6 +5678,14 @@
     "category": "titles",
     "format": "svg",
     "size": 32826
+  },
+  {
+    "name": "favicon.ico",
+    "path": "frontmatter-gen/favicon.ico",
+    "project": "frontmatter-gen",
+    "category": "general",
+    "format": "ico",
+    "size": 27768
   },
   {
     "name": "banner-frontmatter-gen.svg",
@@ -5664,6 +5752,14 @@
     "size": 323
   },
   {
+    "name": "favicon.ico",
+    "path": "hsh/favicon.ico",
+    "project": "hsh",
+    "category": "general",
+    "format": "ico",
+    "size": 390990
+  },
+  {
     "name": "banner-hsh.svg",
     "path": "hsh/v1/banners/banner-hsh.svg",
     "project": "hsh",
@@ -5726,6 +5822,14 @@
     "category": "titles",
     "format": "svg",
     "size": 309
+  },
+  {
+    "name": "favicon.ico",
+    "path": "html-generator/favicon.ico",
+    "project": "html-generator",
+    "category": "general",
+    "format": "ico",
+    "size": 53888
   },
   {
     "name": "banner-html-generator.svg",
@@ -5792,6 +5896,14 @@
     "size": 512
   },
   {
+    "name": "favicon.ico",
+    "path": "http-handle/favicon.ico",
+    "project": "http-handle",
+    "category": "general",
+    "format": "ico",
+    "size": 37629
+  },
+  {
     "name": "banner-http-handle.svg",
     "path": "http-handle/v1/banners/banner-http-handle.svg",
     "project": "http-handle",
@@ -5856,6 +5968,14 @@
     "size": 335
   },
   {
+    "name": "favicon.ico",
+    "path": "kaishi/favicon.ico",
+    "project": "kaishi",
+    "category": "general",
+    "format": "ico",
+    "size": 387195
+  },
+  {
     "name": "banner-kaishi.svg",
     "path": "kaishi/v1/banners/banner-kaishi.svg",
     "project": "kaishi",
@@ -5910,6 +6030,14 @@
     "category": "titles",
     "format": "svg",
     "size": 16502
+  },
+  {
+    "name": "favicon.ico",
+    "path": "kyberlib/favicon.ico",
+    "project": "kyberlib",
+    "category": "general",
+    "format": "ico",
+    "size": 402329
   },
   {
     "name": "banner-kyberlib.svg",
@@ -5974,6 +6102,14 @@
     "category": "titles",
     "format": "svg",
     "size": 308
+  },
+  {
+    "name": "favicon.ico",
+    "path": "l90s/favicon.ico",
+    "project": "l90s",
+    "category": "general",
+    "format": "ico",
+    "size": 402161
   },
   {
     "name": "banner-l90s.svg",
@@ -6048,6 +6184,14 @@
     "size": 6179
   },
   {
+    "name": "favicon.ico",
+    "path": "langweave/favicon.ico",
+    "project": "langweave",
+    "category": "general",
+    "format": "ico",
+    "size": 53070
+  },
+  {
     "name": "banner-langweave.svg",
     "path": "langweave/v1/banners/banner-langweave.svg",
     "project": "langweave",
@@ -6110,6 +6254,14 @@
     "category": "titles",
     "format": "svg",
     "size": 312
+  },
+  {
+    "name": "favicon.ico",
+    "path": "libmake/favicon.ico",
+    "project": "libmake",
+    "category": "general",
+    "format": "ico",
+    "size": 387264
   },
   {
     "name": "banner-libmake.svg",
@@ -6176,6 +6328,14 @@
     "size": 22697
   },
   {
+    "name": "favicon.ico",
+    "path": "libyml/favicon.ico",
+    "project": "libyml",
+    "category": "general",
+    "format": "ico",
+    "size": 51128
+  },
+  {
     "name": "banner-libyml.svg",
     "path": "libyml/v1/banners/banner-libyml.svg",
     "project": "libyml",
@@ -6238,6 +6398,14 @@
     "category": "titles",
     "format": "svg",
     "size": 311
+  },
+  {
+    "name": "favicon.ico",
+    "path": "llamadev/favicon.ico",
+    "project": "llamadev",
+    "category": "general",
+    "format": "ico",
+    "size": 56291
   },
   {
     "name": "banner-llamadev.svg",
@@ -6312,6 +6480,14 @@
     "size": 43966
   },
   {
+    "name": "favicon.ico",
+    "path": "mdx-gen/favicon.ico",
+    "project": "mdx-gen",
+    "category": "general",
+    "format": "ico",
+    "size": 43861
+  },
+  {
     "name": "banner-mdx-gen.svg",
     "path": "mdx-gen/v1/banners/banner-mdx-gen.svg",
     "project": "mdx-gen",
@@ -6376,6 +6552,14 @@
     "size": 313
   },
   {
+    "name": "favicon.ico",
+    "path": "metadata-gen/favicon.ico",
+    "project": "metadata-gen",
+    "category": "general",
+    "format": "ico",
+    "size": 61695
+  },
+  {
     "name": "banner-metadata-gen.svg",
     "path": "metadata-gen/v1/banners/banner-metadata-gen.svg",
     "project": "metadata-gen",
@@ -6438,6 +6622,14 @@
     "category": "titles",
     "format": "svg",
     "size": 318
+  },
+  {
+    "name": "favicon.ico",
+    "path": "mini-functions/favicon.ico",
+    "project": "mini-functions",
+    "category": "general",
+    "format": "ico",
+    "size": 389825
   },
   {
     "name": "favicon.ico",
@@ -7032,6 +7224,14 @@
     "size": 315
   },
   {
+    "name": "favicon.ico",
+    "path": "nalufx/favicon.ico",
+    "project": "nalufx",
+    "category": "general",
+    "format": "ico",
+    "size": 50145
+  },
+  {
     "name": "banner-nalufx.svg",
     "path": "nalufx/v1/banners/banner-nalufx.svg",
     "project": "nalufx",
@@ -7097,6 +7297,14 @@
   },
   {
     "name": "favicon.ico",
+    "path": "neferankh/favicon.ico",
+    "project": "neferankh",
+    "category": "general",
+    "format": "ico",
+    "size": 141730
+  },
+  {
+    "name": "favicon.ico",
     "path": "neferankh/v1/favicon.ico",
     "project": "neferankh",
     "category": "favicon.ico",
@@ -7134,6 +7342,14 @@
     "category": "titles",
     "format": "svg",
     "size": 349
+  },
+  {
+    "name": "favicon.ico",
+    "path": "nucleusflow/favicon.ico",
+    "project": "nucleusflow",
+    "category": "general",
+    "format": "ico",
+    "size": 53059
   },
   {
     "name": "banner-nucleusflow.svg",
@@ -7198,6 +7414,14 @@
     "category": "titles",
     "format": "svg",
     "size": 314
+  },
+  {
+    "name": "favicon.ico",
+    "path": "pain001/favicon.ico",
+    "project": "pain001",
+    "category": "general",
+    "format": "ico",
+    "size": 395557
   },
   {
     "name": "banner-pain001.svg",
@@ -8448,6 +8672,14 @@
     "size": 11978
   },
   {
+    "name": "favicon.ico",
+    "path": "password-generator-pro/favicon.ico",
+    "project": "password-generator-pro",
+    "category": "general",
+    "format": "ico",
+    "size": 381370
+  },
+  {
     "name": "banner-password-generator-pro.svg",
     "path": "password-generator-pro/v1/banners/banner-password-generator-pro.svg",
     "project": "password-generator-pro",
@@ -8512,6 +8744,14 @@
     "size": 38736
   },
   {
+    "name": "favicon.ico",
+    "path": "pipelines/favicon.ico",
+    "project": "pipelines",
+    "category": "general",
+    "format": "ico",
+    "size": 76284
+  },
+  {
     "name": "banner-pipelines.png",
     "path": "pipelines/v1/banners/banner-pipelines.png",
     "project": "pipelines",
@@ -8574,6 +8814,14 @@
     "category": "banners",
     "format": "webp",
     "size": 63272
+  },
+  {
+    "name": "favicon.ico",
+    "path": "pythondev/favicon.ico",
+    "project": "pythondev",
+    "category": "general",
+    "format": "ico",
+    "size": 87005
   },
   {
     "name": "banner-pythondev.svg",
@@ -8704,6 +8952,14 @@
     "size": 304
   },
   {
+    "name": "favicon.ico",
+    "path": "rlg/favicon.ico",
+    "project": "rlg",
+    "category": "general",
+    "format": "ico",
+    "size": 404716
+  },
+  {
     "name": "banner-rlg.svg",
     "path": "rlg/v1/banners/banner-rlg.svg",
     "project": "rlg",
@@ -8769,6 +9025,14 @@
   },
   {
     "name": "favicon.ico",
+    "path": "routefinder/favicon.ico",
+    "project": "routefinder",
+    "category": "general",
+    "format": "ico",
+    "size": 381427
+  },
+  {
+    "name": "favicon.ico",
     "path": "routefinder/v1/favicon.ico",
     "project": "routefinder",
     "category": "favicon.ico",
@@ -8806,6 +9070,14 @@
     "category": "logos",
     "format": "svg",
     "size": 7199
+  },
+  {
+    "name": "favicon.ico",
+    "path": "rssgen/favicon.ico",
+    "project": "rssgen",
+    "category": "general",
+    "format": "ico",
+    "size": 45668
   },
   {
     "name": "banner-rssgen.svg",
@@ -8864,6 +9136,14 @@
     "size": 26765
   },
   {
+    "name": "favicon.ico",
+    "path": "rustdev/favicon.ico",
+    "project": "rustdev",
+    "category": "general",
+    "format": "ico",
+    "size": 120802
+  },
+  {
     "name": "banner-rustdev.svg",
     "path": "rustdev/v1/banners/banner-rustdev.svg",
     "project": "rustdev",
@@ -8918,6 +9198,14 @@
     "category": "titles",
     "format": "svg",
     "size": 313
+  },
+  {
+    "name": "favicon.ico",
+    "path": "sebastienrousseau/favicon.ico",
+    "project": "sebastienrousseau",
+    "category": "general",
+    "format": "ico",
+    "size": 384592
   },
   {
     "name": "banner-sebastienrousseau.svg",
@@ -9016,6 +9304,14 @@
     "size": 18398
   },
   {
+    "name": "favicon.ico",
+    "path": "serde_yml/favicon.ico",
+    "project": "serde_yml",
+    "category": "general",
+    "format": "ico",
+    "size": 54495
+  },
+  {
     "name": "banner-serde_yml.svg",
     "path": "serde_yml/v1/banners/banner-serde_yml.svg",
     "project": "serde_yml",
@@ -9078,6 +9374,14 @@
     "category": "titles",
     "format": "svg",
     "size": 310
+  },
+  {
+    "name": "favicon.ico",
+    "path": "shokunin/favicon.ico",
+    "project": "shokunin",
+    "category": "general",
+    "format": "ico",
+    "size": 388561
   },
   {
     "name": "banner-shokunin.svg",
@@ -9200,6 +9504,14 @@
     "size": 15765
   },
   {
+    "name": "favicon.ico",
+    "path": "sitemap-gen/favicon.ico",
+    "project": "sitemap-gen",
+    "category": "general",
+    "format": "ico",
+    "size": 47757
+  },
+  {
     "name": "banner-sitemap-gen.svg",
     "path": "sitemap-gen/v1/banners/banner-sitemap-gen.svg",
     "project": "sitemap-gen",
@@ -9304,6 +9616,14 @@
     "size": 76821
   },
   {
+    "name": "favicon.ico",
+    "path": "staticdatagen/favicon.ico",
+    "project": "staticdatagen",
+    "category": "general",
+    "format": "ico",
+    "size": 29856
+  },
+  {
     "name": "banner-staticdatagen.svg",
     "path": "staticdatagen/v1/banners/banner-staticdatagen.svg",
     "project": "staticdatagen",
@@ -9368,6 +9688,14 @@
     "size": 316
   },
   {
+    "name": "favicon.ico",
+    "path": "staticrux/favicon.ico",
+    "project": "staticrux",
+    "category": "general",
+    "format": "ico",
+    "size": 47254
+  },
+  {
     "name": "banner-staticrux.svg",
     "path": "staticrux/v1/banners/banner-staticrux.svg",
     "project": "staticrux",
@@ -9430,6 +9758,14 @@
     "category": "titles",
     "format": "svg",
     "size": 312
+  },
+  {
+    "name": "favicon.ico",
+    "path": "staticweaver/favicon.ico",
+    "project": "staticweaver",
+    "category": "general",
+    "format": "ico",
+    "size": 42152
   },
   {
     "name": "banner-staticweaver.svg",
@@ -12504,6 +12840,14 @@
     "size": 169298
   },
   {
+    "name": "favicon.ico",
+    "path": "talkwave/favicon.ico",
+    "project": "talkwave",
+    "category": "general",
+    "format": "ico",
+    "size": 393559
+  },
+  {
     "name": "banner-talkwave.svg",
     "path": "talkwave/v1/banners/banner-talkwave.svg",
     "project": "talkwave",
@@ -12558,6 +12902,14 @@
     "category": "titles",
     "format": "svg",
     "size": 32321
+  },
+  {
+    "name": "favicon.ico",
+    "path": "vrd/favicon.ico",
+    "project": "vrd",
+    "category": "general",
+    "format": "ico",
+    "size": 386695
   },
   {
     "name": "banner-vrd.svg",
@@ -12624,6 +12976,14 @@
     "size": 43506
   },
   {
+    "name": "favicon.ico",
+    "path": "wiserone/favicon.ico",
+    "project": "wiserone",
+    "category": "general",
+    "format": "ico",
+    "size": 432825
+  },
+  {
     "name": "banner-wiserone.svg",
     "path": "wiserone/v1/banners/banner-wiserone.svg",
     "project": "wiserone",
@@ -12686,6 +13046,14 @@
     "category": "titles",
     "format": "svg",
     "size": 9600
+  },
+  {
+    "name": "favicon.ico",
+    "path": "xtasks/favicon.ico",
+    "project": "xtasks",
+    "category": "general",
+    "format": "ico",
+    "size": 409732
   },
   {
     "name": "banner-xtasks.svg",

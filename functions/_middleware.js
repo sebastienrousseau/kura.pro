@@ -23,8 +23,10 @@ const CONTINENT_MAP = {
   AN: "antarctica",
 };
 
-// Pre-computed website prefixes for O(1) lookup
-const WEBSITE_PREFIXES = ["/dashboard/", "/dist/", "/shared/", "/content/", "/api-reference/"];
+// Prefixes that have their own Functions middleware — must use context.next()
+const FUNCTIONS_PREFIXES = ["/dashboard/", "/dist/"];
+// Prefixes that are static-only — rewrite to /website/ and serve from ASSETS
+const STATIC_PREFIXES = ["/shared/", "/content/", "/api-reference/"];
 
 /**
  * Extract file extension from path without regex.
@@ -111,16 +113,23 @@ export async function onRequest(context) {
     return rewriteFetch(env, request, rawUrl, pathStart, "/website/api-reference/index.html");
   }
 
-  // Website prefix check — linear scan of 5 items (faster than Set for small N)
-  for (let i = 0; i < WEBSITE_PREFIXES.length; i++) {
-    const prefix = WEBSITE_PREFIXES[i];
+  // Paths with their own Functions middleware — always context.next() so auth runs
+  for (let i = 0; i < FUNCTIONS_PREFIXES.length; i++) {
+    const prefix = FUNCTIONS_PREFIXES[i];
     if (path.length >= prefix.length &&
         path.charCodeAt(1) === prefix.charCodeAt(1) &&
         path.startsWith(prefix)) {
-      // Try static asset first; if 404, fall through to Functions middleware
-      const assetRes = await rewriteFetch(env, request, rawUrl, pathStart, "/website" + path);
-      if (assetRes.status !== 404) return assetRes;
       return context.next();
+    }
+  }
+
+  // Static-only website prefixes — rewrite to /website/ and serve from ASSETS
+  for (let i = 0; i < STATIC_PREFIXES.length; i++) {
+    const prefix = STATIC_PREFIXES[i];
+    if (path.length >= prefix.length &&
+        path.charCodeAt(1) === prefix.charCodeAt(1) &&
+        path.startsWith(prefix)) {
+      return rewriteFetch(env, request, rawUrl, pathStart, "/website" + path);
     }
   }
 

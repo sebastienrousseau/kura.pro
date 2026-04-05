@@ -76,18 +76,17 @@ describe('Middleware: onRequest', () => {
       expect(fetchedUrl).toContain('/website/index.html');
     });
 
-    it('rewrites /dashboard/ to /website/dashboard/', async () => {
+    it('passes /dashboard/ through to Functions middleware (context.next)', async () => {
       const ctx = makeContext('/dashboard/');
-      await onRequest(ctx);
-      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
-      expect(fetchedUrl).toContain('/website/dashboard/');
+      const res = await onRequest(ctx);
+      // Should call context.next(), not ASSETS.fetch
+      expect(ctx.next).toHaveBeenCalled();
     });
 
-    it('rewrites /dist/ to /website/dist/', async () => {
+    it('passes /dist/ through to Functions middleware (context.next)', async () => {
       const ctx = makeContext('/dist/');
-      await onRequest(ctx);
-      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
-      expect(fetchedUrl).toContain('/website/dist/');
+      const res = await onRequest(ctx);
+      expect(ctx.next).toHaveBeenCalled();
     });
 
     it('rewrites /shared/ to /website/shared/', async () => {

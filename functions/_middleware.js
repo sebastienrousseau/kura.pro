@@ -117,7 +117,10 @@ export async function onRequest(context) {
     if (path.length >= prefix.length &&
         path.charCodeAt(1) === prefix.charCodeAt(1) &&
         path.startsWith(prefix)) {
-      return rewriteFetch(env, request, rawUrl, pathStart, "/website" + path);
+      // Try static asset first; if 404, fall through to Functions middleware
+      const assetRes = await rewriteFetch(env, request, rawUrl, pathStart, "/website" + path);
+      if (assetRes.status !== 404) return assetRes;
+      return context.next();
     }
   }
 

@@ -14,7 +14,7 @@
  * RP ID: cloudcdn.pro
  */
 
-import { hmacSign } from './_shared.js';
+import { hmacSign, hmacVerifyCached, parseCookies } from './_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +22,35 @@ const CORS = {
   'Access-Control-Allow-Headers': 'AccountKey, Content-Type, Cookie',
   'Content-Type': 'application/json',
 };
+
+const SESSION_COOKIE = 'cdn_session';
+
+async function authenticateAdmin(request, env) {
+  // Check AccountKey header
+  const key = request.headers.get('AccountKey');
+  if (env.ACCOUNT_KEY && key === env.ACCOUNT_KEY) return true;
+
+  // Check dashboard session cookie
+  const secret = env.DASHBOARD_SECRET || env.DASHBOARD_PASSWORD;
+  if (secret) {
+    const cookies = parseCookies(request.headers.get('Cookie'));
+    const session = cookies[SESSION_COOKIE];
+    if (session) {
+      const dot = session.lastIndexOf('.');
+      if (dot > 0) {
+        const token = session.slice(0, dot);
+        const sig = session.slice(dot + 1);
+        if (token && sig) {
+          const valid = await hmacVerifyCached(secret, token, sig);
+          const expires = parseInt(token, 10);
+          if (valid && expires > Date.now() / 1000) return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
 
 const PASSKEYS_KEY = 'passkeys:credentials';
 const CHALLENGES_PREFIX = 'passkeys:challenge:';
@@ -72,9 +101,8 @@ export async function onRequestPost(context) {
  * Requires AccountKey (initial bootstrap auth).
  */
 async function registerBegin(request, env) {
-  const key = request.headers.get('AccountKey');
-  if (!env.ACCOUNT_KEY || key !== env.ACCOUNT_KEY) {
-    return new Response(JSON.stringify({ error: 'AccountKey required for passkey registration.' }), { status: 401, headers: CORS });
+  if (!(await authenticateAdmin(request, env))) {
+    return new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401, headers: CORS });
   }
 
   const kv = env.RATE_KV;
@@ -117,9 +145,8 @@ async function registerBegin(request, env) {
  * Complete passkey registration — stores the credential.
  */
 async function registerComplete(request, env) {
-  const key = request.headers.get('AccountKey');
-  if (!env.ACCOUNT_KEY || key !== env.ACCOUNT_KEY) {
-    return new Response(JSON.stringify({ error: 'AccountKey required.' }), { status: 401, headers: CORS });
+  if (!(await authenticateAdmin(request, env))) {
+    return new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401, headers: CORS });
   }
 
   const kv = env.RATE_KV;
@@ -244,9 +271,8 @@ async function authComplete(request, env) {
  */
 export async function onRequestGet(context) {
   const { request, env } = context;
-  const key = request.headers.get('AccountKey');
-  if (!env.ACCOUNT_KEY || key !== env.ACCOUNT_KEY) {
-    return new Response(JSON.stringify({ error: 'AccountKey required.' }), { status: 401, headers: CORS });
+  if (!(await authenticateAdmin(request, env))) {
+    return new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401, headers: CORS });
   }
 
   const kv = env.RATE_KV;
@@ -269,9 +295,8 @@ export async function onRequestGet(context) {
  */
 export async function onRequestDelete(context) {
   const { request, env } = context;
-  const key = request.headers.get('AccountKey');
-  if (!env.ACCOUNT_KEY || key !== env.ACCOUNT_KEY) {
-    return new Response(JSON.stringify({ error: 'AccountKey required.' }), { status: 401, headers: CORS });
+  if (!(await authenticateAdmin(request, env))) {
+    return new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401, headers: CORS });
   }
 
   const kv = env.RATE_KV;

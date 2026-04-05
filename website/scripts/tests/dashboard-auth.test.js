@@ -130,7 +130,7 @@ describe('Dashboard Auth Middleware', () => {
       });
       const res = await onRequest(ctx);
       expect(res.status).toBe(302);
-      expect(res.headers.get('Location')).toBe('/dashboard/');
+      expect(res.headers.get('Location')).toBe('/dashboard/setup-passkey');
       const setCookie = res.headers.get('Set-Cookie');
       expect(setCookie).toContain('cdn_session=');
       expect(setCookie).toContain('HttpOnly');
@@ -312,7 +312,7 @@ describe('Dashboard Auth Middleware', () => {
       });
       const res = await onRequest(ctx);
       expect(res.status).toBe(302);
-      expect(res.headers.get('Location')).toBe('/dashboard/');
+      expect(res.headers.get('Location')).toBe('/dashboard/setup-passkey');
     });
 
     it('handles password with Unicode characters', async () => {

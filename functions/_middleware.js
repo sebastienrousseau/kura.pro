@@ -164,10 +164,11 @@ export async function onRequest(context) {
 
 /**
  * Rewrite path and fetch — constructs URL string directly, avoids new URL().
+ * Uses redirect: 'manual' to prevent ASSETS.fetch from following internal redirects.
  */
 function rewriteFetch(env, request, rawUrl, pathStart, newPath) {
   const newUrl = rawUrl.slice(0, pathStart) + newPath;
-  return env.ASSETS.fetch(new Request(newUrl, request));
+  return env.ASSETS.fetch(new Request(newUrl, { headers: request.headers, redirect: 'manual' }));
 }
 
 /**

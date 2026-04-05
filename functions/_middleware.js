@@ -97,8 +97,8 @@ export async function onRequest(context) {
     return context.next();
   }
 
-  // ── 3. Website pillar ���─
-  if (path === "/" || path === "/index.html" || path === "/website" || path === "/website/") {
+  // ── 3. Website pillar ──
+  if (path === "/" || path === "/index.html") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/website/index.html");
   }
   if (path === "/404.html") {
@@ -109,12 +109,6 @@ export async function onRequest(context) {
   }
   if (path === "/api-reference") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/website/api-reference/index.html");
-  }
-  if (path === "/dist") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/website/dist/index.html");
-  }
-  if (path === "/dashboard") {
-    return Response.redirect(rawUrl.slice(0, pathStart) + "/dashboard/" + (qmark === -1 ? "" : rawUrl.slice(qmark)), 301);
   }
 
   // Website prefix check — linear scan of 5 items (faster than Set for small N)

@@ -110,6 +110,12 @@ export async function onRequest(context) {
   if (path === "/api-reference") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/website/api-reference/index.html");
   }
+  if (path === "/dist") {
+    return rewriteFetch(env, request, rawUrl, pathStart, "/website/dist/index.html");
+  }
+  if (path === "/dashboard") {
+    return Response.redirect(rawUrl.slice(0, pathStart) + "/dashboard/" + (qmark === -1 ? "" : rawUrl.slice(qmark)), 301);
+  }
 
   // Website prefix check — linear scan of 5 items (faster than Set for small N)
   for (let i = 0; i < WEBSITE_PREFIXES.length; i++) {

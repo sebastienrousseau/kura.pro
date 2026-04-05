@@ -20,7 +20,7 @@ export async function onRequest(context) {
   const session = cookies[SESSION_COOKIE];
 
   if (session) {
-    const dot = session.indexOf('.');
+    const dot = session.lastIndexOf('.');
     if (dot > 0) {
       const token = session.slice(0, dot);
       const sig = session.slice(dot + 1);

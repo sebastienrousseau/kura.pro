@@ -96,22 +96,6 @@
     "size": 3329
   },
   {
-    "name": "akande-promo-01.svg",
-    "path": "akande/v1/promos/akande-promo-01.svg",
-    "project": "akande",
-    "category": "promos",
-    "format": "svg",
-    "size": 9727778
-  },
-  {
-    "name": "akande-promo.svg",
-    "path": "akande/v1/promos/akande-promo.svg",
-    "project": "akande",
-    "category": "promos",
-    "format": "svg",
-    "size": 7991105
-  },
-  {
     "name": "title-akande.svg",
     "path": "akande/v1/titles/title-akande.svg",
     "project": "akande",
@@ -126,6 +110,894 @@
     "category": "banners",
     "format": "svg",
     "size": 33890
+  },
+  {
+    "name": "01-savanna.webp",
+    "path": "alienstudio/v1/collections/01-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 567034
+  },
+  {
+    "name": "01-xiqing.webp",
+    "path": "alienstudio/v1/collections/01-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 280524
+  },
+  {
+    "name": "02-savanna.webp",
+    "path": "alienstudio/v1/collections/02-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 557334
+  },
+  {
+    "name": "02-xiqing.webp",
+    "path": "alienstudio/v1/collections/02-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 1993604
+  },
+  {
+    "name": "03-savanna.webp",
+    "path": "alienstudio/v1/collections/03-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 336558
+  },
+  {
+    "name": "03-xiqing.webp",
+    "path": "alienstudio/v1/collections/03-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 257520
+  },
+  {
+    "name": "04-savanna.webp",
+    "path": "alienstudio/v1/collections/04-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 368742
+  },
+  {
+    "name": "04-xiqing.webp",
+    "path": "alienstudio/v1/collections/04-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 397970
+  },
+  {
+    "name": "05-savanna.webp",
+    "path": "alienstudio/v1/collections/05-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 174802
+  },
+  {
+    "name": "05-xiqing.webp",
+    "path": "alienstudio/v1/collections/05-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 307310
+  },
+  {
+    "name": "06-savanna.webp",
+    "path": "alienstudio/v1/collections/06-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 696894
+  },
+  {
+    "name": "06-xiqing.webp",
+    "path": "alienstudio/v1/collections/06-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 236628
+  },
+  {
+    "name": "07-savanna.webp",
+    "path": "alienstudio/v1/collections/07-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 243764
+  },
+  {
+    "name": "07-xiqing.webp",
+    "path": "alienstudio/v1/collections/07-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 222430
+  },
+  {
+    "name": "08-savanna.webp",
+    "path": "alienstudio/v1/collections/08-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 229138
+  },
+  {
+    "name": "08-xiqing.webp",
+    "path": "alienstudio/v1/collections/08-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 339110
+  },
+  {
+    "name": "09-savanna.webp",
+    "path": "alienstudio/v1/collections/09-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 687668
+  },
+  {
+    "name": "09-xiqing.webp",
+    "path": "alienstudio/v1/collections/09-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 207404
+  },
+  {
+    "name": "10-savanna.webp",
+    "path": "alienstudio/v1/collections/10-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 184956
+  },
+  {
+    "name": "10-xiqing.webp",
+    "path": "alienstudio/v1/collections/10-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 138492
+  },
+  {
+    "name": "11-savanna.webp",
+    "path": "alienstudio/v1/collections/11-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 267642
+  },
+  {
+    "name": "11-xiqing.webp",
+    "path": "alienstudio/v1/collections/11-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 194002
+  },
+  {
+    "name": "12-savanna.webp",
+    "path": "alienstudio/v1/collections/12-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 432818
+  },
+  {
+    "name": "12-xiqing.webp",
+    "path": "alienstudio/v1/collections/12-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 151708
+  },
+  {
+    "name": "13-savanna.webp",
+    "path": "alienstudio/v1/collections/13-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 961352
+  },
+  {
+    "name": "13-xiqing.webp",
+    "path": "alienstudio/v1/collections/13-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 230416
+  },
+  {
+    "name": "14-savanna.webp",
+    "path": "alienstudio/v1/collections/14-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 405818
+  },
+  {
+    "name": "14-xiqing.webp",
+    "path": "alienstudio/v1/collections/14-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 160466
+  },
+  {
+    "name": "15-savanna.webp",
+    "path": "alienstudio/v1/collections/15-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 383732
+  },
+  {
+    "name": "15-xiqing.webp",
+    "path": "alienstudio/v1/collections/15-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 252414
+  },
+  {
+    "name": "16-savanna.webp",
+    "path": "alienstudio/v1/collections/16-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 860776
+  },
+  {
+    "name": "16-xiqing.webp",
+    "path": "alienstudio/v1/collections/16-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 485622
+  },
+  {
+    "name": "17-savanna.webp",
+    "path": "alienstudio/v1/collections/17-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 607752
+  },
+  {
+    "name": "17-xiqing.webp",
+    "path": "alienstudio/v1/collections/17-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 150624
+  },
+  {
+    "name": "18-savanna.webp",
+    "path": "alienstudio/v1/collections/18-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 824408
+  },
+  {
+    "name": "18-xiqing.webp",
+    "path": "alienstudio/v1/collections/18-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 227838
+  },
+  {
+    "name": "19-savanna.webp",
+    "path": "alienstudio/v1/collections/19-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 603234
+  },
+  {
+    "name": "19-xiqing.webp",
+    "path": "alienstudio/v1/collections/19-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 152096
+  },
+  {
+    "name": "20-savanna.webp",
+    "path": "alienstudio/v1/collections/20-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 412004
+  },
+  {
+    "name": "20-xiqing.webp",
+    "path": "alienstudio/v1/collections/20-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 251618
+  },
+  {
+    "name": "21-savanna.webp",
+    "path": "alienstudio/v1/collections/21-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 204830
+  },
+  {
+    "name": "21-xiqing.webp",
+    "path": "alienstudio/v1/collections/21-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 168668
+  },
+  {
+    "name": "22-savanna.webp",
+    "path": "alienstudio/v1/collections/22-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 661748
+  },
+  {
+    "name": "22-xiqing.webp",
+    "path": "alienstudio/v1/collections/22-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 231448
+  },
+  {
+    "name": "23-savanna.webp",
+    "path": "alienstudio/v1/collections/23-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 251538
+  },
+  {
+    "name": "23-xiqing.webp",
+    "path": "alienstudio/v1/collections/23-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 235342
+  },
+  {
+    "name": "24-savanna.webp",
+    "path": "alienstudio/v1/collections/24-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 319972
+  },
+  {
+    "name": "24-xiqing.webp",
+    "path": "alienstudio/v1/collections/24-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 197028
+  },
+  {
+    "name": "25-savanna.webp",
+    "path": "alienstudio/v1/collections/25-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 259516
+  },
+  {
+    "name": "25-xiqing.webp",
+    "path": "alienstudio/v1/collections/25-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 312168
+  },
+  {
+    "name": "26-savanna.webp",
+    "path": "alienstudio/v1/collections/26-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 419444
+  },
+  {
+    "name": "26-xiqing.webp",
+    "path": "alienstudio/v1/collections/26-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 200024
+  },
+  {
+    "name": "27-savanna.webp",
+    "path": "alienstudio/v1/collections/27-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 154412
+  },
+  {
+    "name": "27-xiqing.webp",
+    "path": "alienstudio/v1/collections/27-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 223100
+  },
+  {
+    "name": "28-savanna.webp",
+    "path": "alienstudio/v1/collections/28-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 316264
+  },
+  {
+    "name": "28-xiqing.webp",
+    "path": "alienstudio/v1/collections/28-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 236068
+  },
+  {
+    "name": "29-savanna.webp",
+    "path": "alienstudio/v1/collections/29-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 594140
+  },
+  {
+    "name": "29-xiqing.webp",
+    "path": "alienstudio/v1/collections/29-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 225912
+  },
+  {
+    "name": "30-savanna.webp",
+    "path": "alienstudio/v1/collections/30-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 567792
+  },
+  {
+    "name": "30-xiqing.webp",
+    "path": "alienstudio/v1/collections/30-xiqing.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 311764
+  },
+  {
+    "name": "31-savanna.webp",
+    "path": "alienstudio/v1/collections/31-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 851556
+  },
+  {
+    "name": "32-savanna.webp",
+    "path": "alienstudio/v1/collections/32-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 402058
+  },
+  {
+    "name": "33-savanna.webp",
+    "path": "alienstudio/v1/collections/33-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 291906
+  },
+  {
+    "name": "34-savanna.webp",
+    "path": "alienstudio/v1/collections/34-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 304296
+  },
+  {
+    "name": "35-savanna.webp",
+    "path": "alienstudio/v1/collections/35-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 748314
+  },
+  {
+    "name": "36-savanna.webp",
+    "path": "alienstudio/v1/collections/36-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 370702
+  },
+  {
+    "name": "37-savanna.webp",
+    "path": "alienstudio/v1/collections/37-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 729490
+  },
+  {
+    "name": "38-savanna.webp",
+    "path": "alienstudio/v1/collections/38-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 491066
+  },
+  {
+    "name": "39-savanna.webp",
+    "path": "alienstudio/v1/collections/39-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 370928
+  },
+  {
+    "name": "40-savanna.webp",
+    "path": "alienstudio/v1/collections/40-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 878792
+  },
+  {
+    "name": "41-savanna.webp",
+    "path": "alienstudio/v1/collections/41-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 313264
+  },
+  {
+    "name": "42-savanna.webp",
+    "path": "alienstudio/v1/collections/42-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 582096
+  },
+  {
+    "name": "43-savanna.webp",
+    "path": "alienstudio/v1/collections/43-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 519904
+  },
+  {
+    "name": "44-savanna.webp",
+    "path": "alienstudio/v1/collections/44-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 858792
+  },
+  {
+    "name": "45-savanna.webp",
+    "path": "alienstudio/v1/collections/45-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 889244
+  },
+  {
+    "name": "46-savanna.webp",
+    "path": "alienstudio/v1/collections/46-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 517934
+  },
+  {
+    "name": "47-savanna.webp",
+    "path": "alienstudio/v1/collections/47-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 466462
+  },
+  {
+    "name": "48-savanna.webp",
+    "path": "alienstudio/v1/collections/48-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 909022
+  },
+  {
+    "name": "49-savanna.webp",
+    "path": "alienstudio/v1/collections/49-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 810892
+  },
+  {
+    "name": "50-savanna.webp",
+    "path": "alienstudio/v1/collections/50-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 902992
+  },
+  {
+    "name": "51-savanna.webp",
+    "path": "alienstudio/v1/collections/51-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 605554
+  },
+  {
+    "name": "52-savanna.webp",
+    "path": "alienstudio/v1/collections/52-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 242192
+  },
+  {
+    "name": "53-savanna.webp",
+    "path": "alienstudio/v1/collections/53-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 699932
+  },
+  {
+    "name": "54-savanna.webp",
+    "path": "alienstudio/v1/collections/54-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 286098
+  },
+  {
+    "name": "55-savanna.webp",
+    "path": "alienstudio/v1/collections/55-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 344862
+  },
+  {
+    "name": "56-savanna.webp",
+    "path": "alienstudio/v1/collections/56-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 537532
+  },
+  {
+    "name": "57-savanna.webp",
+    "path": "alienstudio/v1/collections/57-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 309882
+  },
+  {
+    "name": "58-savanna.webp",
+    "path": "alienstudio/v1/collections/58-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 489126
+  },
+  {
+    "name": "59-savanna.webp",
+    "path": "alienstudio/v1/collections/59-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 514952
+  },
+  {
+    "name": "60-savanna.webp",
+    "path": "alienstudio/v1/collections/60-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 411680
+  },
+  {
+    "name": "61-savanna.webp",
+    "path": "alienstudio/v1/collections/61-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 171078
+  },
+  {
+    "name": "62-savanna.webp",
+    "path": "alienstudio/v1/collections/62-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 618118
+  },
+  {
+    "name": "63-savanna.webp",
+    "path": "alienstudio/v1/collections/63-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 345978
+  },
+  {
+    "name": "64-savanna.webp",
+    "path": "alienstudio/v1/collections/64-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 669564
+  },
+  {
+    "name": "65-savanna.webp",
+    "path": "alienstudio/v1/collections/65-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 766086
+  },
+  {
+    "name": "66-savanna.webp",
+    "path": "alienstudio/v1/collections/66-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 381552
+  },
+  {
+    "name": "67-savanna.webp",
+    "path": "alienstudio/v1/collections/67-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 264400
+  },
+  {
+    "name": "68-savanna.webp",
+    "path": "alienstudio/v1/collections/68-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 237262
+  },
+  {
+    "name": "69-savanna.webp",
+    "path": "alienstudio/v1/collections/69-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 336516
+  },
+  {
+    "name": "70-savanna.webp",
+    "path": "alienstudio/v1/collections/70-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 192788
+  },
+  {
+    "name": "71-savanna.webp",
+    "path": "alienstudio/v1/collections/71-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 588520
+  },
+  {
+    "name": "72-savanna.webp",
+    "path": "alienstudio/v1/collections/72-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 375956
+  },
+  {
+    "name": "73-savanna.webp",
+    "path": "alienstudio/v1/collections/73-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 241078
+  },
+  {
+    "name": "74-savanna.webp",
+    "path": "alienstudio/v1/collections/74-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 543906
+  },
+  {
+    "name": "75-savanna.webp",
+    "path": "alienstudio/v1/collections/75-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 887502
+  },
+  {
+    "name": "76-savanna.webp",
+    "path": "alienstudio/v1/collections/76-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 225854
+  },
+  {
+    "name": "77-savanna.webp",
+    "path": "alienstudio/v1/collections/77-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 680860
+  },
+  {
+    "name": "78-savanna.webp",
+    "path": "alienstudio/v1/collections/78-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 281306
+  },
+  {
+    "name": "79-savanna.webp",
+    "path": "alienstudio/v1/collections/79-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 291836
+  },
+  {
+    "name": "80-savanna.webp",
+    "path": "alienstudio/v1/collections/80-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 247420
+  },
+  {
+    "name": "81-savanna.webp",
+    "path": "alienstudio/v1/collections/81-savanna.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 375452
   },
   {
     "name": "01-savanna.webp",
@@ -1224,174 +2096,6 @@
     "size": 373580
   },
   {
-    "name": "metropolis-01.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-01.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3546926
-  },
-  {
-    "name": "metropolis-02.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-02.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 4543640
-  },
-  {
-    "name": "metropolis-03.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-03.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3668272
-  },
-  {
-    "name": "metropolis-04.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-04.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 4145234
-  },
-  {
-    "name": "metropolis-05.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-05.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3317842
-  },
-  {
-    "name": "metropolis-06.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-06.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 4130668
-  },
-  {
-    "name": "metropolis-07.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-07.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3440448
-  },
-  {
-    "name": "metropolis-08.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-08.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3752130
-  },
-  {
-    "name": "metropolis-09.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-09.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3892692
-  },
-  {
-    "name": "metropolis-10.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-10.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 4145268
-  },
-  {
-    "name": "metropolis-11.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-11.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3976292
-  },
-  {
-    "name": "metropolis-12.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-12.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 4033640
-  },
-  {
-    "name": "metropolis-13.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-13.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3932266
-  },
-  {
-    "name": "metropolis-14.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-14.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3352078
-  },
-  {
-    "name": "metropolis-15.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-15.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3816264
-  },
-  {
-    "name": "metropolis-16.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-16.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3539460
-  },
-  {
-    "name": "metropolis-17.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-17.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3968470
-  },
-  {
-    "name": "metropolis-18.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-18.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 4128158
-  },
-  {
-    "name": "metropolis-19.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-19.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 4013560
-  },
-  {
-    "name": "metropolis-20.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-20.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3980126
-  },
-  {
-    "name": "metropolis-21.webp",
-    "path": "alienstudio/v1/collections/collections/metropolis-21.webp",
-    "project": "alienstudio",
-    "category": "collections",
-    "format": "webp",
-    "size": 3788324
-  },
-  {
     "name": "odyssey-01.webp",
     "path": "alienstudio/v1/collections/collections/odyssey-01.webp",
     "project": "alienstudio",
@@ -2096,6 +2800,918 @@
     "size": 298240
   },
   {
+    "name": "ethereal-01.webp",
+    "path": "alienstudio/v1/collections/ethereal-01.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 565318
+  },
+  {
+    "name": "ethereal-02.webp",
+    "path": "alienstudio/v1/collections/ethereal-02.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 289984
+  },
+  {
+    "name": "ethereal-03.webp",
+    "path": "alienstudio/v1/collections/ethereal-03.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 173970
+  },
+  {
+    "name": "ethereal-04.webp",
+    "path": "alienstudio/v1/collections/ethereal-04.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 598922
+  },
+  {
+    "name": "ethereal-05.webp",
+    "path": "alienstudio/v1/collections/ethereal-05.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 130510
+  },
+  {
+    "name": "ethereal-06.webp",
+    "path": "alienstudio/v1/collections/ethereal-06.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 330798
+  },
+  {
+    "name": "ethereal-07.webp",
+    "path": "alienstudio/v1/collections/ethereal-07.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 221834
+  },
+  {
+    "name": "ethereal-08.webp",
+    "path": "alienstudio/v1/collections/ethereal-08.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 304206
+  },
+  {
+    "name": "ethereal-09.webp",
+    "path": "alienstudio/v1/collections/ethereal-09.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 150332
+  },
+  {
+    "name": "ethereal-10.webp",
+    "path": "alienstudio/v1/collections/ethereal-10.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 369212
+  },
+  {
+    "name": "ethereal-11.webp",
+    "path": "alienstudio/v1/collections/ethereal-11.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 551132
+  },
+  {
+    "name": "ethereal-12.webp",
+    "path": "alienstudio/v1/collections/ethereal-12.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 207120
+  },
+  {
+    "name": "ethereal-13.webp",
+    "path": "alienstudio/v1/collections/ethereal-13.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 452512
+  },
+  {
+    "name": "ethereal-14.webp",
+    "path": "alienstudio/v1/collections/ethereal-14.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 453932
+  },
+  {
+    "name": "ethereal-15.webp",
+    "path": "alienstudio/v1/collections/ethereal-15.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 285192
+  },
+  {
+    "name": "ethereal-16.webp",
+    "path": "alienstudio/v1/collections/ethereal-16.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 449872
+  },
+  {
+    "name": "ethereal-17.webp",
+    "path": "alienstudio/v1/collections/ethereal-17.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 315658
+  },
+  {
+    "name": "ethereal-18.webp",
+    "path": "alienstudio/v1/collections/ethereal-18.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 87486
+  },
+  {
+    "name": "ethereal-19.webp",
+    "path": "alienstudio/v1/collections/ethereal-19.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 69640
+  },
+  {
+    "name": "ethereal-20.webp",
+    "path": "alienstudio/v1/collections/ethereal-20.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 543478
+  },
+  {
+    "name": "ethereal-21.webp",
+    "path": "alienstudio/v1/collections/ethereal-21.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 246712
+  },
+  {
+    "name": "ethereal-22.webp",
+    "path": "alienstudio/v1/collections/ethereal-22.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 492220
+  },
+  {
+    "name": "ethereal-23.webp",
+    "path": "alienstudio/v1/collections/ethereal-23.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 314156
+  },
+  {
+    "name": "ethereal-24.webp",
+    "path": "alienstudio/v1/collections/ethereal-24.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 478564
+  },
+  {
+    "name": "ethereal-25.webp",
+    "path": "alienstudio/v1/collections/ethereal-25.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 597394
+  },
+  {
+    "name": "ethereal-26.webp",
+    "path": "alienstudio/v1/collections/ethereal-26.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 373580
+  },
+  {
+    "name": "odyssey-01.webp",
+    "path": "alienstudio/v1/collections/odyssey-01.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 354334
+  },
+  {
+    "name": "odyssey-02.webp",
+    "path": "alienstudio/v1/collections/odyssey-02.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 191350
+  },
+  {
+    "name": "odyssey-03.webp",
+    "path": "alienstudio/v1/collections/odyssey-03.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 795276
+  },
+  {
+    "name": "odyssey-04.webp",
+    "path": "alienstudio/v1/collections/odyssey-04.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 591016
+  },
+  {
+    "name": "odyssey-05.webp",
+    "path": "alienstudio/v1/collections/odyssey-05.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 210586
+  },
+  {
+    "name": "odyssey-06.webp",
+    "path": "alienstudio/v1/collections/odyssey-06.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 646294
+  },
+  {
+    "name": "odyssey-07.webp",
+    "path": "alienstudio/v1/collections/odyssey-07.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 389524
+  },
+  {
+    "name": "odyssey-08.webp",
+    "path": "alienstudio/v1/collections/odyssey-08.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 301712
+  },
+  {
+    "name": "odyssey-09.webp",
+    "path": "alienstudio/v1/collections/odyssey-09.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 384512
+  },
+  {
+    "name": "odyssey-10.webp",
+    "path": "alienstudio/v1/collections/odyssey-10.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 626542
+  },
+  {
+    "name": "odyssey-11.webp",
+    "path": "alienstudio/v1/collections/odyssey-11.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 251736
+  },
+  {
+    "name": "odyssey-12.webp",
+    "path": "alienstudio/v1/collections/odyssey-12.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 428500
+  },
+  {
+    "name": "odyssey-13.webp",
+    "path": "alienstudio/v1/collections/odyssey-13.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 600784
+  },
+  {
+    "name": "odyssey-14.webp",
+    "path": "alienstudio/v1/collections/odyssey-14.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 251826
+  },
+  {
+    "name": "odyssey-15.webp",
+    "path": "alienstudio/v1/collections/odyssey-15.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 736250
+  },
+  {
+    "name": "odyssey-16.webp",
+    "path": "alienstudio/v1/collections/odyssey-16.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 296380
+  },
+  {
+    "name": "odyssey-17.webp",
+    "path": "alienstudio/v1/collections/odyssey-17.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 235862
+  },
+  {
+    "name": "odyssey-18.webp",
+    "path": "alienstudio/v1/collections/odyssey-18.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 406934
+  },
+  {
+    "name": "odyssey-19.webp",
+    "path": "alienstudio/v1/collections/odyssey-19.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 254584
+  },
+  {
+    "name": "odyssey-20.webp",
+    "path": "alienstudio/v1/collections/odyssey-20.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 410510
+  },
+  {
+    "name": "odyssey-21.webp",
+    "path": "alienstudio/v1/collections/odyssey-21.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 802164
+  },
+  {
+    "name": "odyssey-22.webp",
+    "path": "alienstudio/v1/collections/odyssey-22.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 258390
+  },
+  {
+    "name": "odyssey-23.webp",
+    "path": "alienstudio/v1/collections/odyssey-23.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 368378
+  },
+  {
+    "name": "odyssey-24.webp",
+    "path": "alienstudio/v1/collections/odyssey-24.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 312920
+  },
+  {
+    "name": "odyssey-25.webp",
+    "path": "alienstudio/v1/collections/odyssey-25.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 661418
+  },
+  {
+    "name": "personas-01.webp",
+    "path": "alienstudio/v1/collections/personas-01.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 115424
+  },
+  {
+    "name": "personas-02.webp",
+    "path": "alienstudio/v1/collections/personas-02.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 103962
+  },
+  {
+    "name": "personas-03.webp",
+    "path": "alienstudio/v1/collections/personas-03.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 84440
+  },
+  {
+    "name": "personas-04.webp",
+    "path": "alienstudio/v1/collections/personas-04.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 146766
+  },
+  {
+    "name": "personas-05.webp",
+    "path": "alienstudio/v1/collections/personas-05.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 134400
+  },
+  {
+    "name": "personas-06.webp",
+    "path": "alienstudio/v1/collections/personas-06.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 78096
+  },
+  {
+    "name": "personas-07.webp",
+    "path": "alienstudio/v1/collections/personas-07.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 117330
+  },
+  {
+    "name": "personas-08.webp",
+    "path": "alienstudio/v1/collections/personas-08.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 116976
+  },
+  {
+    "name": "personas-09.webp",
+    "path": "alienstudio/v1/collections/personas-09.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 120944
+  },
+  {
+    "name": "personas-10.webp",
+    "path": "alienstudio/v1/collections/personas-10.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 127728
+  },
+  {
+    "name": "personas-11.webp",
+    "path": "alienstudio/v1/collections/personas-11.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 113844
+  },
+  {
+    "name": "personas-12.webp",
+    "path": "alienstudio/v1/collections/personas-12.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 154512
+  },
+  {
+    "name": "personas-13.webp",
+    "path": "alienstudio/v1/collections/personas-13.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 126100
+  },
+  {
+    "name": "personas-14.webp",
+    "path": "alienstudio/v1/collections/personas-14.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 101630
+  },
+  {
+    "name": "personas-15.webp",
+    "path": "alienstudio/v1/collections/personas-15.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 137044
+  },
+  {
+    "name": "personas-16.webp",
+    "path": "alienstudio/v1/collections/personas-16.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 153372
+  },
+  {
+    "name": "personas-17.webp",
+    "path": "alienstudio/v1/collections/personas-17.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 130736
+  },
+  {
+    "name": "personas-18.webp",
+    "path": "alienstudio/v1/collections/personas-18.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 105986
+  },
+  {
+    "name": "personas-19.webp",
+    "path": "alienstudio/v1/collections/personas-19.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 93374
+  },
+  {
+    "name": "personas-20.webp",
+    "path": "alienstudio/v1/collections/personas-20.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 110668
+  },
+  {
+    "name": "personas-21.webp",
+    "path": "alienstudio/v1/collections/personas-21.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 96526
+  },
+  {
+    "name": "radiance-01.webp",
+    "path": "alienstudio/v1/collections/radiance-01.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 199218
+  },
+  {
+    "name": "radiance-02.webp",
+    "path": "alienstudio/v1/collections/radiance-02.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 244080
+  },
+  {
+    "name": "radiance-03.webp",
+    "path": "alienstudio/v1/collections/radiance-03.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 459876
+  },
+  {
+    "name": "radiance-04.webp",
+    "path": "alienstudio/v1/collections/radiance-04.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 285634
+  },
+  {
+    "name": "radiance-05.webp",
+    "path": "alienstudio/v1/collections/radiance-05.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 402854
+  },
+  {
+    "name": "radiance-06.webp",
+    "path": "alienstudio/v1/collections/radiance-06.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 249988
+  },
+  {
+    "name": "radiance-07.webp",
+    "path": "alienstudio/v1/collections/radiance-07.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 330038
+  },
+  {
+    "name": "radiance-08.webp",
+    "path": "alienstudio/v1/collections/radiance-08.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 304158
+  },
+  {
+    "name": "radiance-09.webp",
+    "path": "alienstudio/v1/collections/radiance-09.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 463254
+  },
+  {
+    "name": "radiance-10.webp",
+    "path": "alienstudio/v1/collections/radiance-10.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 245160
+  },
+  {
+    "name": "radiance-11.webp",
+    "path": "alienstudio/v1/collections/radiance-11.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 548958
+  },
+  {
+    "name": "radiance-12.webp",
+    "path": "alienstudio/v1/collections/radiance-12.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 228266
+  },
+  {
+    "name": "radiance-13.webp",
+    "path": "alienstudio/v1/collections/radiance-13.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 194548
+  },
+  {
+    "name": "radiance-14.webp",
+    "path": "alienstudio/v1/collections/radiance-14.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 176638
+  },
+  {
+    "name": "radiance-15.webp",
+    "path": "alienstudio/v1/collections/radiance-15.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 248272
+  },
+  {
+    "name": "radiance-16.webp",
+    "path": "alienstudio/v1/collections/radiance-16.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 397076
+  },
+  {
+    "name": "radiance-17.webp",
+    "path": "alienstudio/v1/collections/radiance-17.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 237494
+  },
+  {
+    "name": "radiance-18.webp",
+    "path": "alienstudio/v1/collections/radiance-18.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 491374
+  },
+  {
+    "name": "radiance-19.webp",
+    "path": "alienstudio/v1/collections/radiance-19.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 267956
+  },
+  {
+    "name": "radiance-20.webp",
+    "path": "alienstudio/v1/collections/radiance-20.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 322310
+  },
+  {
+    "name": "radiance-21.webp",
+    "path": "alienstudio/v1/collections/radiance-21.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 205376
+  },
+  {
+    "name": "serenity-01.webp",
+    "path": "alienstudio/v1/collections/serenity-01.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 281914
+  },
+  {
+    "name": "serenity-02.webp",
+    "path": "alienstudio/v1/collections/serenity-02.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 333002
+  },
+  {
+    "name": "serenity-03.webp",
+    "path": "alienstudio/v1/collections/serenity-03.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 256476
+  },
+  {
+    "name": "serenity-04.webp",
+    "path": "alienstudio/v1/collections/serenity-04.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 291786
+  },
+  {
+    "name": "serenity-05.webp",
+    "path": "alienstudio/v1/collections/serenity-05.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 250860
+  },
+  {
+    "name": "serenity-06.webp",
+    "path": "alienstudio/v1/collections/serenity-06.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 304242
+  },
+  {
+    "name": "serenity-07.webp",
+    "path": "alienstudio/v1/collections/serenity-07.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 233718
+  },
+  {
+    "name": "serenity-08.webp",
+    "path": "alienstudio/v1/collections/serenity-08.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 227968
+  },
+  {
+    "name": "serenity-09.webp",
+    "path": "alienstudio/v1/collections/serenity-09.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 248654
+  },
+  {
+    "name": "serenity-10.webp",
+    "path": "alienstudio/v1/collections/serenity-10.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 279218
+  },
+  {
+    "name": "serenity-11.webp",
+    "path": "alienstudio/v1/collections/serenity-11.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 369638
+  },
+  {
+    "name": "serenity-12.webp",
+    "path": "alienstudio/v1/collections/serenity-12.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 311424
+  },
+  {
+    "name": "serenity-13.webp",
+    "path": "alienstudio/v1/collections/serenity-13.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 245198
+  },
+  {
+    "name": "serenity-14.webp",
+    "path": "alienstudio/v1/collections/serenity-14.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 402522
+  },
+  {
+    "name": "serenity-15.webp",
+    "path": "alienstudio/v1/collections/serenity-15.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 301910
+  },
+  {
+    "name": "serenity-16.webp",
+    "path": "alienstudio/v1/collections/serenity-16.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 238870
+  },
+  {
+    "name": "serenity-17.webp",
+    "path": "alienstudio/v1/collections/serenity-17.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 229194
+  },
+  {
+    "name": "serenity-18.webp",
+    "path": "alienstudio/v1/collections/serenity-18.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 273910
+  },
+  {
+    "name": "serenity-19.webp",
+    "path": "alienstudio/v1/collections/serenity-19.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 247500
+  },
+  {
+    "name": "serenity-20.webp",
+    "path": "alienstudio/v1/collections/serenity-20.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 344556
+  },
+  {
+    "name": "serenity-21.webp",
+    "path": "alienstudio/v1/collections/serenity-21.webp",
+    "project": "alienstudio",
+    "category": "collections",
+    "format": "webp",
+    "size": 298240
+  },
+  {
     "name": "favicon.ico",
     "path": "alienstudio/v1/favicon.ico",
     "project": "alienstudio",
@@ -2654,6 +4270,62 @@
     "category": "titles",
     "format": "svg",
     "size": 275
+  },
+  {
+    "name": "banner-kura.svg",
+    "path": "cloudcdn/v1/banners/banner-kura.svg",
+    "project": "cloudcdn",
+    "category": "banners",
+    "format": "svg",
+    "size": 58897
+  },
+  {
+    "name": "favicon.ico",
+    "path": "cloudcdn/v1/favicon.ico",
+    "project": "cloudcdn",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 403108
+  },
+  {
+    "name": "180x180.png",
+    "path": "cloudcdn/v1/icons/180x180.png",
+    "project": "cloudcdn",
+    "category": "icons",
+    "format": "png",
+    "size": 15732
+  },
+  {
+    "name": "192x192.png",
+    "path": "cloudcdn/v1/icons/192x192.png",
+    "project": "cloudcdn",
+    "category": "icons",
+    "format": "png",
+    "size": 16725
+  },
+  {
+    "name": "512x512.png",
+    "path": "cloudcdn/v1/icons/512x512.png",
+    "project": "cloudcdn",
+    "category": "icons",
+    "format": "png",
+    "size": 54257
+  },
+  {
+    "name": "kura.svg",
+    "path": "cloudcdn/v1/logos/kura.svg",
+    "project": "cloudcdn",
+    "category": "logos",
+    "format": "svg",
+    "size": 1068767
+  },
+  {
+    "name": "title-kura.svg",
+    "path": "cloudcdn/v1/titles/title-kura.svg",
+    "project": "cloudcdn",
+    "category": "titles",
+    "format": "svg",
+    "size": 13143
   },
   {
     "name": "DieHardWithAScracth.svg",
@@ -3477,7 +5149,7 @@
     "project": "dotfiles",
     "category": "images",
     "format": "png",
-    "size": 2020
+    "size": 2017
   },
   {
     "name": "16x16@3x.png",
@@ -3613,7 +5285,7 @@
     "project": "dotfiles",
     "category": "images",
     "format": "png",
-    "size": 2020
+    "size": 2017
   },
   {
     "name": "32x32@2x.png",
@@ -4240,62 +5912,6 @@
     "size": 16502
   },
   {
-    "name": "banner-kura.svg",
-    "path": "kura/v1/banners/banner-kura.svg",
-    "project": "kura",
-    "category": "banners",
-    "format": "svg",
-    "size": 58897
-  },
-  {
-    "name": "favicon.ico",
-    "path": "kura/v1/favicon.ico",
-    "project": "kura",
-    "category": "favicon.ico",
-    "format": "ico",
-    "size": 403108
-  },
-  {
-    "name": "180x180.png",
-    "path": "kura/v1/icons/180x180.png",
-    "project": "kura",
-    "category": "icons",
-    "format": "png",
-    "size": 15732
-  },
-  {
-    "name": "192x192.png",
-    "path": "kura/v1/icons/192x192.png",
-    "project": "kura",
-    "category": "icons",
-    "format": "png",
-    "size": 16725
-  },
-  {
-    "name": "512x512.png",
-    "path": "kura/v1/icons/512x512.png",
-    "project": "kura",
-    "category": "icons",
-    "format": "png",
-    "size": 54257
-  },
-  {
-    "name": "kura.svg",
-    "path": "kura/v1/logos/kura.svg",
-    "project": "kura",
-    "category": "logos",
-    "format": "svg",
-    "size": 1068767
-  },
-  {
-    "name": "title-kura.svg",
-    "path": "kura/v1/titles/title-kura.svg",
-    "project": "kura",
-    "category": "titles",
-    "format": "svg",
-    "size": 13143
-  },
-  {
     "name": "banner-kyberlib.svg",
     "path": "kyberlib/v1/banners/banner-kyberlib.svg",
     "project": "kyberlib",
@@ -4360,14 +5976,6 @@
     "size": 308
   },
   {
-    "name": "banner-chart-l90s.svg",
-    "path": "l90s/v1/banners/banner-chart-l90s.svg",
-    "project": "l90s",
-    "category": "banners",
-    "format": "svg",
-    "size": 48095263
-  },
-  {
     "name": "banner-l90s.svg",
     "path": "l90s/v1/banners/banner-l90s.svg",
     "project": "l90s",
@@ -4382,14 +5990,6 @@
     "category": "banners",
     "format": "webp",
     "size": 34184
-  },
-  {
-    "name": "banner-office.svg",
-    "path": "l90s/v1/banners/banner-office.svg",
-    "project": "l90s",
-    "category": "banners",
-    "format": "svg",
-    "size": 9499371
   },
   {
     "name": "favicon.ico",
@@ -5496,28 +7096,12 @@
     "size": 282
   },
   {
-    "name": "banner-neferankh.svg",
-    "path": "neferankh/v1/banners/banner-neferankh.svg",
-    "project": "neferankh",
-    "category": "banners",
-    "format": "svg",
-    "size": 6174405
-  },
-  {
     "name": "favicon.ico",
     "path": "neferankh/v1/favicon.ico",
     "project": "neferankh",
     "category": "favicon.ico",
     "format": "ico",
     "size": 141730
-  },
-  {
-    "name": "github-neferankh.svg",
-    "path": "neferankh/v1/github/github-neferankh.svg",
-    "project": "neferankh",
-    "category": "github",
-    "format": "svg",
-    "size": 2489164
   },
   {
     "name": "180x180.png",
@@ -5542,14 +7126,6 @@
     "category": "icons",
     "format": "png",
     "size": 321551
-  },
-  {
-    "name": "neferankh.svg",
-    "path": "neferankh/v1/logos/neferankh.svg",
-    "project": "neferankh",
-    "category": "logos",
-    "format": "svg",
-    "size": 2532318
   },
   {
     "name": "title-neferankh.svg",
@@ -5622,6 +7198,70 @@
     "category": "titles",
     "format": "svg",
     "size": 314
+  },
+  {
+    "name": "banner-pain001.svg",
+    "path": "pain001/images/banners/banner-pain001.svg",
+    "project": "pain001",
+    "category": "banners",
+    "format": "svg",
+    "size": 135220
+  },
+  {
+    "name": "favicon.ico",
+    "path": "pain001/images/favicon.ico",
+    "project": "pain001",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 395557
+  },
+  {
+    "name": "180x180.png",
+    "path": "pain001/images/icons/180x180.png",
+    "project": "pain001",
+    "category": "icons",
+    "format": "png",
+    "size": 12493
+  },
+  {
+    "name": "192x192.png",
+    "path": "pain001/images/icons/192x192.png",
+    "project": "pain001",
+    "category": "icons",
+    "format": "png",
+    "size": 13222
+  },
+  {
+    "name": "512x512.png",
+    "path": "pain001/images/icons/512x512.png",
+    "project": "pain001",
+    "category": "icons",
+    "format": "png",
+    "size": 41668
+  },
+  {
+    "name": "pain001.svg",
+    "path": "pain001/images/logos/pain001.svg",
+    "project": "pain001",
+    "category": "logos",
+    "format": "svg",
+    "size": 6925
+  },
+  {
+    "name": "sequence-diagram.webp",
+    "path": "pain001/images/sequence-diagram.webp",
+    "project": "pain001",
+    "category": "sequence-diagram.webp",
+    "format": "webp",
+    "size": 103162
+  },
+  {
+    "name": "title-pain001.svg",
+    "path": "pain001/images/titles/title-pain001.svg",
+    "project": "pain001",
+    "category": "titles",
+    "format": "svg",
+    "size": 11978
   },
   {
     "name": "banner-pain001.svg",
@@ -6046,14 +7686,6 @@
     "category": "icons",
     "format": "png",
     "size": 1016491
-  },
-  {
-    "name": "512x512@3x.png",
-    "path": "pain001/v1/icons/512x512@3x.png",
-    "project": "pain001",
-    "category": "icons",
-    "format": "png",
-    "size": 2175024
   },
   {
     "name": "57x57.png",
@@ -7248,14 +8880,6 @@
     "size": 120802
   },
   {
-    "name": "github-rustdev.svg",
-    "path": "rustdev/v1/github/github-rustdev.svg",
-    "project": "rustdev",
-    "category": "github",
-    "format": "svg",
-    "size": 2187259
-  },
-  {
     "name": "180x180.png",
     "path": "rustdev/v1/icons/180x180.png",
     "project": "rustdev",
@@ -7968,14 +9592,6 @@
     "size": 106052
   },
   {
-    "name": "2023.webp",
-    "path": "stocks/images/2023.webp",
-    "project": "stocks",
-    "category": "2023.webp",
-    "format": "webp",
-    "size": 4721516
-  },
-  {
     "name": "abstract-digital-art-of-a-cat.webp",
     "path": "stocks/images/abstract-digital-art-of-a-cat.webp",
     "project": "stocks",
@@ -8016,14 +9632,6 @@
     "size": 72520
   },
   {
-    "name": "adams-plaza-bridge.webp",
-    "path": "stocks/images/adams-plaza-bridge.webp",
-    "project": "stocks",
-    "category": "adams-plaza-bridge.webp",
-    "format": "webp",
-    "size": 3122848
-  },
-  {
     "name": "AdobeStock_329364592.webp",
     "path": "stocks/images/AdobeStock_329364592.webp",
     "project": "stocks",
@@ -8054,14 +9662,6 @@
     "category": "ai-prompt-engineering-modern-office.webp",
     "format": "webp",
     "size": 196028
-  },
-  {
-    "name": "ai-regulation-gavel-chip.webp",
-    "path": "stocks/images/ai-regulation-gavel-chip.webp",
-    "project": "stocks",
-    "category": "ai-regulation-gavel-chip.webp",
-    "format": "webp",
-    "size": 3921094
   },
   {
     "name": "ai-robot.webp",
@@ -8296,14 +9896,6 @@
     "size": 109290
   },
   {
-    "name": "alien-studio-gallery.webp",
-    "path": "stocks/images/alien-studio-gallery.webp",
-    "project": "stocks",
-    "category": "alien-studio-gallery.webp",
-    "format": "webp",
-    "size": 5396560
-  },
-  {
     "name": "alis-po-IdVNRv-5wJo.webp",
     "path": "stocks/images/alis-po-IdVNRv-5wJo.webp",
     "project": "stocks",
@@ -8382,14 +9974,6 @@
     "category": "anna-nekrashevich-8534387.webp",
     "format": "webp",
     "size": 25936
-  },
-  {
-    "name": "antoine-dautry-05A-kdOH6Hw.webp",
-    "path": "stocks/images/antoine-dautry-05A-kdOH6Hw.webp",
-    "project": "stocks",
-    "category": "antoine-dautry-05A-kdOH6Hw.webp",
-    "format": "webp",
-    "size": 3742518
   },
   {
     "name": "aperture-vintage-SshYpuf607g.webp",
@@ -8664,14 +10248,6 @@
     "size": 127882
   },
   {
-    "name": "christian-ladewig-T0iFfJw-rB0.webp",
-    "path": "stocks/images/christian-ladewig-T0iFfJw-rB0.webp",
-    "project": "stocks",
-    "category": "christian-ladewig-T0iFfJw-rB0.webp",
-    "format": "webp",
-    "size": 3744900
-  },
-  {
     "name": "christoph-duschl-CE_TvPHF3lA.webp",
     "path": "stocks/images/christoph-duschl-CE_TvPHF3lA.webp",
     "project": "stocks",
@@ -8688,28 +10264,12 @@
     "size": 273152
   },
   {
-    "name": "chuttersnap--gS54SWrHMg.webp",
-    "path": "stocks/images/chuttersnap--gS54SWrHMg.webp",
-    "project": "stocks",
-    "category": "chuttersnap--gS54SWrHMg.webp",
-    "format": "webp",
-    "size": 5369398
-  },
-  {
     "name": "chuttersnap-mf-o1E7omzk.webp",
     "path": "stocks/images/chuttersnap-mf-o1E7omzk.webp",
     "project": "stocks",
     "category": "chuttersnap-mf-o1E7omzk.webp",
     "format": "webp",
     "size": 208048
-  },
-  {
-    "name": "circuit_board_cityscape.webp",
-    "path": "stocks/images/circuit_board_cityscape.webp",
-    "project": "stocks",
-    "category": "circuit_board_cityscape.webp",
-    "format": "webp",
-    "size": 4746112
   },
   {
     "name": "clark-tibbs-oqStl2L5oxI.webp",
@@ -8750,14 +10310,6 @@
     "category": "cmonphotography-1809644.webp",
     "format": "webp",
     "size": 22586
-  },
-  {
-    "name": "cokile-ceoi-y-gu_s6hkk4.webp",
-    "path": "stocks/images/cokile-ceoi-y-gu_s6hkk4.webp",
-    "project": "stocks",
-    "category": "cokile-ceoi-y-gu_s6hkk4.webp",
-    "format": "webp",
-    "size": 3939744
   },
   {
     "name": "coming-soon-2579123.webp",
@@ -8880,14 +10432,6 @@
     "size": 101898
   },
   {
-    "name": "dominik-scythe-Sot0f3hQQ4Y.webp",
-    "path": "stocks/images/dominik-scythe-Sot0f3hQQ4Y.webp",
-    "project": "stocks",
-    "category": "dominik-scythe-Sot0f3hQQ4Y.webp",
-    "format": "webp",
-    "size": 3101588
-  },
-  {
     "name": "drew-beamer-3SIXZisims4.webp",
     "path": "stocks/images/drew-beamer-3SIXZisims4.webp",
     "project": "stocks",
@@ -8902,14 +10446,6 @@
     "category": "drift-shutterbug-2085998.webp",
     "format": "webp",
     "size": 190504
-  },
-  {
-    "name": "drone-view-of-london.webp",
-    "path": "stocks/images/drone-view-of-london.webp",
-    "project": "stocks",
-    "category": "drone-view-of-london.webp",
-    "format": "webp",
-    "size": 5504564
   },
   {
     "name": "dylan-calluy-JpflvzEl5cg.webp",
@@ -8934,14 +10470,6 @@
     "category": "ellen-qin-pAyN5zqdqDo.webp",
     "format": "webp",
     "size": 32928
-  },
-  {
-    "name": "entangled-photons.webp",
-    "path": "stocks/images/entangled-photons.webp",
-    "project": "stocks",
-    "category": "entangled-photons.webp",
-    "format": "webp",
-    "size": 4356018
   },
   {
     "name": "ethan-wu-1597623.webp",
@@ -9024,22 +10552,6 @@
     "size": 321664
   },
   {
-    "name": "gabriel-périssé-6009799.webp",
-    "path": "stocks/images/gabriel-périssé-6009799.webp",
-    "project": "stocks",
-    "category": "gabriel-périssé-6009799.webp",
-    "format": "webp",
-    "size": 93880
-  },
-  {
-    "name": "galina-nelyubova-7ej8VWfwFsg.webp",
-    "path": "stocks/images/galina-nelyubova-7ej8VWfwFsg.webp",
-    "project": "stocks",
-    "category": "galina-nelyubova-7ej8VWfwFsg.webp",
-    "format": "webp",
-    "size": 2714464
-  },
-  {
     "name": "galina-nelyubova-NRWhMzpq8z4.webp",
     "path": "stocks/images/galina-nelyubova-NRWhMzpq8z4.webp",
     "project": "stocks",
@@ -9102,14 +10614,6 @@
     "category": "getty-images-1IY3Nd85K-A.webp",
     "format": "webp",
     "size": 133944
-  },
-  {
-    "name": "getty-images-aTWKwJllPOA.webp",
-    "path": "stocks/images/getty-images-aTWKwJllPOA.webp",
-    "project": "stocks",
-    "category": "getty-images-aTWKwJllPOA.webp",
-    "format": "webp",
-    "size": 4412540
   },
   {
     "name": "getty-images-LbYCH5UYkWw.webp",
@@ -9184,14 +10688,6 @@
     "size": 107146
   },
   {
-    "name": "hsbc-from-the-docks.webp",
-    "path": "stocks/images/hsbc-from-the-docks.webp",
-    "project": "stocks",
-    "category": "hsbc-from-the-docks.webp",
-    "format": "webp",
-    "size": 4774074
-  },
-  {
     "name": "humphrey-muleba-1660004.webp",
     "path": "stocks/images/humphrey-muleba-1660004.webp",
     "project": "stocks",
@@ -9240,14 +10736,6 @@
     "size": 41928
   },
   {
-    "name": "igor-surkov-deT70U8v4os.webp",
-    "path": "stocks/images/igor-surkov-deT70U8v4os.webp",
-    "project": "stocks",
-    "category": "igor-surkov-deT70U8v4os.webp",
-    "format": "webp",
-    "size": 3761010
-  },
-  {
     "name": "image-3052119.webp",
     "path": "stocks/images/image-3052119.webp",
     "project": "stocks",
@@ -9278,14 +10766,6 @@
     "category": "jaanus-jagomagi-Dymu1WiZVko.webp",
     "format": "webp",
     "size": 211284
-  },
-  {
-    "name": "jack-dong-YRoJea0xGVY.webp",
-    "path": "stocks/images/jack-dong-YRoJea0xGVY.webp",
-    "project": "stocks",
-    "category": "jack-dong-YRoJea0xGVY.webp",
-    "format": "webp",
-    "size": 5352962
   },
   {
     "name": "jake-noren-6eImcnVtAHE.webp",
@@ -9350,14 +10830,6 @@
     "category": "joe-gardner-4xv3lqnanYc.webp",
     "format": "webp",
     "size": 54522
-  },
-  {
-    "name": "joe-taylor-T3o-XtCfe6U.webp",
-    "path": "stocks/images/joe-taylor-T3o-XtCfe6U.webp",
-    "project": "stocks",
-    "category": "joe-taylor-T3o-XtCfe6U.webp",
-    "format": "webp",
-    "size": 3250838
   },
   {
     "name": "joel-filipe-jU9VAZDGMzs.webp",
@@ -9462,14 +10934,6 @@
     "category": "joseph-barrientos-Ji_G7Bu1MoM.webp",
     "format": "webp",
     "size": 357230
-  },
-  {
-    "name": "joseph-gonzalez-EBm2Rlhxk_I.webp",
-    "path": "stocks/images/joseph-gonzalez-EBm2Rlhxk_I.webp",
-    "project": "stocks",
-    "category": "joseph-gonzalez-EBm2Rlhxk_I.webp",
-    "format": "webp",
-    "size": 4427874
   },
   {
     "name": "joshua-hibbert-Pn6iimgM-wo.webp",
@@ -9638,14 +11102,6 @@
     "category": "louis-reed-a-xbE4Tye5c.webp",
     "format": "webp",
     "size": 21216
-  },
-  {
-    "name": "ludvig-larsson-ZgyMxrf5uJ4.webp",
-    "path": "stocks/images/ludvig-larsson-ZgyMxrf5uJ4.webp",
-    "project": "stocks",
-    "category": "ludvig-larsson-ZgyMxrf5uJ4.webp",
-    "format": "webp",
-    "size": 2702988
   },
   {
     "name": "luis-moya-14528977.webp",
@@ -9848,14 +11304,6 @@
     "size": 33524
   },
   {
-    "name": "markus-spiske-dMh1A35w_BE.webp",
-    "path": "stocks/images/markus-spiske-dMh1A35w_BE.webp",
-    "project": "stocks",
-    "category": "markus-spiske-dMh1A35w_BE.webp",
-    "format": "webp",
-    "size": 2893444
-  },
-  {
     "name": "maryna-yazbeck-pyzjoMvyCmw.webp",
     "path": "stocks/images/maryna-yazbeck-pyzjoMvyCmw.webp",
     "project": "stocks",
@@ -9910,14 +11358,6 @@
     "category": "matheus-natan-3297593.webp",
     "format": "webp",
     "size": 24230
-  },
-  {
-    "name": "matias-luge-l8AC4_hDidY.webp",
-    "path": "stocks/images/matias-luge-l8AC4_hDidY.webp",
-    "project": "stocks",
-    "category": "matias-luge-l8AC4_hDidY.webp",
-    "format": "webp",
-    "size": 2762286
   },
   {
     "name": "max-williams-dtYGcdagOm0.webp",
@@ -10376,14 +11816,6 @@
     "size": 19876
   },
   {
-    "name": "pramod-tiwari-Br0F5xMArxI.webp",
-    "path": "stocks/images/pramod-tiwari-Br0F5xMArxI.webp",
-    "project": "stocks",
-    "category": "pramod-tiwari-Br0F5xMArxI.webp",
-    "format": "webp",
-    "size": 2361316
-  },
-  {
     "name": "quang-nguyen-vinh-2649403.webp",
     "path": "stocks/images/quang-nguyen-vinh-2649403.webp",
     "project": "stocks",
@@ -10414,14 +11846,6 @@
     "category": "quang-nguyen-vinh-J3W7Kfcj6gM.webp",
     "format": "webp",
     "size": 96572
-  },
-  {
-    "name": "quantum-computer-room.webp",
-    "path": "stocks/images/quantum-computer-room.webp",
-    "project": "stocks",
-    "category": "quantum-computer-room.webp",
-    "format": "webp",
-    "size": 4329534
   },
   {
     "name": "rawpixel-com-369782.webp",
@@ -10462,14 +11886,6 @@
     "category": "research-paper.webp",
     "format": "webp",
     "size": 382304
-  },
-  {
-    "name": "ricardo-gomez-angel-44EjFu3bies.webp",
-    "path": "stocks/images/ricardo-gomez-angel-44EjFu3bies.webp",
-    "project": "stocks",
-    "category": "ricardo-gomez-angel-44EjFu3bies.webp",
-    "format": "webp",
-    "size": 2927962
   },
   {
     "name": "ricardo-gomez-angel-Oj6tP8NlvFo.webp",
@@ -11006,14 +12422,6 @@
     "category": "vladislav-klapin-YeO44yVTl20.webp",
     "format": "webp",
     "size": 92994
-  },
-  {
-    "name": "werclive-uA1f_wpiqFY.webp",
-    "path": "stocks/images/werclive-uA1f_wpiqFY.webp",
-    "project": "stocks",
-    "category": "werclive-uA1f_wpiqFY.webp",
-    "format": "webp",
-    "size": 6267806
   },
   {
     "name": "will-dunkley-Nrs3Uz3fJHA.webp",

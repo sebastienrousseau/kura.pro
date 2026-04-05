@@ -10,6 +10,8 @@ const CORS_HEADERS = {
   "Content-Type": "application/json",
 };
 
+const KV_TTL = 60 * 60 * 24 * 35; // 35 days
+
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -28,13 +30,16 @@ function formatBytes(bytes) {
 async function incrementCounter(kv, key, amount = 1) {
   const current = parseInt(await kv.get(key) || "0", 10);
   const next = current + amount;
-  await kv.put(key, String(next), { expirationTtl: 60 * 60 * 24 * 35 });
+  await kv.put(key, String(next), { expirationTtl: KV_TTL });
   return next;
 }
 
 /**
  * Increment a field inside a JSON object stored in KV.
  * Keeps only the top `limit` entries by value.
+ *
+ * Optimized: only triggers eviction when size exceeds limit * 1.5
+ * (amortized O(1) per request instead of O(n log n) sort every time).
  */
 async function incrementJsonField(kv, key, field, amount = 1, limit = 0) {
   const raw = await kv.get(key);
@@ -42,14 +47,22 @@ async function incrementJsonField(kv, key, field, amount = 1, limit = 0) {
   obj[field] = (obj[field] || 0) + amount;
 
   let result = obj;
+  // Defer sorting — only evict when object grows 50% past the limit.
+  // This amortizes the O(n log n) sort across many requests.
   if (limit > 0) {
-    const sorted = Object.entries(obj)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, limit);
-    result = Object.fromEntries(sorted);
+    const keys = Object.keys(obj);
+    if (keys.length > limit + (limit >> 1)) {
+      // Eviction needed — sort and trim
+      const sorted = keys
+        .map(k => [k, obj[k]])
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit);
+      result = {};
+      for (let i = 0; i < sorted.length; i++) result[sorted[i][0]] = sorted[i][1];
+    }
   }
 
-  await kv.put(key, JSON.stringify(result), { expirationTtl: 60 * 60 * 24 * 35 });
+  await kv.put(key, JSON.stringify(result), { expirationTtl: KV_TTL });
   return result;
 }
 
@@ -60,25 +73,60 @@ async function incrementJsonField(kv, key, field, amount = 1, limit = 0) {
  * @param {Request} request  - the inbound request
  * @param {Response} response - the outbound response (used for cache status & content-length)
  */
-export async function trackRequest(env, request, response) {
+/**
+ * @param {object} env
+ * @param {Request} request
+ * @param {Response} response
+ * @param {string} [pathname] - pre-extracted pathname (avoids new URL() allocation)
+ */
+export async function trackRequest(env, request, response, pathname) {
   const kv = env.RATE_KV;
   if (!kv) return;
 
   const date = today();
-  const url = new URL(request.url);
-  const path = url.pathname;
+  // Use pre-extracted pathname if available — avoids 50µs URL parse
+  const path = pathname || new URL(request.url).pathname;
   const country = request.cf?.country || request.headers.get("cf-ipcountry") || "XX";
   const bytes = parseInt(response.headers.get("content-length") || "0", 10);
   const cacheStatus = (request.cf?.cacheStatus || response.headers.get("cf-cache-status") || "MISS").toUpperCase();
   const isHit = cacheStatus === "HIT" ? "hit" : "miss";
 
-  await Promise.all([
+  const tasks = [
     incrementCounter(kv, `analytics:hits:${date}`),
     incrementCounter(kv, `analytics:bandwidth:${date}`, bytes),
     incrementJsonField(kv, `analytics:top:${date}`, path, 1, 100),
     incrementJsonField(kv, `analytics:geo:${date}`, country),
     incrementJsonField(kv, `analytics:cache:${date}`, isHit),
-  ]);
+  ];
+
+  // Track errors (4xx/5xx) for the insights/errors endpoint
+  const status = response.status;
+  if (status >= 400) {
+    tasks.push(trackError(kv, date, status, path));
+  }
+
+  await Promise.all(tasks);
+}
+
+/**
+ * Track an error response in KV.
+ * Schema: analytics:errors:{date} → { "404": { "count": N, "paths": { "/path": N } } }
+ */
+async function trackError(kv, date, status, path) {
+  const key = `analytics:errors:${date}`;
+  const raw = await kv.get(key);
+  const errors = raw ? JSON.parse(raw) : {};
+  const code = String(status);
+
+  if (!errors[code]) errors[code] = { count: 0, paths: {} };
+  errors[code].count++;
+  errors[code].paths[path] = (errors[code].paths[path] || 0) + 1;
+
+  // Keep only top 50 paths per status code
+  const sorted = Object.entries(errors[code].paths).sort((a, b) => b[1] - a[1]).slice(0, 50);
+  errors[code].paths = Object.fromEntries(sorted);
+
+  await kv.put(key, JSON.stringify(errors), { expirationTtl: KV_TTL });
 }
 
 /**

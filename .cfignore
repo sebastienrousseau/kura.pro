@@ -1,5 +1,14 @@
 # macOS metadata
 **/.DS_Store
 
-# Files exceeding Cloudflare Pages 25 MB limit
-l90s/images/banners/banner-chart-l90s.svg
+# Dev/build artifacts not needed on the edge
+.husky/
+.github/
+scripts/tests/
+scripts/node_modules/
+playwright.config.js
+vitest.config.js
+cloudcdn-paths.d.ts
+CONTRIBUTING.md
+SECURITY.md
+CHANGELOG.md

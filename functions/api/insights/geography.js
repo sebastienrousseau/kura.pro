@@ -1,0 +1,43 @@
+/**
+ * Insights — Geographic distribution.
+ * GET /api/insights/geography?days=7
+ */
+import { authenticateAny, CORS_JSON } from '../_shared.js';
+
+export async function onRequestGet(context) {
+  const { request, env } = context;
+  if (!(await authenticateAny(request, env))) {
+    return new Response(JSON.stringify({ HttpCode: 401, Message: 'Authentication required. Provide a valid API key in the request header. Use "AccessKey" for storage and asset operations, or "AccountKey" for zone management and analytics.' }), { status: 401, headers: CORS_JSON });
+  }
+
+  const url = new URL(request.url);
+  const days = Math.min(Math.max(parseInt(url.searchParams.get('days') || '7', 10), 1), 90);
+  const kv = env.RATE_KV;
+
+  if (!kv) return new Response(JSON.stringify({ HttpCode: 503, Message: 'The analytics data store (Cloudflare KV) is currently unavailable. This may be a temporary issue with the edge network. Retry the request in a few seconds or check system status.' }), { status: 503, headers: CORS_JSON });
+
+  const reads = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date(); d.setUTCDate(d.getUTCDate() - i);
+    reads.push(kv.get(`analytics:geo:${d.toISOString().slice(0, 10)}`));
+  }
+  const results = await Promise.all(reads);
+
+  const merged = {};
+  for (const raw of results) {
+    if (!raw) continue;
+    for (const [country, count] of Object.entries(JSON.parse(raw))) merged[country] = (merged[country] || 0) + count;
+  }
+
+  const sorted = Object.entries(merged).sort((a, b) => b[1] - a[1]);
+
+  return new Response(JSON.stringify({
+    Period: { Days: days },
+    Countries: sorted.map(([code, count]) => ({ CountryCode: code, Requests: count })),
+    DateFetched: new Date().toISOString(),
+  }), { headers: CORS_JSON });
+}
+
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers: { ...CORS_JSON, 'Access-Control-Allow-Headers': 'AccountKey, AccessKey', 'Access-Control-Max-Age': '86400' } });
+}

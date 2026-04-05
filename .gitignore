@@ -1,6 +1,11 @@
 **/.DS_Store
 node_modules/
 *.log
-scripts/node_modules/
 coverage/
-scripts/coverage/
+
+# Local tooling
+.wrangler/
+test-results/
+
+# Auto-generated (rebuilt by scripts/generate-manifest.mjs)
+cloudcdn-paths.d.ts

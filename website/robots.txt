@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /api-reference/
+Disallow: /dashboard/
+Disallow: /dist/
+Disallow: /api/
+
+Sitemap: https://cloudcdn.pro/sitemap.xml

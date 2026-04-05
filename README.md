@@ -1,93 +1,84 @@
 # CloudCDN
 
-High-performance static asset delivery powered by Cloudflare's global edge network. Sub-100ms latency across 300+ PoPs.
+Enterprise-grade static asset delivery on Cloudflare's global edge network. Sub-100ms TTFB across 300+ PoPs. 1,400+ assets, 54 tenant zones, zero-config deployment.
 
-## Features
+## Architecture
 
-- **Edge-optimized delivery** — Static assets served from Cloudflare's 300+ data centers
-- **Image Transformation API** — On-the-fly resize, format conversion, blur, and sharpen via `/api/transform`
-- **AI Concierge** — RAG-powered chat assistant using Workers AI + Vectorize
-- **Asset Dashboard** — Browse and search all CDN assets with filtering
-- **Automated CI/CD** — Image compression, manifest generation, and knowledge sync via GitHub Actions
+```
+/
+├── clients/          54 tenant asset directories (GitOps-managed)
+├── stocks/           Global stock media (images, diagrams, videos)
+├── website/          Application layer (dashboard, docs, scripts)
+├── functions/        Cloudflare edge computing (middleware + 12 API endpoints)
+├── manifest.json     Auto-generated asset registry (1,400+ entries)
+├── wrangler.toml     Cloudflare bindings (AI, Vectorize, KV)
+└── package.json      Dependencies + npm scripts
+```
 
-## Prerequisites
+## API Surface
 
-- Node.js 18+
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) (`npm i -g wrangler`)
-- Cloudflare account with Workers AI and Vectorize enabled
+| Plane | Endpoints | Auth | Purpose |
+|-------|-----------|------|---------|
+| **Storage** | `/api/storage/*` | AccessKey | Upload, download, delete, batch |
+| **Core** | `/api/core/*` | AccountKey | Zones, domains, rules, statistics |
+| **Assets** | `/api/assets/*` | AccessKey | Paginated catalog, metadata |
+| **Insights** | `/api/insights/*` | Any key | Summary, top assets, geo, errors |
+| **Delivery** | `/api/transform`, `/api/auto`, `/api/signed`, `/api/stream`, `/api/purge` | Public/PurgeKey | Image transforms, format negotiation, signed URLs, HLS, cache purge |
+| **AI** | `/api/search`, `/api/chat` | Public | Semantic search, RAG concierge |
+
+Interactive reference: [cloudcdn.pro/api-reference](https://cloudcdn.pro/api-reference)
 
 ## Local Development
 
 ```bash
-wrangler pages dev .
+npm ci
+wrangler pages dev .     # http://localhost:8788
 ```
-
-Runs at `http://localhost:8788`. Pages Functions in `functions/` are served automatically.
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID | For scripts |
-| `CLOUDFLARE_API_TOKEN` | API token with Workers AI + Vectorize permissions | For scripts |
-
-Pages Functions bindings (configured in `wrangler.toml` or dashboard):
-
-| Binding | Type | Description |
-|---------|------|-------------|
-| `AI` | Workers AI | LLM inference and embeddings |
-| `VECTOR_INDEX` | Vectorize | Knowledge base vector index |
-| `RATE_KV` | KV Namespace | Rate limiting counters |
-
-## Scripts
-
-Run from the `scripts/` directory:
-
-| Script | Usage | Description |
-|--------|-------|-------------|
-| `convert.mjs` | `node convert.mjs <dir>` | Convert images to WebP/AVIF |
-| `generate-manifest.mjs` | `node generate-manifest.mjs` | Generate `manifest.json` for the dashboard |
-| `sync-knowledge.mjs` | `node sync-knowledge.mjs [content-dir]` | Chunk markdown docs and sync to Vectorize |
+| Variable | Description |
+|----------|-------------|
+| `ACCOUNT_KEY` | Core API authentication |
+| `STORAGE_KEY` | Storage API authentication |
+| `DASHBOARD_PASSWORD` | Dashboard login |
+| `GITHUB_TOKEN` | Upload/delete via Git (Storage API) |
+| `GITHUB_REPO` | Repository for GitOps mutations |
+| `CLOUDFLARE_ACCOUNT_ID` | Custom domains, analytics |
+| `CLOUDFLARE_API_TOKEN` | Purge, domains, Workers AI |
+| `CLOUDFLARE_ZONE_ID` | Cache purge |
+| `SIGNED_URL_SECRET` | HMAC signed URL generation |
 
 ## Testing
 
 ```bash
-npm ci            # install root deps (vitest)
-cd scripts && npm ci  # install script deps (sharp)
-cd ..
-npm test          # single run
-npm run test:watch  # watch mode
-npm run test:coverage  # with 100% coverage enforcement
+npm test                # 605 tests, 22 suites
+npm run test:coverage   # 100% statement/branch/function/line
+npm run test:visual     # Playwright visual regression (10 screenshots)
+npm run test:load       # k6 load test (1,000 VUs)
+npm run test:audit      # npm security audit
 ```
 
-## Directory Structure
+## Scripts
 
-```
-.
-├── functions/
-│   └── api/
-│       ├── chat.js          # AI Concierge SSE endpoint
-│       └── transform.js     # Image Transformation API
-├── dashboard/
-│   ├── index.html           # Asset manager UI
-│   ├── app.js               # Dashboard logic
-│   └── styles.css            # Dashboard styles
-├── scripts/
-│   ├── convert.mjs          # Image conversion
-│   ├── generate-manifest.mjs # Manifest builder
-│   ├── sync-knowledge.mjs   # Knowledge base sync
-│   └── tests/               # Vitest test suite
-├── content/                  # Markdown knowledge base docs
-├── kura/                     # Static assets (images, icons)
-├── index.html                # Landing page
-├── 404.html                  # Custom 404 page
-├── robots.txt                # Crawler directives
-├── sitemap.xml               # Search engine sitemap
-├── _headers                  # Cloudflare Pages headers
-├── _redirects                # Cloudflare Pages redirects
-└── .github/workflows/        # CI/CD pipelines
-```
+| Script | Command | Description |
+|--------|---------|-------------|
+| Generate manifest | `npm run build:manifest` | Rebuild `manifest.json` + TypeScript defs |
+| Build CSS | `npm run build:css` | Rebuild dashboard Tailwind CSS |
+| Prune icons | `node website/scripts/prune-icons.mjs` | Remove legacy icon variants |
+| Prune formats | `node website/scripts/prune-formats.mjs` | Keep single source per image |
+| Generate clients | `node website/scripts/generate-client-libs.mjs` | Generate API client libraries |
+| Index assets | `node website/scripts/index-assets.mjs` | Vectorize embeddings for semantic search |
 
 ## Deployment
 
-Pushes to `main` trigger automatic deployment via Cloudflare Pages. GitHub Actions run image compression, manifest generation, and knowledge sync as needed.
+Pushes to `main` trigger automatic deployment via Cloudflare Pages. The CI pipeline:
+
+1. **Verify signatures** — every commit must be cryptographically signed
+2. **Deploy to edge** — `wrangler pages deploy` across 300+ PoPs
+3. **Compress images** — auto-generate WebP/AVIF from new PNGs
+4. **Regenerate manifest** — update asset registry via GitHub API (signed commit)
+
+## License
+
+[MIT](LICENSE)

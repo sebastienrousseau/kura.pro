@@ -97,11 +97,8 @@ export async function onRequest(context) {
     return context.next();
   }
 
-  // ── 3. Website pillar ──
-  if (path === "/website" || path === "/website/") {
-    return Response.redirect(rawUrl.slice(0, pathStart) + "/", 301);
-  }
-  if (path === "/" || path === "/index.html") {
+  // ── 3. Website pillar ���─
+  if (path === "/" || path === "/index.html" || path === "/website" || path === "/website/") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/website/index.html");
   }
   if (path === "/404.html") {
@@ -163,22 +160,11 @@ export async function onRequest(context) {
 }
 
 /**
- * Rewrite path and fetch from ASSETS.
- * If ASSETS returns a redirect (Pages auto-redirect for directories), intercept it
- * and fetch the target directly to avoid exposing /website/ paths to the browser.
+ * Rewrite path and fetch — constructs URL string directly, avoids new URL().
  */
-async function rewriteFetch(env, request, rawUrl, pathStart, newPath) {
+function rewriteFetch(env, request, rawUrl, pathStart, newPath) {
   const newUrl = rawUrl.slice(0, pathStart) + newPath;
-  const res = await env.ASSETS.fetch(new Request(newUrl, { headers: request.headers, redirect: 'manual' }));
-  // If ASSETS returns a redirect (301/302/307/308), follow it internally
-  if (res.status >= 300 && res.status < 400) {
-    const location = res.headers.get('Location');
-    if (location) {
-      const followRes = await env.ASSETS.fetch(new Request(location, { headers: request.headers, redirect: 'manual' }));
-      return new Response(followRes.body, { status: followRes.status, headers: followRes.headers });
-    }
-  }
-  return new Response(res.body, { status: res.status, headers: res.headers });
+  return env.ASSETS.fetch(new Request(newUrl, request));
 }
 
 /**

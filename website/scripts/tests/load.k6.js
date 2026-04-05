@@ -36,7 +36,7 @@ export const options = {
 const ASSETS = [
   '/bankingonai/images/banners/banner-bankingonai.webp',
   '/shared/images/logos/cmn.svg',
-  '/cloudcdn/v1/logos/logo.svg',
+  '/cloudcdn/v1/logos/cloudcdn.svg',
   '/shokunin/images/banners/banner-shokunin.avif',
   '/sebastienrousseau/images/banners/banner-sebastienrousseau.png',
 ];
@@ -77,7 +77,7 @@ export default function () {
   } else if (scenario < 0.95) {
     // 15% — Transform API
     const w = [128, 256, 512, 800, 1024][Math.floor(Math.random() * 5)];
-    const res = http.get(`${BASE}/api/transform?url=/cloudcdn/v1/logos/logo.svg&w=${w}&format=webp`);
+    const res = http.get(`${BASE}/api/transform?url=/cloudcdn/v1/logos/cloudcdn.svg&w=${w}&format=webp`);
     check(res, {
       'transform 200': (r) => r.status === 200,
     });

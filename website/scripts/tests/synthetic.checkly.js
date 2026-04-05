@@ -18,7 +18,7 @@ const BASE = 'https://cloudcdn.pro';
 
 // 1. Static asset health
 test('static asset served with immutable cache', async ({ request }) => {
-  const res = await request.get(`${BASE}/cloudcdn/v1/logos/logo.svg`);
+  const res = await request.get(`${BASE}/cloudcdn/v1/logos/cloudcdn.svg`);
   expect(res.status()).toBe(200);
   expect(res.headers()['cache-control']).toContain('immutable');
   expect(res.headers()['cache-tag']).toContain('project-cloudcdn');
@@ -47,7 +47,7 @@ test('search API responds within 500ms', async ({ request }) => {
 
 // 4. Transform API generates image
 test('transform API returns image', async ({ request }) => {
-  const res = await request.get(`${BASE}/api/transform?url=/cloudcdn/v1/logos/logo.svg&w=64&format=webp`);
+  const res = await request.get(`${BASE}/api/transform?url=/cloudcdn/v1/logos/cloudcdn.svg&w=64&format=webp`);
   expect(res.status()).toBe(200);
   expect(res.headers()['content-type']).toContain('image');
 });

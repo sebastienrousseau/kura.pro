@@ -136,10 +136,11 @@ export async function onRequestPost(context) {
     });
   }
 
-  // 3. Favicon placeholder
+  // 3. Favicon (at project root, not inside v1/)
   if (generateFavicon !== false) {
+    const faviconPath = mode === 'client' ? `clients/${name}/favicon.ico` : 'stocks/favicon.ico';
     files.push({
-      path: `${prefix}icons/favicon.ico`,
+      path: faviconPath,
       content: sanitizedB64,
       encoding: 'base64',
     });

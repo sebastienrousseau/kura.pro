@@ -29,7 +29,7 @@
     "project": "akande",
     "category": "github",
     "format": "svg",
-    "size": 4575
+    "size": 4567
   },
   {
     "name": "180x180.png",
@@ -61,7 +61,7 @@
     "project": "akande",
     "category": "icons",
     "format": "svg",
-    "size": 5571
+    "size": 5548
   },
   {
     "name": "icon-configuration.svg",
@@ -4349,7 +4349,7 @@
     "project": "cloudcdn",
     "category": "banners",
     "format": "svg",
-    "size": 1077794
+    "size": 1075044
   },
   {
     "name": "favicon.ico",
@@ -4365,7 +4365,7 @@
     "project": "cloudcdn",
     "category": "icons",
     "format": "png",
-    "size": 15732
+    "size": 15410
   },
   {
     "name": "192x192.png",
@@ -4373,7 +4373,7 @@
     "project": "cloudcdn",
     "category": "icons",
     "format": "png",
-    "size": 16725
+    "size": 16675
   },
   {
     "name": "512x512.png",
@@ -4381,7 +4381,7 @@
     "project": "cloudcdn",
     "category": "icons",
     "format": "png",
-    "size": 54257
+    "size": 53713
   },
   {
     "name": "cloudcdn.svg",
@@ -4397,7 +4397,7 @@
     "project": "cloudcdn",
     "category": "titles",
     "format": "svg",
-    "size": 626
+    "size": 284
   },
   {
     "name": "DieHardWithAScracth.svg",
@@ -5061,7 +5061,7 @@
     "project": "dotfiles",
     "category": "images",
     "format": "png",
-    "size": 32336
+    "size": 32309
   },
   {
     "name": "120x120.png",
@@ -5285,7 +5285,7 @@
     "project": "dotfiles",
     "category": "images",
     "format": "png",
-    "size": 16861
+    "size": 16770
   },
   {
     "name": "196x196@2x.png",
@@ -5565,7 +5565,7 @@
     "project": "dotfiles",
     "category": "images",
     "format": "png",
-    "size": 20135
+    "size": 20080
   },
   {
     "name": "96x96.png",
@@ -5581,7 +5581,7 @@
     "project": "dotfiles",
     "category": "images",
     "format": "png",
-    "size": 16552
+    "size": 16498
   },
   {
     "name": "96x96@3x.png",
@@ -5637,7 +5637,7 @@
     "project": "dtt",
     "category": "github",
     "format": "svg",
-    "size": 1312940
+    "size": 1312791
   },
   {
     "name": "180x180.png",
@@ -5709,7 +5709,7 @@
     "project": "frontmatter-gen",
     "category": "github",
     "format": "svg",
-    "size": 4253
+    "size": 4252
   },
   {
     "name": "180x180.png",
@@ -5741,7 +5741,7 @@
     "project": "frontmatter-gen",
     "category": "logos",
     "format": "svg",
-    "size": 3182
+    "size": 3180
   },
   {
     "name": "title-frontmatter-gen.svg",
@@ -5789,7 +5789,7 @@
     "project": "hsh",
     "category": "icons",
     "format": "png",
-    "size": 10379
+    "size": 10304
   },
   {
     "name": "192x192.png",
@@ -5797,7 +5797,7 @@
     "project": "hsh",
     "category": "icons",
     "format": "png",
-    "size": 11285
+    "size": 11274
   },
   {
     "name": "512x512.png",
@@ -5805,7 +5805,7 @@
     "project": "hsh",
     "category": "icons",
     "format": "png",
-    "size": 33578
+    "size": 33267
   },
   {
     "name": "hsh.svg",
@@ -5837,7 +5837,7 @@
     "project": "html-generator",
     "category": "banners",
     "format": "svg",
-    "size": 1274400
+    "size": 1274396
   },
   {
     "name": "favicon.ico",
@@ -5853,7 +5853,7 @@
     "project": "html-generator",
     "category": "github",
     "format": "svg",
-    "size": 259827
+    "size": 259789
   },
   {
     "name": "180x180.png",
@@ -5877,7 +5877,7 @@
     "project": "html-generator",
     "category": "icons",
     "format": "png",
-    "size": 51041
+    "size": 50962
   },
   {
     "name": "html-generator.svg",
@@ -5885,7 +5885,7 @@
     "project": "html-generator",
     "category": "logos",
     "format": "svg",
-    "size": 258583
+    "size": 258560
   },
   {
     "name": "title-html-generator.svg",
@@ -6285,7 +6285,7 @@
     "project": "libmake",
     "category": "github",
     "format": "svg",
-    "size": 723208
+    "size": 723198
   },
   {
     "name": "180x180.png",
@@ -6309,7 +6309,7 @@
     "project": "libmake",
     "category": "icons",
     "format": "png",
-    "size": 28051
+    "size": 27340
   },
   {
     "name": "libmake.svg",
@@ -6341,7 +6341,7 @@
     "project": "libyml",
     "category": "banners",
     "format": "svg",
-    "size": 12064
+    "size": 12006
   },
   {
     "name": "favicon.ico",
@@ -6413,7 +6413,7 @@
     "project": "llamadev",
     "category": "banners",
     "format": "svg",
-    "size": 473421
+    "size": 473417
   },
   {
     "name": "favicon.ico",
@@ -6509,7 +6509,7 @@
     "project": "mdx-gen",
     "category": "github",
     "format": "svg",
-    "size": 41015
+    "size": 40932
   },
   {
     "name": "180x180.png",
@@ -6541,7 +6541,7 @@
     "project": "mdx-gen",
     "category": "logos",
     "format": "svg",
-    "size": 39824
+    "size": 39711
   },
   {
     "name": "title-mdx-gen.svg",
@@ -6581,7 +6581,7 @@
     "project": "metadata-gen",
     "category": "github",
     "format": "svg",
-    "size": 25730
+    "size": 25707
   },
   {
     "name": "180x180.png",
@@ -6613,7 +6613,7 @@
     "project": "metadata-gen",
     "category": "logos",
     "format": "svg",
-    "size": 24319
+    "size": 24296
   },
   {
     "name": "title-metadata-gen.svg",
@@ -7341,7 +7341,7 @@
     "project": "neferankh",
     "category": "titles",
     "format": "svg",
-    "size": 349
+    "size": 348
   },
   {
     "name": "favicon.ico",
@@ -7637,7 +7637,7 @@
     "project": "pain001",
     "category": "icons",
     "format": "png",
-    "size": 37469
+    "size": 37431
   },
   {
     "name": "152x152@2x.png",
@@ -7837,7 +7837,7 @@
     "project": "pain001",
     "category": "icons",
     "format": "png",
-    "size": 8526
+    "size": 8520
   },
   {
     "name": "32x32@3x.png",
@@ -7845,7 +7845,7 @@
     "project": "pain001",
     "category": "icons",
     "format": "png",
-    "size": 17115
+    "size": 17071
   },
   {
     "name": "384x384.png",
@@ -8805,7 +8805,7 @@
     "project": "pipelines",
     "category": "logos",
     "format": "svg",
-    "size": 328674
+    "size": 328516
   },
   {
     "name": "pm2md.webp",
@@ -8845,7 +8845,7 @@
     "project": "pythondev",
     "category": "github",
     "format": "svg",
-    "size": 67337
+    "size": 67254
   },
   {
     "name": "180x180.png",
@@ -8877,7 +8877,7 @@
     "project": "pythondev",
     "category": "logos",
     "format": "svg",
-    "size": 68051
+    "size": 67968
   },
   {
     "name": "title-pythondev.svg",
@@ -8981,7 +8981,7 @@
     "project": "rlg",
     "category": "github",
     "format": "svg",
-    "size": 419715
+    "size": 419714
   },
   {
     "name": "180x180.png",
@@ -9181,7 +9181,7 @@
     "project": "rustdev",
     "category": "icons",
     "format": "png",
-    "size": 258467
+    "size": 258445
   },
   {
     "name": "rustdev.svg",
@@ -9253,7 +9253,7 @@
     "project": "sebastienrousseau",
     "category": "logos",
     "format": "svg",
-    "size": 722552
+    "size": 722545
   },
   {
     "name": "banner-sebastienrousseau.svg",
@@ -9261,7 +9261,7 @@
     "project": "sebastienrousseau",
     "category": "logos",
     "format": "svg",
-    "size": 722851
+    "size": 722578
   },
   {
     "name": "gemma.svg",
@@ -9333,7 +9333,7 @@
     "project": "serde_yml",
     "category": "github",
     "format": "svg",
-    "size": 16610
+    "size": 16587
   },
   {
     "name": "180x180.png",
@@ -9365,7 +9365,7 @@
     "project": "serde_yml",
     "category": "logos",
     "format": "svg",
-    "size": 15434
+    "size": 15411
   },
   {
     "name": "title-serde_yml.svg",
@@ -9749,7 +9749,7 @@
     "project": "staticrux",
     "category": "logos",
     "format": "svg",
-    "size": 8003
+    "size": 7950
   },
   {
     "name": "title-staticrux.svg",
@@ -12933,7 +12933,7 @@
     "project": "vrd",
     "category": "github",
     "format": "svg",
-    "size": 676574
+    "size": 676565
   },
   {
     "name": "180x180.png",
@@ -12989,7 +12989,7 @@
     "project": "wiserone",
     "category": "banners",
     "format": "svg",
-    "size": 74307
+    "size": 74284
   },
   {
     "name": "favicon.ico",
@@ -13005,7 +13005,7 @@
     "project": "wiserone",
     "category": "github",
     "format": "svg",
-    "size": 182411
+    "size": 182373
   },
   {
     "name": "180x180.png",
@@ -13037,7 +13037,7 @@
     "project": "wiserone",
     "category": "logos",
     "format": "svg",
-    "size": 50826
+    "size": 50803
   },
   {
     "name": "title-wiserone.svg",

@@ -3,7 +3,11 @@ import {
   getManifest, clearManifestCache, streamJsonArray,
   authenticateAccess, authenticateAccount, authenticateAny,
   formatBytes, parseCookies, CORS_JSON,
+  log, createTrace, fetchWithTimeout, hmacSign, hmacVerify,
+  checkRateLimit,
 } from '../../../functions/api/_shared.js';
+
+const originalFetch = globalThis.fetch;
 
 describe('Shared utilities', () => {
   beforeEach(() => clearManifestCache());
@@ -461,6 +465,174 @@ describe('Shared utilities', () => {
       const result = parseCookies('a=hello; b=world');
       expect(result.a).toBe('hello');
       expect(result.b).toBe('world');
+    });
+  });
+
+  // ── Structured Logging ──
+
+  describe('log', () => {
+    it('log.info outputs JSON to console.log', () => {
+      const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      log.info('TEST_CODE', 'test message', { extra: 'data' });
+      expect(spy).toHaveBeenCalledTimes(1);
+      const parsed = JSON.parse(spy.mock.calls[0][0]);
+      expect(parsed.level).toBe('info');
+      expect(parsed.code).toBe('TEST_CODE');
+      expect(parsed.message).toBe('test message');
+      expect(parsed.extra).toBe('data');
+      expect(parsed.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+      spy.mockRestore();
+    });
+
+    it('log.warn outputs to console.warn', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      log.warn('WARN_CODE', 'warning');
+      const parsed = JSON.parse(spy.mock.calls[0][0]);
+      expect(parsed.level).toBe('warn');
+      spy.mockRestore();
+    });
+
+    it('log.error outputs to console.error', () => {
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      log.error('ERR_CODE', 'error msg');
+      const parsed = JSON.parse(spy.mock.calls[0][0]);
+      expect(parsed.level).toBe('error');
+      expect(parsed.code).toBe('ERR_CODE');
+      spy.mockRestore();
+    });
+  });
+
+  // ── Request Tracing ──
+
+  describe('createTrace', () => {
+    it('generates traceId and spanId', () => {
+      const trace = createTrace(new Request('https://test.com/api'));
+      expect(trace.traceId).toMatch(/^[0-9a-f]{32}$/);
+      expect(trace.spanId).toMatch(/^[0-9a-f]{16}$/);
+    });
+
+    it('generates W3C traceparent header', () => {
+      const trace = createTrace(new Request('https://test.com/api'));
+      expect(trace.traceparent).toMatch(/^00-[0-9a-f]{32}-[0-9a-f]{16}-01$/);
+    });
+
+    it('end() returns duration and status', () => {
+      const trace = createTrace(new Request('https://test.com/api'));
+      const result = trace.end(200);
+      expect(result.durationMs).toBeGreaterThanOrEqual(0);
+      expect(result.status).toBe(200);
+      expect(result.traceId).toBe(trace.traceId);
+    });
+
+    it('child() creates child span with parent reference', () => {
+      const trace = createTrace(new Request('https://test.com/api'));
+      const child = trace.child('vectorize-query');
+      expect(child.name).toBe('vectorize-query');
+      expect(child.parentSpanId).toBe(trace.spanId);
+      expect(child.traceId).toBe(trace.traceId);
+      expect(child.spanId).not.toBe(trace.spanId);
+    });
+
+    it('child.end() returns duration', () => {
+      const trace = createTrace(new Request('https://test.com/api'));
+      const child = trace.child('ai-embed');
+      const result = child.end();
+      expect(result.durationMs).toBeGreaterThanOrEqual(0);
+      expect(result.name).toBe('ai-embed');
+    });
+  });
+
+  // ── Fetch with Timeout ──
+
+  describe('fetchWithTimeout', () => {
+    it('returns response on success', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('ok'));
+      const res = await fetchWithTimeout('https://api.github.com/test', {}, 5000);
+      expect(await res.text()).toBe('ok');
+      globalThis.fetch = originalFetch;
+    });
+
+    it('passes options through to fetch', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('ok'));
+      await fetchWithTimeout('https://api.github.com/test', { method: 'POST', headers: { 'X-Test': '1' } });
+      const [, opts] = globalThis.fetch.mock.calls[0];
+      expect(opts.method).toBe('POST');
+      expect(opts.headers['X-Test']).toBe('1');
+      expect(opts.signal).toBeInstanceOf(AbortSignal);
+      globalThis.fetch = originalFetch;
+    });
+
+    it('aborts on timeout', async () => {
+      globalThis.fetch = vi.fn().mockImplementation((_url, opts) => {
+        return new Promise((_, reject) => {
+          opts.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+        });
+      });
+      await expect(fetchWithTimeout('https://slow.example.com', {}, 10)).rejects.toThrow('Aborted');
+      globalThis.fetch = originalFetch;
+    });
+  });
+
+  // ── HMAC Functions ──
+
+  describe('hmacSign + hmacVerify', () => {
+    it('sign then verify returns true', async () => {
+      const sig = await hmacSign('my-secret', 'hello-world');
+      expect(sig).toMatch(/^[0-9a-f]{64}$/);
+      const valid = await hmacVerify('my-secret', 'hello-world', sig);
+      expect(valid).toBe(true);
+    });
+
+    it('verify rejects wrong signature', async () => {
+      const valid = await hmacVerify('my-secret', 'hello-world', 'a'.repeat(64));
+      expect(valid).toBe(false);
+    });
+
+    it('verify rejects wrong data', async () => {
+      const sig = await hmacSign('my-secret', 'hello-world');
+      const valid = await hmacVerify('my-secret', 'wrong-data', sig);
+      expect(valid).toBe(false);
+    });
+
+    it('verify rejects wrong secret', async () => {
+      const sig = await hmacSign('my-secret', 'hello-world');
+      const valid = await hmacVerify('other-secret', 'hello-world', sig);
+      expect(valid).toBe(false);
+    });
+
+    it('different data produces different signatures', async () => {
+      const sig1 = await hmacSign('secret', 'data1');
+      const sig2 = await hmacSign('secret', 'data2');
+      expect(sig1).not.toBe(sig2);
+    });
+  });
+
+  // ── checkRateLimit ──
+
+  describe('checkRateLimit', () => {
+    it('allows when under limit', async () => {
+      const kv = { get: vi.fn().mockResolvedValue('5'), put: vi.fn().mockResolvedValue(undefined) };
+      const result = await checkRateLimit(kv, 'test:ip', 100, 60);
+      expect(result.allowed).toBe(true);
+      expect(result.remaining).toBe(94);
+    });
+
+    it('blocks when at limit', async () => {
+      const kv = { get: vi.fn().mockResolvedValue('100'), put: vi.fn() };
+      const result = await checkRateLimit(kv, 'test:ip', 100, 60);
+      expect(result.allowed).toBe(false);
+      expect(result.remaining).toBe(0);
+    });
+
+    it('allows when kv is null', async () => {
+      const result = await checkRateLimit(null, 'test:ip', 100, 60);
+      expect(result.allowed).toBe(true);
+    });
+
+    it('increments counter in KV', async () => {
+      const kv = { get: vi.fn().mockResolvedValue('10'), put: vi.fn().mockResolvedValue(undefined) };
+      await checkRateLimit(kv, 'test:key', 100, 60);
+      expect(kv.put).toHaveBeenCalledWith('test:key', '11', { expirationTtl: 60 });
     });
   });
 });

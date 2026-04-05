@@ -8,7 +8,7 @@
  * 409 conflicts from concurrent Contents API calls.
  */
 
-import { authenticateAccess } from '../_shared.js';
+import { authenticateAccess, fetchWithTimeout, log, cdnOrigin } from '../_shared.js';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -98,24 +98,24 @@ export async function onRequestPost(context) {
 
   try {
     // 1. Get current HEAD
-    const refRes = await fetch(`https://api.github.com/repos/${repo}/git/ref/heads/${branch}`, { headers });
+    const refRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/ref/heads/${branch}`, { headers });
     if (!refRes.ok) throw new Error('Failed to get branch ref');
     const headSha = (await refRes.json()).object.sha;
 
     // 2. Get base tree
-    const commitRes = await fetch(`https://api.github.com/repos/${repo}/git/commits/${headSha}`, { headers });
+    const commitRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/commits/${headSha}`, { headers });
     if (!commitRes.ok) throw new Error('Failed to get commit');
     const baseTree = (await commitRes.json()).tree.sha;
 
     // 3. Create blobs for each file
     const treeEntries = [];
     for (const file of files) {
-      const blobRes = await fetch(`https://api.github.com/repos/${repo}/git/blobs`, {
+      const blobRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/blobs`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ content: file.content, encoding: file.encoding || 'base64' }),
       });
-      if (!blobRes.ok) throw new Error(`Failed to create blob for ${file.path}`);
+      if (!blobRes.ok) throw new Error('Failed to create blob');
       const blob = await blobRes.json();
       treeEntries.push({
         path: file.path,
@@ -126,7 +126,7 @@ export async function onRequestPost(context) {
     }
 
     // 4. Create tree
-    const treeRes = await fetch(`https://api.github.com/repos/${repo}/git/trees`, {
+    const treeRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/trees`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ base_tree: baseTree, tree: treeEntries }),
@@ -140,7 +140,7 @@ export async function onRequestPost(context) {
       ? `chore: upload ${paths} via Storage API [skip ci]`
       : `chore: batch upload ${files.length} files via Storage API [skip ci]`;
 
-    const newCommitRes = await fetch(`https://api.github.com/repos/${repo}/git/commits`, {
+    const newCommitRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/commits`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ message: commitMsg, parents: [headSha], tree: treeSha }),
@@ -149,7 +149,7 @@ export async function onRequestPost(context) {
     const commitSha = (await newCommitRes.json()).sha;
 
     // 6. Update branch ref
-    const updateRes = await fetch(`https://api.github.com/repos/${repo}/git/refs/heads/${branch}`, {
+    const updateRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/refs/heads/${branch}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({ sha: commitSha }),
@@ -158,9 +158,10 @@ export async function onRequestPost(context) {
 
     // 7. Async cache purge for all uploaded paths
     if (env.CLOUDFLARE_ZONE_ID && env.CLOUDFLARE_API_TOKEN) {
+      const origin = cdnOrigin(request.url);
       const urls = files.map(f => {
         const publicPath = f.path.startsWith('clients/') ? f.path.slice('clients/'.length) : f.path;
-        return `https://cloudcdn.pro/${publicPath}`;
+        return `${origin}/${publicPath}`;
       });
       context.waitUntil(
         fetch(`https://api.cloudflare.com/client/v4/zones/${env.CLOUDFLARE_ZONE_ID}/purge_cache`, {
@@ -182,9 +183,10 @@ export async function onRequestPost(context) {
     }, null, 2), { status: 201, headers: CORS_HEADERS });
 
   } catch (err) {
+    log.error('BATCH_UPLOAD_ERROR', err.message);
     return new Response(JSON.stringify({
       HttpCode: 500,
-      Message: 'The batch upload failed due to an unexpected error while committing files to the repository. Verify your GITHUB_TOKEN has write permissions and that all file paths and content are valid. Detail: ' + err.message,
+      Message: 'The batch upload failed due to an unexpected error. Verify your credentials and try again.',
     }), { status: 500, headers: CORS_HEADERS });
   }
 }

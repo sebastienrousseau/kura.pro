@@ -1,3 +1,5 @@
+import { log, cdnOrigin } from '../../_shared.js';
+
 /**
  * Core API — Zone detail, delete, and domain management.
  *
@@ -21,6 +23,16 @@ function authenticate(request, env) {
 
 function ghHeaders(token) {
   return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'User-Agent': 'CloudCDN-Core' };
+}
+
+async function ghFetch(url, options = {}) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 function parseRoute(params) {
@@ -63,7 +75,7 @@ export async function onRequestGet(context) {
     Id: zoneId,
     Name: zoneId,
     StorageZoneName: 'cloudcdn',
-    OriginUrl: `https://cloudcdn.pro/${zoneId}/`,
+    OriginUrl: `${cdnOrigin(request.url)}/${zoneId}/`,
     FileCount: assets.length,
     StorageUsed: totalSize,
     StorageUsedHuman: formatBytes(totalSize),
@@ -105,7 +117,7 @@ export async function onRequestDelete(context) {
 
   try {
     // List all files in the zone directory
-    const treeRes = await fetch(`https://api.github.com/repos/${repo}/git/trees/main?recursive=1`, { headers });
+    const treeRes = await ghFetch(`https://api.github.com/repos/${repo}/git/trees/main?recursive=1`, { headers });
     if (!treeRes.ok) throw new Error('Failed to fetch tree');
     const tree = await treeRes.json();
     const zoneFiles = tree.tree.filter(f => f.path.startsWith(`clients/${zoneId}/`) && f.type === 'blob');
@@ -115,9 +127,9 @@ export async function onRequestDelete(context) {
     }
 
     // Get HEAD
-    const refRes = await fetch(`https://api.github.com/repos/${repo}/git/ref/heads/main`, { headers });
+    const refRes = await ghFetch(`https://api.github.com/repos/${repo}/git/ref/heads/main`, { headers });
     const headSha = (await refRes.json()).object.sha;
-    const commitRes = await fetch(`https://api.github.com/repos/${repo}/git/commits/${headSha}`, { headers });
+    const commitRes = await ghFetch(`https://api.github.com/repos/${repo}/git/commits/${headSha}`, { headers });
     const baseTree = (await commitRes.json()).tree.sha;
 
     // Create tree with all zone files set to null (deleted)
@@ -128,20 +140,20 @@ export async function onRequestDelete(context) {
       sha: null,
     }));
 
-    const newTreeRes = await fetch(`https://api.github.com/repos/${repo}/git/trees`, {
+    const newTreeRes = await ghFetch(`https://api.github.com/repos/${repo}/git/trees`, {
       method: 'POST', headers,
       body: JSON.stringify({ base_tree: baseTree, tree: deleteEntries }),
     });
     const treeSha = (await newTreeRes.json()).sha;
 
     // Commit
-    const newCommit = await fetch(`https://api.github.com/repos/${repo}/git/commits`, {
+    const newCommit = await ghFetch(`https://api.github.com/repos/${repo}/git/commits`, {
       method: 'POST', headers,
       body: JSON.stringify({ message: `feat: delete zone '${zoneId}' via Core API [skip ci]`, parents: [headSha], tree: treeSha }),
     });
     const commitSha = (await newCommit.json()).sha;
 
-    await fetch(`https://api.github.com/repos/${repo}/git/refs/heads/main`, {
+    await ghFetch(`https://api.github.com/repos/${repo}/git/refs/heads/main`, {
       method: 'PATCH', headers,
       body: JSON.stringify({ sha: commitSha }),
     });
@@ -165,7 +177,8 @@ export async function onRequestDelete(context) {
       EdgeStatus: 'purging',
     }, null, 2), { status: 200, headers: CORS });
   } catch (err) {
-    return new Response(JSON.stringify({ HttpCode: 500, Message: 'The zone deletion failed due to an unexpected error while removing files from the repository. Verify your GITHUB_TOKEN has write permissions and the zone exists. Detail: ' + err.message }), { status: 500, headers: CORS });
+    log.error('ZONE_DELETE_ERROR', err.message);
+    return new Response(JSON.stringify({ HttpCode: 500, Message: 'The zone deletion failed due to an unexpected error. Verify your credentials and try again.' }), { status: 500, headers: CORS });
   }
 }
 
@@ -229,7 +242,8 @@ export async function onRequestPost(context) {
       DateCreated: new Date().toISOString(),
     }, null, 2), { status: 201, headers: CORS });
   } catch (err) {
-    return new Response(JSON.stringify({ HttpCode: 500, Message: 'The custom domain addition failed due to an unexpected error communicating with the Cloudflare Pages API. Verify your CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN are valid and have sufficient permissions. Detail: ' + err.message }), { status: 500, headers: CORS });
+    log.error('DOMAIN_ADD_ERROR', err.message);
+    return new Response(JSON.stringify({ HttpCode: 500, Message: 'The custom domain addition failed due to an unexpected error. Verify your credentials and try again.' }), { status: 500, headers: CORS });
   }
 }
 

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cloudcdn.pro/kura/v1/logos/kura.svg" alt="CloudCDN logo" width="128" />
+  <img src="https://cloudcdn.pro/cloudcdn/v1/logos/logo.svg" alt="CloudCDN logo" width="128" />
 </p>
 
 <h1 align="center">CloudCDN</h1>

@@ -4,7 +4,7 @@
  * GET /api/assets/metadata?path=akande/v1/logos/logo.svg
  */
 
-import { getManifest, authenticateAccess, formatBytes, extractParams, CORS_JSON } from '../_shared.js';
+import { getManifest, authenticateAccess, formatBytes, extractParams, cdnOrigin, CORS_JSON } from '../_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -77,8 +77,8 @@ export async function onRequestGet(context) {
     Size: asset.size,
     SizeHuman: formatBytes(asset.size),
     ContentType: contentType,
-    CdnUrl: `https://cloudcdn.pro/${asset.path}`,
-    TransformUrl: `https://cloudcdn.pro/api/transform?url=/${asset.path}`,
+    CdnUrl: `${cdnOrigin(request.url)}/${asset.path}`,
+    TransformUrl: `${cdnOrigin(request.url)}/api/transform?url=/${asset.path}`,
     AvailableFormats: availableFormats,
     DateFetched: new Date().toISOString(),
   }), { headers: CORS });

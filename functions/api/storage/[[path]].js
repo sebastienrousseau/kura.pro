@@ -12,7 +12,8 @@
  * Response format: ISO 8601 dates, Bunny.net-compatible JSON schema.
  */
 
-import { authenticateAccess } from '../_shared.js';
+import { authenticateAccess, fetchWithTimeout, log, cdnOrigin } from '../_shared.js';
+import { dispatchWebhook } from '../webhooks.js';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -295,7 +296,7 @@ export async function onRequestPut(context) {
       // Check if file exists (for update vs create)
       let sha;
       try {
-        const existing = await fetch(
+        const existing = await fetchWithTimeout(
           `https://api.github.com/repos/${env.GITHUB_REPO}/contents/${physicalPath}`,
           { headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, 'User-Agent': 'CloudCDN' } }
         );
@@ -312,7 +313,7 @@ export async function onRequestPut(context) {
       };
       if (sha) payload.sha = sha;
 
-      const res = await fetch(
+      const res = await fetchWithTimeout(
         `https://api.github.com/repos/${env.GITHUB_REPO}/contents/${physicalPath}`,
         {
           method: 'PUT',
@@ -326,20 +327,18 @@ export async function onRequestPut(context) {
       );
 
       if (!res.ok) {
-        const err = await res.json();
         const status = res.status === 409 ? 409 : 502;
         return new Response(JSON.stringify({
           HttpCode: status,
           Message: status === 409
             ? 'Conflict: another upload modified the tree. Retry or use /api/storage/batch for concurrent uploads.'
-            : 'Upload failed',
-          Detail: err.message,
+            : 'Upload failed. Verify your credentials and try again.',
         }), { status, headers: CORS_HEADERS });
       }
 
       // Async cache purge for overwrites (don't block the response)
       if (sha && env.CLOUDFLARE_ZONE_ID && env.CLOUDFLARE_API_TOKEN) {
-        const cdnUrl = `https://cloudcdn.pro/${storagePath}`;
+        const cdnUrl = `${cdnOrigin(request.url)}/${storagePath}`;
         context.waitUntil(
           fetch(`https://api.cloudflare.com/client/v4/zones/${env.CLOUDFLARE_ZONE_ID}/purge_cache`, {
             method: 'POST',
@@ -348,6 +347,9 @@ export async function onRequestPut(context) {
           }).catch(() => {})
         );
       }
+
+      // Dispatch webhook (best-effort, non-blocking)
+      try { context.waitUntil(dispatchWebhook(env, sha ? 'asset.updated' : 'asset.created', { path: storagePath, size: body.byteLength })); } catch {}
 
       return new Response(JSON.stringify({
         HttpCode: 201,
@@ -360,9 +362,10 @@ export async function onRequestPut(context) {
         EdgeNote: 'File committed to repository. It will be available at the edge after the CI/CD pipeline deploys (~60-90 seconds).',
       }), { status: 201, headers: CORS_HEADERS });
     } catch (err) {
+      log.error('UPLOAD_ERROR', err.message);
       return new Response(JSON.stringify({
         HttpCode: 500,
-        Message: 'The file upload failed due to an unexpected error while committing the file to the repository. Verify your GITHUB_TOKEN has write permissions and the file content is valid base64-encoded data. Detail: ' + err.message,
+        Message: 'The file upload failed due to an unexpected error. Verify your credentials and try again.',
       }), { status: 500, headers: CORS_HEADERS });
     }
   }
@@ -404,7 +407,7 @@ export async function onRequestDelete(context) {
 
   try {
     // Get file SHA (required for GitHub delete)
-    const existing = await fetch(
+    const existing = await fetchWithTimeout(
       `https://api.github.com/repos/${env.GITHUB_REPO}/contents/${physicalPath}`,
       { headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, 'User-Agent': 'CloudCDN' } }
     );
@@ -417,7 +420,7 @@ export async function onRequestDelete(context) {
 
     const { sha } = await existing.json();
 
-    const res = await fetch(
+    const res = await fetchWithTimeout(
       `https://api.github.com/repos/${env.GITHUB_REPO}/contents/${physicalPath}`,
       {
         method: 'DELETE',
@@ -435,11 +438,9 @@ export async function onRequestDelete(context) {
     );
 
     if (!res.ok) {
-      const err = await res.json();
       return new Response(JSON.stringify({
         HttpCode: 502,
-        Message: 'The file deletion failed due to an unexpected error communicating with the storage backend. Verify your GITHUB_TOKEN has write permissions and the file exists at the specified path.',
-        Detail: err.message,
+        Message: 'The file deletion failed. Verify your credentials and the file exists at the specified path.',
       }), { status: 502, headers: CORS_HEADERS });
     }
 
@@ -455,6 +456,9 @@ export async function onRequestDelete(context) {
       );
     }
 
+    // Dispatch webhook (best-effort, non-blocking)
+    try { context.waitUntil(dispatchWebhook(env, 'asset.deleted', { path: storagePath })); } catch {}
+
     return new Response(JSON.stringify({
       HttpCode: 200,
       Message: 'File deleted successfully. The asset has been removed from the repository and the edge cache purge has been initiated. The deletion will propagate to all 300+ edge locations within seconds.',
@@ -463,9 +467,10 @@ export async function onRequestDelete(context) {
       EdgeNote: 'File removed from repository and edge cache purge initiated.',
     }), { status: 200, headers: CORS_HEADERS });
   } catch (err) {
+    log.error('DELETE_ERROR', err.message);
     return new Response(JSON.stringify({
       HttpCode: 500,
-      Message: 'The file deletion failed due to an unexpected error while removing the file from the repository. Verify your GITHUB_TOKEN has write permissions and the file exists at the specified path. Detail: ' + err.message,
+      Message: 'The file deletion failed due to an unexpected error. Verify your credentials and try again.',
     }), { status: 500, headers: CORS_HEADERS });
   }
 }

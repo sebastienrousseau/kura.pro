@@ -11,7 +11,7 @@
 import { trackRequest } from "./api/analytics.js";
 
 // Pre-compiled extension check — faster than regex for hot path
-const ASSET_EXT = new Set(["webp", "avif", "png", "svg", "ico", "mp4"]);
+const ASSET_EXT = new Set(["webp", "avif", "jxl", "png", "svg", "ico", "mp4"]);
 
 const CONTINENT_MAP = {
   EU: "europe",

@@ -388,4 +388,35 @@ describe('GET /api/auto', () => {
     const res = await onRequestGet(ctx);
     expect(res.status).toBe(200);
   });
+
+  // ── Path validation (SSRF protection) ──
+
+  it('rejects path with .. traversal', async () => {
+    const ctx = {
+      request: new Request('https://cloudcdn.pro/api/auto?path=/../../../etc/passwd'),
+    };
+    Object.defineProperty(ctx.request, 'headers', { value: { get: () => '*/*' } });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error).toContain('disallowed');
+  });
+
+  it('rejects path with null byte', async () => {
+    const ctx = {
+      request: new Request('https://cloudcdn.pro/api/auto?path=/test%00.svg'),
+    };
+    Object.defineProperty(ctx.request, 'headers', { value: { get: () => '*/*' } });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects path with double slashes', async () => {
+    const ctx = {
+      request: new Request('https://cloudcdn.pro/api/auto?path=//etc/passwd'),
+    };
+    Object.defineProperty(ctx.request, 'headers', { value: { get: () => '*/*' } });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(400);
+  });
 });

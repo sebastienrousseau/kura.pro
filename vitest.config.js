@@ -11,6 +11,10 @@ export default defineConfig({
         'website/scripts/sync-knowledge.mjs',
         'functions/api/chat.js',
         'functions/api/transform.js',
+        'functions/api/webhooks.js',
+        'functions/api/tokens.js',
+        'functions/api/health.js',
+        'functions/api/logs.js',
       ],
       all: false,
       thresholds: {

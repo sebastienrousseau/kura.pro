@@ -10,6 +10,7 @@ function makeKV(data = {}) {
       }
       return Promise.resolve(null);
     }),
+    put: vi.fn().mockResolvedValue(undefined),
   };
 }
 
@@ -99,6 +100,7 @@ describe('Insights — Errors', () => {
         }
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=3', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
@@ -142,6 +144,7 @@ describe('Insights — Errors', () => {
         }
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
@@ -157,6 +160,7 @@ describe('Insights — Errors', () => {
         if (key.includes('errors')) return Promise.resolve(JSON.stringify({ '404': { count: 5, paths: {} } }));
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
@@ -176,7 +180,7 @@ describe('Insights — Errors', () => {
   });
 
   it('empty errors data returns empty Errors array', async () => {
-    const kv = { get: vi.fn().mockResolvedValue(null) };
+    const kv = { get: vi.fn().mockResolvedValue(null), put: vi.fn().mockResolvedValue(undefined) };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
     const json = await res.json();
@@ -189,6 +193,7 @@ describe('Insights — Errors', () => {
         if (key.includes('errors')) return Promise.resolve(JSON.stringify({ '404': { count: 5, paths: { '/a.png': 3, '/b.png': 2 } } }));
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);

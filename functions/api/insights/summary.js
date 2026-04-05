@@ -2,13 +2,17 @@
  * Insights — Summary statistics.
  * GET /api/insights/summary?days=7&zone=akande
  */
-import { authenticateAny, formatBytes, CORS_JSON } from '../_shared.js';
+import { authenticateAny, formatBytes, checkRateLimit, errorResponse, CORS_JSON } from '../_shared.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
   if (!(await authenticateAny(request, env))) {
     return new Response(JSON.stringify({ HttpCode: 401, Message: 'Authentication required. Provide a valid API key in the request header. Use "AccessKey" for storage and asset operations, or "AccountKey" for zone management and analytics.' }), { status: 401, headers: CORS_JSON });
   }
+
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  const rl = await checkRateLimit(env.RATE_KV, `rl:insights:${ip}`, 200, 60);
+  if (!rl.allowed) return errorResponse(429, 'TooManyRequests', 'Rate limit exceeded. Maximum 200 requests per minute.', { retryAfter: '60', limit: rl.limit });
 
   const url = new URL(request.url);
   const days = Math.min(Math.max(parseInt(url.searchParams.get('days') || '7', 10), 1), 90);

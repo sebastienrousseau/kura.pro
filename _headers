@@ -16,6 +16,11 @@
   Access-Control-Allow-Origin: *
   X-Robots-Tag: noindex
 
+/*.jxl
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+  X-Robots-Tag: noindex
+
 /*.png
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
@@ -36,21 +41,22 @@
   X-Robots-Tag: noindex
 
 /manifest.json
-  Cache-Control: public, max-age=300
+  Cache-Control: public, max-age=60, stale-while-revalidate=300
   Access-Control-Allow-Origin: *
 
 /dashboard/*
   Cache-Control: no-cache
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'
+  Link: </dashboard/tailwind.css>; rel=preload; as=style, </dashboard/app.js>; rel=preload; as=script
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
 
 /dist/*
   Cache-Control: no-cache
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'
 
 /api-reference/*
   Cache-Control: public, max-age=300
   Access-Control-Allow-Origin: *
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'
 
 /api/stream
   Access-Control-Allow-Origin: *

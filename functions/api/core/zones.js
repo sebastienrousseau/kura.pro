@@ -7,7 +7,7 @@
  * Auth: AccountKey header (env.ACCOUNT_KEY) — separated from StorageKey.
  */
 
-import { checkRateLimit, errorResponse } from '../_shared.js';
+import { checkRateLimit, errorResponse, fetchWithTimeout, log, cdnOrigin } from '../_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -68,7 +68,7 @@ export async function onRequestGet(context) {
     Id: z.Id,
     Name: z.Name,
     StorageZoneName: 'cloudcdn',
-    OriginUrl: `https://cloudcdn.pro/${z.Name}/`,
+    OriginUrl: `${cdnOrigin(request.url)}/${z.Name}/`,
     FileCount: z.FileCount,
     StorageUsed: z.TotalSize,
     StorageUsedHuman: formatBytes(z.TotalSize),
@@ -121,15 +121,15 @@ export async function onRequestPost(context) {
 
   try {
     // Check if zone already exists
-    const check = await fetch(`https://api.github.com/repos/${repo}/contents/clients/${name}`, { headers });
+    const check = await fetchWithTimeout(`https://api.github.com/repos/${repo}/contents/clients/${name}`, { headers });
     if (check.ok) {
       return new Response(JSON.stringify({ HttpCode: 409, Message: `Zone '${name}' already exists. A project directory with this name is already present in the repository. Choose a different name or use GET /api/core/zones/${name} to view the existing zone details.` }), { status: 409, headers: CORS });
     }
 
     // Get HEAD
-    const refRes = await fetch(`https://api.github.com/repos/${repo}/git/ref/heads/main`, { headers });
+    const refRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/ref/heads/main`, { headers });
     const headSha = (await refRes.json()).object.sha;
-    const commitRes = await fetch(`https://api.github.com/repos/${repo}/git/commits/${headSha}`, { headers });
+    const commitRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/commits/${headSha}`, { headers });
     const baseTree = (await commitRes.json()).tree.sha;
 
     // Create tree with standard v1/ directories (.gitkeep in each)
@@ -140,21 +140,21 @@ export async function onRequestPost(context) {
       content: '',
     }));
 
-    const treeRes = await fetch(`https://api.github.com/repos/${repo}/git/trees`, {
+    const treeRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/trees`, {
       method: 'POST', headers,
       body: JSON.stringify({ base_tree: baseTree, tree: treeEntries }),
     });
     const treeSha = (await treeRes.json()).sha;
 
     // Commit
-    const newCommit = await fetch(`https://api.github.com/repos/${repo}/git/commits`, {
+    const newCommit = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/commits`, {
       method: 'POST', headers,
       body: JSON.stringify({ message: `feat: create zone '${name}' via Core API [skip ci]`, parents: [headSha], tree: treeSha }),
     });
     const commitSha = (await newCommit.json()).sha;
 
     // Update ref
-    await fetch(`https://api.github.com/repos/${repo}/git/refs/heads/main`, {
+    await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/refs/heads/main`, {
       method: 'PATCH', headers,
       body: JSON.stringify({ sha: commitSha }),
     });
@@ -164,7 +164,7 @@ export async function onRequestPost(context) {
       Message: `Zone '${name}' created successfully. The zone directory structure has been committed to the repository and will be available at the edge after the CI/CD pipeline completes deployment (approximately 60-90 seconds).`,
       Id: name,
       Name: name,
-      OriginUrl: `https://cloudcdn.pro/${name}/`,
+      OriginUrl: `${cdnOrigin(request.url)}/${name}/`,
       Commit: commitSha,
       Directories: STANDARD_DIRS,
       EdgeStatus: 'pending',
@@ -172,7 +172,8 @@ export async function onRequestPost(context) {
       DateCreated: new Date().toISOString(),
     }, null, 2), { status: 201, headers: CORS });
   } catch (err) {
-    return new Response(JSON.stringify({ HttpCode: 500, Message: 'The zone creation failed due to an unexpected error while committing the directory structure to the repository. Verify your GITHUB_TOKEN has write permissions and try again. Detail: ' + err.message }), { status: 500, headers: CORS });
+    log.error('ZONE_CREATE_ERROR', err.message);
+    return new Response(JSON.stringify({ HttpCode: 500, Message: 'The zone creation failed due to an unexpected error. Verify your credentials and try again.' }), { status: 500, headers: CORS });
   }
 }
 

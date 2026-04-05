@@ -48,6 +48,8 @@ jobs:
               const webpOut = base + '.webp';
               const avifOut = base + '.avif';
 
+              const jxlOut = base + '.jxl';
+
               try {
                 if (!fs.existsSync(webpOut)) {
                   await sharp(file).webp({ quality: 80 }).toFile(webpOut);
@@ -56,6 +58,10 @@ jobs:
                 if (!fs.existsSync(avifOut)) {
                   await sharp(file).avif({ quality: 65 }).toFile(avifOut);
                   console.log('AVIF:', avifOut);
+                }
+                if (!fs.existsSync(jxlOut)) {
+                  await sharp(file).jxl({ quality: 75 }).toFile(jxlOut);
+                  console.log('JXL:', jxlOut);
                 }
               } catch (err) {
                 console.error('Error converting', file, err.message);
@@ -71,7 +77,7 @@ jobs:
           set -euo pipefail
 
           # Stage new files and check for changes
-          git add -A '*.webp' '*.avif'
+          git add -A '*.webp' '*.avif' '*.jxl'
           if git diff --cached --quiet; then
             echo "No new conversions"
             exit 0
@@ -107,7 +113,7 @@ jobs:
 
           # Create commit (automatically signed by GitHub)
           COMMIT_SHA=$(jq -n \
-            --arg msg "chore: auto-convert images to WebP/AVIF [skip ci]" \
+            --arg msg "chore: auto-convert images to WebP/AVIF/JXL [skip ci]" \
             --argjson parents "[\"$HEAD_SHA\"]" \
             --arg tree "$TREE_SHA" \
             '{"message": $msg, "parents": $parents, "tree": $tree}' \

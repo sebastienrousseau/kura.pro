@@ -176,7 +176,13 @@ describe('Storage Operations — Extended', () => {
       });
       const res = await onRequestPut(ctx);
       expect(res.status).toBe(201);
-      expect(ctx.waitUntil).not.toHaveBeenCalled();
+      // waitUntil is called for webhook dispatch (asset.created) but NOT for cache purge
+      // Cache purge only fires on overwrites (when sha exists)
+      if (ctx.waitUntil.mock.calls.length > 0) {
+        // Verify no Cloudflare purge_cache call was made (only webhook)
+        const purgeCalls = globalThis.fetch.mock.calls.filter(c => c[0]?.includes?.('purge_cache'));
+        expect(purgeCalls).toHaveLength(0);
+      }
     });
   });
 

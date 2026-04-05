@@ -10,6 +10,7 @@ function makeKV(data = {}) {
       }
       return Promise.resolve(null);
     }),
+    put: vi.fn().mockResolvedValue(undefined),
   };
 }
 
@@ -77,6 +78,7 @@ describe('Insights — Geography', () => {
         }
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=3', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
@@ -127,6 +129,7 @@ describe('Insights — Geography', () => {
         if (key.includes('geo')) return Promise.resolve(JSON.stringify({ US: 10, DE: 5 }));
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
@@ -144,6 +147,7 @@ describe('Insights — Geography', () => {
         if (key.includes('geo')) return Promise.resolve(JSON.stringify({ DE: 5, US: 50, GB: 20 }));
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
@@ -161,7 +165,7 @@ describe('Insights — Geography', () => {
   });
 
   it('empty KV returns empty Countries array', async () => {
-    const kv = { get: vi.fn().mockResolvedValue(null) };
+    const kv = { get: vi.fn().mockResolvedValue(null), put: vi.fn().mockResolvedValue(undefined) };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
     const json = await res.json();

@@ -1,3 +1,5 @@
+import { log } from './_shared.js';
+
 /**
  * Cache invalidation endpoint.
  *
@@ -147,8 +149,9 @@ export async function onRequestPost(context) {
       body: JSON.stringify(cfPayload),
     });
   } catch (err) {
+    log.error("PURGE_ERROR", err.message);
     return new Response(
-      JSON.stringify({ error: "Failed to reach Cloudflare API", detail: err.message }),
+      JSON.stringify({ error: "Failed to reach Cloudflare API" }),
       { status: 502, headers: CORS_HEADERS }
     );
   }
@@ -175,4 +178,16 @@ export async function onRequestPost(context) {
     }, null, 2),
     { status, headers: CORS_HEADERS }
   );
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      ...CORS_HEADERS,
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, x-api-key",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
 }

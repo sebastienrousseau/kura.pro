@@ -12,14 +12,17 @@
 </head>
 <body class="bg-surface text-gray-200 min-h-screen flex flex-col">
 
+  <!-- Skip navigation -->
+  <a href="#panel-assets" class="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:bg-accent focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm">Skip to main content</a>
+
   <!-- Header -->
   <header class="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-border">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4 flex-wrap">
       <div class="flex items-center gap-3 shrink-0">
         <a href="/" title="Home" class="text-gray-500 hover:text-white transition">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </a>
-        <img src="/clients/kura/v1/logos/kura.svg" alt="CloudCDN" width="36" height="36" class="rounded">
+        <img src="/clients/cloudcdn/v1/logos/logo.svg" alt="CloudCDN" width="36" height="36" class="rounded" fetchpriority="high">
         <h1 class="text-xl font-bold text-white">Cloud<span class="text-accent">CDN</span></h1>
       </div>
 
@@ -28,7 +31,7 @@
         <button class="tab-btn active" data-tab="assets" role="tab" aria-selected="true">Assets</button>
         <button class="tab-btn" data-tab="insights" role="tab" aria-selected="false">Insights</button>
         <button class="tab-btn" data-tab="upload" role="tab" aria-selected="false">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:4px" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload
         </button>
       </nav>
 
@@ -64,7 +67,7 @@
 
   <!-- Stats Bar (assets tab) -->
   <div class="bg-card/50 border-b border-border" id="stats-bar">
-    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-6 text-xs text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-6 text-xs text-gray-400" aria-live="polite">
       <span id="stat-total">Loading...</span>
       <span id="stat-showing" class="hidden">Showing: —</span>
       <span id="stat-size" class="hidden">Total size: —</span>
@@ -72,12 +75,12 @@
   </div>
 
   <!-- ===== TAB: Assets ===== -->
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel active" id="panel-assets">
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel active" id="panel-assets" role="tabpanel" aria-label="Assets">
     <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
     </div>
     <div id="load-more" class="hidden"></div>
     <div id="empty-state" class="hidden text-center py-20 text-gray-500">
-      <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
       <p class="text-lg">No assets match your filters</p>
@@ -194,7 +197,7 @@
   </aside>
 
   <!-- ===== TAB: Insights ===== -->
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-insights" style="display:none;">
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-insights" role="tabpanel" aria-label="Insights" aria-live="polite" style="display:none;">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-lg font-semibold text-white">Edge Insights</h2>
       <select id="insights-days" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
@@ -246,7 +249,7 @@
   </main>
 
   <!-- ===== TAB: Upload Pipeline ===== -->
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-upload" style="display:none;">
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-upload" role="tabpanel" aria-label="Upload" aria-live="polite" style="display:none;">
     <div class="flex items-center justify-between mb-6">
       <div>
         <h2 class="text-lg font-semibold text-white">Asset Pipeline</h2>
@@ -332,7 +335,7 @@
   </main>
 
   <!-- Toast -->
-  <div id="toast" class="fixed bottom-6 right-6 bg-accent text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-sm font-medium">
+  <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 right-6 bg-accent text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-sm font-medium">
     Copied to clipboard!
   </div>
 

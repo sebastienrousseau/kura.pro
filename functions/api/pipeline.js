@@ -8,7 +8,7 @@
  * Creates logos, icons, and directory scaffolding via the GitHub Git Database API.
  */
 
-import { authenticateAccount, errorResponse, jsonResponse } from './_shared.js';
+import { authenticateAccount, errorResponse, jsonResponse, fetchWithTimeout, log, cdnOrigin } from './_shared.js';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -164,24 +164,24 @@ export async function onRequestPost(context) {
 
   try {
     // 1. Get current HEAD
-    const refRes = await fetch(`https://api.github.com/repos/${repo}/git/ref/heads/${branch}`, { headers });
+    const refRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/ref/heads/${branch}`, { headers });
     if (!refRes.ok) throw new Error('Failed to get branch ref');
     const headSha = (await refRes.json()).object.sha;
 
     // 2. Get base tree
-    const commitRes = await fetch(`https://api.github.com/repos/${repo}/git/commits/${headSha}`, { headers });
+    const commitRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/commits/${headSha}`, { headers });
     if (!commitRes.ok) throw new Error('Failed to get commit');
     const baseTree = (await commitRes.json()).tree.sha;
 
     // 3. Create blobs
     const treeEntries = [];
     for (const file of files) {
-      const blobRes = await fetch(`https://api.github.com/repos/${repo}/git/blobs`, {
+      const blobRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/blobs`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ content: file.content, encoding: file.encoding }),
       });
-      if (!blobRes.ok) throw new Error(`Failed to create blob for ${file.path}`);
+      if (!blobRes.ok) throw new Error('Failed to create blob');
       const blob = await blobRes.json();
       treeEntries.push({
         path: file.path,
@@ -192,7 +192,7 @@ export async function onRequestPost(context) {
     }
 
     // 4. Create tree
-    const treeRes = await fetch(`https://api.github.com/repos/${repo}/git/trees`, {
+    const treeRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/trees`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ base_tree: baseTree, tree: treeEntries }),
@@ -205,7 +205,7 @@ export async function onRequestPost(context) {
       ? `feat: scaffold ${name} zone with ${files.length} assets via Pipeline [skip ci]`
       : `feat: ingest stock asset via Pipeline [skip ci]`;
 
-    const newCommitRes = await fetch(`https://api.github.com/repos/${repo}/git/commits`, {
+    const newCommitRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/commits`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ message: commitMsg, parents: [headSha], tree: treeSha }),
@@ -214,7 +214,7 @@ export async function onRequestPost(context) {
     const commitSha = (await newCommitRes.json()).sha;
 
     // 6. Update branch ref
-    const updateRes = await fetch(`https://api.github.com/repos/${repo}/git/refs/heads/${branch}`, {
+    const updateRes = await fetchWithTimeout(`https://api.github.com/repos/${repo}/git/refs/heads/${branch}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({ sha: commitSha }),
@@ -223,9 +223,10 @@ export async function onRequestPost(context) {
 
     // 7. Async cache purge
     if (env.CLOUDFLARE_ZONE_ID && env.CLOUDFLARE_API_TOKEN) {
+      const origin = cdnOrigin(request.url);
       const urls = files.map(f => {
         const publicPath = f.path.startsWith('clients/') ? f.path.slice('clients/'.length) : f.path;
-        return `https://cloudcdn.pro/${publicPath}`;
+        return `${origin}/${publicPath}`;
       });
       context.waitUntil(
         fetch(`https://api.cloudflare.com/client/v4/zones/${env.CLOUDFLARE_ZONE_ID}/purge_cache`, {
@@ -249,7 +250,8 @@ export async function onRequestPost(context) {
     }, null, 2), { status: 201, headers: CORS_HEADERS });
 
   } catch (err) {
-    return errorResponse(500, 'PipelineError', `Pipeline failed: ${err.message}. Verify GITHUB_TOKEN has write permissions and the repository is accessible.`);
+    log.error('PIPELINE_ERROR', err.message);
+    return errorResponse(500, 'PipelineError', 'Pipeline failed due to an unexpected error. Verify your credentials and try again.');
   }
 }
 

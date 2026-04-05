@@ -168,3 +168,10 @@ export async function onRequestGet(context) {
     return new Response(JSON.stringify({ error: 'Search failed. Please try again.' }), { status: 500, headers: CORS_HEADERS });
   }
 }
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Max-Age': '86400' },
+  });
+}

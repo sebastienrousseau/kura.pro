@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const SKIP = new Set(['.git', '.github', '.husky', '.claude', 'website', 'functions', 'node_modules']);
-const EXTS = new Set(['.png', '.webp', '.avif', '.svg', '.ico']);
+const EXTS = new Set(['.png', '.webp', '.avif', '.jxl', '.svg', '.ico']);
 
 export const getFiles = (dir, baseCwd = dir) => {
   let results = [];

@@ -40,8 +40,38 @@ const LOGIN_HTML = `<!DOCTYPE html>
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required autofocus placeholder="Enter dashboard password">
     <button type="submit">Sign in</button>
+    <div style="text-align:center;margin-top:1rem;">
+      <span style="font-size:0.75rem;color:#5b5f73;">or</span>
+    </div>
+    <button type="button" id="passkey-btn" style="width:100%;background:#1a1d27;border:1px solid #2a2d3a;border-radius:0.5rem;padding:0.625rem;color:#e2e4ea;font-size:0.875rem;cursor:pointer;margin-top:0.5rem;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#2a2d3a'" onclick="loginWithPasskey()">Sign in with Passkey</button>
     <p class="error ERRCLASS">Invalid password. Please try again.</p>
   </form>
+  <script>
+  async function loginWithPasskey() {
+    try {
+      const beginRes = await fetch('/api/passkeys/auth/begin', { method: 'POST' });
+      if (!beginRes.ok) { alert('No passkeys registered.'); return; }
+      const options = await beginRes.json();
+      options.challenge = Uint8Array.from(atob(options.challenge.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0));
+      if (options.allowCredentials) {
+        options.allowCredentials = options.allowCredentials.map(c => ({
+          ...c, id: Uint8Array.from(atob(c.id.replace(/-/g,'+').replace(/_/g,'/')), ch => ch.charCodeAt(0))
+        }));
+      }
+      const credential = await navigator.credentials.get({ publicKey: options });
+      const completeRes = await fetch('/api/passkeys/auth/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          credentialId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=/g,''),
+          challenge: btoa(String.fromCharCode(...options.challenge)).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=/g,''),
+        }),
+      });
+      if (completeRes.ok) window.location.href = '/dashboard/';
+      else alert('Passkey authentication failed.');
+    } catch (e) { if (e.name !== 'NotAllowedError') alert('Passkey error: ' + e.message); }
+  }
+  </script>
 </body>
 </html>`;
 
@@ -62,13 +92,34 @@ export async function onRequest(context) {
 
   // Handle login POST
   if (url.pathname === '/dashboard/login' && request.method === 'POST') {
+    // Brute-force protection: 5 attempts per IP per 15 minutes
+    const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || 'unknown';
+    if (env.RATE_KV) {
+      const loginKey = `login:${ip}`;
+      const attempts = parseInt(await env.RATE_KV.get(loginKey) || '0', 10);
+      if (attempts >= 5) {
+        return new Response(LOGIN_HTML.replace('ERRCLASS', 'show').replace('Invalid password. Please try again.', 'Too many login attempts. Please wait 15 minutes.'), {
+          status: 429,
+          headers: { 'Content-Type': 'text/html; charset=utf-8', 'Retry-After': '900' },
+        });
+      }
+      await env.RATE_KV.put(loginKey, String(attempts + 1), { expirationTtl: 900 });
+    }
+
     const form = await request.formData();
     const password = form.get('password') || '';
 
     if (password === secret) {
-      // Create signed session token
+      // Clear login attempts on success
+      if (env.RATE_KV) {
+        const loginKey = `login:${ip}`;
+        await env.RATE_KV.delete(loginKey);
+      }
+
+      // Create signed session token with random nonce
       const expires = Math.floor(Date.now() / 1000) + SESSION_TTL;
-      const token = `${expires}`;
+      const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
+      const token = `${expires}.${nonce}`;
       const sig = await hmacSign(secret, token);
       const cookie = `${SESSION_COOKIE}=${token}.${sig}; Path=/dashboard; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_TTL}`;
 
@@ -100,12 +151,16 @@ export async function onRequest(context) {
   const session = cookies[SESSION_COOKIE];
 
   if (session) {
-    const [token, sig] = session.split('.');
-    if (token && sig) {
-      const valid = await hmacVerifyCached(secret, token, sig);
-      const expires = parseInt(token, 10);
-      if (valid && expires > Date.now() / 1000) {
-        return context.next();
+    const lastDot = session.lastIndexOf('.');
+    if (lastDot > 0) {
+      const token = session.slice(0, lastDot);
+      const sig = session.slice(lastDot + 1);
+      if (token && sig) {
+        const valid = await hmacVerifyCached(secret, token, sig);
+        const expires = parseInt(token, 10);
+        if (valid && expires > Date.now() / 1000) {
+          return context.next();
+        }
       }
     }
   }

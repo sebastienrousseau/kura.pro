@@ -69,11 +69,26 @@ jobs:
     permissions:
       contents: read
       deployments: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Remove oversized files
         run: find . -type f -size +25M -not -path './.git/*' -delete -print
+
+      - name: Generate build digest for provenance
+        id: digest
+        run: |
+          find . -not -path './.git/*' -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/build-manifest.txt
+          DIGEST=$(sha256sum /tmp/build-manifest.txt | cut -d' ' -f1)
+          echo "digest=sha256:${DIGEST}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate SLSA provenance attestation
+        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2
+        with:
+          subject-name: cloudcdn-pro
+          subject-digest: ${{ steps.digest.outputs.digest }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3

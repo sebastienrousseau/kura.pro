@@ -122,13 +122,20 @@ export async function onRequestGet(context) {
     imageOpts.gravity = gravity;
   }
 
-  // --- Resolve origin URL ---
-  let originUrl;
+  // --- Resolve origin URL (SSRF protection: reject absolute URLs) ---
   if (assetUrl.startsWith('http://') || assetUrl.startsWith('https://')) {
-    originUrl = assetUrl;
-  } else {
-    originUrl = new URL(assetUrl, url.origin).toString();
+    return Response.json(
+      { error: 'Absolute URLs are not allowed. Use a relative path (e.g., /project/v1/logos/logo.webp).' },
+      { status: 400 }
+    );
   }
+  if (assetUrl.includes('..') || assetUrl.includes('\0') || assetUrl.includes('//')) {
+    return Response.json(
+      { error: 'Invalid path: contains disallowed sequences.' },
+      { status: 400 }
+    );
+  }
+  const originUrl = new URL(assetUrl, url.origin).toString();
 
   // --- Fetch with Cloudflare Image Resizing ---
   try {
@@ -158,4 +165,15 @@ export async function onRequestGet(context) {
       { status: 500 }
     );
   }
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
 }

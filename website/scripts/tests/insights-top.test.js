@@ -10,6 +10,7 @@ function makeKV(data = {}) {
       }
       return Promise.resolve(null);
     }),
+    put: vi.fn().mockResolvedValue(undefined),
   };
 }
 
@@ -94,6 +95,7 @@ describe('Insights — Top Assets', () => {
         }
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=3&limit=10', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
@@ -143,6 +145,7 @@ describe('Insights — Top Assets', () => {
         if (key.includes('top')) return Promise.resolve(JSON.stringify({ '/logo.svg': 5 }));
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);
@@ -159,6 +162,7 @@ describe('Insights — Top Assets', () => {
         if (key.includes('top')) return Promise.resolve(JSON.stringify({ '/a.svg': 5, '/b.svg': 10, '/c.svg': 1 }));
         return Promise.resolve(null);
       }),
+      put: vi.fn().mockResolvedValue(undefined),
     };
     const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
     const res = await onRequestGet(ctx);

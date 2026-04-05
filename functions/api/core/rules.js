@@ -1,3 +1,5 @@
+import { log } from '../_shared.js';
+
 /**
  * Core API — Edge Rules Management.
  *
@@ -24,6 +26,16 @@ function authenticate(request, env) {
 
 function ghHeaders(token) {
   return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'User-Agent': 'CloudCDN-Core' };
+}
+
+async function ghFetch(url, options = {}) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 /**
@@ -81,7 +93,7 @@ export async function onRequestPost(context) {
   if (typeof content !== 'string') {
     return new Response(JSON.stringify({ HttpCode: 400, Message: 'The "Content" field must be a string containing the file contents. For _headers and _redirects files, provide the full file content as a single string with newline characters.' }), { status: 400, headers: CORS });
   }
-  if (content.length > 100000) {
+  if (new TextEncoder().encode(content).length > 100000) {
     return new Response(JSON.stringify({ HttpCode: 400, Message: 'The submitted content exceeds the 100 KB size limit for edge configuration files. Reduce the content size by removing unnecessary rules or consolidating duplicate entries.' }), { status: 400, headers: CORS });
   }
 
@@ -92,7 +104,7 @@ export async function onRequestPost(context) {
     // Get current file SHA
     let sha;
     try {
-      const existing = await fetch(`https://api.github.com/repos/${repo}/contents/${file}`, { headers });
+      const existing = await ghFetch(`https://api.github.com/repos/${repo}/contents/${file}`, { headers });
       if (existing.ok) sha = (await existing.json()).sha;
     } catch {}
 
@@ -105,14 +117,13 @@ export async function onRequestPost(context) {
     };
     if (sha) payload.sha = sha;
 
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${file}`, {
+    const res = await ghFetch(`https://api.github.com/repos/${repo}/contents/${file}`, {
       method: 'PUT', headers,
       body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      return new Response(JSON.stringify({ HttpCode: 502, Message: 'The edge configuration update failed due to an unexpected error. Verify your GITHUB_TOKEN has write permissions to the repository and the file content is valid for Cloudflare Pages.', Detail: err.message }), { status: 502, headers: CORS });
+      return new Response(JSON.stringify({ HttpCode: 502, Message: 'The edge configuration update failed. Verify your credentials and try again.' }), { status: 502, headers: CORS });
     }
 
     const result = await res.json();
@@ -127,7 +138,8 @@ export async function onRequestPost(context) {
       DateModified: new Date().toISOString(),
     }, null, 2), { status: 200, headers: CORS });
   } catch (err) {
-    return new Response(JSON.stringify({ HttpCode: 500, Message: 'The edge rules update failed due to an unexpected error while committing the changes to the repository. Verify your GITHUB_TOKEN has write permissions and try again. Detail: ' + err.message }), { status: 500, headers: CORS });
+    log.error('RULES_UPDATE_ERROR', err.message);
+    return new Response(JSON.stringify({ HttpCode: 500, Message: 'The edge rules update failed due to an unexpected error. Verify your credentials and try again.' }), { status: 500, headers: CORS });
   }
 }
 

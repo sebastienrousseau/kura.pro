@@ -148,7 +148,7 @@ describe('GET /api/transform', () => {
       headers: { 'Content-Type': 'image/webp' },
     }));
     try {
-      const ctx = makeContext('?url=/kura/images/test.png&w=100&h=200&fit=cover&format=webp&q=80&blur=5&sharpen=2&gravity=center');
+      const ctx = makeContext('?url=/cloudcdn/v1/test.png&w=100&h=200&fit=cover&format=webp&q=80&blur=5&sharpen=2&gravity=center');
       const res = await onRequestGet(ctx);
       expect(res.status).toBe(200);
       expect(res.headers.get('Cache-Control')).toBe('public, max-age=31536000, immutable');
@@ -156,7 +156,7 @@ describe('GET /api/transform', () => {
       expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
       // Verify fetch was called with correct cf.image options
       const fetchCall = globalThis.fetch.mock.calls[0];
-      expect(fetchCall[0]).toBe('https://cloudcdn.pro/kura/images/test.png');
+      expect(fetchCall[0]).toBe('https://cloudcdn.pro/cloudcdn/v1/test.png');
       expect(fetchCall[1].cf.image).toEqual({
         width: 100,
         height: 200,
@@ -202,28 +202,28 @@ describe('GET /api/transform', () => {
     }
   });
 
-  it('handles absolute http:// URL', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
-    try {
-      const ctx = makeContext('?url=http://example.com/pic.png');
-      const res = await onRequestGet(ctx);
-      expect(res.status).toBe(200);
-      expect(globalThis.fetch.mock.calls[0][0]).toBe('http://example.com/pic.png');
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+  it('rejects absolute http:// URL (SSRF protection)', async () => {
+    const ctx = makeContext('?url=http://example.com/pic.png');
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain('Absolute URLs are not allowed');
   });
 
-  it('handles absolute https:// URL', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
-    try {
-      const ctx = makeContext('?url=https://example.com/pic.png');
-      const res = await onRequestGet(ctx);
-      expect(res.status).toBe(200);
-      expect(globalThis.fetch.mock.calls[0][0]).toBe('https://example.com/pic.png');
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+  it('rejects absolute https:// URL (SSRF protection)', async () => {
+    const ctx = makeContext('?url=https://example.com/pic.png');
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain('Absolute URLs are not allowed');
+  });
+
+  it('rejects path traversal in URL', async () => {
+    const ctx = makeContext('?url=../../etc/passwd');
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain('disallowed sequences');
   });
 
   // --- Upstream errors ---

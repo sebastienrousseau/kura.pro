@@ -1,6 +1,9 @@
 # macOS metadata
 **/.DS_Store
 
+# MCP server (local tooling, not deployed to edge)
+mcp/
+
 # Dev/build artifacts not needed on the edge
 .husky/
 .github/

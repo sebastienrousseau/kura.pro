@@ -39,10 +39,126 @@ jobs:
     with:
       language: node
       severity-threshold: high
-      fail-on-vulnerability: false
+      fail-on-vulnerability: true
     permissions:
       security-events: write
       contents: read
+
+  sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Generate CycloneDX SBOM
+        run: npx @cyclonedx/cyclonedx-npm --output-file sbom.cdx.json --output-reproducible
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          name: sbom
+          path: sbom.cdx.json
+          retention-days: 90
+
+  accessibility:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright + axe-core
+        run: |
+          npx playwright install --with-deps chromium
+          npm i -D @axe-core/playwright
+
+      - name: Start local server
+        run: python3 -m http.server 8788 &
+
+      - name: Wait for server
+        run: sleep 2 && curl -sf http://localhost:8788/ > /dev/null
+
+      - name: Run axe-core accessibility audit
+        run: |
+          cat > /tmp/a11y-test.mjs << 'SCRIPT'
+          import { chromium } from 'playwright';
+          import AxeBuilder from '@axe-core/playwright';
+
+          const browser = await chromium.launch();
+          const pages = [
+            ['Homepage', 'http://localhost:8788/'],
+            ['Dashboard', 'http://localhost:8788/website/dashboard/index.html'],
+          ];
+          let failures = 0;
+          for (const [name, url] of pages) {
+            const page = await browser.newPage();
+            await page.goto(url, { waitUntil: 'domcontentloaded' });
+            const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
+            const serious = results.violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
+            if (serious.length > 0) {
+              console.error(`\n[FAIL] ${name}: ${serious.length} serious/critical a11y violations`);
+              for (const v of serious) console.error(`  - ${v.id}: ${v.help} (${v.impact})`);
+              failures += serious.length;
+            } else {
+              console.log(`[PASS] ${name}: 0 serious/critical violations (${results.violations.length} minor)`);
+            }
+            await page.close();
+          }
+          await browser.close();
+          if (failures > 0) { console.error(`\n${failures} serious/critical a11y violations found.`); process.exit(1); }
+          SCRIPT
+          node /tmp/a11y-test.mjs
+
+  load-test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install k6
+        run: |
+          curl -fsSL https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update && sudo apt-get install -y k6
+
+      - name: Run k6 smoke test (10 VUs, 10s)
+        run: |
+          k6 run \
+            -e BASE_URL=https://cloudcdn.pro \
+            --vus 10 \
+            --duration 10s \
+            --summary-trend-stats="avg,min,med,max,p(95),p(99)" \
+            website/scripts/tests/load.k6.js
 
   visual-regression:
     runs-on: ubuntu-latest

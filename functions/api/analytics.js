@@ -135,6 +135,19 @@ async function trackError(kv, date, status, path) {
 export async function onRequestGet(context) {
   const { env, request } = context;
 
+  // Rate limit: 100 req/min per IP
+  if (env.RATE_KV) {
+    const ip = request.headers.get("cf-connecting-ip") || "unknown";
+    const count = parseInt(await env.RATE_KV.get(`rl:analytics:${ip}`) || "0", 10);
+    if (count >= 100) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+        headers: { ...CORS_HEADERS, "Retry-After": "60" },
+      });
+    }
+    await env.RATE_KV.put(`rl:analytics:${ip}`, String(count + 1), { expirationTtl: 60 });
+  }
+
   // Auth check
   if (env.ANALYTICS_KEY) {
     const key = request.headers.get("x-api-key");
@@ -197,6 +210,17 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   const { env, request } = context;
 
+  // Auth check — prevent analytics data pollution
+  if (env.ANALYTICS_KEY) {
+    const key = request.headers.get("x-api-key");
+    if (key !== env.ANALYTICS_KEY) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: CORS_HEADERS,
+      });
+    }
+  }
+
   try {
     const body = await request.json();
     const date = today();
@@ -215,10 +239,22 @@ export async function onRequestPost(context) {
     ]);
 
     return new Response(JSON.stringify({ ok: true }), { headers: CORS_HEADERS });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid request body" }), {
       status: 400,
       headers: CORS_HEADERS,
     });
   }
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      ...CORS_HEADERS,
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, x-api-key",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
 }

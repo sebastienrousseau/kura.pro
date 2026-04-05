@@ -77,7 +77,18 @@ function timingSafeEqual(a, b) {
 }
 
 export async function onRequestGet(context) {
-  const { SIGNED_URL_SECRET } = context.env;
+  const { SIGNED_URL_SECRET, RATE_KV } = context.env;
+
+  // Rate limit: 300 req/min per IP
+  if (RATE_KV) {
+    const ip = context.request.headers.get('cf-connecting-ip') || 'unknown';
+    const key = `rl:signed:${ip}`;
+    const count = parseInt(await RATE_KV.get(key) || '0', 10);
+    if (count >= 300) {
+      return Response.json({ error: 'Rate limit exceeded' }, { status: 429, headers: { ...CORS_HEADERS, 'Retry-After': '60' } });
+    }
+    await RATE_KV.put(key, String(count + 1), { expirationTtl: 60 });
+  }
 
   if (!SIGNED_URL_SECRET) {
     return Response.json(
@@ -94,6 +105,14 @@ export async function onRequestGet(context) {
   if (!path || !expires || !sig) {
     return Response.json(
       { error: 'Missing required parameters: path, expires, sig' },
+      { status: 403, headers: CORS_HEADERS }
+    );
+  }
+
+  // Path validation — must start with / and not contain traversal sequences
+  if (!path.startsWith('/') || path.includes('..') || path.includes('\0') || path.includes('//')) {
+    return Response.json(
+      { error: 'Invalid path format' },
       { status: 403, headers: CORS_HEADERS }
     );
   }
@@ -150,4 +169,11 @@ export async function onRequestGet(context) {
       { status: 502, headers: CORS_HEADERS }
     );
   }
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Max-Age': '86400' },
+  });
 }

@@ -196,7 +196,7 @@ export async function authenticateAccess(request, env) {
     const cookies = parseCookies(request.headers.get('Cookie'));
     const session = cookies[SESSION_COOKIE];
     if (session) {
-      const dot = session.indexOf('.');
+      const dot = session.lastIndexOf('.');
       if (dot > 0) {
         const token = session.slice(0, dot);
         const sig = session.slice(dot + 1);
@@ -224,6 +224,9 @@ export async function authenticateAny(request, env) {
 }
 
 // ── Rate Limiting ──
+// NOTE: KV read-then-write is not atomic. Under high concurrency, bursts may
+// slightly exceed limits. This is acceptable for edge KV; for stricter
+// enforcement, migrate to Durable Objects with atomic counters.
 
 export async function checkRateLimit(kv, key, limit, windowSeconds) {
   if (!kv) return { allowed: true };
@@ -231,6 +234,90 @@ export async function checkRateLimit(kv, key, limit, windowSeconds) {
   if (count >= limit) return { allowed: false, limit, remaining: 0 };
   await kv.put(key, String(count + 1), { expirationTtl: windowSeconds });
   return { allowed: true, limit, remaining: limit - count - 1 };
+}
+
+// ── Fetch with timeout (for external API calls) ──
+
+export async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ── Structured Logging ──
+
+/**
+ * Structured JSON logger for Cloudflare Logpush compatibility.
+ * Outputs one JSON line per log entry to stdout/stderr.
+ */
+export const log = {
+  _emit(level, code, message, meta = {}) {
+    const entry = {
+      level,
+      code,
+      message,
+      timestamp: new Date().toISOString(),
+      ...meta,
+    };
+    const line = JSON.stringify(entry);
+    if (level === 'error') console.error(line);
+    else if (level === 'warn') console.warn(line);
+    else console.log(line);
+  },
+  info(code, message, meta) { this._emit('info', code, message, meta); },
+  warn(code, message, meta) { this._emit('warn', code, message, meta); },
+  error(code, message, meta) { this._emit('error', code, message, meta); },
+};
+
+// ── Request Tracing ──
+
+/**
+ * Lightweight request tracing compatible with W3C Trace Context.
+ * Generates trace/span IDs and measures duration for structured logging.
+ */
+export function createTrace(request) {
+  const traceId = crypto.randomUUID().replace(/-/g, '');
+  const spanId = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+  const startTime = Date.now();
+
+  return {
+    traceId,
+    spanId,
+    startTime,
+    /** Create a child span for sub-operations (AI, Vectorize, GitHub API) */
+    child(name) {
+      const childSpanId = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+      const childStart = Date.now();
+      return {
+        name,
+        spanId: childSpanId,
+        parentSpanId: spanId,
+        traceId,
+        end() {
+          return { name, spanId: childSpanId, parentSpanId: spanId, traceId, durationMs: Date.now() - childStart };
+        },
+      };
+    },
+    /** Finalize the root span with duration */
+    end(status = 200) {
+      return {
+        traceId,
+        spanId,
+        durationMs: Date.now() - startTime,
+        status,
+        url: request?.url,
+        method: request?.method,
+      };
+    },
+    /** W3C traceparent header value */
+    get traceparent() {
+      return `00-${traceId}-${spanId}-01`;
+    },
+  };
 }
 
 // ── Formatting ──
@@ -250,6 +337,14 @@ export const CORS_JSON = {
 
 // ── API Version ──
 export const API_VERSION = '2026-04-01';
+
+/**
+ * Resolve the public CDN origin from the request URL.
+ * Avoids hardcoding 'https://cloudcdn.pro' throughout the codebase.
+ */
+export function cdnOrigin(requestUrl) {
+  try { return new URL(requestUrl).origin; } catch { return 'https://cloudcdn.pro'; }
+}
 
 /**
  * Extract URLSearchParams from raw URL string without new URL().

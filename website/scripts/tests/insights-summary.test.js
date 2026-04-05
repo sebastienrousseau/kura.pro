@@ -10,6 +10,7 @@ function makeKV(data = {}) {
       }
       return Promise.resolve(null);
     }),
+    put: vi.fn().mockResolvedValue(undefined),
   };
 }
 

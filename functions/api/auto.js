@@ -14,6 +14,7 @@ const CORS_HEADERS = {
 };
 
 const FORMAT_CHAIN = [
+  { ext: 'jxl', mime: 'image/jxl' },
   { ext: 'avif', mime: 'image/avif' },
   { ext: 'webp', mime: 'image/webp' },
   { ext: 'png', mime: 'image/png' },
@@ -22,11 +23,13 @@ const FORMAT_CHAIN = [
 
 /**
  * Determine the preferred format index based on the Accept header.
+ * Priority: JXL > AVIF > WebP > PNG > SVG
  */
 function preferredStartIndex(accept) {
-  if (accept.includes('image/avif')) return 0;
-  if (accept.includes('image/webp')) return 1;
-  return 2; // start at png
+  if (accept.includes('image/jxl')) return 0;
+  if (accept.includes('image/avif')) return 1;
+  if (accept.includes('image/webp')) return 2;
+  return 3; // start at png
 }
 
 export async function onRequestGet(context) {
@@ -48,6 +51,14 @@ export async function onRequestGet(context) {
   if (!path) {
     return Response.json(
       { error: 'Missing required parameter: path' },
+      { status: 400, headers: CORS_HEADERS }
+    );
+  }
+
+  // Path validation (SSRF / traversal protection)
+  if (path.includes('..') || path.includes('\0') || path.includes('//')) {
+    return Response.json(
+      { error: 'Invalid path: contains disallowed sequences.' },
       { status: 400, headers: CORS_HEADERS }
     );
   }
@@ -85,4 +96,11 @@ export async function onRequestGet(context) {
     { error: 'No suitable format found for the given path' },
     { status: 404, headers: CORS_HEADERS }
   );
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Max-Age': '86400' },
+  });
 }

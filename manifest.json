@@ -4272,12 +4272,12 @@
     "size": 275
   },
   {
-    "name": "banner-kura.svg",
-    "path": "cloudcdn/v1/banners/banner-kura.svg",
+    "name": "banner-cloudcdn.svg",
+    "path": "cloudcdn/v1/banners/banner-cloudcdn.svg",
     "project": "cloudcdn",
     "category": "banners",
     "format": "svg",
-    "size": 58897
+    "size": 1077794
   },
   {
     "name": "favicon.ico",
@@ -4312,20 +4312,20 @@
     "size": 54257
   },
   {
-    "name": "kura.svg",
-    "path": "cloudcdn/v1/logos/kura.svg",
+    "name": "cloudcdn.svg",
+    "path": "cloudcdn/v1/logos/cloudcdn.svg",
     "project": "cloudcdn",
     "category": "logos",
     "format": "svg",
     "size": 1068767
   },
   {
-    "name": "title-kura.svg",
-    "path": "cloudcdn/v1/titles/title-kura.svg",
+    "name": "title-cloudcdn.svg",
+    "path": "cloudcdn/v1/titles/title-cloudcdn.svg",
     "project": "cloudcdn",
     "category": "titles",
     "format": "svg",
-    "size": 13143
+    "size": 626
   },
   {
     "name": "DieHardWithAScracth.svg",

@@ -163,12 +163,22 @@ export async function onRequest(context) {
 }
 
 /**
- * Rewrite path and fetch — constructs URL string directly, avoids new URL().
- * Uses redirect: 'manual' to prevent ASSETS.fetch from following internal redirects.
+ * Rewrite path and fetch from ASSETS.
+ * If ASSETS returns a redirect (Pages auto-redirect for directories), intercept it
+ * and fetch the target directly to avoid exposing /website/ paths to the browser.
  */
-function rewriteFetch(env, request, rawUrl, pathStart, newPath) {
+async function rewriteFetch(env, request, rawUrl, pathStart, newPath) {
   const newUrl = rawUrl.slice(0, pathStart) + newPath;
-  return env.ASSETS.fetch(new Request(newUrl, { headers: request.headers, redirect: 'manual' }));
+  const res = await env.ASSETS.fetch(new Request(newUrl, { headers: request.headers, redirect: 'manual' }));
+  // If ASSETS returns a redirect (301/302/307/308), follow it internally
+  if (res.status >= 300 && res.status < 400) {
+    const location = res.headers.get('Location');
+    if (location) {
+      const followRes = await env.ASSETS.fetch(new Request(location, { headers: request.headers, redirect: 'manual' }));
+      return new Response(followRes.body, { status: followRes.status, headers: followRes.headers });
+    }
+  }
+  return new Response(res.body, { status: res.status, headers: res.headers });
 }
 
 /**

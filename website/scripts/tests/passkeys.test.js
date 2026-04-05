@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { onRequestPost, onRequestGet, onRequestDelete, onRequestOptions } = await import('../../../functions/api/passkeys.js');
+const { onRequestPost, onRequestGet, onRequestDelete, onRequestOptions } = await import('../../../functions/api/passkeys/index.js');
 
 function makeKV(data = {}) {
   const store = { ...data };

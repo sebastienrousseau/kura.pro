@@ -136,7 +136,7 @@ describe('Dashboard Auth Middleware', () => {
       expect(setCookie).toContain('HttpOnly');
       expect(setCookie).toContain('Secure');
       expect(setCookie).toContain('SameSite=Strict');
-      expect(setCookie).toContain('Path=/dashboard');
+      expect(setCookie).toContain('Path=/');
     });
 
     it('returns 401 with error shown on wrong password', async () => {
@@ -439,7 +439,7 @@ describe('Dashboard Auth Middleware', () => {
       expect(res.headers.get('Set-Cookie')).toContain('SameSite=Strict');
     });
 
-    it('successful login sets Path=/dashboard', async () => {
+    it('successful login sets Path=/', async () => {
       const fd = makeFormData({ password: 'secret123' });
       const ctx = makeContext({
         method: 'POST',
@@ -448,7 +448,7 @@ describe('Dashboard Auth Middleware', () => {
         env: { DASHBOARD_PASSWORD: 'secret123' },
       });
       const res = await onRequest(ctx);
-      expect(res.headers.get('Set-Cookie')).toContain('Path=/dashboard');
+      expect(res.headers.get('Set-Cookie')).toContain('Path=/;');
     });
   });
 

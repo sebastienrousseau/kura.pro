@@ -14,7 +14,7 @@
  * RP ID: cloudcdn.pro
  */
 
-import { hmacSign, hmacVerifyCached, parseCookies } from './_shared.js';
+import { hmacSign, hmacVerifyCached, parseCookies } from '../_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',

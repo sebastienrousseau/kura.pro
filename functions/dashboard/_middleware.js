@@ -135,7 +135,7 @@ const SETUP_PASSKEY_HTML = `<!DOCTYPE html>
   async function loadExisting() {
     try {
       const res = await fetch('/api/passkeys', {
-        headers: { 'AccountKey': 'session' }
+        credentials: 'include',
       });
       if (!res.ok) return;
       const data = await res.json();
@@ -161,7 +161,7 @@ const SETUP_PASSKEY_HTML = `<!DOCTYPE html>
 
     try {
       // 1. Get challenge from server
-      const beginRes = await fetch('/api/passkeys/register/begin', { method: 'POST' });
+      const beginRes = await fetch('/api/passkeys/register/begin', { method: 'POST', credentials: 'include' });
       if (!beginRes.ok) {
         const err = await beginRes.json();
         throw new Error(err.error || 'Failed to start registration');
@@ -197,6 +197,7 @@ const SETUP_PASSKEY_HTML = `<!DOCTYPE html>
       // 4. Send credential back to server
       const completeRes = await fetch('/api/passkeys/register/complete', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           credentialId: bytesToB64url(credential.rawId),
@@ -289,7 +290,7 @@ export async function onRequest(context) {
       const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
       const token = `${expires}.${nonce}`;
       const sig = await hmacSign(secret, token);
-      const cookie = `${SESSION_COOKIE}=${token}.${sig}; Path=/dashboard; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_TTL}`;
+      const cookie = `${SESSION_COOKIE}=${token}.${sig}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_TTL}`;
 
       return new Response(null, {
         status: 302,

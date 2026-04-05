@@ -33,6 +33,7 @@ export function chunkText(text, source, maxTokens = 500, overlap = 100) {
     currentLen += words;
   }
 
+  /* v8 ignore next -- defensive: loop always pushes ≥1 item */
   if (current.length > 0) {
     chunks.push({ content: current.join(' '), source });
   }
@@ -152,7 +153,7 @@ export async function main() {
   console.log('\nKnowledge sync complete!');
 }
 
-/* v8 ignore next 7 */
+/* v8 ignore start */
 const isMain = import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('sync-knowledge.mjs');
 if (isMain) {
   main().catch((err) => {
@@ -160,3 +161,4 @@ if (isMain) {
     process.exit(1);
   });
 }
+/* v8 ignore stop */

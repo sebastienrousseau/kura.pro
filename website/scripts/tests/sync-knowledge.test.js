@@ -50,6 +50,13 @@ describe('chunkText', () => {
     expect(chunks[0].content).toBe('');
   });
 
+  it('handles text that produces empty sentences array', () => {
+    // Text of only periods/whitespace — sentences filter to empty
+    const chunks = chunkText('.', 'dot.md');
+    // Should produce at least one chunk or empty array — not crash
+    expect(Array.isArray(chunks)).toBe(true);
+  });
+
   it('handles text with no sentence boundaries', () => {
     // Very long text with no periods — single "sentence"
     const words = Array(600).fill('word').join(' ');

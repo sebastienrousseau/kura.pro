@@ -68,8 +68,9 @@ export async function main(projectDir) {
   return stats;
 }
 
-/* v8 ignore next 4 */
+/* v8 ignore start */
 const isMain = import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('convert.mjs');
 if (isMain) {
   main(process.argv[2]);
 }
+/* v8 ignore stop */

@@ -90,8 +90,9 @@ function generateTypeDefs(cwd, manifest) {
   console.log(`TypeScript definitions generated: ${paths.length} paths in cloudcdn-paths.d.ts`);
 }
 
-/* v8 ignore next 4 */
+/* v8 ignore start */
 const isMain = import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('generate-manifest.mjs');
 if (isMain) {
   generateManifest(process.cwd());
 }
+/* v8 ignore stop */

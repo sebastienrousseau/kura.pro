@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Build Manifest
         run: node website/scripts/generate-manifest.mjs
@@ -42,13 +42,12 @@ jobs:
           HEAD_SHA=$(gh api "repos/$REPO/git/ref/heads/$BRANCH" --jq '.object.sha')
           BASE_TREE=$(gh api "repos/$REPO/git/commits/$HEAD_SHA" --jq '.tree.sha')
 
-          # Create blob for manifest.json
-          BLOB_SHA=$(gh api "repos/$REPO/git/blobs" \
-            -f encoding=base64 \
-            -f content="$(base64 < manifest.json)" \
-            --jq '.sha')
+          # Create blob via stdin (avoids argument-list-too-long for large manifests)
+          BLOB_SHA=$(jq -n --arg content "$(base64 < manifest.json)" \
+            '{"encoding": "base64", "content": $content}' \
+            | gh api "repos/$REPO/git/blobs" --input - --jq '.sha')
 
-          # Create tree with updated manifest
+          # Create tree
           TREE_SHA=$(jq -n \
             --arg base "$BASE_TREE" \
             --arg sha "$BLOB_SHA" \

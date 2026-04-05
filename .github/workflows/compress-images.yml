@@ -14,11 +14,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 2
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: '20'
 
@@ -86,10 +86,9 @@ jobs:
           # Build tree entries from staged files
           TREE_ENTRIES="[]"
           for FILE in $(git diff --cached --name-only); do
-            BLOB_SHA=$(gh api "repos/$REPO/git/blobs" \
-              -f encoding=base64 \
-              -f content="$(base64 < "$FILE")" \
-              --jq '.sha')
+            BLOB_SHA=$(jq -n --arg content "$(base64 < "$FILE")" \
+              '{"encoding": "base64", "content": $content}' \
+              | gh api "repos/$REPO/git/blobs" --input - --jq '.sha')
             TREE_ENTRIES=$(echo "$TREE_ENTRIES" | jq \
               --arg path "$FILE" \
               --arg sha "$BLOB_SHA" \

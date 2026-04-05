@@ -9,8 +9,8 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone git@github.com:sebastienrousseau/kura.pro.git
-cd kura.pro
+git clone git@github.com:sebastienrousseau/cloudcdn.pro.git
+cd cloudcdn.pro
 ```
 
 ### 2. Create Your Project Directory

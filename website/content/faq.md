@@ -70,9 +70,9 @@ Yes (Pro+). When you use `?format=auto`, CloudCDN reads the browser's `Accept` h
 
 ### How do I upload assets?
 ```bash
-git clone git@github.com:sebastienrousseau/kura.pro.git
-cp my-logo.png kura.pro/my-project/images/logos/
-cd kura.pro
+git clone git@github.com:sebastienrousseau/cloudcdn.pro.git
+cp my-logo.png cloudcdn.pro/my-project/images/logos/
+cd cloudcdn.pro
 git add my-project/
 git commit -S -m "add my-project logo"
 git push origin main

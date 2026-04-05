@@ -9,7 +9,7 @@
     },
     "license": {
       "name": "MIT",
-      "url": "https://github.com/sebastienrousseau/kura.pro/blob/main/LICENSE"
+      "url": "https://github.com/sebastienrousseau/cloudcdn.pro/blob/main/LICENSE"
     },
     "x-logo": {
       "url": "https://cloudcdn.pro/kura/images/logos/kura.svg",
@@ -896,7 +896,7 @@
       },
       "DomainAddRequest": {
         "type": "object",
-        "description": "Request body for adding a custom domain to a zone. The hostname must be a fully qualified domain name with a CNAME record pointing to kura-pro.pages.dev.",
+        "description": "Request body for adding a custom domain to a zone. The hostname must be a fully qualified domain name with a CNAME record pointing to cloudcdn-pro.pages.dev.",
         "required": [
           "Hostname"
         ],
@@ -940,7 +940,7 @@
           "Note": {
             "type": "string",
             "description": "Instructions for DNS configuration",
-            "example": "SSL certificate will be provisioned automatically. Point your CNAME to kura-pro.pages.dev."
+            "example": "SSL certificate will be provisioned automatically. Point your CNAME to cloudcdn-pro.pages.dev."
           },
           "DateCreated": {
             "type": "string",
@@ -3403,7 +3403,7 @@
       "post": {
         "operationId": "addDomain",
         "summary": "Add custom domain to zone",
-        "description": "Adds a custom domain to a zone via the Cloudflare Pages API. SSL certificate is provisioned automatically. Requires CNAME pointed to kura-pro.pages.dev.",
+        "description": "Adds a custom domain to a zone via the Cloudflare Pages API. SSL certificate is provisioned automatically. Requires CNAME pointed to cloudcdn-pro.pages.dev.",
         "tags": [
           "Core"
         ],
@@ -3451,7 +3451,7 @@
                   "Zone": "akande",
                   "Hostname": "cdn.akande.com",
                   "SslStatus": "provisioning",
-                  "Note": "SSL certificate will be provisioned automatically. Point your CNAME to kura-pro.pages.dev.",
+                  "Note": "SSL certificate will be provisioned automatically. Point your CNAME to cloudcdn-pro.pages.dev.",
                   "DateCreated": "2026-04-04T12:00:00.000Z"
                 }
               }

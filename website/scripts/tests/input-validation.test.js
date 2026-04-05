@@ -53,7 +53,7 @@ describe('Input Validation — Empty strings, null, undefined params', () => {
   });
 
   it('stream with empty video returns 400', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.status).toBe(400);
   });
@@ -168,7 +168,7 @@ describe('Input Validation — Negative numbers where positive expected', () => 
   });
 
   it('stream with negative segment returns 400', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=black&quality=720&segment=-1' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=black&quality=720&segment=-1' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.status).toBe(400);
   });
@@ -195,7 +195,7 @@ describe('Input Validation — Float where integer expected', () => {
   });
 
   it('stream with float segment returns 400 or valid', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=black&quality=720&segment=0.5' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=black&quality=720&segment=0.5' } };
     // parseInt('0.5') === 0, so it becomes segment 0
     globalThis.fetch = vi.fn().mockResolvedValue(new Response(null, { status: 200, headers: { 'content-length': '10000000' } }));
     const res = await streamModule.onRequestGet(ctx);
@@ -443,7 +443,7 @@ describe('Input Validation — Whitespace in various params', () => {
   });
 
   it('stream with whitespace in video param returns 400', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=%20black%20' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=%20black%20' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.status).toBe(400);
   });

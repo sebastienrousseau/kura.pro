@@ -151,7 +151,7 @@ describe('Edge Services — Signed URL validates HMAC', () => {
 
 describe('Edge Services — Stream returns m3u8', () => {
   it('returns master playlist for valid video', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=black' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=black' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toBe('application/vnd.apple.mpegurl');
@@ -161,7 +161,7 @@ describe('Edge Services — Stream returns m3u8', () => {
   });
 
   it('returns 400 for invalid video name', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=hacked' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=hacked' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.status).toBe(400);
   });
@@ -205,7 +205,7 @@ describe('Edge Services — Search returns scored results', () => {
   it('returns results with score for matching query', async () => {
     const ctx = {
       request: {
-        url: 'https://kura.pro/api/search?q=blue+banking',
+        url: 'https://cloudcdn.pro/api/search?q=blue+banking',
         headers: new Headers({ 'cf-connecting-ip': '127.0.0.1' }),
       },
       env: {
@@ -244,7 +244,7 @@ describe('Edge Services — Public endpoints do not require auth', () => {
   });
 
   it('stream works without any auth header', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=black' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=black' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.status).toBe(200);
   });
@@ -252,7 +252,7 @@ describe('Edge Services — Public endpoints do not require auth', () => {
   it('search works without any auth header', async () => {
     const ctx = {
       request: {
-        url: 'https://kura.pro/api/search?q=test',
+        url: 'https://cloudcdn.pro/api/search?q=test',
         headers: new Headers({ 'cf-connecting-ip': '127.0.0.1' }),
       },
       env: {
@@ -302,7 +302,7 @@ describe('Edge Services — Response headers', () => {
   });
 
   it('stream master playlist has correct Content-Type', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=black' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=black' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.headers.get('Content-Type')).toBe('application/vnd.apple.mpegurl');
   });
@@ -310,7 +310,7 @@ describe('Edge Services — Response headers', () => {
   it('search response has Cache-Control', async () => {
     const ctx = {
       request: {
-        url: 'https://kura.pro/api/search?q=test',
+        url: 'https://cloudcdn.pro/api/search?q=test',
         headers: new Headers({ 'cf-connecting-ip': '127.0.0.1' }),
       },
       env: {
@@ -346,7 +346,7 @@ describe('Edge Services — Error responses', () => {
   });
 
   it('stream 400 has JSON content type', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.status).toBe(400);
     expect(res.headers.get('Content-Type')).toContain('application/json');
@@ -355,7 +355,7 @@ describe('Edge Services — Error responses', () => {
   it('search 400 has JSON content type', async () => {
     const ctx = {
       request: {
-        url: 'https://kura.pro/api/search',
+        url: 'https://cloudcdn.pro/api/search',
         headers: new Headers({ 'cf-connecting-ip': '127.0.0.1' }),
       },
       env: { RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() }, ASSETS: { fetch: vi.fn().mockResolvedValue(new Response('[]')) } },

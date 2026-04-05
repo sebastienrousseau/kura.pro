@@ -30,7 +30,7 @@ function makeKV(data = {}) {
 function makeRequest(url, options = {}) {
   const headers = new Headers(options.headers || {});
   return {
-    url: `https://kura.pro${url}`,
+    url: `https://cloudcdn.pro${url}`,
     headers,
     cf: options.cf || {},
     json: options.json ? async () => options.json : undefined,

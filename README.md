@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sebastienrousseau/kura.pro/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/kura.pro/deploy.yml?style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://github.com/sebastienrousseau/cloudcdn.pro/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/cloudcdn.pro/deploy.yml?style=for-the-badge&logo=github" alt="Build" /></a>
   <a href="https://cloudcdn.pro"><img src="https://img.shields.io/badge/edge-300%2B%20PoPs-6366f1?style=for-the-badge&logo=cloudflare" alt="Edge" /></a>
   <a href="https://cloudcdn.pro/api-reference"><img src="https://img.shields.io/badge/api-OpenAPI%203.1-34d399?style=for-the-badge&logo=openapiinitiative" alt="API" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License" /></a>
@@ -91,8 +91,8 @@ Interactive reference with Try It console: **[cloudcdn.pro/api-reference](https:
 ## Install
 
 ```bash
-git clone https://github.com/sebastienrousseau/kura.pro.git
-cd kura.pro
+git clone https://github.com/sebastienrousseau/cloudcdn.pro.git
+cd cloudcdn.pro
 npm ci
 ```
 

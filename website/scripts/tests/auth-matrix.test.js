@@ -118,7 +118,7 @@ describe('Auth Matrix — Public endpoints work with no auth', () => {
   });
 
   it('stream works unauthenticated', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=black' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=black' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.status).toBe(200);
   });

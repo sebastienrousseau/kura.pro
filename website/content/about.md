@@ -63,10 +63,10 @@ CloudCDN serves assets for:
 | AI concierge built-in | Standard docs only | Standard docs only |
 
 ## Open Source
-The CDN infrastructure is open-source under the MIT License. Repository: github.com/sebastienrousseau/kura.pro.
+The CDN infrastructure is open-source under the MIT License. Repository: github.com/sebastienrousseau/cloudcdn.pro.
 
 ## Contact
 - **Support:** support@cloudcdn.pro
 - **Sales:** sales@cloudcdn.pro
-- **GitHub:** github.com/sebastienrousseau/kura.pro
+- **GitHub:** github.com/sebastienrousseau/cloudcdn.pro
 - **Status:** cloudcdn.pro (homepage shows operational status)

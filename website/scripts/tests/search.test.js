@@ -21,7 +21,7 @@ const { onRequestGet } = await import('../../../functions/api/search.js');
 function makeCtx(url, envOverrides = {}) {
   return {
     request: {
-      url: `https://kura.pro${url}`,
+      url: `https://cloudcdn.pro${url}`,
       headers: new Headers({ 'cf-connecting-ip': '127.0.0.1' }),
     },
     env: {

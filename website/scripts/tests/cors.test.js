@@ -88,7 +88,7 @@ describe('CORS — Every response has Access-Control-Allow-Origin', () => {
   });
 
   it('stream GET response has ACAO header', async () => {
-    const ctx = { request: { url: 'https://kura.pro/api/stream?video=black' } };
+    const ctx = { request: { url: 'https://cloudcdn.pro/api/stream?video=black' } };
     const res = await streamModule.onRequestGet(ctx);
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
   });

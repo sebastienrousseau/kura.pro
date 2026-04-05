@@ -90,7 +90,7 @@ Serving optimized images via CloudCDN directly improves:
 Deploys use content-hash deduplication — only new or changed files are uploaded. After the initial deploy, subsequent pushes typically upload only the changed files.
 
 ## Monitoring
-- **Cloudflare Analytics:** Available in the Cloudflare dashboard → Workers & Pages → kura-pro → Metrics.
+- **Cloudflare Analytics:** Available in the Cloudflare dashboard → Workers & Pages → cloudcdn-pro → Metrics.
 - **GitHub Actions:** Build and deploy logs available in the Actions tab.
 - **Status:** Homepage (cloudcdn.pro) displays operational status.
 

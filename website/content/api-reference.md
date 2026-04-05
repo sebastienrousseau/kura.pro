@@ -119,7 +119,7 @@ Content-Type: image/webp
 ## Cache Purging (Pro+)
 
 ### Via Cloudflare Dashboard
-Workers & Pages → kura-pro → Caching → Purge by URL.
+Workers & Pages → cloudcdn-pro → Caching → Purge by URL.
 
 ### Via API
 ```bash

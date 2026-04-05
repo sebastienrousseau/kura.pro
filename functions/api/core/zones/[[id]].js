@@ -195,11 +195,11 @@ export async function onRequestPost(context) {
 
   const hostname = (body.Hostname || '').trim().toLowerCase();
   if (!hostname || !hostname.includes('.')) {
-    return new Response(JSON.stringify({ HttpCode: 400, Message: 'A valid hostname is required in the "Hostname" field (e.g., cdn.example.com). The hostname must contain at least one dot and be a fully qualified domain name. After adding, create a CNAME record pointing to kura-pro.pages.dev in your DNS provider.' }), { status: 400, headers: CORS });
+    return new Response(JSON.stringify({ HttpCode: 400, Message: 'A valid hostname is required in the "Hostname" field (e.g., cdn.example.com). The hostname must contain at least one dot and be a fully qualified domain name. After adding, create a CNAME record pointing to cloudcdn-pro.pages.dev in your DNS provider.' }), { status: 400, headers: CORS });
   }
 
   try {
-    const projectName = 'kura-pro';
+    const projectName = 'cloudcdn-pro';
     const res = await fetch(
       `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/pages/projects/${projectName}/domains`,
       {
@@ -221,11 +221,11 @@ export async function onRequestPost(context) {
 
     return new Response(JSON.stringify({
       HttpCode: 201,
-      Message: `Custom domain '${hostname}' added successfully. An SSL/TLS certificate will be provisioned automatically by Cloudflare. Point a CNAME record for ${hostname} to kura-pro.pages.dev in your DNS provider. Propagation typically takes 1-5 minutes.`,
+      Message: `Custom domain '${hostname}' added successfully. An SSL/TLS certificate will be provisioned automatically by Cloudflare. Point a CNAME record for ${hostname} to cloudcdn-pro.pages.dev in your DNS provider. Propagation typically takes 1-5 minutes.`,
       Zone: zoneId,
       Hostname: hostname,
       SslStatus: 'provisioning',
-      Note: 'SSL certificate will be provisioned automatically. Point your CNAME to kura-pro.pages.dev.',
+      Note: 'SSL certificate will be provisioned automatically. Point your CNAME to cloudcdn-pro.pages.dev.',
       DateCreated: new Date().toISOString(),
     }, null, 2), { status: 201, headers: CORS });
   } catch (err) {

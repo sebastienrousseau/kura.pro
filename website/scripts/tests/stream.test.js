@@ -7,7 +7,7 @@ const originalFetch = globalThis.fetch;
 
 function makeCtx(url) {
   return {
-    request: { url: `https://kura.pro${url}` },
+    request: { url: `https://cloudcdn.pro${url}` },
   };
 }
 

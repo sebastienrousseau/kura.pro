@@ -98,7 +98,7 @@ export async function onRequest(context) {
   }
 
   // ── 3. Website pillar ──
-  if (path === "/website" || path === "/website/" || path === "/website/index.html") {
+  if (path === "/website" || path === "/website/") {
     return Response.redirect(rawUrl.slice(0, pathStart) + "/", 301);
   }
   if (path === "/" || path === "/index.html") {

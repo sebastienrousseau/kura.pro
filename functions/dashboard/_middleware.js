@@ -6,7 +6,7 @@
  * Session is an HMAC-signed token stored in a secure cookie.
  */
 
-import { hmacSign, hmacVerifyCached, parseCookies } from '../api/_shared.js';
+import { hmacSign, hmacVerify, hmacVerifyCached, parseCookies } from '../api/_shared.js';
 
 const SESSION_COOKIE = 'cdn_session';
 const SESSION_TTL = 60 * 60 * 24 * 7; // 7 days
@@ -278,7 +278,13 @@ export async function onRequest(context) {
     const form = await request.formData();
     const password = form.get('password') || '';
 
-    if (password === secret) {
+    // Constant-time password verification using HMAC comparison.
+    // Both the submitted password and stored secret are HMAC-signed with
+    // a fixed key, then compared via timingSafeEqual — preventing timing
+    // attacks that could leak password length or content.
+    const passwordMatch = await hmacVerify('cloudcdn-pw-check', password, await hmacSign('cloudcdn-pw-check', secret));
+
+    if (passwordMatch) {
       // Clear login attempts on success
       if (env.RATE_KV) {
         const loginKey = `login:${ip}`;

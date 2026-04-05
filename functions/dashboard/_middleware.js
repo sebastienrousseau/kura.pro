@@ -292,13 +292,11 @@ export async function onRequest(context) {
       const sig = await hmacSign(secret, token);
       const cookie = `${SESSION_COOKIE}=${token}.${sig}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_TTL}`;
 
-      return new Response(null, {
-        status: 302,
-        headers: {
-          'Location': '/dashboard/setup-passkey',
-          'Set-Cookie': cookie,
-        },
-      });
+      const loginRes = new Response(null, { status: 302, headers: { 'Location': '/dashboard/setup-passkey' } });
+      loginRes.headers.append('Set-Cookie', cookie);
+      // Clear any stale cookie with old Path=/dashboard
+      loginRes.headers.append('Set-Cookie', `${SESSION_COOKIE}=; Path=/dashboard; HttpOnly; Secure; SameSite=Strict; Max-Age=0`);
+      return loginRes;
     }
 
     // Wrong password
@@ -331,6 +329,14 @@ export async function onRequest(context) {
     return new Response(SETUP_PASSKEY_HTML, {
       headers: { 'Content-Type': 'text/html; charset=utf-8' },
     });
+  }
+
+  // Handle logout — clears cookies on both old (Path=/dashboard) and new (Path=/) paths
+  if (url.pathname === '/dashboard/logout') {
+    const res = new Response(null, { status: 302, headers: { 'Location': '/dashboard/login' } });
+    res.headers.append('Set-Cookie', `${SESSION_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`);
+    res.headers.append('Set-Cookie', `${SESSION_COOKIE}=; Path=/dashboard; HttpOnly; Secure; SameSite=Strict; Max-Age=0`);
+    return res;
   }
 
   // Handle login page GET

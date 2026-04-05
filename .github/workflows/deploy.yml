@@ -25,8 +25,11 @@ jobs:
           # For workflow_dispatch, verify HEAD only
           if [ "${{ github.event_name }}" = "push" ]; then
             BEFORE="${{ github.event.before }}"
-            # Handle initial push (all zeros)
+            # Handle initial push (all zeros) or force push (before SHA unreachable)
             if echo "$BEFORE" | grep -qE '^0+$'; then
+              COMMITS="${{ github.sha }}"
+            elif ! git cat-file -e "$BEFORE" 2>/dev/null; then
+              echo "Force push detected — verifying HEAD only"
               COMMITS="${{ github.sha }}"
             else
               COMMITS=$(git rev-list "$BEFORE".."${{ github.sha }}")

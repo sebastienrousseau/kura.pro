@@ -165,7 +165,7 @@
   function createCard(asset) {
     const card = document.createElement('div');
     card.className = 'asset-card';
-    const isImage = ['png', 'webp', 'avif', 'svg'].includes(asset.format);
+    const isImage = ['png', 'webp', 'avif', 'svg', 'ico', 'jxl'].includes(asset.format);
     const cdnUrl = assetUrl(asset.path);
 
     // Thumb container
@@ -709,7 +709,7 @@
       const badgeColor = ext === 'SVG' ? 'text-emerald-400' : ext === 'PNG' ? 'text-blue-400' : ext === 'WEBP' ? 'text-purple-400' : ext === 'AVIF' ? 'text-orange-400' : 'text-gray-400';
       return `<div data-result="${escAttr(asset.path)}" class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 border border-transparent transition" onclick="document.querySelector('#search-modal').__selectResult('${escAttr(asset.path)}')">
         <div class="w-8 h-8 bg-card rounded border border-border flex items-center justify-center shrink-0 overflow-hidden">
-          ${['png','webp','avif','svg'].includes(asset.format) ? `<img src="${escAttr(assetUrl(asset.path))}" class="w-full h-full object-contain" loading="lazy" alt="">` : `<span class="text-[9px] ${badgeColor} font-bold">${ext}</span>`}
+          ${['png','webp','avif','svg','ico','jxl'].includes(asset.format) ? `<img src="${escAttr(assetUrl(asset.path))}" class="w-full h-full object-contain" loading="lazy" alt="">` : `<span class="text-[9px] ${badgeColor} font-bold">${ext}</span>`}
         </div>
         <div class="min-w-0 flex-1">
           <div class="text-sm text-white truncate">${escHtml(asset.name)}</div>

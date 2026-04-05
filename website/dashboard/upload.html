@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudCDN — Upload Pipeline</title>
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #08090d;
+      --card: #1a1d27;
+      --border: #2a2d3a;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --success: #34d399;
+      --error: #f87171;
+      --radius: 10px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-height: 100vh; }
+
+    /* Header */
+    .header { position: sticky; top: 0; z-index: 50; background: rgba(8,9,13,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .header-inner { max-width: 720px; margin: 0 auto; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+    .header a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    .header a:hover { color: #fff; }
+    .header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+    .header h1 span { color: var(--accent); }
+    .back-link { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-left: auto; }
+    .back-link svg { width: 16px; height: 16px; }
+
+    /* Main */
+    .main { max-width: 720px; margin: 0 auto; padding: 32px 20px; }
+
+    /* Card */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+    .card h2 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 16px; }
+
+    /* Mode Toggle */
+    .mode-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
+    .mode-btn { flex: 1; padding: 12px 16px; background: var(--bg); border: 2px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 13px; cursor: pointer; transition: all .2s; text-align: left; }
+    .mode-btn:hover { border-color: var(--accent); }
+    .mode-btn.active { border-color: var(--accent); color: #fff; background: rgba(99,102,241,.08); }
+    .mode-btn strong { display: block; font-size: 14px; margin-bottom: 4px; }
+
+    /* Form */
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    input[type="text"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; transition: border-color .2s; }
+    input[type="text"]:focus { border-color: var(--accent); }
+    .slug-preview { font-size: 12px; color: var(--accent); margin-top: 4px; min-height: 18px; font-family: monospace; }
+    .field { margin-bottom: 16px; }
+
+    /* Drop Zone */
+    .dropzone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: all .2s; position: relative; }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--accent); background: rgba(99,102,241,.04); }
+    .dropzone.has-file { border-color: var(--success); border-style: solid; }
+    .dropzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .dropzone-icon { width: 48px; height: 48px; margin: 0 auto 12px; color: var(--muted); }
+    .dropzone p { font-size: 14px; color: var(--muted); }
+    .dropzone .filename { font-size: 13px; color: var(--success); font-weight: 500; margin-top: 8px; }
+
+    /* SVG Preview */
+    .preview { margin-top: 16px; display: none; background: var(--bg); border-radius: 8px; padding: 16px; text-align: center; }
+    .preview.visible { display: block; }
+    .preview svg, .preview img { max-width: 200px; max-height: 200px; }
+
+    /* Options */
+    .options { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .option { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; }
+    .option input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+
+    /* Submit */
+    .submit-btn { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .submit-btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* Progress */
+    .progress { display: none; margin-top: 20px; }
+    .progress.visible { display: block; }
+    .step { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 13px; color: var(--muted); }
+    .step.active { color: var(--accent); }
+    .step.done { color: var(--success); }
+    .step.error { color: var(--error); }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    .step.active .step-dot { background: var(--accent); animation: pulse 1s infinite; }
+    .step.done .step-dot { background: var(--success); }
+    .step.error .step-dot { background: var(--error); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+    /* Result */
+    .result { display: none; margin-top: 20px; }
+    .result.visible { display: block; }
+    .result-header { font-size: 14px; font-weight: 600; color: var(--success); margin-bottom: 12px; }
+    .result-error { color: var(--error); }
+    .file-list { list-style: none; }
+    .file-list li { font-size: 12px; font-family: monospace; color: var(--text); padding: 6px 10px; background: var(--bg); border-radius: 6px; margin-bottom: 4px; word-break: break-all; }
+    .commit-sha { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .commit-sha code { color: var(--accent); font-family: monospace; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <h1>Cloud<span>CDN</span></h1>
+      <span style="font-size:13px; color:var(--muted);">Upload Pipeline</span>
+      <a href="index.html" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Dashboard
+      </a>
+    </div>
+  </header>
+
+  <div class="main">
+    <!-- Mode -->
+    <div class="card">
+      <h2>Mode</h2>
+      <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="client">
+          <strong>Client</strong>
+          Scaffold a full client zone with logos, icons, and directory structure.
+        </button>
+        <button class="mode-btn" data-mode="stock">
+          <strong>Stock</strong>
+          Upload to the shared stock image library.
+        </button>
+      </div>
+
+      <!-- Name -->
+      <div class="field" id="name-field">
+        <label for="name-input">Zone Name</label>
+        <input type="text" id="name-input" placeholder="e.g. My Brand Name" autocomplete="off">
+        <div class="slug-preview" id="slug-preview"></div>
+      </div>
+    </div>
+
+    <!-- SVG Upload -->
+    <div class="card">
+      <h2>SVG Source</h2>
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept=".svg">
+        <svg class="dropzone-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p>Drop an SVG file here or click to browse</p>
+        <div class="filename" id="filename"></div>
+      </div>
+      <div class="preview" id="preview"></div>
+    </div>
+
+    <!-- Options -->
+    <div class="card">
+      <h2>Options</h2>
+      <div class="options">
+        <label class="option"><input type="checkbox" id="opt-favicon" checked> Generate favicon</label>
+        <label class="option"><input type="checkbox" id="opt-icons" checked> Generate icons</label>
+        <label class="option"><input type="checkbox" id="opt-banners" checked> Scaffold banners</label>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" disabled>Upload &amp; Process</button>
+
+      <!-- Progress -->
+      <div class="progress" id="progress">
+        <div class="step" data-step="validate"><span class="step-dot"></span> Validating input</div>
+        <div class="step" data-step="sanitize"><span class="step-dot"></span> Sanitizing SVG</div>
+        <div class="step" data-step="upload"><span class="step-dot"></span> Uploading to repository</div>
+        <div class="step" data-step="done"><span class="step-dot"></span> Done</div>
+      </div>
+
+      <!-- Result -->
+      <div class="result" id="result">
+        <div class="result-header" id="result-header"></div>
+        <ul class="file-list" id="file-list"></ul>
+        <div class="commit-sha" id="commit-sha"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => document.querySelectorAll(s);
+
+      // State
+      let mode = 'client';
+      let svgBase64 = null;
+      let svgFileName = null;
+
+      // Mode toggle
+      $$('.mode-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          $$('.mode-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          mode = btn.dataset.mode;
+          $('#name-field').style.display = mode === 'client' ? '' : 'none';
+          updateSubmit();
+        });
+      });
+
+      // Name slugification
+      function slugify(s) {
+        return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 64);
+      }
+
+      $('#name-input').addEventListener('input', (e) => {
+        const slug = slugify(e.target.value);
+        $('#slug-preview').textContent = slug ? 'Slug: ' + slug : '';
+        updateSubmit();
+      });
+
+      // File handling
+      const dropzone = $('#dropzone');
+      const fileInput = $('#file-input');
+
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+      });
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) handleFile(fileInput.files[0]);
+      });
+
+      function handleFile(file) {
+        if (!file.name.toLowerCase().endsWith('.svg')) {
+          alert('Only SVG files are accepted.');
+          return;
+        }
+        svgFileName = file.name;
+        $('#filename').textContent = file.name;
+        dropzone.classList.add('has-file');
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target.result;
+          svgBase64 = btoa(text);
+
+          // Preview
+          const preview = $('#preview');
+          preview.innerHTML = '';
+          const container = document.createElement('div');
+          container.innerHTML = text;
+          const svgEl = container.querySelector('svg');
+          if (svgEl) {
+            svgEl.style.maxWidth = '200px';
+            svgEl.style.maxHeight = '200px';
+            preview.appendChild(svgEl);
+          }
+          preview.classList.add('visible');
+          updateSubmit();
+        };
+        reader.readAsText(file);
+      }
+
+      function updateSubmit() {
+        const nameOk = mode === 'stock' || slugify($('#name-input').value).length >= 2;
+        $('#submit-btn').disabled = !(svgBase64 && nameOk);
+      }
+
+      // Submit
+      $('#submit-btn').addEventListener('click', async () => {
+        const btn = $('#submit-btn');
+        btn.disabled = true;
+
+        const progress = $('#progress');
+        const result = $('#result');
+        progress.classList.add('visible');
+        result.classList.remove('visible');
+
+        function setStep(name, state) {
+          const el = $(`.step[data-step="${name}"]`);
+          el.className = 'step ' + state;
+        }
+
+        try {
+          // Step 1: Validate
+          setStep('validate', 'active');
+          const slug = slugify($('#name-input').value);
+          if (mode === 'client' && slug.length < 2) throw new Error('Name must be at least 2 characters.');
+          if (!svgBase64) throw new Error('No SVG file selected.');
+          await delay(200);
+          setStep('validate', 'done');
+
+          // Step 2: Sanitize (done server-side, but show progress)
+          setStep('sanitize', 'active');
+          await delay(200);
+          setStep('sanitize', 'done');
+
+          // Step 3: Upload
+          setStep('upload', 'active');
+
+          const payload = {
+            mode,
+            name: mode === 'client' ? slug : undefined,
+            svg: svgBase64,
+            generateFavicon: $('#opt-favicon').checked,
+            generateIcons: $('#opt-icons').checked,
+            generateBanners: $('#opt-banners').checked,
+          };
+
+          const headers = { 'Content-Type': 'application/json' };
+
+          // Auth: try AccountKey from session storage, or cookie-based session
+          const accountKey = sessionStorage.getItem('accountKey');
+          if (accountKey) headers['AccountKey'] = accountKey;
+
+          const res = await fetch('/api/pipeline', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.Message || data.error?.message || 'Upload failed');
+          }
+
+          setStep('upload', 'done');
+          setStep('done', 'done');
+
+          // Show result
+          const resultEl = $('#result');
+          $('#result-header').textContent = data.Message;
+          $('#result-header').classList.remove('result-error');
+
+          const fileList = $('#file-list');
+          fileList.innerHTML = '';
+          (data.Files || []).forEach((f) => {
+            const li = document.createElement('li');
+            li.textContent = f;
+            fileList.appendChild(li);
+          });
+
+          if (data.Commit) {
+            $('#commit-sha').innerHTML = 'Commit: <code>' + data.Commit.slice(0, 12) + '</code> — ' + (data.EdgeNote || '');
+          }
+
+          resultEl.classList.add('visible');
+        } catch (err) {
+          // Mark current active step as error
+          const active = $('.step.active');
+          if (active) active.className = 'step error';
+
+          const resultEl = $('#result');
+          $('#result-header').textContent = err.message;
+          $('#result-header').classList.add('result-error');
+          $('#file-list').innerHTML = '';
+          $('#commit-sha').innerHTML = '';
+          resultEl.classList.add('visible');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      function delay(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      }
+    })();
+  </script>
+</body>
+</html>

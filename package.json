@@ -7,13 +7,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:visual": "playwright test scripts/tests/visual/",
-    "test:visual:update": "playwright test scripts/tests/visual/ --update-snapshots",
-    "test:load": "k6 run scripts/tests/load.k6.js",
-    "test:load:smoke": "k6 run --duration 10s --vus 10 scripts/tests/load.k6.js",
+    "test:visual": "playwright test --config website/scripts/tests/playwright.config.js",
+    "test:visual:update": "playwright test --config website/scripts/tests/playwright.config.js --update-snapshots",
+    "test:load": "k6 run website/scripts/tests/load.k6.js",
+    "test:load:smoke": "k6 run --duration 10s --vus 10 website/scripts/tests/load.k6.js",
     "test:audit": "npm audit --audit-level=high",
     "test:all": "npm test && npm run test:visual",
-    "build:css": "tailwindcss -i dashboard/input.css -o dashboard/tailwind.css --minify",
+    "build:css": "tailwindcss -i website/dashboard/input.css -o website/dashboard/tailwind.css --minify",
+    "build:manifest": "node website/scripts/generate-manifest.mjs",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -23,5 +24,8 @@
     "husky": "9.1.7",
     "tailwindcss": "4.2.2",
     "vitest": "3.2.4"
+  },
+  "dependencies": {
+    "sharp": "0.34.5"
   }
 }

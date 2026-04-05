@@ -5,7 +5,7 @@ set -euo pipefail
 npm test
 
 # Regenerate manifest and stage if changed
-node scripts/generate-manifest.mjs
+node website/scripts/generate-manifest.mjs
 
 if ! git diff --quiet manifest.json 2>/dev/null; then
   git add manifest.json

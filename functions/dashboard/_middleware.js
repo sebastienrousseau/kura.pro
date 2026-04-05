@@ -6,35 +6,10 @@
  * Session is an HMAC-signed token stored in a secure cookie.
  */
 
+import { hmacSign, hmacVerifyCached, parseCookies } from '../api/_shared.js';
+
 const SESSION_COOKIE = 'cdn_session';
 const SESSION_TTL = 60 * 60 * 24 * 7; // 7 days
-
-async function hmacSign(secret, data) {
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data));
-  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function hmacVerify(secret, data, signature) {
-  const expected = await hmacSign(secret, data);
-  return expected === signature;
-}
-
-function parseCookies(header) {
-  const cookies = {};
-  if (!header) return cookies;
-  for (const part of header.split(';')) {
-    const [k, ...v] = part.trim().split('=');
-    if (k) cookies[k.trim()] = v.join('=').trim();
-  }
-  return cookies;
-}
 
 const LOGIN_HTML = `<!DOCTYPE html>
 <html lang="en">
@@ -75,9 +50,14 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const secret = env.DASHBOARD_SECRET || env.DASHBOARD_PASSWORD;
 
-  // If no password is configured, allow access (dev mode)
+  // If no password is configured: allow only on localhost (dev mode), deny in production
   if (!secret) {
-    return context.next();
+    const host = request.headers.get('host') || '';
+    if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) {
+      return context.next();
+    }
+    // Fail closed in production — require DASHBOARD_PASSWORD to be set
+    return new Response('Dashboard requires authentication. Set DASHBOARD_PASSWORD in environment variables.', { status: 503 });
   }
 
   // Handle login POST
@@ -122,7 +102,7 @@ export async function onRequest(context) {
   if (session) {
     const [token, sig] = session.split('.');
     if (token && sig) {
-      const valid = await hmacVerify(secret, token, sig);
+      const valid = await hmacVerifyCached(secret, token, sig);
       const expires = parseInt(token, 10);
       if (valid && expires > Date.now() / 1000) {
         return context.next();

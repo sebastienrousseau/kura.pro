@@ -1,3 +1,11 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
 /*.webp
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
@@ -33,13 +41,16 @@
 
 /dashboard/*
   Cache-Control: no-cache
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'
 
 /dist/*
   Cache-Control: no-cache
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:
+
+/api-reference/*
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self'
 
 /api/stream
   Access-Control-Allow-Origin: *

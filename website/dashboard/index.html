@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudCDN — Asset Manager</title>
+  <meta name="description" content="Browse and manage static assets on the Kura CDN">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preload" href="/manifest.json" as="fetch" crossorigin="anonymous">
+  <link rel="stylesheet" href="tailwind.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-surface text-gray-200 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4 flex-wrap">
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="/" title="Home" class="text-gray-500 hover:text-white transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </a>
+        <img src="/clients/kura/v1/logos/kura.svg" alt="Kura" width="36" height="36" class="rounded">
+        <h1 class="text-xl font-bold text-white">Cloud<span class="text-accent">CDN</span></h1>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="flex gap-1 ml-4" role="tablist">
+        <button class="tab-btn active" data-tab="assets" role="tab" aria-selected="true">Assets</button>
+        <button class="tab-btn" data-tab="insights" role="tab" aria-selected="false">Insights</button>
+        <button class="tab-btn" data-tab="upload" role="tab" aria-selected="false">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload
+        </button>
+      </nav>
+
+      <!-- Search (assets tab) -->
+      <div class="flex-1 min-w-[200px] max-w-xl" id="search-bar">
+        <input
+          type="search"
+          id="search"
+          placeholder="Search assets..."
+          class="w-full bg-card border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-accent transition"
+        >
+      </div>
+
+      <!-- Filters (assets tab) -->
+      <div class="flex gap-2 items-center flex-wrap" id="filter-bar">
+        <select id="filter-project" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+          <option value="">All Projects</option>
+        </select>
+        <select id="filter-format" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+          <option value="">All Formats</option>
+          <option value="png">PNG</option>
+          <option value="webp">WebP</option>
+          <option value="avif">AVIF</option>
+          <option value="svg">SVG</option>
+          <option value="ico">ICO</option>
+        </select>
+        <select id="filter-category" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats Bar (assets tab) -->
+  <div class="bg-card/50 border-b border-border" id="stats-bar">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-6 text-xs text-gray-400">
+      <span id="stat-total">Loading...</span>
+      <span id="stat-showing" class="hidden">Showing: —</span>
+      <span id="stat-size" class="hidden">Total size: —</span>
+    </div>
+  </div>
+
+  <!-- ===== TAB: Assets ===== -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel active" id="panel-assets">
+    <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+    </div>
+    <div id="load-more" class="hidden"></div>
+    <div id="empty-state" class="hidden text-center py-20 text-gray-500">
+      <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <p class="text-lg">No assets match your filters</p>
+    </div>
+  </main>
+
+  <!-- ===== TAB: Transform (URL Builder) ===== -->
+  <!-- ===== Transform Slide-Out Panel ===== -->
+  <div id="tf-backdrop" class="tf-backdrop" style="display:none;"></div>
+  <aside id="tf-panel" class="tf-panel" aria-label="Image Transform">
+    <div class="tf-panel-header">
+      <h2 class="text-sm font-semibold text-white">Transform</h2>
+      <span id="tf-asset-name" class="text-xs text-gray-400 truncate flex-1 ml-2"></span>
+      <button id="tf-close" class="text-gray-500 hover:text-white transition" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="tf-panel-body">
+      <!-- Source (read-only, set from card click) -->
+      <input type="hidden" id="tf-url" value="">
+      <input type="hidden" id="tf-picker" value="">
+
+      <!-- Preview -->
+      <div class="bg-surface rounded-lg flex items-center justify-center overflow-hidden mb-4" style="height:180px;">
+        <img id="tf-preview" src="" alt="Preview" class="max-w-full max-h-full object-contain" style="display:none;">
+        <p id="tf-placeholder" class="text-gray-500 text-xs text-center px-4">Preview loads in production</p>
+      </div>
+
+      <!-- Presets -->
+      <div class="mb-4">
+        <p class="text-[10px] text-gray-500 uppercase mb-1.5">Quick presets</p>
+        <div class="flex flex-wrap gap-1.5">
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="64" data-h="64" data-fit="cover" data-fmt="webp" data-q="80">64x64</button>
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="180" data-h="180" data-fit="cover" data-fmt="png" data-q="90">180x180</button>
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="400" data-h="0" data-fit="" data-fmt="avif" data-q="65">400w avif</button>
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="1200" data-h="630" data-fit="cover" data-fmt="webp" data-q="85">OG 1200x630</button>
+          <button class="tf-preset text-[11px] bg-surface border border-border rounded px-2 py-1 text-gray-300 hover:border-accent transition" data-w="0" data-h="0" data-fit="" data-fmt="webp" data-q="1" data-blur="20">Blur</button>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Width <span id="tf-w-val" class="text-accent">800</span>px</label>
+            <input type="range" id="tf-w" min="0" max="4096" value="800" step="16" class="w-full accent-accent">
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Height <span id="tf-h-val" class="text-accent">auto</span></label>
+            <input type="range" id="tf-h" min="0" max="4096" value="0" step="16" class="w-full accent-accent">
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Format</label>
+            <select id="tf-format" class="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:border-accent">
+              <option value="auto">Auto</option>
+              <option value="webp" selected>WebP</option>
+              <option value="avif">AVIF</option>
+              <option value="png">PNG</option>
+              <option value="jpeg">JPEG</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Fit</label>
+            <select id="tf-fit" class="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:border-accent">
+              <option value="">Default</option>
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="fill">Fill</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Focus</label>
+            <select id="tf-gravity" class="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:border-accent">
+              <option value="">Default</option>
+              <option value="center">Center</option>
+              <option value="face">Face</option>
+              <option value="auto">Auto</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Quality <span id="tf-q-val" class="text-accent">80</span>%</label>
+            <input type="range" id="tf-q" min="1" max="100" value="80" class="w-full accent-accent">
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Blur <span id="tf-blur-val" class="text-accent">0</span></label>
+            <input type="range" id="tf-blur" min="0" max="250" value="0" class="w-full accent-accent">
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-500 mb-0.5">Sharpen <span id="tf-sharp-val" class="text-accent">0</span></label>
+            <input type="range" id="tf-sharp" min="0" max="10" value="0" class="w-full accent-accent">
+          </div>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="mt-4 bg-surface border border-accent/30 rounded-lg p-3">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-semibold text-white uppercase">Generated URL</span>
+          <button id="tf-copy" class="text-[11px] bg-accent text-white px-3 py-1 rounded hover:bg-accent-hover transition">Copy</button>
+        </div>
+        <code id="tf-output" class="block text-[11px] text-green-400 break-all select-all leading-relaxed font-mono"></code>
+      </div>
+
+      <!-- Snippets -->
+      <div class="mt-3 space-y-1.5">
+        <div><span class="text-[9px] text-gray-500 uppercase">HTML</span><code id="tf-snippet-html" class="block text-[10px] text-gray-300 bg-surface rounded p-1.5 break-all select-all font-mono"></code></div>
+        <div><span class="text-[9px] text-gray-500 uppercase">Markdown</span><code id="tf-snippet-md" class="block text-[10px] text-gray-300 bg-surface rounded p-1.5 break-all select-all font-mono"></code></div>
+        <div><span class="text-[9px] text-gray-500 uppercase">CSS</span><code id="tf-snippet-css" class="block text-[10px] text-gray-300 bg-surface rounded p-1.5 break-all select-all font-mono"></code></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== TAB: Insights ===== -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-insights" style="display:none;">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-lg font-semibold text-white">Edge Insights</h2>
+      <select id="insights-days" class="bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent">
+        <option value="7">Last 7 days</option>
+        <option value="14">Last 14 days</option>
+        <option value="30">Last 30 days</option>
+      </select>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-card border border-border rounded-lg p-4">
+        <p class="text-xs text-gray-400">Total Requests</p>
+        <p id="ins-total-hits" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+      <div class="bg-card border border-border rounded-lg p-4">
+        <p class="text-xs text-gray-400">Bandwidth</p>
+        <p id="ins-total-bw" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+      <div class="bg-card border border-border rounded-lg p-4">
+        <p class="text-xs text-gray-400">Cache Hit Ratio</p>
+        <p id="ins-cache-ratio" class="text-2xl font-bold text-green-400 mt-1">--</p>
+      </div>
+      <div class="bg-card border border-border rounded-lg p-4">
+        <p class="text-xs text-gray-400">Countries</p>
+        <p id="ins-countries" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+    </div>
+
+    <!-- Daily Breakdown Chart -->
+    <div class="bg-card border border-border rounded-lg p-4 mb-6">
+      <h3 class="text-sm font-medium text-gray-300 mb-3">Daily Requests</h3>
+      <div id="ins-chart" class="flex items-end gap-1" style="height:160px;"></div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <!-- Top Assets -->
+      <div class="bg-card border border-border rounded-lg p-4">
+        <h3 class="text-sm font-medium text-gray-300 mb-3">Top Assets</h3>
+        <div id="ins-top-assets" class="space-y-2 max-h-80 overflow-y-auto text-xs"></div>
+      </div>
+
+      <!-- Geo Distribution -->
+      <div class="bg-card border border-border rounded-lg p-4">
+        <h3 class="text-sm font-medium text-gray-300 mb-3">Geographic Distribution</h3>
+        <div id="ins-geo" class="space-y-2 max-h-80 overflow-y-auto text-xs"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== TAB: Upload Pipeline ===== -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 tab-panel" id="panel-upload" style="display:none;">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-lg font-semibold text-white">Asset Pipeline</h2>
+        <p class="text-sm text-gray-400 mt-0.5">Upload a single SVG to scaffold a complete project directory.</p>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Left column: Config -->
+      <div class="space-y-4">
+        <!-- Mode toggle -->
+        <div class="bg-card border border-border rounded-lg p-4">
+          <label class="block text-xs text-gray-400 mb-3 uppercase tracking-wider">Destination</label>
+          <div class="flex gap-3">
+            <button id="up-mode-client" class="flex-1 p-3 bg-surface border-2 border-accent rounded-lg text-left transition text-sm" onclick="setUploadMode('client')">
+              <span class="font-semibold text-white block mb-0.5">Client Zone</span>
+              <span class="text-xs text-gray-400">New tenant with v1/ structure</span>
+            </button>
+            <button id="up-mode-stock" class="flex-1 p-3 bg-surface border-2 border-border rounded-lg text-left transition text-sm" onclick="setUploadMode('stock')">
+              <span class="font-semibold text-white block mb-0.5">Stock Media</span>
+              <span class="text-xs text-gray-400">Global stocks/images/ library</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Name input (client mode) -->
+        <div id="up-name-field" class="bg-card border border-border rounded-lg p-4">
+          <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Zone Name</label>
+          <input type="text" id="up-name" placeholder="e.g. mybrand" class="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent" oninput="slugifyName()">
+          <p id="up-slug" class="text-xs text-accent mt-1 font-mono min-h-[18px]"></p>
+        </div>
+
+        <!-- Options -->
+        <div class="bg-card border border-border rounded-lg p-4">
+          <label class="block text-xs text-gray-400 mb-3 uppercase tracking-wider">Generate</label>
+          <div class="flex flex-wrap gap-4">
+            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+              <input type="checkbox" id="up-icons" checked class="accent-accent"> PWA Icons (180, 192, 512)
+            </label>
+            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+              <input type="checkbox" id="up-banners" checked class="accent-accent"> Directory Scaffold
+            </label>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="pt-2">
+          <button id="up-submit" class="flex items-center justify-center gap-2 bg-accent text-white font-medium w-full sm:w-auto px-8 py-3 rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-40 disabled:cursor-not-allowed" disabled onclick="executePipeline()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload &amp; Generate
+          </button>
+        </div>
+      </div>
+
+      <!-- Right column: SVG drop + preview -->
+      <div class="space-y-4">
+        <div class="bg-card border border-border rounded-lg p-4">
+          <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Source SVG</label>
+          <div id="up-dropzone" class="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer transition hover:border-accent" onclick="document.getElementById('up-file').click()">
+            <input type="file" id="up-file" accept=".svg" class="hidden" onchange="handleSvgFile(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;color:#5b5f73"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p class="text-sm text-gray-400">Drop an SVG file here or click to browse</p>
+            <p id="up-filename" class="text-xs text-green-400 mt-2 font-medium hidden"></p>
+          </div>
+          <div id="up-preview" class="mt-3 bg-surface rounded-lg p-4 text-center hidden">
+            <div id="up-preview-svg" style="max-width:160px;max-height:160px;margin:0 auto;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div id="up-progress" class="mt-5 hidden">
+      <div class="space-y-2" id="up-steps"></div>
+    </div>
+
+    <!-- Result -->
+    <div id="up-result" class="mt-5 bg-card border border-green-800 rounded-xl p-4 hidden">
+      <h3 class="text-sm font-semibold text-green-400 mb-2">Pipeline Complete</h3>
+      <div id="up-result-files" class="space-y-1 text-xs font-mono text-gray-300"></div>
+      <p class="text-xs text-gray-500 mt-3">Assets will be available at the edge after CI/CD deploy (~60-90 seconds).</p>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-accent text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-sm font-medium">
+    Copied to clipboard!
+  </div>
+
+  <script src="app.js"></script>
+
+  <!-- Upload tab logic (inline — only runs when tab is active) -->
+  <script>
+  (() => {
+    let uploadMode = 'client';
+    let svgData = null;
+    let svgFilename = '';
+
+    window.setUploadMode = function(mode) {
+      uploadMode = mode;
+      document.getElementById('up-mode-client').className = mode === 'client'
+        ? 'flex-1 p-4 bg-card border-2 border-accent rounded-xl text-left transition'
+        : 'flex-1 p-4 bg-card border-2 border-border rounded-xl text-left transition';
+      document.getElementById('up-mode-stock').className = mode === 'stock'
+        ? 'flex-1 p-4 bg-card border-2 border-accent rounded-xl text-left transition'
+        : 'flex-1 p-4 bg-card border-2 border-border rounded-xl text-left transition';
+      document.getElementById('up-name-field').style.display = mode === 'client' ? '' : 'none';
+      checkReady();
+    };
+
+    window.slugifyName = function() {
+      const raw = document.getElementById('up-name').value;
+      const slug = raw.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      document.getElementById('up-slug').textContent = slug ? 'clients/' + slug + '/v1/' : '';
+      checkReady();
+    };
+
+    window.handleSvgFile = function(input) {
+      const file = input.files[0];
+      if (!file) return;
+      svgFilename = file.name;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        svgData = e.target.result.split(',')[1]; // base64 after data:...;base64,
+        document.getElementById('up-filename').textContent = file.name;
+        document.getElementById('up-filename').classList.remove('hidden');
+        document.getElementById('up-dropzone').classList.add('border-green-600');
+        // Preview
+        const preview = document.getElementById('up-preview');
+        const container = document.getElementById('up-preview-svg');
+        container.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'max-width:160px;max-height:160px;';
+        img.alt = file.name;
+        container.appendChild(img);
+        preview.classList.remove('hidden');
+        checkReady();
+      };
+      reader.readAsDataURL(file);
+    };
+
+    function checkReady() {
+      const nameOk = uploadMode === 'stock' || document.getElementById('up-name').value.trim().length >= 2;
+      document.getElementById('up-submit').disabled = !(svgData && nameOk);
+    }
+
+    window.executePipeline = async function() {
+      const btn = document.getElementById('up-submit');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+
+      const progress = document.getElementById('up-progress');
+      const steps = document.getElementById('up-steps');
+      progress.classList.remove('hidden');
+      steps.innerHTML = '';
+
+      function addStep(text, status) {
+        const el = document.createElement('div');
+        el.className = 'flex items-center gap-2 text-sm';
+        const dot = status === 'done' ? 'text-green-400' : status === 'active' ? 'text-accent animate-pulse' : 'text-gray-600';
+        el.innerHTML = '<span class="w-2 h-2 rounded-full inline-block ' + dot + '" style="background:currentColor"></span><span class="text-gray-300">' + text + '</span>';
+        steps.appendChild(el);
+        return el;
+      }
+
+      addStep('Validating input...', 'done');
+      addStep('Sanitizing SVG...', 'active');
+
+      const name = uploadMode === 'client' ? document.getElementById('up-name').value.toLowerCase().replace(/[^a-z0-9-]/g, '-') : '';
+
+      try {
+        const res = await fetch('/api/pipeline', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'AccountKey': sessionStorage.getItem('accountKey') || '' },
+          body: JSON.stringify({
+            mode: uploadMode,
+            name: name,
+            svg: svgData,
+            generateIcons: document.getElementById('up-icons').checked,
+            generateBanners: document.getElementById('up-banners').checked,
+          }),
+        });
+
+        steps.lastChild.querySelector('span:first-child').className = 'w-2 h-2 rounded-full inline-block text-green-400';
+        steps.lastChild.querySelector('span:first-child').style.background = 'currentColor';
+        addStep('Uploading to repository...', 'done');
+        addStep('Pipeline complete', 'done');
+
+        if (res.ok) {
+          const data = await res.json();
+          const result = document.getElementById('up-result');
+          const files = document.getElementById('up-result-files');
+          result.classList.remove('hidden');
+          files.innerHTML = '';
+          (data.Files || []).forEach(f => {
+            const el = document.createElement('p');
+            el.textContent = f;
+            files.appendChild(el);
+          });
+        } else {
+          const err = await res.json();
+          addStep('Error: ' + (err.Message || 'Upload failed'), 'error');
+        }
+      } catch (e) {
+        addStep('Network error: ' + e.message, 'error');
+      }
+
+      btn.textContent = 'Upload & Generate';
+      btn.disabled = false;
+    };
+
+    // Drag and drop
+    const dz = document.getElementById('up-dropzone');
+    if (dz) {
+      dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('border-accent'); });
+      dz.addEventListener('dragleave', () => dz.classList.remove('border-accent'));
+      dz.addEventListener('drop', e => {
+        e.preventDefault();
+        dz.classList.remove('border-accent');
+        const file = e.dataTransfer.files[0];
+        if (file && file.name.endsWith('.svg')) {
+          const input = document.getElementById('up-file');
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          input.files = dt.files;
+          handleSvgFile(input);
+        }
+      });
+    }
+  })();
+  </script>
+</body>
+</html>

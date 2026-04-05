@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'scripts/**'
+      - 'website/scripts/**'
       - 'functions/**'
       - 'vitest.config.js'
-      - 'dashboard/**'
+      - 'website/dashboard/**'
       - 'package.json'
   pull_request:
     paths:
-      - 'scripts/**'
+      - 'website/scripts/**'
       - 'functions/**'
       - 'vitest.config.js'
-      - 'dashboard/**'
+      - 'website/dashboard/**'
       - 'package.json'
 
 concurrency:
@@ -22,7 +22,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Node.js CI via reusable pipelines — SHA-pinned actions, caching, coverage
   ci:
     uses: sebastienrousseau/pipelines/.github/workflows/node-ci.yml@main
     with:
@@ -35,7 +34,6 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  # Security scanning via reusable pipelines — npm audit, CodeQL, dependency review
   security:
     uses: sebastienrousseau/pipelines/.github/workflows/security.yml@main
     with:
@@ -46,7 +44,6 @@ jobs:
       security-events: write
       contents: read
 
-  # Visual regression — Playwright (project-specific, not in pipelines)
   visual-regression:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -76,7 +73,7 @@ jobs:
         run: sleep 2 && curl -sf http://localhost:8788/ > /dev/null
 
       - name: Run visual regression tests
-        run: npx playwright test scripts/tests/visual/
+        run: npx playwright test --config website/scripts/tests/playwright.config.js
         continue-on-error: true
 
       - name: Upload visual diff artifacts

@@ -731,7 +731,23 @@
     </div>
   </main>
 
-  <footer><a href="/api-reference">API Reference</a> &middot; <a href="/dashboard">Dashboard</a> &middot; <a href="/dist">Downloads</a> &middot; &copy; 2026 CloudCDN</footer>
+  <footer>
+    <a href="/api-reference">API Reference</a> &middot;
+    <a href="/dashboard">Dashboard</a> &middot;
+    <a href="/dist">Downloads</a> &middot;
+    <a href="/dashboard/login" id="auth-link">Login</a> &middot;
+    &copy; 2026 CloudCDN
+  </footer>
+  <script>
+  (function() {
+    // cdn_logged_in is a non-HttpOnly indicator cookie set alongside the session
+    if (document.cookie.split(';').some(c => c.trim().startsWith('cdn_logged_in='))) {
+      const el = document.getElementById('auth-link');
+      el.textContent = 'Logout';
+      el.href = '/dashboard/logout';
+    }
+  })();
+  </script>
 
   <!-- Concierge Chat Widget -->
   <button id="chat-trigger" aria-label="Open CloudCDN Concierge">

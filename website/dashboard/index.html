@@ -37,12 +37,18 @@
 
       <!-- Search (assets tab) -->
       <div class="flex-1 min-w-[200px] max-w-xl" id="search-bar">
-        <input
-          type="search"
-          id="search"
-          placeholder="Search assets..."
-          class="w-full bg-card border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-accent transition"
+        <button
+          id="search-trigger"
+          class="w-full bg-card border border-border rounded-lg px-4 py-2 text-sm text-gray-500 text-left flex items-center justify-between hover:border-accent/50 transition cursor-pointer"
+          aria-label="Search assets"
         >
+          <span>Search assets...</span>
+          <kbd class="hidden sm:inline-flex items-center gap-0.5 text-[10px] text-gray-500 bg-surface border border-border rounded px-1.5 py-0.5 font-mono">
+            <span class="text-[9px]">&#8984;</span>K
+          </kbd>
+        </button>
+        <!-- Hidden input still used by app.js for filtering -->
+        <input type="search" id="search" class="hidden">
       </div>
 
       <!-- Filters (assets tab) -->
@@ -337,6 +343,42 @@
   <!-- Toast -->
   <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 right-6 bg-accent text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-sm font-medium">
     Copied to clipboard!
+  </div>
+
+  <!-- Search Modal (Cmd+K / Ctrl+K) -->
+  <div id="search-modal" class="fixed inset-0 z-[200] hidden" role="dialog" aria-modal="true" aria-label="Search assets">
+    <div id="search-modal-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div class="relative mx-auto mt-[15vh] w-full max-w-lg">
+      <div class="bg-surface border border-border rounded-xl shadow-2xl overflow-hidden">
+        <!-- Search input -->
+        <div class="flex items-center gap-3 px-4 border-b border-border">
+          <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input
+            type="text"
+            id="search-modal-input"
+            placeholder="Search assets, projects, formats..."
+            class="w-full bg-transparent border-0 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-0"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <kbd class="text-[10px] text-gray-600 bg-card border border-border rounded px-1.5 py-0.5 font-mono shrink-0">ESC</kbd>
+        </div>
+        <!-- Results -->
+        <div id="search-modal-results" class="max-h-[50vh] overflow-y-auto p-2">
+          <div class="text-xs text-gray-500 px-3 py-6 text-center">Type to search across all assets</div>
+        </div>
+        <!-- Footer -->
+        <div class="flex items-center justify-between px-4 py-2 border-t border-border text-[10px] text-gray-600">
+          <div class="flex gap-3">
+            <span><kbd class="bg-card border border-border rounded px-1 py-0.5 font-mono">&uarr;&darr;</kbd> navigate</span>
+            <span><kbd class="bg-card border border-border rounded px-1 py-0.5 font-mono">&#9166;</kbd> select</span>
+          </div>
+          <span><kbd class="bg-card border border-border rounded px-1 py-0.5 font-mono">esc</kbd> close</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>

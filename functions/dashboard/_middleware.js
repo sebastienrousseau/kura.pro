@@ -294,6 +294,8 @@ export async function onRequest(context) {
 
       const loginRes = new Response(null, { status: 302, headers: { 'Location': '/dashboard/setup-passkey' } });
       loginRes.headers.append('Set-Cookie', cookie);
+      // Non-HttpOnly indicator cookie for JS-based UI (login/logout toggle)
+      loginRes.headers.append('Set-Cookie', `cdn_logged_in=1; Path=/; Secure; SameSite=Strict; Max-Age=${SESSION_TTL}`);
       // Clear any stale cookie with old Path=/dashboard
       loginRes.headers.append('Set-Cookie', `${SESSION_COOKIE}=; Path=/dashboard; HttpOnly; Secure; SameSite=Strict; Max-Age=0`);
       return loginRes;
@@ -336,6 +338,7 @@ export async function onRequest(context) {
     const res = new Response(null, { status: 302, headers: { 'Location': '/dashboard/login' } });
     res.headers.append('Set-Cookie', `${SESSION_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`);
     res.headers.append('Set-Cookie', `${SESSION_COOKIE}=; Path=/dashboard; HttpOnly; Secure; SameSite=Strict; Max-Age=0`);
+    res.headers.append('Set-Cookie', `cdn_logged_in=; Path=/; Secure; SameSite=Strict; Max-Age=0`);
     return res;
   }
 

@@ -82,12 +82,7 @@
     filterFormat.addEventListener('change', applyFilters);
     filterCategory.addEventListener('change', applyFilters);
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.target.closest('input, textarea, select')) {
-        e.preventDefault();
-        search.focus();
-      }
-    });
+    initSearchModal();
   }
 
   function populateFilters() {
@@ -596,6 +591,149 @@
   function debounce(fn, ms) {
     let timer;
     return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+  }
+
+  // ===================================================================
+  // SEARCH MODAL (Cmd+K / Ctrl+K spotlight)
+  // ===================================================================
+  function initSearchModal() {
+    const modal = document.getElementById('search-modal');
+    const backdrop = document.getElementById('search-modal-backdrop');
+    const input = document.getElementById('search-modal-input');
+    const results = document.getElementById('search-modal-results');
+    const trigger = document.getElementById('search-trigger');
+    let selectedIdx = -1;
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      input.value = '';
+      selectedIdx = -1;
+      renderResults('');
+      requestAnimationFrame(() => input.focus());
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      input.value = '';
+    }
+
+    // Trigger button
+    if (trigger) trigger.addEventListener('click', openModal);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Cmd+K or Ctrl+K opens modal
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (modal.classList.contains('hidden')) openModal();
+        else closeModal();
+        return;
+      }
+      // "/" opens modal (when not in input)
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.target.closest('input, textarea, select')) {
+        e.preventDefault();
+        openModal();
+        return;
+      }
+      // Escape closes
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        e.preventDefault();
+        closeModal();
+      }
+    });
+
+    // Backdrop click closes
+    backdrop.addEventListener('click', closeModal);
+
+    // Search input
+    input.addEventListener('input', debounce(() => {
+      selectedIdx = -1;
+      renderResults(input.value.trim());
+    }, 100));
+
+    // Arrow key navigation + Enter select
+    input.addEventListener('keydown', (e) => {
+      const items = results.querySelectorAll('[data-result]');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIdx = Math.min(selectedIdx + 1, items.length - 1);
+        updateSelection(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIdx = Math.max(selectedIdx - 1, 0);
+        updateSelection(items);
+      } else if (e.key === 'Enter' && selectedIdx >= 0 && items[selectedIdx]) {
+        e.preventDefault();
+        const path = items[selectedIdx].dataset.result;
+        selectResult(path);
+      }
+    });
+
+    function updateSelection(items) {
+      items.forEach((el, i) => {
+        el.classList.toggle('bg-accent/10', i === selectedIdx);
+        el.classList.toggle('border-accent/30', i === selectedIdx);
+        if (i === selectedIdx) el.scrollIntoView({ block: 'nearest' });
+      });
+    }
+
+    function renderResults(query) {
+      if (!query) {
+        // Show recent / popular when empty
+        const recent = manifest.slice(0, 8);
+        if (recent.length === 0) {
+          results.innerHTML = '<div class="text-xs text-gray-500 px-3 py-6 text-center">Type to search across all assets</div>';
+          return;
+        }
+        results.innerHTML = '<div class="text-[10px] text-gray-500 uppercase tracking-wider px-3 pt-2 pb-1">Recent assets</div>' +
+          recent.map(a => resultItem(a)).join('');
+        return;
+      }
+
+      const q = query.toLowerCase();
+      const matches = manifest
+        .filter(a => a.name.toLowerCase().includes(q) || a.path.toLowerCase().includes(q) || a.project.toLowerCase().includes(q))
+        .slice(0, 20);
+
+      if (matches.length === 0) {
+        results.innerHTML = `<div class="text-xs text-gray-500 px-3 py-6 text-center">No results for "<span class="text-white">${escHtml(query)}</span>"</div>`;
+        return;
+      }
+
+      results.innerHTML = '<div class="text-[10px] text-gray-500 uppercase tracking-wider px-3 pt-2 pb-1">' + matches.length + ' results</div>' +
+        matches.map(a => resultItem(a)).join('');
+    }
+
+    function resultItem(asset) {
+      const ext = asset.format.toUpperCase();
+      const badgeColor = ext === 'SVG' ? 'text-emerald-400' : ext === 'PNG' ? 'text-blue-400' : ext === 'WEBP' ? 'text-purple-400' : ext === 'AVIF' ? 'text-orange-400' : 'text-gray-400';
+      return `<div data-result="${escAttr(asset.path)}" class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 border border-transparent transition" onclick="document.querySelector('#search-modal').__selectResult('${escAttr(asset.path)}')">
+        <div class="w-8 h-8 bg-card rounded border border-border flex items-center justify-center shrink-0 overflow-hidden">
+          ${['png','webp','avif','svg'].includes(asset.format) ? `<img src="${escAttr(assetUrl(asset.path))}" class="w-full h-full object-contain" loading="lazy" alt="">` : `<span class="text-[9px] ${badgeColor} font-bold">${ext}</span>`}
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-sm text-white truncate">${escHtml(asset.name)}</div>
+          <div class="text-[11px] text-gray-500 truncate">${escHtml(asset.project)} / ${escHtml(asset.category)}</div>
+        </div>
+        <span class="text-[9px] ${badgeColor} font-mono font-bold shrink-0">${ext}</span>
+      </div>`;
+    }
+
+    function selectResult(path) {
+      closeModal();
+      // Set the hidden search input and apply filters to scroll to the result
+      search.value = path.split('/').pop().replace(/\.\w+$/, '');
+      search.dispatchEvent(new Event('input'));
+      // Switch to assets tab if not already active
+      const assetsBtn = document.querySelector('[data-tab="assets"]');
+      if (assetsBtn && !assetsBtn.classList.contains('active')) assetsBtn.click();
+    }
+
+    // Expose selectResult for inline onclick
+    modal.__selectResult = selectResult;
+
+    function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   }
 
   // Boot

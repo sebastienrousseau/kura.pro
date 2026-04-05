@@ -73,7 +73,7 @@ jobs:
         run: find . -type f -size +25M -not -path './.git/*' -delete -print
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@da0042594aabf3ca553828e18e2427a12e48bfc4 # v3
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

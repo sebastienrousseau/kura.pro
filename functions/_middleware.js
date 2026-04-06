@@ -27,6 +27,12 @@ const CONTINENT_MAP = {
 const FUNCTIONS_PREFIXES = ["/dashboard/", "/dist/"];
 // Prefixes that are static-only — rewrite to /website/ and serve from ASSETS
 const STATIC_PREFIXES = ["/shared/", "/content/", "/api-reference/"];
+// Supported language codes — /{lang}/ serves /website/{lang}/index.html
+const LOCALES = new Set([
+  "ar", "bn", "cs", "de", "es", "fr", "ha", "he", "hi", "id",
+  "it", "ja", "ko", "nl", "pl", "pt", "ro", "ru", "sv", "th",
+  "tl", "tr", "uk", "vi", "yo", "zh", "zh-tw",
+]);
 
 /**
  * Extract file extension from path without regex.
@@ -102,6 +108,17 @@ export async function onRequest(context) {
   // ── 3. Website pillar ──
   if (path === "/" || path === "/index.html") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/website/index.html");
+  }
+
+  // Locale homepages: /fr, /fr/, /fr/index.html → /website/fr/index.html
+  // Match first path segment against LOCALES set.
+  const firstSlash = path.indexOf("/", 1);
+  const firstSegment = firstSlash === -1 ? path.slice(1) : path.slice(1, firstSlash);
+  if (LOCALES.has(firstSegment)) {
+    const rest = firstSlash === -1 ? "" : path.slice(firstSlash);
+    if (rest === "" || rest === "/" || rest === "/index.html") {
+      return rewriteFetch(env, request, rawUrl, pathStart, "/website/" + firstSegment + "/index.html");
+    }
   }
   if (path === "/404.html") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/website/404.html");

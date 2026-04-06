@@ -25,8 +25,10 @@ const CONTINENT_MAP = {
 
 // Prefixes that have their own Functions middleware — must use context.next()
 const FUNCTIONS_PREFIXES = ["/dashboard/", "/dist/"];
-// Prefixes that are static-only — rewrite to /cdn/ and serve from ASSETS
-const STATIC_PREFIXES = ["/shared/", "/content/", "/api-reference/"];
+// Prefixes served from /cdn/ root (language-agnostic)
+const SHARED_PREFIXES = ["/shared/"];
+// Prefixes served from /cdn/en/ (English by default, with locale fallback)
+const LOCALIZED_PREFIXES = ["/content/", "/api-reference/"];
 // Supported language codes — /{lang}/ serves /cdn/{lang}/index.html
 const LOCALES = new Set([
   "en", "ar", "bn", "cs", "de", "es", "fr", "ha", "he", "hi", "id",
@@ -128,7 +130,7 @@ export async function onRequest(context) {
     return rewriteFetch(env, request, rawUrl, pathStart, "/cdn" + path);
   }
   if (path === "/api-reference") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/api-reference/index.html");
+    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/api-reference/index.html");
   }
   // Bare paths without trailing slash — redirect so they hit the Functions middleware
   if (path === "/dist" || path === "/dashboard") {
@@ -145,13 +147,38 @@ export async function onRequest(context) {
     }
   }
 
-  // Static-only CDN prefixes — rewrite to /cdn/ and serve from ASSETS
-  for (let i = 0; i < STATIC_PREFIXES.length; i++) {
-    const prefix = STATIC_PREFIXES[i];
+  // Language-agnostic shared assets — rewrite to /cdn/
+  for (let i = 0; i < SHARED_PREFIXES.length; i++) {
+    const prefix = SHARED_PREFIXES[i];
     if (path.length >= prefix.length &&
         path.charCodeAt(1) === prefix.charCodeAt(1) &&
         path.startsWith(prefix)) {
       return rewriteFetch(env, request, rawUrl, pathStart, "/cdn" + path);
+    }
+  }
+
+  // Localized content/api-reference — rewrite to /cdn/en/ (default English)
+  for (let i = 0; i < LOCALIZED_PREFIXES.length; i++) {
+    const prefix = LOCALIZED_PREFIXES[i];
+    if (path.length >= prefix.length &&
+        path.charCodeAt(1) === prefix.charCodeAt(1) &&
+        path.startsWith(prefix)) {
+      return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en" + path);
+    }
+  }
+
+  // Locale-prefixed content/api-reference: /{lang}/content/ → /cdn/{lang}/content/
+  // Falls back to EN if the locale-specific file 404s.
+  if (LOCALES.has(firstSegment)) {
+    const rest = firstSlash === -1 ? "" : path.slice(firstSlash);
+    for (const prefix of LOCALIZED_PREFIXES) {
+      if (rest.startsWith(prefix)) {
+        const localePath = "/cdn/" + firstSegment + rest;
+        const localeRes = await rewriteFetch(env, request, rawUrl, pathStart, localePath);
+        if (localeRes.status !== 404) return localeRes;
+        // Fallback to English
+        return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en" + rest);
+      }
     }
   }
 

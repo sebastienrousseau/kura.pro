@@ -10,7 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const SPEC_PATH = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+const SPEC_PATH = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
 
 const ERROR_RESPONSES = {
   '400': {

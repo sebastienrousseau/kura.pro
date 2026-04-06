@@ -171,18 +171,18 @@ describe('Middleware: onRequest', () => {
       expect(fetchedUrl).toContain('/cdn/sitemap.xml');
     });
 
-    it('rewrites /api-reference to /cdn/api-reference/index.html', async () => {
+    it('rewrites /api-reference to /cdn/en/api-reference/index.html', async () => {
       const ctx = makeContext('/api-reference');
       await onRequest(ctx);
       const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
-      expect(fetchedUrl).toContain('/cdn/api-reference/index.html');
+      expect(fetchedUrl).toContain('/cdn/en/api-reference/index.html');
     });
 
-    it('rewrites /content/ to /cdn/content/', async () => {
+    it('rewrites /content/ to /cdn/en/content/', async () => {
       const ctx = makeContext('/content/docs/guide.html');
       await onRequest(ctx);
       const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
-      expect(fetchedUrl).toContain('/cdn/content/docs/guide.html');
+      expect(fetchedUrl).toContain('/cdn/en/content/docs/guide.html');
     });
   });
 

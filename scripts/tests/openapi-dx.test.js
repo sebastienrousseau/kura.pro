@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 
-const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
 const spec = JSON.parse(fs.readFileSync(specPath, 'utf-8'));
 
 describe('Scalar DX — Zero Dead Ends', () => {
@@ -65,7 +65,7 @@ describe('Scalar DX — Zero Dead Ends', () => {
 });
 
 describe('Scalar DX — Client Library Downloads', () => {
-  const clientDir = path.join(process.cwd(), 'cdn', 'api-reference', 'clients');
+  const clientDir = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'clients');
 
   for (const file of ['javascript.js', 'typescript.ts', 'python.py', 'curl.sh']) {
     it(`${file} exists and is non-empty`, () => {

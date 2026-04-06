@@ -13,7 +13,7 @@ describe('Client library generator', () => {
   });
 
   it('generates all 4 client files', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
 
     expect(fs.existsSync(path.join(tmpDir, 'javascript.js'))).toBe(true);
@@ -23,7 +23,7 @@ describe('Client library generator', () => {
   });
 
   it('JavaScript client has correct structure', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
 
     const js = fs.readFileSync(path.join(tmpDir, 'javascript.js'), 'utf-8');
@@ -35,7 +35,7 @@ describe('Client library generator', () => {
   });
 
   it('TypeScript client has type annotations', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
 
     const ts = fs.readFileSync(path.join(tmpDir, 'typescript.ts'), 'utf-8');
@@ -45,7 +45,7 @@ describe('Client library generator', () => {
   });
 
   it('Python client uses requests library', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
 
     const py = fs.readFileSync(path.join(tmpDir, 'python.py'), 'utf-8');
@@ -55,7 +55,7 @@ describe('Client library generator', () => {
   });
 
   it('curl client has shell functions', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
 
     const sh = fs.readFileSync(path.join(tmpDir, 'curl.sh'), 'utf-8');
@@ -66,7 +66,7 @@ describe('Client library generator', () => {
   });
 
   it('covers all endpoints from the spec', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     const spec = JSON.parse(fs.readFileSync(specPath, 'utf-8'));
 
     let endpointCount = 0;
@@ -86,7 +86,7 @@ describe('Client library generator', () => {
   // --- Extended client-libs tests ---
 
   it('JavaScript client includes error handling', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
     const js = fs.readFileSync(path.join(tmpDir, 'javascript.js'), 'utf-8');
     // Should have some form of error handling
@@ -94,28 +94,28 @@ describe('Client library generator', () => {
   });
 
   it('TypeScript client includes CloudCDNClient class or namespace', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
     const ts = fs.readFileSync(path.join(tmpDir, 'typescript.ts'), 'utf-8');
     expect(ts).toContain('export');
   });
 
   it('Python client includes docstrings', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
     const py = fs.readFileSync(path.join(tmpDir, 'python.py'), 'utf-8');
     expect(py).toContain('"""');
   });
 
   it('curl client includes API key header', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
     const sh = fs.readFileSync(path.join(tmpDir, 'curl.sh'), 'utf-8');
     expect(sh).toContain('AccessKey');
   });
 
   it('all client files are non-empty', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
     for (const file of ['javascript.js', 'typescript.ts', 'python.py', 'curl.sh']) {
       const content = fs.readFileSync(path.join(tmpDir, file), 'utf-8');
@@ -124,14 +124,14 @@ describe('Client library generator', () => {
   });
 
   it('JavaScript client has fetch calls', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
     const js = fs.readFileSync(path.join(tmpDir, 'javascript.js'), 'utf-8');
     expect(js).toContain('fetch(');
   });
 
   it('Python client has response handling', async () => {
-    const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+    const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
     await main(specPath, tmpDir);
     const py = fs.readFileSync(path.join(tmpDir, 'python.py'), 'utf-8');
     expect(py.includes('response') || py.includes('return')).toBe(true);

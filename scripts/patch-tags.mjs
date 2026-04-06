@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const specPath = path.join(process.cwd(), 'cdn', 'api-reference', 'openapi.json');
+const specPath = path.join(process.cwd(), 'cdn', 'en', 'api-reference', 'openapi.json');
 const spec = JSON.parse(fs.readFileSync(specPath, 'utf-8'));
 
 spec['x-tagGroups'] = [

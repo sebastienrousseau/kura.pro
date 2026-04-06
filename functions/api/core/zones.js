@@ -18,7 +18,7 @@ const CORS = {
 
 const STANDARD_DIRS = ['banners', 'github', 'icons', 'logos', 'titles'];
 
-const RESERVED_NAMES = new Set(['stocks', 'shared', 'website', 'functions', 'api', 'dashboard', 'dist', 'content', 'global', 'clients', 'node_modules', '.git', '.github']);
+const RESERVED_NAMES = new Set(['stocks', 'shared', 'cdn', 'functions', 'api', 'dashboard', 'dist', 'content', 'global', 'clients', 'node_modules', '.git', '.github', 'scripts', 'mcp']);
 
 function authenticate(request, env) {
   const key = request.headers.get('AccountKey');

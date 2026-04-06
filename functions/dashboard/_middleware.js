@@ -368,9 +368,9 @@ export async function onRequest(context) {
         const valid = await hmacVerifyCached(secret, token, sig);
         const expires = parseInt(token, 10);
         if (valid && expires > Date.now() / 1000) {
-          // Rewrite /dashboard/* to /website/dashboard/* for static asset serving
+          // Rewrite /dashboard/* to /cdn/dashboard/* for static asset serving
           const rewrittenUrl = new URL(request.url);
-          let rewritePath = '/website' + url.pathname;
+          let rewritePath = '/cdn' + url.pathname;
           if (rewritePath.endsWith('/')) rewritePath += 'index.html';
           rewrittenUrl.pathname = rewritePath;
           return env.ASSETS.fetch(new Request(rewrittenUrl.toString(), request));

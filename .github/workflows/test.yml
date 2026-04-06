@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'website/scripts/**'
+      - 'scripts/**'
       - 'functions/**'
       - 'vitest.config.js'
-      - 'website/dashboard/**'
+      - 'cdn/dashboard/**'
       - 'package.json'
   pull_request:
     paths:
-      - 'website/scripts/**'
+      - 'scripts/**'
       - 'functions/**'
       - 'vitest.config.js'
-      - 'website/dashboard/**'
+      - 'cdn/dashboard/**'
       - 'package.json'
 
 concurrency:
@@ -111,7 +111,7 @@ jobs:
           const browser = await chromium.launch();
           const pages = [
             ['Homepage', 'http://localhost:8788/'],
-            ['Dashboard', 'http://localhost:8788/website/dashboard/index.html'],
+            ['Dashboard', 'http://localhost:8788/cdn/dashboard/index.html'],
           ];
           let failures = 0;
           for (const [name, url] of pages) {
@@ -158,7 +158,7 @@ jobs:
             --vus 10 \
             --duration 10s \
             --summary-trend-stats="avg,min,med,max,p(95),p(99)" \
-            website/scripts/tests/load.k6.js
+            scripts/tests/load.k6.js
 
   visual-regression:
     runs-on: ubuntu-latest
@@ -189,7 +189,7 @@ jobs:
         run: sleep 2 && curl -sf http://localhost:8788/ > /dev/null
 
       - name: Run visual regression tests
-        run: npx playwright test --config website/scripts/tests/playwright.config.js
+        run: npx playwright test --config scripts/tests/playwright.config.js
         continue-on-error: true
 
       - name: Upload visual diff artifacts

@@ -36,7 +36,7 @@ graph TD
     C --> D[Edge Middleware]
     D --> E[clients/]
     D --> F[stocks/]
-    D --> G[website/]
+    D --> G[cdn/]
     D --> H[Edge Functions]
     H --> I[Storage API]
     H --> J[Core API]
@@ -50,7 +50,13 @@ graph TD
 /
 ├── clients/          54 tenant asset directories
 ├── stocks/           Global stock media (images, diagrams, videos)
-├── website/          Application layer (dashboard, docs, scripts)
+├── cdn/              Application layer (localized pages, dashboard, docs)
+│   ├── en/           English homepage (canonical)
+│   ├── fr/, de/...   27 more localized homepages
+│   ├── dashboard/    Asset dashboard UI
+│   ├── api-reference/ OpenAPI docs
+│   └── content/      Markdown knowledge base
+├── scripts/          Build scripts, i18n, tests (not deployed as content)
 ├── functions/        Cloudflare edge functions (middleware + 12 APIs)
 ├── manifest.json     Auto-generated asset registry
 └── wrangler.toml     Cloudflare bindings (AI, Vectorize, KV)
@@ -201,11 +207,11 @@ npm run test:audit      # npm dependency security audit
 | :--- | :--- |
 | `npm run build:manifest` | Rebuild `manifest.json` + TypeScript definitions |
 | `npm run build:css` | Rebuild dashboard Tailwind CSS |
-| `node website/scripts/prune-icons.mjs` | Remove legacy icon variants |
-| `node website/scripts/prune-formats.mjs` | Keep single source per image |
-| `node website/scripts/generate-client-libs.mjs` | Generate API client libraries (JS, TS, Python, cURL) |
-| `node website/scripts/index-assets.mjs` | Build Vectorize embeddings for semantic search |
-| `node website/scripts/patch-openapi.mjs` | Patch OpenAPI spec with missing response codes |
+| `node scripts/prune-icons.mjs` | Remove legacy icon variants |
+| `node scripts/prune-formats.mjs` | Keep single source per image |
+| `node scripts/generate-client-libs.mjs` | Generate API client libraries (JS, TS, Python, cURL) |
+| `node scripts/index-assets.mjs` | Build Vectorize embeddings for semantic search |
+| `node scripts/patch-openapi.mjs` | Patch OpenAPI spec with missing response codes |
 
 ## Deployment
 

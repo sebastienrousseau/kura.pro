@@ -4,7 +4,7 @@
  * Performance-critical: runs on EVERY request.
  * Optimized for minimal allocations and zero-copy where possible.
  *
- * Physical:  /clients/, /stocks/, /website/
+ * Physical:  /clients/, /stocks/, /cdn/
  * Logical:   cloudcdn.pro/akande/..., /stocks/..., /dashboard/...
  */
 
@@ -25,11 +25,11 @@ const CONTINENT_MAP = {
 
 // Prefixes that have their own Functions middleware — must use context.next()
 const FUNCTIONS_PREFIXES = ["/dashboard/", "/dist/"];
-// Prefixes that are static-only — rewrite to /website/ and serve from ASSETS
+// Prefixes that are static-only — rewrite to /cdn/ and serve from ASSETS
 const STATIC_PREFIXES = ["/shared/", "/content/", "/api-reference/"];
-// Supported language codes — /{lang}/ serves /website/{lang}/index.html
+// Supported language codes — /{lang}/ serves /cdn/{lang}/index.html
 const LOCALES = new Set([
-  "ar", "bn", "cs", "de", "es", "fr", "ha", "he", "hi", "id",
+  "en", "ar", "bn", "cs", "de", "es", "fr", "ha", "he", "hi", "id",
   "it", "ja", "ko", "nl", "pl", "pt", "ro", "ru", "sv", "th",
   "tl", "tr", "uk", "vi", "yo", "zh", "zh-tw",
 ]);
@@ -105,29 +105,30 @@ export async function onRequest(context) {
     return context.next();
   }
 
-  // ── 3. Website pillar ──
+  // ── 3. CDN pillar ──
+  // Root → English homepage
   if (path === "/" || path === "/index.html") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/website/index.html");
+    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/index.html");
   }
 
-  // Locale homepages: /fr, /fr/, /fr/index.html → /website/fr/index.html
-  // Match first path segment against LOCALES set.
+  // Locale homepages: /fr, /fr/, /fr/index.html → /cdn/fr/index.html
+  // Also handles /en/ explicitly.
   const firstSlash = path.indexOf("/", 1);
   const firstSegment = firstSlash === -1 ? path.slice(1) : path.slice(1, firstSlash);
   if (LOCALES.has(firstSegment)) {
     const rest = firstSlash === -1 ? "" : path.slice(firstSlash);
     if (rest === "" || rest === "/" || rest === "/index.html") {
-      return rewriteFetch(env, request, rawUrl, pathStart, "/website/" + firstSegment + "/index.html");
+      return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/" + firstSegment + "/index.html");
     }
   }
   if (path === "/404.html") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/website/404.html");
+    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/404.html");
   }
   if (path === "/robots.txt" || path === "/sitemap.xml") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/website" + path);
+    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn" + path);
   }
   if (path === "/api-reference") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/website/api-reference/index.html");
+    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/api-reference/index.html");
   }
   // Bare paths without trailing slash — redirect so they hit the Functions middleware
   if (path === "/dist" || path === "/dashboard") {
@@ -144,13 +145,13 @@ export async function onRequest(context) {
     }
   }
 
-  // Static-only website prefixes — rewrite to /website/ and serve from ASSETS
+  // Static-only CDN prefixes — rewrite to /cdn/ and serve from ASSETS
   for (let i = 0; i < STATIC_PREFIXES.length; i++) {
     const prefix = STATIC_PREFIXES[i];
     if (path.length >= prefix.length &&
         path.charCodeAt(1) === prefix.charCodeAt(1) &&
         path.startsWith(prefix)) {
-      return rewriteFetch(env, request, rawUrl, pathStart, "/website" + path);
+      return rewriteFetch(env, request, rawUrl, pathStart, "/cdn" + path);
     }
   }
 

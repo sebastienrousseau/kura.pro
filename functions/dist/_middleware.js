@@ -28,9 +28,9 @@ export async function onRequest(context) {
         const valid = await hmacVerifyCached(secret, token, sig);
         const expires = parseInt(token, 10);
         if (valid && expires > Date.now() / 1000) {
-          // Rewrite /dist/* to /website/dist/* for static asset serving
+          // Rewrite /dist/* to /cdn/dist/* for static asset serving
           const url = new URL(request.url);
-          let rewritePath = '/website' + url.pathname;
+          let rewritePath = '/cdn' + url.pathname;
           // Serve index.html for directory requests
           if (rewritePath.endsWith('/')) rewritePath += 'index.html';
           url.pathname = rewritePath;

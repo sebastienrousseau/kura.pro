@@ -55,9 +55,7 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     /* Animated gradient orb */
@@ -95,6 +93,13 @@
       text-align: center;
       padding: 2rem;
       max-width: 640px;
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 3.75rem);
     }
 
     .logo {
@@ -171,19 +176,128 @@
       50% { opacity: 0.4; }
     }
 
-    footer {
-      position: fixed;
-      bottom: 2rem;
-      font-size: 0.75rem;
-      color: #3a3d4a;
-      z-index: 1;
+    /* Site navigation — sticky top, mobile responsive with hamburger */
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(8, 9, 13, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      width: 100%;
     }
-    footer a {
-      color: #5b5f73;
+    .site-nav .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      height: 3.75rem;
+      gap: 1rem;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       text-decoration: none;
-      transition: color .15s;
+      flex-shrink: 0;
     }
-    footer a:hover { color: #818cf8; }
+    .nav-brand img { height: 28px; width: 28px; }
+    .nav-brand span {
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+    .nav-brand span .accent { color: #6366f1; }
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 0.125rem;
+      list-style: none;
+      margin: 0 auto;
+      padding: 0;
+    }
+    .nav-center a {
+      display: inline-flex;
+      align-items: center;
+      color: #8b8fa3;
+      font-size: 13px;
+      font-weight: 400;
+      text-decoration: none;
+      padding: 0.625rem 1rem;
+      min-height: 2.75rem;
+      border-radius: 0.375rem;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-center a:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .nav-cta {
+      background: #6366f1;
+      color: #fff !important;
+      border-radius: 6rem;
+      padding: 0.4375rem 1rem;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none !important;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: #818cf8; }
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: #e2e4ea;
+      padding: 0.375rem;
+      cursor: pointer;
+      margin-left: auto;
+    }
+    .nav-hamburger svg { width: 1.5rem; height: 1.5rem; fill: currentColor; }
+
+    @media (max-width: 768px) {
+      .nav-center, .nav-right { display: none; }
+      .nav-hamburger { display: flex; align-items: center; }
+      .site-nav.open .nav-center {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #0f1117;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.5rem;
+        gap: 0;
+        margin: 0;
+      }
+      .site-nav.open .nav-center a {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 15px;
+        border-radius: 0.5rem;
+      }
+      .site-nav.open .nav-right {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #0f1117;
+        padding: 0.75rem 1rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        margin-top: 14rem;
+      }
+      .site-nav.open .nav-right .nav-cta { width: 100%; text-align: center; }
+    }
 
     /* Keyboard shortcut hint */
     .kbd-hint {
@@ -702,6 +816,28 @@
 </head>
 <body>
   <a href="#chat-trigger" class="sr-only">Skip to Concierge</a>
+
+  <nav class="site-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/">
+        <img src="/clients/cloudcdn/v1/logos/cloudcdn.svg" alt="CloudCDN" width="28" height="28">
+        <span>Cloud<span class="accent">CDN</span></span>
+      </a>
+      <ul class="nav-center">
+        <li><a href="/">Home</a></li>
+        <li><a href="/api-reference">API</a></li>
+        <li><a href="/dashboard/">Dashboard</a></li>
+        <li><a href="/dist/">Downloads</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="/dashboard/login" id="auth-link" class="nav-cta">Login</a>
+      </div>
+      <button class="nav-hamburger" id="nav-toggle" aria-label="Toggle menu" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
+      </button>
+    </div>
+  </nav>
+
   <div class="orb" aria-hidden="true"></div>
   <div class="grid" aria-hidden="true"></div>
 
@@ -731,20 +867,24 @@
     </div>
   </main>
 
-  <footer>
-    <a href="/api-reference">API Reference</a> &middot;
-    <a href="/dashboard">Dashboard</a> &middot;
-    <a href="/dist">Downloads</a> &middot;
-    <a href="/dashboard/login" id="auth-link">Login</a> &middot;
-    &copy; 2026 CloudCDN
-  </footer>
   <script>
   (function() {
     // cdn_logged_in is a non-HttpOnly indicator cookie set alongside the session
     if (document.cookie.split(';').some(c => c.trim().startsWith('cdn_logged_in='))) {
       const el = document.getElementById('auth-link');
-      el.textContent = 'Logout';
-      el.href = '/dashboard/logout';
+      if (el) {
+        el.textContent = 'Logout';
+        el.href = '/dashboard/logout';
+      }
+    }
+    // Hamburger menu toggle
+    const toggle = document.getElementById('nav-toggle');
+    const nav = document.querySelector('.site-nav');
+    if (toggle && nav) {
+      toggle.addEventListener('click', () => {
+        const open = nav.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(open));
+      });
     }
   })();
   </script>

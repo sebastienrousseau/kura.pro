@@ -370,7 +370,9 @@ export async function onRequest(context) {
         if (valid && expires > Date.now() / 1000) {
           // Rewrite /dashboard/* to /website/dashboard/* for static asset serving
           const rewrittenUrl = new URL(request.url);
-          rewrittenUrl.pathname = '/website' + url.pathname;
+          let rewritePath = '/website' + url.pathname;
+          if (rewritePath.endsWith('/')) rewritePath += 'index.html';
+          rewrittenUrl.pathname = rewritePath;
           return env.ASSETS.fetch(new Request(rewrittenUrl.toString(), request));
         }
       }

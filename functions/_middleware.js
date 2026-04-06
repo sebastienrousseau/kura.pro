@@ -112,6 +112,10 @@ export async function onRequest(context) {
   if (path === "/api-reference") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/website/api-reference/index.html");
   }
+  // Bare paths without trailing slash — redirect so they hit the Functions middleware
+  if (path === "/dist" || path === "/dashboard") {
+    return Response.redirect(rawUrl.slice(0, pathStart) + path + "/" + (qmark === -1 ? "" : rawUrl.slice(qmark)), 301);
+  }
 
   // Paths with their own Functions middleware — always context.next() so auth runs
   for (let i = 0; i < FUNCTIONS_PREFIXES.length; i++) {

@@ -30,7 +30,10 @@ export async function onRequest(context) {
         if (valid && expires > Date.now() / 1000) {
           // Rewrite /dist/* to /website/dist/* for static asset serving
           const url = new URL(request.url);
-          url.pathname = '/website' + url.pathname;
+          let rewritePath = '/website' + url.pathname;
+          // Serve index.html for directory requests
+          if (rewritePath.endsWith('/')) rewritePath += 'index.html';
+          url.pathname = rewritePath;
           return env.ASSETS.fetch(new Request(url.toString(), request));
         }
       }

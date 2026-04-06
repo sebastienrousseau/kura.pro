@@ -6,64 +6,95 @@
   <title>CloudCDN — API Reference</title>
   <meta name="description" content="Interactive API reference for CloudCDN. Storage, Core, Assets, Insights, Delivery, and AI endpoints with Try It console and client libraries.">
   <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/shared/site-nav.css">
+  <script defer src="/shared/site-nav.js"></script>
 
   <!-- Preload spec for instant render -->
   <link rel="preload" href="openapi.json" as="fetch" crossorigin="anonymous">
 
   <style>
-    body { margin: 0; }
+    body { margin: 0; background: #08090d; }
 
-    .api-topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
+    /* Secondary bar for API-specific client downloads */
+    .api-subbar {
       background: #0f1117;
-      border-bottom: 1px solid #2a2d3a;
-      padding: 0.5rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0.625rem 1.5rem;
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      flex-wrap: wrap;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-    .api-topbar a { color: #5b5f73; text-decoration: none; transition: color 0.15s; }
-    .api-topbar a:hover { color: #fff; }
-    .api-topbar h1 { font-size: 0.9375rem; font-weight: 700; color: #fff; margin: 0; }
-    .api-topbar h1 span { color: #6366f1; }
-    .api-topbar .spacer { flex: 1; }
-    .api-topbar .pill {
-      background: rgba(99,102,241,0.12);
-      border: 1px solid rgba(99,102,241,0.25);
+    .api-subbar-label {
+      color: #8b8fa3;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .api-subbar .pill {
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
       border-radius: 0.375rem;
-      padding: 0.1875rem 0.625rem;
+      padding: 0.375rem 0.75rem;
       color: #a5b4fc;
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
+      font-weight: 500;
       cursor: pointer;
       text-decoration: none;
-      transition: background 0.15s;
+      transition: background 0.15s, color 0.15s;
+      min-height: 2rem;
+      display: inline-flex;
+      align-items: center;
     }
-    .api-topbar .pill:hover { background: rgba(99,102,241,0.2); color: #fff; }
-
-    .scalar-wrapper { padding-top: 42px; }
+    .api-subbar .pill:hover { background: rgba(99, 102, 241, 0.2); color: #fff; }
+    .api-subbar .pill:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
   </style>
 </head>
 <body>
-  <div class="api-topbar">
-    <a href="/" title="Home">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </a>
-    <h1>Cloud<span>CDN</span> API</h1>
-    <span class="spacer"></span>
-    <a href="clients/javascript.js" class="pill" download>JS Client</a>
-    <a href="clients/typescript.ts" class="pill" download>TS Client</a>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-nav" role="banner">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/" aria-label="CloudCDN — home">
+        <img src="/clients/cloudcdn/v1/logos/cloudcdn.svg" alt="" width="28" height="28" aria-hidden="true">
+        <span class="nav-brand-text">Cloud<span class="accent">CDN</span></span>
+      </a>
+      <nav aria-label="Main navigation">
+        <ul class="nav-center">
+          <li><a href="/">Home</a></li>
+          <li><a href="/api-reference">API</a></li>
+          <li><a href="/dashboard/">Dashboard</a></li>
+          <li><a href="/dist/">Downloads</a></li>
+        </ul>
+      </nav>
+      <div class="nav-right">
+        <a href="/dashboard/login" id="auth-link" class="nav-cta" data-logout-label="Logout">Login</a>
+      </div>
+      <button
+        class="nav-hamburger"
+        id="nav-toggle"
+        type="button"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="nav-menu"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="api-subbar" role="region" aria-label="API client downloads">
+    <span class="api-subbar-label">Client libraries:</span>
+    <a href="clients/javascript.js" class="pill" download>JavaScript</a>
+    <a href="clients/typescript.ts" class="pill" download>TypeScript</a>
     <a href="clients/python.py" class="pill" download>Python</a>
     <a href="clients/curl.sh" class="pill" download>cURL</a>
     <a href="openapi.json" class="pill" download="cloudcdn-openapi.json">OpenAPI Spec</a>
-    <a href="/dashboard" style="font-size:0.6875rem;">Dashboard</a>
   </div>
 
-  <div class="scalar-wrapper">
+  <main id="main">
     <script
       id="api-reference"
       data-url="openapi.json"
@@ -98,6 +129,6 @@
       }'>
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-  </div>
+  </main>
 </body>
 </html>

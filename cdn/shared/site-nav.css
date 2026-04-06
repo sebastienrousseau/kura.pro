@@ -1,0 +1,250 @@
+/**
+ * CloudCDN — Unified site navigation (enterprise-grade).
+ *
+ * Used across every public page: homepage, dashboard, downloads,
+ * api-reference, content pages, 404, and all 28 locales.
+ *
+ * Design goals:
+ *   • Consistent layout and styling on every page
+ *   • Accessible (WCAG 2.2 AA): keyboard, screen reader, focus-visible,
+ *     44×44px touch targets, sufficient contrast, reduced-motion support
+ *   • SEO-friendly: semantic <header>/<nav>/<ul>/<li>/<a>, server-rendered,
+ *     descriptive link text, no JS required to navigate
+ *   • Mobile-first: hamburger menu on narrow viewports with full-width
+ *     dropdown, focus trap, escape-to-close
+ *   • RTL support via logical properties (inline-start/end)
+ *   • No external framework required — drop-in <link> + <script>
+ */
+
+/* Skip link — visually hidden until focused (WCAG 2.4.1) */
+.skip-link {
+  position: absolute;
+  inset-inline-start: -10000px;
+  top: 0;
+  z-index: 1100;
+  background: #6366f1;
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0 0.5rem 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+.skip-link:focus {
+  inset-inline-start: 0;
+  outline: 2px solid #a5b4fc;
+  outline-offset: 2px;
+}
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(8, 9, 13, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.site-nav .nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  height: 3.75rem;
+  gap: 1rem;
+  position: relative;
+}
+
+/* Brand — logo + wordmark */
+.site-nav .nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  flex-shrink: 0;
+  min-height: 2.75rem;
+  padding-inline-end: 0.25rem;
+}
+.site-nav .nav-brand:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 4px;
+  border-radius: 0.25rem;
+}
+.site-nav .nav-brand img {
+  height: 28px;
+  width: 28px;
+  display: block;
+}
+.site-nav .nav-brand-text {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+.site-nav .nav-brand-text .accent { color: #6366f1; }
+
+/* Center links (desktop) */
+.site-nav .nav-center {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+}
+.site-nav .nav-center > li { margin: 0; padding: 0; }
+.site-nav .nav-center a {
+  display: inline-flex;
+  align-items: center;
+  color: #9ca0b5;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.625rem 1rem;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  border-radius: 0.5rem;
+  transition: color 0.15s, background 0.15s;
+}
+.site-nav .nav-center a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+.site-nav .nav-center a:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 2px;
+  color: #fff;
+}
+.site-nav .nav-center a[aria-current="page"] {
+  color: #fff;
+  background: rgba(99, 102, 241, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.3);
+}
+
+/* Right side — CTA button */
+.site-nav .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.site-nav .nav-cta {
+  background: #6366f1;
+  color: #fff !important;
+  border-radius: 6rem;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition: background 0.2s, transform 0.1s;
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+}
+.site-nav .nav-cta:hover {
+  background: #818cf8;
+}
+.site-nav .nav-cta:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 3px;
+}
+.site-nav .nav-cta:active { transform: translateY(1px); }
+
+/* Hamburger (mobile only) */
+.site-nav .nav-hamburger {
+  display: none;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e4ea;
+  padding: 0.5rem;
+  cursor: pointer;
+  margin-inline-start: auto;
+  border-radius: 0.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.site-nav .nav-hamburger:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.site-nav .nav-hamburger:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 2px;
+}
+.site-nav .nav-hamburger svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+  display: block;
+}
+
+/* Mobile breakpoint */
+@media (max-width: 860px) {
+  .site-nav .nav-center,
+  .site-nav .nav-right { display: none; }
+  .site-nav .nav-hamburger { display: inline-flex; }
+
+  .site-nav.open .nav-center {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    background: #0f1117;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.5rem;
+    gap: 0.25rem;
+    margin: 0;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  }
+  .site-nav.open .nav-center a {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+    border-radius: 0.5rem;
+    min-height: 3rem;
+  }
+  .site-nav.open .nav-right {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 17rem);
+    inset-inline: 0;
+    background: #0f1117;
+    padding: 0 1rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .site-nav.open .nav-right .nav-cta {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Reduced motion — disable transitions and animations */
+@media (prefers-reduced-motion: reduce) {
+  .site-nav *,
+  .skip-link {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* High contrast — thicker borders */
+@media (prefers-contrast: more) {
+  .site-nav {
+    border-bottom-color: rgba(255, 255, 255, 0.25);
+  }
+  .site-nav .nav-center a[aria-current="page"] {
+    box-shadow: inset 0 0 0 2px #a5b4fc;
+  }
+}

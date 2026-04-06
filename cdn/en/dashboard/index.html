@@ -7,27 +7,52 @@
   <meta name="description" content="Browse and manage static assets on the CloudCDN">
   <link rel="icon" href="/favicon.ico">
   <link rel="preload" href="/manifest.json" as="fetch" crossorigin="anonymous">
+  <link rel="stylesheet" href="/shared/site-nav.css">
+  <script defer src="/shared/site-nav.js"></script>
   <link rel="stylesheet" href="tailwind.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-surface text-gray-200 min-h-screen flex flex-col">
 
-  <!-- Skip navigation -->
-  <a href="#panel-assets" class="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:bg-accent focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm">Skip to main content</a>
-
-  <!-- Header -->
-  <header class="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4 flex-wrap">
-      <div class="flex items-center gap-3 shrink-0">
-        <a href="/" title="Home" class="text-gray-500 hover:text-white transition">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </a>
-        <img src="/clients/cloudcdn/v1/logos/cloudcdn.svg" alt="CloudCDN" width="36" height="36" class="rounded" fetchpriority="high">
-        <h1 class="text-xl font-bold text-white">Cloud<span class="text-accent">CDN</span></h1>
+  <!-- Unified site navigation -->
+  <a class="skip-link" href="#panel-assets">Skip to main content</a>
+  <header class="site-nav" role="banner">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/" aria-label="CloudCDN — home">
+        <img src="/clients/cloudcdn/v1/logos/cloudcdn.svg" alt="" width="28" height="28" aria-hidden="true">
+        <span class="nav-brand-text">Cloud<span class="accent">CDN</span></span>
+      </a>
+      <nav aria-label="Main navigation">
+        <ul class="nav-center">
+          <li><a href="/">Home</a></li>
+          <li><a href="/api-reference">API</a></li>
+          <li><a href="/dashboard/">Dashboard</a></li>
+          <li><a href="/dist/">Downloads</a></li>
+        </ul>
+      </nav>
+      <div class="nav-right">
+        <a href="/dashboard/logout" class="nav-cta">Logout</a>
       </div>
+      <button
+        class="nav-hamburger"
+        id="nav-toggle"
+        type="button"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="nav-menu"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
 
+  <!-- Dashboard-specific secondary nav (tabs + search + filters) -->
+  <div class="sticky top-[3.75rem] z-40 bg-surface/95 backdrop-blur border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4 flex-wrap">
       <!-- Tabs -->
-      <nav class="flex gap-1 ml-4" role="tablist">
+      <nav class="flex gap-1" aria-label="Dashboard sections" role="tablist">
         <button class="tab-btn active" data-tab="assets" role="tab" aria-selected="true">Assets</button>
         <button class="tab-btn" data-tab="insights" role="tab" aria-selected="false">Insights</button>
         <button class="tab-btn" data-tab="upload" role="tab" aria-selected="false">
@@ -69,7 +94,7 @@
         </select>
       </div>
     </div>
-  </header>
+  </div>
 
   <!-- Stats Bar (assets tab) -->
   <div class="bg-card/50 border-b border-border" id="stats-bar">

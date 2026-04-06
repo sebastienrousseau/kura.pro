@@ -6,6 +6,8 @@
   <title>CloudCDN — Software Distribution</title>
   <meta name="description" content="Download CLI tools and binaries distributed via CloudCDN's global edge network.">
   <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/shared/site-nav.css">
+  <script defer src="/shared/site-nav.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -17,12 +19,6 @@
       --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
     }
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
-
-    header { border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
-    header a { color: var(--text-dim); text-decoration: none; transition: color 0.15s; }
-    header a:hover { color: #fff; }
-    header h1 { font-size: 1.25rem; font-weight: 700; color: #fff; }
-    header h1 span { color: var(--accent); }
 
     .container { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
     h2 { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
@@ -146,15 +142,40 @@
   </style>
 </head>
 <body>
-  <header>
-    <a href="/" title="Home">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </a>
-    <h1>Cloud<span>CDN</span> Dist</h1>
-    <a href="/dashboard" style="margin-left:auto;font-size:0.8125rem;">Dashboard</a>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-nav" role="banner">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/" aria-label="CloudCDN — home">
+        <img src="/clients/cloudcdn/v1/logos/cloudcdn.svg" alt="" width="28" height="28" aria-hidden="true">
+        <span class="nav-brand-text">Cloud<span class="accent">CDN</span></span>
+      </a>
+      <nav aria-label="Main navigation">
+        <ul class="nav-center">
+          <li><a href="/">Home</a></li>
+          <li><a href="/api-reference">API</a></li>
+          <li><a href="/dashboard/">Dashboard</a></li>
+          <li><a href="/dist/">Downloads</a></li>
+        </ul>
+      </nav>
+      <div class="nav-right">
+        <a href="/dashboard/login" id="auth-link" class="nav-cta" data-logout-label="Logout">Login</a>
+      </div>
+      <button
+        class="nav-hamburger"
+        id="nav-toggle"
+        type="button"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="nav-menu"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+        </svg>
+      </button>
+    </div>
   </header>
 
-  <div class="container">
+  <main id="main" class="container">
     <h2>Software Distribution</h2>
     <p class="subtitle">Download CLI tools and binaries delivered from 300+ edge locations. SHA-256 verified.</p>
 
@@ -169,9 +190,9 @@
 
     <!-- Packages -->
     <div class="packages" id="packages"></div>
-  </div>
+  </main>
 
-  <footer><a href="/">CloudCDN</a> &middot; <a href="/dashboard">Dashboard</a> &middot; All binaries signed and SHA-256 verified</footer>
+  <footer><a href="/">CloudCDN</a> &middot; <a href="/dashboard/">Dashboard</a> &middot; All binaries signed and SHA-256 verified</footer>
 
   <div class="toast" id="toast"></div>
 

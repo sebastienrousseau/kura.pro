@@ -1,0 +1,47 @@
+<!--
+  CloudCDN — Unified site navigation (canonical snippet).
+  Copy-paste this block into every page, directly after <body>.
+
+  Required <head> entries:
+    <link rel="stylesheet" href="/shared/site-nav.css">
+    <script defer src="/shared/site-nav.js"></script>
+
+  The skip link target (#main) must exist on the page.
+  Set aria-label on <nav> per page if useful (default: "Main navigation").
+-->
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-nav" role="banner">
+  <div class="nav-inner">
+    <a class="nav-brand" href="/" aria-label="CloudCDN — home">
+      <img src="/cloudcdn/v1/logos/cloudcdn.svg" alt="" width="28" height="28" aria-hidden="true">
+      <span class="nav-brand-text">Cloud<span class="accent">CDN</span></span>
+    </a>
+
+    <nav aria-label="Main navigation">
+      <ul class="nav-center">
+        <li><a href="/">Home</a></li>
+        <li><a href="/api-reference">API</a></li>
+        <li><a href="/dashboard/">Dashboard</a></li>
+        <li><a href="/dist/">Downloads</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-right">
+      <a href="/dashboard/login" id="auth-link" class="nav-cta" data-logout-label="Logout">Login</a>
+    </div>
+
+    <button
+      class="nav-hamburger"
+      id="nav-toggle"
+      type="button"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+      </svg>
+    </button>
+  </div>
+</header>

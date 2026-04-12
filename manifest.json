@@ -12248,6 +12248,14 @@
     "size": 107146
   },
   {
+    "name": "hsbc-from-the-docks.webp",
+    "path": "stocks/images/hsbc-from-the-docks.webp",
+    "project": "stocks",
+    "category": "hsbc-from-the-docks.webp",
+    "format": "webp",
+    "size": 4774074
+  },
+  {
     "name": "humphrey-muleba-1660004.webp",
     "path": "stocks/images/humphrey-muleba-1660004.webp",
     "project": "stocks",
@@ -13406,6 +13414,14 @@
     "category": "quang-nguyen-vinh-J3W7Kfcj6gM.webp",
     "format": "webp",
     "size": 96572
+  },
+  {
+    "name": "quantum-computer-room.webp",
+    "path": "stocks/images/quantum-computer-room.webp",
+    "project": "stocks",
+    "category": "quantum-computer-room.webp",
+    "format": "webp",
+    "size": 4329534
   },
   {
     "name": "rawpixel-com-369782.webp",

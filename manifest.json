@@ -7632,596 +7632,652 @@
     "size": 389825
   },
   {
-    "name": "favicon.ico",
-    "path": "mini-functions/v1/v2/favicon.ico",
+    "name": "banner-mini-functions.png",
+    "path": "mini-functions/v1/banners/banner-mini-functions.png",
     "project": "mini-functions",
-    "category": "v2",
-    "format": "ico",
-    "size": 389825
+    "category": "banners",
+    "format": "png",
+    "size": 34025
+  },
+  {
+    "name": "banner-mini-functions.svg",
+    "path": "mini-functions/v1/banners/banner-mini-functions.svg",
+    "project": "mini-functions",
+    "category": "banners",
+    "format": "svg",
+    "size": 293380
+  },
+  {
+    "name": "banner-mini-functions.webp",
+    "path": "mini-functions/v1/banners/banner-mini-functions.webp",
+    "project": "mini-functions",
+    "category": "banners",
+    "format": "webp",
+    "size": 21518
+  },
+  {
+    "name": "github-mini-functions.png",
+    "path": "mini-functions/v1/github/github-mini-functions.png",
+    "project": "mini-functions",
+    "category": "github",
+    "format": "png",
+    "size": 130934
+  },
+  {
+    "name": "github-mini-functions.svg",
+    "path": "mini-functions/v1/github/github-mini-functions.svg",
+    "project": "mini-functions",
+    "category": "github",
+    "format": "svg",
+    "size": 294639
+  },
+  {
+    "name": "github-mini-functions.webp",
+    "path": "mini-functions/v1/github/github-mini-functions.webp",
+    "project": "mini-functions",
+    "category": "github",
+    "format": "webp",
+    "size": 65380
   },
   {
     "name": "114x114.png",
-    "path": "mini-functions/v1/v2/v2/114x114.png",
+    "path": "mini-functions/v1/icons/114x114.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 5457
   },
   {
     "name": "114x114@2x.png",
-    "path": "mini-functions/v1/v2/v2/114x114@2x.png",
+    "path": "mini-functions/v1/icons/114x114@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 11321
   },
   {
     "name": "114x114@3x.png",
-    "path": "mini-functions/v1/v2/v2/114x114@3x.png",
+    "path": "mini-functions/v1/icons/114x114@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 17652
   },
   {
     "name": "120x120.png",
-    "path": "mini-functions/v1/v2/v2/120x120.png",
+    "path": "mini-functions/v1/icons/120x120.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 5766
   },
   {
     "name": "120x120@2x.png",
-    "path": "mini-functions/v1/v2/v2/120x120@2x.png",
+    "path": "mini-functions/v1/icons/120x120@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 11922
   },
   {
     "name": "120x120@3x.png",
-    "path": "mini-functions/v1/v2/v2/120x120@3x.png",
+    "path": "mini-functions/v1/icons/120x120@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 18868
   },
   {
     "name": "130x130.png",
-    "path": "mini-functions/v1/v2/v2/130x130.png",
+    "path": "mini-functions/v1/icons/130x130.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 6336
   },
   {
     "name": "130x130@2x.png",
-    "path": "mini-functions/v1/v2/v2/130x130@2x.png",
+    "path": "mini-functions/v1/icons/130x130@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 13095
   },
   {
     "name": "130x130@3x.png",
-    "path": "mini-functions/v1/v2/v2/130x130@3x.png",
+    "path": "mini-functions/v1/icons/130x130@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 20437
   },
   {
     "name": "144x144.png",
-    "path": "mini-functions/v1/v2/v2/144x144.png",
+    "path": "mini-functions/v1/icons/144x144.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 7028
   },
   {
     "name": "144x144@2x.png",
-    "path": "mini-functions/v1/v2/v2/144x144@2x.png",
+    "path": "mini-functions/v1/icons/144x144@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 14696
   },
   {
     "name": "144x144@3x.png",
-    "path": "mini-functions/v1/v2/v2/144x144@3x.png",
+    "path": "mini-functions/v1/icons/144x144@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 23041
   },
   {
     "name": "150x150.png",
-    "path": "mini-functions/v1/v2/v2/150x150.png",
+    "path": "mini-functions/v1/icons/150x150.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 7306
   },
   {
     "name": "150x150@2x.png",
-    "path": "mini-functions/v1/v2/v2/150x150@2x.png",
+    "path": "mini-functions/v1/icons/150x150@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 15249
   },
   {
     "name": "150x150@3x.png",
-    "path": "mini-functions/v1/v2/v2/150x150@3x.png",
+    "path": "mini-functions/v1/icons/150x150@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 24108
   },
   {
     "name": "152x152.png",
-    "path": "mini-functions/v1/v2/v2/152x152.png",
+    "path": "mini-functions/v1/icons/152x152.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 7340
   },
   {
     "name": "152x152@2x.png",
-    "path": "mini-functions/v1/v2/v2/152x152@2x.png",
+    "path": "mini-functions/v1/icons/152x152@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 15520
   },
   {
     "name": "152x152@3x.png",
-    "path": "mini-functions/v1/v2/v2/152x152@3x.png",
+    "path": "mini-functions/v1/icons/152x152@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 24516
   },
   {
     "name": "167x167.png",
-    "path": "mini-functions/v1/v2/v2/167x167.png",
+    "path": "mini-functions/v1/icons/167x167.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 8101
   },
   {
     "name": "167x167@2x.png",
-    "path": "mini-functions/v1/v2/v2/167x167@2x.png",
+    "path": "mini-functions/v1/icons/167x167@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 17260
   },
   {
     "name": "167x167@3x.png",
-    "path": "mini-functions/v1/v2/v2/167x167@3x.png",
+    "path": "mini-functions/v1/icons/167x167@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 27429
   },
   {
     "name": "16x16.png",
-    "path": "mini-functions/v1/v2/v2/16x16.png",
+    "path": "mini-functions/v1/icons/16x16.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 703
   },
   {
     "name": "16x16@2x.png",
-    "path": "mini-functions/v1/v2/v2/16x16@2x.png",
+    "path": "mini-functions/v1/icons/16x16@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 1552
   },
   {
     "name": "16x16@3x.png",
-    "path": "mini-functions/v1/v2/v2/16x16@3x.png",
+    "path": "mini-functions/v1/icons/16x16@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 2298
   },
   {
     "name": "180x180.png",
-    "path": "mini-functions/v1/v2/v2/180x180.png",
+    "path": "mini-functions/v1/icons/180x180.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 8755
   },
   {
     "name": "180x180@2x.png",
-    "path": "mini-functions/v1/v2/v2/180x180@2x.png",
+    "path": "mini-functions/v1/icons/180x180@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 18868
   },
   {
     "name": "180x180@3x.png",
-    "path": "mini-functions/v1/v2/v2/180x180@3x.png",
+    "path": "mini-functions/v1/icons/180x180@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 30085
   },
   {
     "name": "192x192.png",
-    "path": "mini-functions/v1/v2/v2/192x192.png",
+    "path": "mini-functions/v1/icons/192x192.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 9345
   },
   {
     "name": "192x192@2x.png",
-    "path": "mini-functions/v1/v2/v2/192x192@2x.png",
+    "path": "mini-functions/v1/icons/192x192@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 20103
   },
   {
     "name": "192x192@3x.png",
-    "path": "mini-functions/v1/v2/v2/192x192@3x.png",
+    "path": "mini-functions/v1/icons/192x192@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 32459
   },
   {
     "name": "196x196.png",
-    "path": "mini-functions/v1/v2/v2/196x196.png",
+    "path": "mini-functions/v1/icons/196x196.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 9633
   },
   {
     "name": "196x196@2x.png",
-    "path": "mini-functions/v1/v2/v2/196x196@2x.png",
+    "path": "mini-functions/v1/icons/196x196@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 20735
   },
   {
     "name": "196x196@3x.png",
-    "path": "mini-functions/v1/v2/v2/196x196@3x.png",
+    "path": "mini-functions/v1/icons/196x196@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 33590
   },
   {
     "name": "256x256.png",
-    "path": "mini-functions/v1/v2/v2/256x256.png",
+    "path": "mini-functions/v1/icons/256x256.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 12687
   },
   {
     "name": "256x256@2x.png",
-    "path": "mini-functions/v1/v2/v2/256x256@2x.png",
+    "path": "mini-functions/v1/icons/256x256@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 28158
   },
   {
     "name": "256x256@3x.png",
-    "path": "mini-functions/v1/v2/v2/256x256@3x.png",
+    "path": "mini-functions/v1/icons/256x256@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 45999
   },
   {
     "name": "310x310.png",
-    "path": "mini-functions/v1/v2/v2/310x310.png",
+    "path": "mini-functions/v1/icons/310x310.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 15879
   },
   {
     "name": "310x310@2x.png",
-    "path": "mini-functions/v1/v2/v2/310x310@2x.png",
+    "path": "mini-functions/v1/icons/310x310@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 35407
   },
   {
     "name": "310x310@3x.png",
-    "path": "mini-functions/v1/v2/v2/310x310@3x.png",
+    "path": "mini-functions/v1/icons/310x310@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 58190
   },
   {
     "name": "32x32.png",
-    "path": "mini-functions/v1/v2/v2/32x32.png",
+    "path": "mini-functions/v1/icons/32x32.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 1552
   },
   {
     "name": "32x32@2x.png",
-    "path": "mini-functions/v1/v2/v2/32x32@2x.png",
+    "path": "mini-functions/v1/icons/32x32@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 3115
   },
   {
     "name": "32x32@3x.png",
-    "path": "mini-functions/v1/v2/v2/32x32@3x.png",
+    "path": "mini-functions/v1/icons/32x32@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 4663
   },
   {
     "name": "384x384.png",
-    "path": "mini-functions/v1/v2/v2/384x384.png",
+    "path": "mini-functions/v1/icons/384x384.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 20103
   },
   {
     "name": "384x384@2x.png",
-    "path": "mini-functions/v1/v2/v2/384x384@2x.png",
+    "path": "mini-functions/v1/icons/384x384@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 45999
   },
   {
     "name": "384x384@3x.png",
-    "path": "mini-functions/v1/v2/v2/384x384@3x.png",
+    "path": "mini-functions/v1/icons/384x384@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 76627
   },
   {
     "name": "48x48.png",
-    "path": "mini-functions/v1/v2/v2/48x48.png",
+    "path": "mini-functions/v1/icons/48x48.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 2298
   },
   {
     "name": "48x48@2x.png",
-    "path": "mini-functions/v1/v2/v2/48x48@2x.png",
+    "path": "mini-functions/v1/icons/48x48@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 4663
   },
   {
     "name": "48x48@3x.png",
-    "path": "mini-functions/v1/v2/v2/48x48@3x.png",
+    "path": "mini-functions/v1/icons/48x48@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 7028
   },
   {
     "name": "512x512.png",
-    "path": "mini-functions/v1/v2/v2/512x512.png",
+    "path": "mini-functions/v1/icons/512x512.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 28158
   },
   {
     "name": "512x512@2x.png",
-    "path": "mini-functions/v1/v2/v2/512x512@2x.png",
+    "path": "mini-functions/v1/icons/512x512@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 64780
   },
   {
     "name": "512x512@3x.png",
-    "path": "mini-functions/v1/v2/v2/512x512@3x.png",
+    "path": "mini-functions/v1/icons/512x512@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 112757
   },
   {
     "name": "57x57.png",
-    "path": "mini-functions/v1/v2/v2/57x57.png",
+    "path": "mini-functions/v1/icons/57x57.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 2773
   },
   {
     "name": "57x57@2x.png",
-    "path": "mini-functions/v1/v2/v2/57x57@2x.png",
+    "path": "mini-functions/v1/icons/57x57@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 5457
   },
   {
     "name": "57x57@3x.png",
-    "path": "mini-functions/v1/v2/v2/57x57@3x.png",
+    "path": "mini-functions/v1/icons/57x57@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 8275
   },
   {
     "name": "60x60.png",
-    "path": "mini-functions/v1/v2/v2/60x60.png",
+    "path": "mini-functions/v1/icons/60x60.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 2860
   },
   {
     "name": "60x60@2x.png",
-    "path": "mini-functions/v1/v2/v2/60x60@2x.png",
+    "path": "mini-functions/v1/icons/60x60@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 5766
   },
   {
     "name": "60x60@3x.png",
-    "path": "mini-functions/v1/v2/v2/60x60@3x.png",
+    "path": "mini-functions/v1/icons/60x60@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 8755
   },
   {
     "name": "70x70.png",
-    "path": "mini-functions/v1/v2/v2/70x70.png",
+    "path": "mini-functions/v1/icons/70x70.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 3417
   },
   {
     "name": "70x70@2x.png",
-    "path": "mini-functions/v1/v2/v2/70x70@2x.png",
+    "path": "mini-functions/v1/icons/70x70@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 6664
   },
   {
     "name": "70x70@3x.png",
-    "path": "mini-functions/v1/v2/v2/70x70@3x.png",
+    "path": "mini-functions/v1/icons/70x70@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 10327
   },
   {
     "name": "72x72.png",
-    "path": "mini-functions/v1/v2/v2/72x72.png",
+    "path": "mini-functions/v1/icons/72x72.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 3506
   },
   {
     "name": "72x72@2x.png",
-    "path": "mini-functions/v1/v2/v2/72x72@2x.png",
+    "path": "mini-functions/v1/icons/72x72@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 7028
   },
   {
     "name": "72x72@3x.png",
-    "path": "mini-functions/v1/v2/v2/72x72@3x.png",
+    "path": "mini-functions/v1/icons/72x72@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 10684
   },
   {
     "name": "76x76.png",
-    "path": "mini-functions/v1/v2/v2/76x76.png",
+    "path": "mini-functions/v1/icons/76x76.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 3719
   },
   {
     "name": "76x76@2x.png",
-    "path": "mini-functions/v1/v2/v2/76x76@2x.png",
+    "path": "mini-functions/v1/icons/76x76@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 7340
   },
   {
     "name": "76x76@3x.png",
-    "path": "mini-functions/v1/v2/v2/76x76@3x.png",
+    "path": "mini-functions/v1/icons/76x76@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 11321
   },
   {
     "name": "96x96.png",
-    "path": "mini-functions/v1/v2/v2/96x96.png",
+    "path": "mini-functions/v1/icons/96x96.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 4663
   },
   {
     "name": "96x96@2x.png",
-    "path": "mini-functions/v1/v2/v2/96x96@2x.png",
+    "path": "mini-functions/v1/icons/96x96@2x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 9345
   },
   {
     "name": "96x96@3x.png",
-    "path": "mini-functions/v1/v2/v2/96x96@3x.png",
+    "path": "mini-functions/v1/icons/96x96@3x.png",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "icons",
     "format": "png",
     "size": 14696
   },
   {
-    "name": "banner-mini-functions.svg",
-    "path": "mini-functions/v1/v2/v2/banner-mini-functions.svg",
+    "name": "mini-functions.png",
+    "path": "mini-functions/v1/logos/mini-functions.png",
     "project": "mini-functions",
-    "category": "v2",
-    "format": "svg",
-    "size": 293380
-  },
-  {
-    "name": "github-mini-functions.svg",
-    "path": "mini-functions/v1/v2/v2/github-mini-functions.svg",
-    "project": "mini-functions",
-    "category": "v2",
-    "format": "svg",
-    "size": 294637
+    "category": "logos",
+    "format": "png",
+    "size": 109730
   },
   {
     "name": "mini-functions.svg",
-    "path": "mini-functions/v1/v2/v2/mini-functions.svg",
+    "path": "mini-functions/v1/logos/mini-functions.svg",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "logos",
     "format": "svg",
     "size": 6112
   },
   {
-    "name": "title-mini-functions.svg",
-    "path": "mini-functions/v1/v2/v2/title-mini-functions.svg",
+    "name": "mini-functions.webp",
+    "path": "mini-functions/v1/logos/mini-functions.webp",
     "project": "mini-functions",
-    "category": "v2",
+    "category": "logos",
+    "format": "webp",
+    "size": 44704
+  },
+  {
+    "name": "title-mini-functions.png",
+    "path": "mini-functions/v1/titles/title-mini-functions.png",
+    "project": "mini-functions",
+    "category": "titles",
+    "format": "png",
+    "size": 7916
+  },
+  {
+    "name": "title-mini-functions.svg",
+    "path": "mini-functions/v1/titles/title-mini-functions.svg",
+    "project": "mini-functions",
+    "category": "titles",
     "format": "svg",
     "size": 315
+  },
+  {
+    "name": "title-mini-functions.webp",
+    "path": "mini-functions/v1/titles/title-mini-functions.webp",
+    "project": "mini-functions",
+    "category": "titles",
+    "format": "webp",
+    "size": 6892
   },
   {
     "name": "favicon.ico",

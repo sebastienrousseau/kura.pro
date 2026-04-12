@@ -4400,6 +4400,350 @@
     "size": 284
   },
   {
+    "name": "button-browser.png",
+    "path": "common/images/buttons/button-browser.png",
+    "project": "common",
+    "category": "buttons",
+    "format": "png",
+    "size": 1028
+  },
+  {
+    "name": "button-browser.svg",
+    "path": "common/images/buttons/button-browser.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1024
+  },
+  {
+    "name": "button-browser.webp",
+    "path": "common/images/buttons/button-browser.webp",
+    "project": "common",
+    "category": "buttons",
+    "format": "webp",
+    "size": 624
+  },
+  {
+    "name": "button-primary.svg",
+    "path": "common/images/buttons/button-primary.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 6995
+  },
+  {
+    "name": "button-secondary.svg",
+    "path": "common/images/buttons/button-secondary.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 3767
+  },
+  {
+    "name": "facebook-black.svg",
+    "path": "common/images/buttons/facebook-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 436
+  },
+  {
+    "name": "facebook-speech-bubble-21674.svg",
+    "path": "common/images/buttons/facebook-speech-bubble-21674.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 514
+  },
+  {
+    "name": "facebook-white.svg",
+    "path": "common/images/buttons/facebook-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 571
+  },
+  {
+    "name": "github-black.svg",
+    "path": "common/images/buttons/github-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 959
+  },
+  {
+    "name": "github-speech-bubble-21690.svg",
+    "path": "common/images/buttons/github-speech-bubble-21690.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1002
+  },
+  {
+    "name": "github-white.svg",
+    "path": "common/images/buttons/github-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1281
+  },
+  {
+    "name": "instagram-black.svg",
+    "path": "common/images/buttons/instagram-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 929
+  },
+  {
+    "name": "instagram-speech-bubble-21669.svg",
+    "path": "common/images/buttons/instagram-speech-bubble-21669.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 785
+  },
+  {
+    "name": "instagram-white.svg",
+    "path": "common/images/buttons/instagram-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1173
+  },
+  {
+    "name": "linkedin-black.svg",
+    "path": "common/images/buttons/linkedin-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 620
+  },
+  {
+    "name": "linkedin-speech-bubble--21671.svg",
+    "path": "common/images/buttons/linkedin-speech-bubble--21671.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 710
+  },
+  {
+    "name": "linkedin-white.svg",
+    "path": "common/images/buttons/linkedin-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 824
+  },
+  {
+    "name": "medium-black.svg",
+    "path": "common/images/buttons/medium-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 652
+  },
+  {
+    "name": "medium-speech-bubble-21698.svg",
+    "path": "common/images/buttons/medium-speech-bubble-21698.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 739
+  },
+  {
+    "name": "medium-white.svg",
+    "path": "common/images/buttons/medium-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 884
+  },
+  {
+    "name": "skype-black.svg",
+    "path": "common/images/buttons/skype-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1391
+  },
+  {
+    "name": "skype-blue-speech-bubble-21697.svg",
+    "path": "common/images/buttons/skype-blue-speech-bubble-21697.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1399
+  },
+  {
+    "name": "skype-white.svg",
+    "path": "common/images/buttons/skype-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1865
+  },
+  {
+    "name": "threads-black.svg",
+    "path": "common/images/buttons/threads-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 3742
+  },
+  {
+    "name": "threads-color.svg",
+    "path": "common/images/buttons/threads-color.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 2662
+  },
+  {
+    "name": "threads-white.svg",
+    "path": "common/images/buttons/threads-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 2553
+  },
+  {
+    "name": "whatsapp-black.svg",
+    "path": "common/images/buttons/whatsapp-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1365
+  },
+  {
+    "name": "whatsapp-speech-bubble-21687.svg",
+    "path": "common/images/buttons/whatsapp-speech-bubble-21687.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1374
+  },
+  {
+    "name": "whatsapp-white.svg",
+    "path": "common/images/buttons/whatsapp-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 1839
+  },
+  {
+    "name": "x-black.svg",
+    "path": "common/images/buttons/x-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 485
+  },
+  {
+    "name": "x-speech-bubble-blue-logo-21670.svg",
+    "path": "common/images/buttons/x-speech-bubble-blue-logo-21670.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 551
+  },
+  {
+    "name": "x-white.svg",
+    "path": "common/images/buttons/x-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 557
+  },
+  {
+    "name": "youtube-black.svg",
+    "path": "common/images/buttons/youtube-black.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 716
+  },
+  {
+    "name": "youtube-speech-bubble-21668.svg",
+    "path": "common/images/buttons/youtube-speech-bubble-21668.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 351
+  },
+  {
+    "name": "youtube-white.svg",
+    "path": "common/images/buttons/youtube-white.svg",
+    "project": "common",
+    "category": "buttons",
+    "format": "svg",
+    "size": 893
+  },
+  {
+    "name": "divider.svg",
+    "path": "common/images/elements/divider.svg",
+    "project": "common",
+    "category": "elements",
+    "format": "svg",
+    "size": 145
+  },
+  {
+    "name": "publication.webp",
+    "path": "common/images/elements/publication.webp",
+    "project": "common",
+    "category": "elements",
+    "format": "webp",
+    "size": 72524
+  },
+  {
+    "name": "made-with-go.svg",
+    "path": "common/images/shields/made-with-go.svg",
+    "project": "common",
+    "category": "shields",
+    "format": "svg",
+    "size": 1672
+  },
+  {
+    "name": "made-with-jupyter.svg",
+    "path": "common/images/shields/made-with-jupyter.svg",
+    "project": "common",
+    "category": "shields",
+    "format": "svg",
+    "size": 1875
+  },
+  {
+    "name": "made-with-love.svg",
+    "path": "common/images/shields/made-with-love.svg",
+    "project": "common",
+    "category": "shields",
+    "format": "svg",
+    "size": 1406
+  },
+  {
+    "name": "made-with-python.svg",
+    "path": "common/images/shields/made-with-python.svg",
+    "project": "common",
+    "category": "shields",
+    "format": "svg",
+    "size": 3485
+  },
+  {
+    "name": "made-with-rust.svg",
+    "path": "common/images/shields/made-with-rust.svg",
+    "project": "common",
+    "category": "shields",
+    "format": "svg",
+    "size": 3736
+  },
+  {
+    "name": "view-documentation.svg",
+    "path": "common/images/shields/view-documentation.svg",
+    "project": "common",
+    "category": "shields",
+    "format": "svg",
+    "size": 500
+  },
+  {
     "name": "DieHardWithAScracth.svg",
     "path": "cs50x/DieHardWithAScracth.svg",
     "project": "cs50x",
@@ -9248,6 +9592,30 @@
     "size": 20303
   },
   {
+    "name": "akqa.png",
+    "path": "sebastienrousseau/v1/logos/akqa.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 422526
+  },
+  {
+    "name": "akqa.svg",
+    "path": "sebastienrousseau/v1/logos/akqa.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 656168
+  },
+  {
+    "name": "akqa.webp",
+    "path": "sebastienrousseau/v1/logos/akqa.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 149194
+  },
+  {
     "name": "banner-sebastienrousseau-dark.svg",
     "path": "sebastienrousseau/v1/logos/banner-sebastienrousseau-dark.svg",
     "project": "sebastienrousseau",
@@ -9264,12 +9632,68 @@
     "size": 722578
   },
   {
+    "name": "barclays.png",
+    "path": "sebastienrousseau/v1/logos/barclays.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 732290
+  },
+  {
+    "name": "barclays.svg",
+    "path": "sebastienrousseau/v1/logos/barclays.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 1462143
+  },
+  {
+    "name": "barclays.webp",
+    "path": "sebastienrousseau/v1/logos/barclays.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 546962
+  },
+  {
+    "name": "capgemini.svg",
+    "path": "sebastienrousseau/v1/logos/capgemini.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 4387
+  },
+  {
     "name": "gemma.svg",
     "path": "sebastienrousseau/v1/logos/gemma.svg",
     "project": "sebastienrousseau",
     "category": "logos",
     "format": "svg",
     "size": 4167
+  },
+  {
+    "name": "hsbc.png",
+    "path": "sebastienrousseau/v1/logos/hsbc.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 400036
+  },
+  {
+    "name": "hsbc.svg",
+    "path": "sebastienrousseau/v1/logos/hsbc.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 813554
+  },
+  {
+    "name": "hsbc.webp",
+    "path": "sebastienrousseau/v1/logos/hsbc.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 179698
   },
   {
     "name": "ollama.svg",
@@ -9280,12 +9704,92 @@
     "size": 9735
   },
   {
+    "name": "paypal.png",
+    "path": "sebastienrousseau/v1/logos/paypal.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 482765
+  },
+  {
+    "name": "paypal.svg",
+    "path": "sebastienrousseau/v1/logos/paypal.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 67630
+  },
+  {
+    "name": "paypal.webp",
+    "path": "sebastienrousseau/v1/logos/paypal.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 342436
+  },
+  {
+    "name": "rufusleonard.png",
+    "path": "sebastienrousseau/v1/logos/rufusleonard.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 20381
+  },
+  {
     "name": "sebastienrousseau.svg",
     "path": "sebastienrousseau/v1/logos/sebastienrousseau.svg",
     "project": "sebastienrousseau",
     "category": "logos",
     "format": "svg",
     "size": 710487
+  },
+  {
+    "name": "shazam.png",
+    "path": "sebastienrousseau/v1/logos/shazam.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 313830
+  },
+  {
+    "name": "shazam.svg",
+    "path": "sebastienrousseau/v1/logos/shazam.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 687715
+  },
+  {
+    "name": "shazam.webp",
+    "path": "sebastienrousseau/v1/logos/shazam.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 194362
+  },
+  {
+    "name": "virgin.png",
+    "path": "sebastienrousseau/v1/logos/virgin.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 229804
+  },
+  {
+    "name": "virgin.svg",
+    "path": "sebastienrousseau/v1/logos/virgin.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 328640
+  },
+  {
+    "name": "virgin.webp",
+    "path": "sebastienrousseau/v1/logos/virgin.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 79672
   },
   {
     "name": "title-sebastienrousseau-white.svg",

@@ -9280,6 +9280,14 @@
     "size": 111012
   },
   {
+    "name": "skeletonic.svg",
+    "path": "skeletonic/v1/logos/skeletonic.svg",
+    "project": "skeletonic",
+    "category": "logos",
+    "format": "svg",
+    "size": 12945
+  },
+  {
     "name": "title-skeletonic.svg",
     "path": "skeletonic/v1/titles/title-skeletonic.svg",
     "project": "skeletonic",
@@ -9653,7 +9661,7 @@
     "project": "stocks",
     "category": "3D-lattice-graph.svg",
     "format": "svg",
-    "size": 122608
+    "size": 122231
   },
   {
     "name": "ai_quantum_algorithms_efficiency.svg",
@@ -9661,7 +9669,7 @@
     "project": "stocks",
     "category": "ai_quantum_algorithms_efficiency.svg",
     "format": "svg",
-    "size": 98044
+    "size": 96817
   },
   {
     "name": "ai-software-market-revenue-2018-2025-professional.svg",
@@ -9669,7 +9677,7 @@
     "project": "stocks",
     "category": "ai-software-market-revenue-2018-2025-professional.svg",
     "format": "svg",
-    "size": 81454
+    "size": 81205
   },
   {
     "name": "alice-bob-eve-encryption.svg",
@@ -9677,7 +9685,7 @@
     "project": "stocks",
     "category": "alice-bob-eve-encryption.svg",
     "format": "svg",
-    "size": 23165
+    "size": 22835
   },
   {
     "name": "alice-bob-eve-kyber.svg",
@@ -9725,7 +9733,7 @@
     "project": "stocks",
     "category": "mm1_model_architecture.svg",
     "format": "svg",
-    "size": 90378
+    "size": 88673
   },
   {
     "name": "qkd-qc-market-value.svg",
@@ -9733,7 +9741,7 @@
     "project": "stocks",
     "category": "qkd-qc-market-value.svg",
     "format": "svg",
-    "size": 114125
+    "size": 113624
   },
   {
     "name": "rise-of-open-source-ai-models-bar-chart.svg",
@@ -9741,7 +9749,7 @@
     "project": "stocks",
     "category": "rise-of-open-source-ai-models-bar-chart.svg",
     "format": "svg",
-    "size": 106052
+    "size": 104866
   },
   {
     "name": "a-chosen-soul-IQi4jAlVeOI-unsplash.webp",

@@ -8329,6 +8329,94 @@
   },
   {
     "name": "favicon.ico",
+    "path": "publications/favicon.ico",
+    "project": "publications",
+    "category": "general",
+    "format": "ico",
+    "size": 56091
+  },
+  {
+    "name": "banner-publications.png",
+    "path": "publications/v1/banners/banner-publications.png",
+    "project": "publications",
+    "category": "banners",
+    "format": "png",
+    "size": 65664
+  },
+  {
+    "name": "banner-publications.svg",
+    "path": "publications/v1/banners/banner-publications.svg",
+    "project": "publications",
+    "category": "banners",
+    "format": "svg",
+    "size": 151168
+  },
+  {
+    "name": "favicon.ico",
+    "path": "publications/v1/favicon.ico",
+    "project": "publications",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 56091
+  },
+  {
+    "name": "github-publications.png",
+    "path": "publications/v1/github/github-publications.png",
+    "project": "publications",
+    "category": "github",
+    "format": "png",
+    "size": 139815
+  },
+  {
+    "name": "github-publications.svg",
+    "path": "publications/v1/github/github-publications.svg",
+    "project": "publications",
+    "category": "github",
+    "format": "svg",
+    "size": 214124
+  },
+  {
+    "name": "180x180.png",
+    "path": "publications/v1/icons/180x180.png",
+    "project": "publications",
+    "category": "icons",
+    "format": "png",
+    "size": 19100
+  },
+  {
+    "name": "192x192.png",
+    "path": "publications/v1/icons/192x192.png",
+    "project": "publications",
+    "category": "icons",
+    "format": "png",
+    "size": 20957
+  },
+  {
+    "name": "512x512.png",
+    "path": "publications/v1/icons/512x512.png",
+    "project": "publications",
+    "category": "icons",
+    "format": "png",
+    "size": 66983
+  },
+  {
+    "name": "publications.png",
+    "path": "publications/v1/logos/publications.png",
+    "project": "publications",
+    "category": "logos",
+    "format": "png",
+    "size": 1002149
+  },
+  {
+    "name": "publications.svg",
+    "path": "publications/v1/logos/publications.svg",
+    "project": "publications",
+    "category": "logos",
+    "format": "svg",
+    "size": 116224
+  },
+  {
+    "name": "favicon.ico",
     "path": "pythondev/favicon.ico",
     "project": "pythondev",
     "category": "general",

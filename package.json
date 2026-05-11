@@ -28,5 +28,8 @@
   },
   "dependencies": {
     "sharp": "0.34.5"
+  },
+  "overrides": {
+    "vite": "8.0.10"
   }
 }

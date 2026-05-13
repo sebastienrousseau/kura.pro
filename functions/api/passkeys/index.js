@@ -16,6 +16,69 @@
 
 import { hmacSign, hmacVerifyCached, parseCookies } from '../_shared.js';
 
+// Stateless challenge TTL — matches the legacy KV expirationTtl.
+const CHALLENGE_TTL_SECONDS = 300;
+
+/**
+ * Issue a stateless, signed challenge for either 'auth' or 'register'.
+ *
+ * Format (decoded): `<nonce>.<expires>.<type>.<hmac-hex>` where:
+ *   - nonce:    base64url(32 random bytes)
+ *   - expires:  unix-seconds when this challenge becomes invalid
+ *   - type:     'auth' | 'register' — prevents cross-flow replay
+ *   - hmac:     HMAC-SHA256(secret, `<nonce>.<expires>.<type>`)
+ *
+ * The whole blob is then base64url-encoded so it survives WebAuthn's
+ * byte-array round-trip through the browser → authenticator → server.
+ *
+ * Why stateless: KV writes hit Cloudflare's free-tier daily cap quickly
+ * when login is attempted repeatedly (every authBegin used to write a
+ * fresh KV row). HMAC challenges have a 5-minute window built into the
+ * signed expiry, need zero storage, and can never exhaust quota.
+ */
+async function issueChallenge(secret, type) {
+  const nonce = bufferToBase64url(crypto.getRandomValues(new Uint8Array(32)));
+  const expires = Math.floor(Date.now() / 1000) + CHALLENGE_TTL_SECONDS;
+  const payload = `${nonce}.${expires}.${type}`;
+  const sig = await hmacSign(secret, payload);
+  const blob = `${payload}.${sig}`;
+  return bufferToBase64url(new TextEncoder().encode(blob));
+}
+
+/**
+ * Verify a challenge issued by issueChallenge. Returns `true` only when
+ * the signature is valid (timing-safe) AND the challenge has not expired
+ * AND the embedded type matches the expected flow.
+ */
+async function verifyChallenge(secret, signedChallenge, expectedType) {
+  try {
+    const decoded = new TextDecoder().decode(base64urlToBuffer(signedChallenge));
+    const parts = decoded.split('.');
+    if (parts.length !== 4) return false;
+    const [nonce, expiresStr, type, sigHex] = parts;
+    if (type !== expectedType) return false;
+    const expires = parseInt(expiresStr, 10);
+    if (!Number.isFinite(expires) || expires < Math.floor(Date.now() / 1000)) return false;
+    const expectedSig = await hmacSign(secret, `${nonce}.${expiresStr}.${type}`);
+    // Constant-time hex compare; both are 64-char lowercase hex strings.
+    if (sigHex.length !== expectedSig.length) return false;
+    let diff = 0;
+    for (let i = 0; i < sigHex.length; i++) diff |= sigHex.charCodeAt(i) ^ expectedSig.charCodeAt(i);
+    return diff === 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Pick the secret used to sign passkey challenges. Falls back from
+ * DASHBOARD_SECRET → DASHBOARD_PASSWORD so installs without the new
+ * secret env var keep working.
+ */
+function challengeSecret(env) {
+  return env.PASSKEY_CHALLENGE_SECRET || env.DASHBOARD_SECRET || env.DASHBOARD_PASSWORD;
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
@@ -53,7 +116,6 @@ async function authenticateAdmin(request, env) {
 }
 
 const PASSKEYS_KEY = 'passkeys:credentials';
-const CHALLENGES_PREFIX = 'passkeys:challenge:';
 const RP_NAME = 'CloudCDN';
 
 function bufferToBase64url(buffer) {
@@ -119,7 +181,7 @@ export async function onRequestPost(context) {
 
 /**
  * Start passkey registration — returns challenge + options.
- * Requires AccountKey (initial bootstrap auth).
+ * Requires AccountKey (initial bootstrap auth). Stateless: no KV write.
  */
 async function registerBegin(request, env) {
   if (!(await authenticateAdmin(request, env))) {
@@ -129,12 +191,13 @@ async function registerBegin(request, env) {
   const kv = env.RATE_KV;
   if (!kv) return new Response(JSON.stringify({ error: 'KV unavailable.' }), { status: 503, headers: CORS });
 
-  const rpId = new URL(request.url).hostname;
-  const challenge = crypto.getRandomValues(new Uint8Array(32));
-  const challengeB64 = bufferToBase64url(challenge);
+  const secret = challengeSecret(env);
+  if (!secret) {
+    return new Response(JSON.stringify({ error: 'Challenge secret not configured.' }), { status: 503, headers: CORS });
+  }
 
-  // Store challenge with 5-minute TTL
-  await kv.put(CHALLENGES_PREFIX + challengeB64, 'register', { expirationTtl: 300 });
+  const rpId = new URL(request.url).hostname;
+  const challengeB64 = await issueChallenge(secret, 'register');
 
   const existing = await getCredentials(kv);
 
@@ -183,12 +246,15 @@ async function registerComplete(request, env) {
     return new Response(JSON.stringify({ error: 'credentialId, publicKey, and challenge required.' }), { status: 400, headers: CORS });
   }
 
-  // Verify challenge was issued by us
-  const stored = await kv.get(CHALLENGES_PREFIX + challenge);
-  if (stored !== 'register') {
+  const secret = challengeSecret(env);
+  if (!secret) {
+    return new Response(JSON.stringify({ error: 'Challenge secret not configured.' }), { status: 503, headers: CORS });
+  }
+
+  // Stateless verify: HMAC signature + embedded expiry, no KV roundtrip.
+  if (!(await verifyChallenge(secret, challenge, 'register'))) {
     return new Response(JSON.stringify({ error: 'Invalid or expired challenge.' }), { status: 400, headers: CORS });
   }
-  await kv.delete(CHALLENGES_PREFIX + challenge);
 
   const creds = await getCredentials(kv);
   creds.push({
@@ -207,16 +273,19 @@ async function registerComplete(request, env) {
 
 /**
  * Start passkey authentication — returns challenge + allowed credentials.
+ * Stateless: no KV write for the challenge.
  */
 async function authBegin(request, env) {
   const kv = env.RATE_KV;
   if (!kv) return new Response(JSON.stringify({ error: 'KV unavailable.' }), { status: 503, headers: CORS });
 
-  const rpId = new URL(request.url).hostname;
-  const challenge = crypto.getRandomValues(new Uint8Array(32));
-  const challengeB64 = bufferToBase64url(challenge);
+  const secret = challengeSecret(env);
+  if (!secret) {
+    return new Response(JSON.stringify({ error: 'Challenge secret not configured.' }), { status: 503, headers: CORS });
+  }
 
-  await kv.put(CHALLENGES_PREFIX + challengeB64, 'auth', { expirationTtl: 300 });
+  const rpId = new URL(request.url).hostname;
+  const challengeB64 = await issueChallenge(secret, 'auth');
 
   const creds = await getCredentials(kv);
 
@@ -248,12 +317,15 @@ async function authComplete(request, env) {
     return new Response(JSON.stringify({ error: 'credentialId and challenge required.' }), { status: 400, headers: CORS });
   }
 
-  // Verify challenge
-  const stored = await kv.get(CHALLENGES_PREFIX + challenge);
-  if (stored !== 'auth') {
+  const secret = challengeSecret(env);
+  if (!secret) {
+    return new Response(JSON.stringify({ error: 'Challenge secret not configured.' }), { status: 503, headers: CORS });
+  }
+
+  // Stateless verify — HMAC signature + embedded expiry, no KV read.
+  if (!(await verifyChallenge(secret, challenge, 'auth'))) {
     return new Response(JSON.stringify({ error: 'Invalid or expired challenge.' }), { status: 400, headers: CORS });
   }
-  await kv.delete(CHALLENGES_PREFIX + challenge);
 
   // Verify credential exists
   const creds = await getCredentials(kv);
@@ -267,12 +339,9 @@ async function authComplete(request, env) {
   cred.signCount++;
   await saveCredentials(kv, creds);
 
-  // Create session (reuse existing HMAC session mechanism)
-  const secret = env.DASHBOARD_SECRET || env.DASHBOARD_PASSWORD;
-  if (!secret) {
-    return new Response(JSON.stringify({ error: 'DASHBOARD_SECRET not configured.' }), { status: 500, headers: CORS });
-  }
-
+  // Create session using the same secret we signed the challenge with —
+  // both flows use challengeSecret(env), which falls back to DASHBOARD_SECRET
+  // / DASHBOARD_PASSWORD when a dedicated PASSKEY_CHALLENGE_SECRET isn't set.
   const expires = Math.floor(Date.now() / 1000) + 604800; // 7 days
   const nonce = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
   const token = `${expires}.${nonce}`;

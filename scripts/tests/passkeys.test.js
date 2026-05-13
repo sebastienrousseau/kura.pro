@@ -48,15 +48,15 @@ describe('Passkeys API', () => {
       expect(json.pubKeyCredParams.length).toBeGreaterThan(0);
     });
 
-    it('stores challenge in KV with TTL', async () => {
+    it('issues stateless challenge without touching KV', async () => {
       const kv = makeKV();
       const ctx = makeCtx('/register/begin', 'POST', { key: 'admin-key', kv });
-      await onRequestPost(ctx);
-      expect(kv.put).toHaveBeenCalled();
-      const putCall = kv.put.mock.calls.find(c => c[0].startsWith('passkeys:challenge:'));
-      expect(putCall).toBeTruthy();
-      expect(putCall[1]).toBe('register');
-      expect(putCall[2].expirationTtl).toBe(300);
+      const res = await onRequestPost(ctx);
+      const json = await res.json();
+      expect(json.challenge).toBeTruthy();
+      // No challenge KV writes — stateless model avoids the KV daily quota.
+      const challengePuts = kv.put.mock.calls.filter(c => c[0].startsWith('passkeys:challenge:'));
+      expect(challengePuts).toHaveLength(0);
     });
   });
 
@@ -85,17 +85,20 @@ describe('Passkeys API', () => {
     });
 
     it('registers credential with valid challenge', async () => {
-      const kv = makeKV({ 'passkeys:challenge:valid-challenge': 'register' });
+      const kv = makeKV();
+      // Mint a real signed challenge via /register/begin
+      const beginCtx = makeCtx('/register/begin', 'POST', { key: 'admin-key', kv });
+      const beginRes = await onRequestPost(beginCtx);
+      const { challenge } = await beginRes.json();
+
       const ctx = makeCtx('/register/complete', 'POST', {
         key: 'admin-key', kv,
-        body: { credentialId: 'cred-1', publicKey: 'pk-1', challenge: 'valid-challenge', name: 'My YubiKey' },
+        body: { credentialId: 'cred-1', publicKey: 'pk-1', challenge, name: 'My YubiKey' },
       });
       const res = await onRequestPost(ctx);
       expect(res.status).toBe(201);
       const json = await res.json();
       expect(json.ok).toBe(true);
-      // Challenge should be deleted
-      expect(kv.delete).toHaveBeenCalledWith('passkeys:challenge:valid-challenge');
     });
   });
 
@@ -122,13 +125,13 @@ describe('Passkeys API', () => {
     });
 
     it('rejects unknown credential', async () => {
-      const kv = makeKV({
-        'passkeys:challenge:good': 'auth',
-        'passkeys:credentials': '[]',
-      });
+      const kv = makeKV({ 'passkeys:credentials': '[]' });
+      const beginRes = await onRequestPost(makeCtx('/auth/begin', 'POST', { kv }));
+      const { challenge } = await beginRes.json();
+
       const ctx = makeCtx('/auth/complete', 'POST', {
         kv,
-        body: { credentialId: 'unknown', challenge: 'good' },
+        body: { credentialId: 'unknown', challenge },
       });
       const res = await onRequestPost(ctx);
       expect(res.status).toBe(401);
@@ -136,12 +139,14 @@ describe('Passkeys API', () => {
 
     it('authenticates with valid credential and sets session cookie', async () => {
       const kv = makeKV({
-        'passkeys:challenge:good': 'auth',
         'passkeys:credentials': JSON.stringify([{ credentialId: 'cred-1', signCount: 0 }]),
       });
+      const beginRes = await onRequestPost(makeCtx('/auth/begin', 'POST', { kv }));
+      const { challenge } = await beginRes.json();
+
       const ctx = makeCtx('/auth/complete', 'POST', {
         kv,
-        body: { credentialId: 'cred-1', challenge: 'good' },
+        body: { credentialId: 'cred-1', challenge },
       });
       const res = await onRequestPost(ctx);
       expect(res.status).toBe(200);
@@ -150,6 +155,26 @@ describe('Passkeys API', () => {
       expect(cookie).toContain('HttpOnly');
       expect(cookie).toContain('Secure');
       expect(cookie).toContain('SameSite=Strict');
+    });
+
+    it('rejects a challenge issued for the register flow (cross-flow replay defence)', async () => {
+      const kv = makeKV({
+        'passkeys:credentials': JSON.stringify([{ credentialId: 'cred-1', signCount: 0 }]),
+      });
+      // Mint a register-flow challenge
+      const regCtx = makeCtx('/register/begin', 'POST', { key: 'admin-key', kv });
+      const regRes = await onRequestPost(regCtx);
+      const { challenge } = await regRes.json();
+
+      // Try to use it on auth/complete — must fail
+      const ctx = makeCtx('/auth/complete', 'POST', {
+        kv,
+        body: { credentialId: 'cred-1', challenge },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toContain('expired');
     });
   });
 

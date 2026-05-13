@@ -5038,7 +5038,7 @@
       "get": {
         "operationId": "autoFormat",
         "summary": "Automatic format negotiation",
-        "description": "Serves the best image format based on the client's Accept header. Fallback chain: avif -> webp -> png -> svg. Public endpoint (no auth). Also supports path-based routing: `/api/auto/{path}`. Responses cached for 1 year with Vary: Accept.",
+        "description": "Serves the best image format based on the client's Accept header. Still-image fallback chain (preference order): JXL -> AVIF -> HEIF/HEIC -> WebP -> PNG -> SVG. Animated variant available via `?anim=1`: animated AVIF (.avifs) -> animated WebP -> APNG -> GIF. JXL/AVIF/HEIF/HEIC and animated formats require explicit Accept opt-in; WebP, PNG, SVG, and GIF are universal fallbacks. Public endpoint (no auth). Also supports path-based routing: `/api/auto/{path}`. Responses cached for 1 year with Vary: Accept, Save-Data, Sec-CH-Effective-Connection-Type.",
         "tags": [
           "Delivery"
         ],
@@ -5053,17 +5053,31 @@
               "type": "string"
             },
             "example": "/akande/v1/logos/logo"
+          },
+          {
+            "name": "anim",
+            "in": "query",
+            "required": false,
+            "description": "When set to `1`, negotiate from the animated chain (.avifs, animated .webp, .apng, .gif) instead of the still chain.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "0",
+                "1"
+              ]
+            },
+            "example": "1"
           }
         ],
         "responses": {
           "200": {
-            "description": "Image in the best supported format. Content-Type header indicates the negotiated format.",
+            "description": "Image in the best supported format. Content-Type header indicates the negotiated format (image/jxl, image/avif, image/avif-sequence, image/heic, image/heif, image/webp, image/png, image/apng, image/gif, image/svg+xml).",
             "headers": {
               "Vary": {
                 "schema": {
                   "type": "string"
                 },
-                "description": "Accept"
+                "description": "Accept, Save-Data, Sec-CH-Effective-Connection-Type"
               },
               "Cache-Control": {
                 "schema": {
@@ -5075,7 +5089,7 @@
                 "schema": {
                   "type": "string"
                 },
-                "description": "Negotiated MIME type (image/avif, image/webp, image/png, or image/svg+xml)"
+                "description": "Negotiated MIME type \u2014 one of image/jxl, image/avif, image/avif-sequence, image/heic, image/heif, image/webp, image/png, image/apng, image/gif, image/svg+xml."
               }
             },
             "content": {

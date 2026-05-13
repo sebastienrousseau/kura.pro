@@ -1,11 +1,20 @@
 /**
  * Automatic format negotiation endpoint.
  *
- * GET /api/auto?path=/bankingonai/images/logos/logo
- * GET /api/auto/bankingonai/images/logos/logo
+ * GET /api/auto?path=/bankingonai/images/logos/logo          — still image
+ * GET /api/auto?path=/banner/loop&anim=1                     — animated
+ * GET /api/auto/bankingonai/images/logos/logo                — path-style
  *
- * Reads the Accept header to serve the best image format,
- * with fallback chain: avif → webp → png → svg.
+ * Stills chain (best → fallback):
+ *   JXL → AVIF → HEIF/HEIC → WebP → PNG → SVG
+ *
+ * Animated chain (?anim=1):
+ *   AVIF-sequence (.avifs) → WebP → APNG → GIF
+ *
+ * Each entry is gated by the Accept header: a format is probed only when the
+ * client signals it can decode the MIME (or when the format has no Accept
+ * requirement, e.g. PNG/SVG/GIF which every UA can render). This avoids
+ * wasted probes for niche formats like HEIF on non-Apple clients.
  */
 
 import { legacyErrorJson } from './_shared.js';
@@ -15,26 +24,47 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json',
 };
 
-const FORMAT_CHAIN = [
-  { ext: 'jxl', mime: 'image/jxl' },
-  { ext: 'avif', mime: 'image/avif' },
-  { ext: 'webp', mime: 'image/webp' },
-  { ext: 'png', mime: 'image/png' },
-  { ext: 'svg', mime: 'image/svg+xml' },
+// Gating predicates per format:
+//   - PNG/SVG/GIF: universal — always probed as last-resort fallbacks.
+//   - WebP: probed when the client lists image/webp OR a wildcard
+//     (image-star or full-wildcard), since wildcard-tolerant clients should
+//     still get the bandwidth win.
+//   - JXL/AVIF/HEIF/APNG/AVIFs: opt-in only — must appear explicitly in
+//     Accept. Wildcards do NOT promote these (non-decoders shouldn't waste a
+//     probe on a niche format they likely can't render).
+const hasWildcard = (a) => a.includes('*/*') || a.includes('image/*');
+const explicit = (mime) => (a) => a.includes(mime);
+const universal = () => true;
+const webpAccepted = (a) => a.includes('image/webp') || hasWildcard(a);
+
+const FORMAT_CHAIN_STILL = [
+  { ext: 'jxl',  mime: 'image/jxl',     accepted: explicit('image/jxl') },
+  { ext: 'avif', mime: 'image/avif',    accepted: explicit('image/avif') },
+  { ext: 'heic', mime: 'image/heic',    accepted: explicit('image/heic') },
+  { ext: 'heif', mime: 'image/heif',    accepted: explicit('image/heif') },
+  { ext: 'webp', mime: 'image/webp',    accepted: webpAccepted },
+  { ext: 'png',  mime: 'image/png',     accepted: universal },
+  { ext: 'svg',  mime: 'image/svg+xml', accepted: universal },
+];
+
+const FORMAT_CHAIN_ANIM = [
+  { ext: 'avifs', mime: 'image/avif-sequence', accepted: explicit('image/avif') },
+  { ext: 'webp',  mime: 'image/webp',          accepted: webpAccepted },
+  { ext: 'apng',  mime: 'image/apng',          accepted: explicit('image/apng') },
+  { ext: 'gif',   mime: 'image/gif',           accepted: universal },
 ];
 
 // Connection types we treat as "slow"; matches transform.js's SLOW_ECT.
 const SLOW_ECT = new Set(['slow-2g', '2g', '3g']);
 
 /**
- * Determine the preferred format index based on the Accept header.
- * Priority: JXL > AVIF > WebP > PNG > SVG
+ * Build the format probe list for this request by evaluating each entry's
+ * `accepted` predicate against the Accept header. See the predicates above
+ * for the per-format gating rationale.
  */
-function preferredStartIndex(accept) {
-  if (accept.includes('image/jxl')) return 0;
-  if (accept.includes('image/avif')) return 1;
-  if (accept.includes('image/webp')) return 2;
-  return 3; // start at png
+function selectChain(accept, anim) {
+  const base = anim ? FORMAT_CHAIN_ANIM : FORMAT_CHAIN_STILL;
+  return base.filter(({ accepted }) => accepted(accept));
 }
 
 /**
@@ -77,18 +107,20 @@ export async function onRequestGet(context) {
   }
 
   const accept = context.request.headers.get('Accept') || '';
-  let startIdx = preferredStartIndex(accept);
+  const anim = url.searchParams.get('anim') === '1';
+  let chain = selectChain(accept, anim);
 
   // Network-aware: on slow/Save-Data clients, skip JXL and AVIF — both have
   // heavier decoders and benefit slow CPUs less than WebP's size win does.
+  // Animated chains don't include JXL/AVIF-still, so this only affects stills.
   const networkAware = isLowBandwidth(context.request);
-  if (networkAware && startIdx < 2) {
-    startIdx = 2; // jump to WebP
+  if (networkAware && !anim) {
+    chain = chain.filter(({ ext }) => ext !== 'jxl' && ext !== 'avif');
   }
 
   // Try each format in the fallback chain starting from preferred
-  for (let i = startIdx; i < FORMAT_CHAIN.length; i++) {
-    const { ext, mime } = FORMAT_CHAIN[i];
+  for (let i = 0; i < chain.length; i++) {
+    const { ext, mime } = chain[i];
     const assetUrl = new URL(`${path}.${ext}`, url.origin).toString();
 
     try {

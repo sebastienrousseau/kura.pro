@@ -517,4 +517,87 @@ describe('GET /api/auto', () => {
       }
     });
   });
+
+  describe('modern format expansion', () => {
+    it('probes .heic when client explicitly accepts image/heic', async () => {
+      globalThis.fetch = mockFetchForFormats(['heic']);
+      const ctx = makeContext('?path=/img/photo', 'image/heic,image/webp,*/*');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('image/heic');
+      // First probe should be .heic (after jxl/avif, which aren't in Accept)
+      const firstUrl = globalThis.fetch.mock.calls[0][0];
+      expect(firstUrl).toContain('.heic');
+    });
+
+    it('probes .heif when client explicitly accepts image/heif', async () => {
+      globalThis.fetch = mockFetchForFormats(['heif']);
+      const ctx = makeContext('?path=/img/photo', 'image/heif,*/*');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('image/heif');
+    });
+
+    it('does NOT probe heic/heif when Accept lacks them (no wildcard promotion)', async () => {
+      globalThis.fetch = mockFetchForFormats(['webp']);
+      const ctx = makeContext('?path=/img/photo', 'image/webp,*/*');
+      await onRequestGet(ctx);
+      const probedUrls = globalThis.fetch.mock.calls.map((c) => c[0]);
+      expect(probedUrls.some((u) => u.includes('.heic'))).toBe(false);
+      expect(probedUrls.some((u) => u.includes('.heif'))).toBe(false);
+    });
+
+    it('does NOT probe jxl when Accept lacks image/jxl', async () => {
+      globalThis.fetch = mockFetchForFormats(['webp']);
+      const ctx = makeContext('?path=/img/photo', 'image/avif,image/webp,*/*');
+      await onRequestGet(ctx);
+      const probedUrls = globalThis.fetch.mock.calls.map((c) => c[0]);
+      expect(probedUrls.some((u) => u.includes('.jxl'))).toBe(false);
+    });
+  });
+
+  describe('animated chain (anim=1)', () => {
+    it('serves .avifs when client accepts image/avif and anim=1', async () => {
+      globalThis.fetch = mockFetchForFormats(['avifs']);
+      const ctx = makeContext('?path=/anim/loop&anim=1', 'image/avif,*/*');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('image/avif-sequence');
+      expect(globalThis.fetch.mock.calls[0][0]).toContain('.avifs');
+    });
+
+    it('falls through to gif when nothing else available', async () => {
+      globalThis.fetch = mockFetchForFormats(['gif']);
+      const ctx = makeContext('?path=/anim/loop&anim=1', 'image/avif,*/*');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('image/gif');
+    });
+
+    it('serves .apng when client explicitly accepts image/apng', async () => {
+      globalThis.fetch = mockFetchForFormats(['apng']);
+      const ctx = makeContext('?path=/anim/loop&anim=1', 'image/apng,*/*');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('image/apng');
+    });
+
+    it('does NOT probe .avifs without explicit image/avif in Accept', async () => {
+      globalThis.fetch = mockFetchForFormats(['gif']);
+      const ctx = makeContext('?path=/anim/loop&anim=1', 'image/webp,*/*');
+      await onRequestGet(ctx);
+      const probedUrls = globalThis.fetch.mock.calls.map((c) => c[0]);
+      expect(probedUrls.some((u) => u.includes('.avifs'))).toBe(false);
+    });
+
+    it('animated chain ignores anim=0 / absent param (stills only)', async () => {
+      globalThis.fetch = mockFetchForFormats(['png']);
+      const ctx = makeContext('?path=/img/logo&anim=0', '*/*');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(200);
+      const probedUrls = globalThis.fetch.mock.calls.map((c) => c[0]);
+      expect(probedUrls.some((u) => u.includes('.avifs'))).toBe(false);
+      expect(probedUrls.some((u) => u.includes('.gif'))).toBe(false);
+    });
+  });
 });

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-const { onRequestPost } = await import('../../functions/api/purge.js');
+const { onRequestPost, onRequestOptions } = await import('../../functions/api/purge.js');
 
 const originalFetch = globalThis.fetch;
 
@@ -400,5 +400,50 @@ describe('POST /api/purge', () => {
     const ctx = authedContext({ urls });
     const res = await onRequestPost(ctx);
     expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when the request body is not valid JSON', async () => {
+    const ctx = {
+      request: {
+        headers: {
+          get: (name) => (name.toLowerCase() === 'x-api-key' ? 'test-key' : null),
+        },
+        json: async () => { throw new Error('not json'); },
+      },
+      env: {
+        PURGE_KEY: 'test-key',
+        CLOUDFLARE_ZONE_ID: 'zone-123',
+        CLOUDFLARE_API_TOKEN: 'token-abc',
+        RATE_KV: { get: vi.fn().mockResolvedValue('0'), put: vi.fn() },
+      },
+    };
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toContain('Invalid JSON');
+  });
+
+  it('returns 401 when env.PURGE_KEY is not configured and no token is supplied', async () => {
+    // Exercises the left-false path of `env.PURGE_KEY && apiKey === env.PURGE_KEY`.
+    const ctx = makeContext({ purge_everything: true }, { PURGE_KEY: undefined });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(401);
+  });
+
+  it('treats a KV miss (null) as count zero for the daily limiter', async () => {
+    // Forces the right side of `kv.get(...) || "0"` to fire.
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
+    const kv = { get: vi.fn().mockResolvedValue(null), put: vi.fn() };
+    const ctx = authedContext({ purge_everything: true }, { RATE_KV: kv });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(200);
+    expect(kv.put).toHaveBeenCalled();
+  });
+
+  it('OPTIONS returns 204 with CORS preflight headers', async () => {
+    const res = await onRequestOptions();
+    expect(res.status).toBe(204);
+    expect(res.headers.get('Access-Control-Allow-Methods')).toContain('POST');
+    expect(res.headers.get('Access-Control-Allow-Headers')).toContain('x-api-key');
+    expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
   });
 });

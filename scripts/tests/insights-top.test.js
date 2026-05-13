@@ -178,4 +178,11 @@ describe('Insights — Top Assets', () => {
     expect(res.status).toBe(401);
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
   });
+
+  it('returns 429 when the insights rate limit is exhausted', async () => {
+    const kv = makeKV({ 'rl:insights': '9999' });
+    const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(429);
+  });
 });

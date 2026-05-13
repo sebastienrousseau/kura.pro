@@ -174,6 +174,9 @@ export async function onRequestPost(context) {
   if (cfResult.success) {
     await appendAuditLog(env, request, 'purge.execute', {
       mode: body.purge_everything ? 'everything' : (body.urls ? 'urls' : 'tags'),
+      /* v8 ignore next -- validation upstream guarantees exactly one of
+         purge_everything / urls / tags is set, so the `|| 0` fallback is
+         a defensive guard that never fires */
       count: body.purge_everything ? null : (body.urls?.length || body.tags?.length || 0),
     });
   }

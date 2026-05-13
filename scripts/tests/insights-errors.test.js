@@ -202,4 +202,25 @@ describe('Insights — Errors', () => {
     expect(notFound.TopPaths).toBeInstanceOf(Array);
     expect(notFound.TopPaths.length).toBeGreaterThan(0);
   });
+
+  it('returns 429 when the insights rate limit is exhausted', async () => {
+    const kv = makeKV({ 'rl:insights:': '9999' });
+    const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(429);
+  });
+
+  it('survives error entries with missing count/paths fields', async () => {
+    const kv = makeKV({
+      // 404 entry has no `count` and no `paths` — defaults fire.
+      errors: { '404': {}, '500': { count: 1 } },
+    });
+    const ctx = makeCtx('?days=1', { key: 'acct-123', kv });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    const notFound = json.Errors.find(e => e.StatusCode === 404);
+    expect(notFound.Count).toBe(0);
+    expect(notFound.TopPaths).toEqual([]);
+  });
 });

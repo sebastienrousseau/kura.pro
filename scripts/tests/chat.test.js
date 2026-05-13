@@ -59,7 +59,7 @@ describe('POST /api/chat', () => {
     const ctx = makeContext({ body: {} });
     const res = await onRequestPost(ctx);
     expect(res.status).toBe(400);
-    expect((await res.json()).error).toBe('Message is required');
+    expect((await res.json()).Message).toBe('Message is required');
   });
 
   it('returns 400 for empty string message', async () => {
@@ -79,7 +79,7 @@ describe('POST /api/chat', () => {
     ctx.request.json = vi.fn().mockRejectedValue(new Error('bad json'));
     const res = await onRequestPost(ctx);
     expect(res.status).toBe(400);
-    expect((await res.json()).error).toBe('Invalid JSON body');
+    expect((await res.json()).Message).toBe('Invalid JSON body');
   });
 
   // --- Rate limiting ---
@@ -95,7 +95,7 @@ describe('POST /api/chat', () => {
     });
     const res = await onRequestPost(ctx);
     expect(res.status).toBe(429);
-    expect((await res.json()).error).toBe('limit_reached');
+    expect((await res.json()).error.code).toBe('limit_reached');
   });
 
   it('works without RATE_KV binding', async () => {

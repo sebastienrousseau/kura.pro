@@ -14,6 +14,7 @@
 import {
   AI_COST, aiBudgetState, aiBudgetCharge, aiBudgetTrip, isAiQuotaError,
   normalizeQuery, hashString, buildCacheKey, cacheGet, cacheSet,
+  errorResponse,
 } from './_shared.js';
 import fallbackData from './chat-fallback.json';
 
@@ -193,10 +194,7 @@ export async function onRequestPost(context) {
     } catch { /* KV transient — treat as zero */ }
 
     if (monthCount >= MONTHLY_LIMIT) {
-      return Response.json(
-        { error: 'limit_reached', message: 'Monthly query limit reached. The Concierge will be back next month.' },
-        { status: 429 }
-      );
+      return errorResponse(429, 'limit_reached', 'Monthly query limit reached. The Concierge will be back next month.');
     }
   }
 
@@ -206,11 +204,11 @@ export async function onRequestPost(context) {
     message = body.message;
     history = body.history || [];
   } catch {
-    return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
+    return errorResponse(400, 'InvalidJson', 'Invalid JSON body');
   }
 
   if (!message || typeof message !== 'string' || message.trim().length === 0) {
-    return Response.json({ error: 'Message is required' }, { status: 400 });
+    return errorResponse(400, 'MessageRequired', 'Message is required');
   }
 
   // history is untrusted user input — drop anything that isn't shaped like a turn.

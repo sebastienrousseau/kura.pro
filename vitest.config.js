@@ -19,6 +19,7 @@ export default defineConfig({
         'functions/api/webhook_consumer.js',
         'functions/api/assets.js',
         'functions/api/search.js',
+        'functions/api/signed.js',
         'functions/api/core/zones.js',
         'functions/api/core/audit-logs.js',
         'functions/api/storage/batch.js',

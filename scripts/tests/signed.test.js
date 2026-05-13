@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createHmac } from 'node:crypto';
 
-const { onRequestGet } = await import('../../functions/api/signed.js');
+const { onRequestGet, onRequestOptions, generateSignedUrl } = await import('../../functions/api/signed.js');
 
 const TEST_SECRET = 'test-secret-key-for-hmac-256';
 
@@ -423,5 +423,116 @@ describe('GET /api/signed', () => {
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+
+  // --- generateSignedUrl helper (server-side use / scripts) ---
+
+  describe('generateSignedUrl', () => {
+    it('returns a URL bearing the expected parameters', async () => {
+      const url = await generateSignedUrl('s', '/a.pdf', 1700000000);
+      expect(url.url).toContain('/api/signed?');
+      expect(url.url).toContain('path=%2Fa.pdf');
+      expect(url.url).toContain('expires=1700000000');
+      expect(url.sig).toMatch(/^[0-9a-f]{64}$/);
+      expect(url.expires).toBe(1700000000);
+    });
+
+    it('produces a signature that verifies via the same HMAC scheme', async () => {
+      const signed = await generateSignedUrl(TEST_SECRET, '/a.pdf', 1700000000);
+      const expected = makeSignature(TEST_SECRET, '/a.pdf', 1700000000);
+      expect(signed.sig).toBe(expected);
+    });
+  });
+
+  // --- Rate limiting (covers the RATE_KV branch) ---
+
+  describe('rate limiting', () => {
+    function makeRateLimitedContext(queryString, kvState, headers = {}) {
+      const h = new Headers(headers);
+      return {
+        request: { url: `https://cloudcdn.pro/api/signed${queryString}`, headers: h },
+        env: {
+          SIGNED_URL_SECRET: TEST_SECRET,
+          RATE_KV: kvState,
+        },
+      };
+    }
+
+    it('allows requests when count is under the 300/min limit', async () => {
+      const put = vi.fn().mockResolvedValue(undefined);
+      const kv = { get: vi.fn().mockResolvedValue('5'), put };
+      // Missing parameters → 403, but the rate-limit code still runs first.
+      const res = await onRequestGet(makeRateLimitedContext('', kv, { 'cf-connecting-ip': '203.0.113.1' }));
+      expect(res.status).toBe(403);
+      expect(put).toHaveBeenCalledWith('rl:signed:203.0.113.1', '6', { expirationTtl: 60 });
+    });
+
+    it('returns 429 when the rate limit is exceeded', async () => {
+      const kv = { get: vi.fn().mockResolvedValue('300'), put: vi.fn() };
+      const res = await onRequestGet(makeRateLimitedContext('', kv, { 'cf-connecting-ip': '203.0.113.1' }));
+      expect(res.status).toBe(429);
+      expect(res.headers.get('Retry-After')).toBe('60');
+    });
+
+    it("falls back to 'unknown' bucket when cf-connecting-ip is missing", async () => {
+      const put = vi.fn().mockResolvedValue(undefined);
+      const kv = { get: vi.fn().mockResolvedValue('0'), put };
+      const res = await onRequestGet(makeRateLimitedContext('', kv));
+      expect(res.status).toBe(403);
+      expect(put).toHaveBeenCalledWith('rl:signed:unknown', '1', { expirationTtl: 60 });
+    });
+
+    it('treats a KV miss (null) as count zero', async () => {
+      // Forces the `|| '0'` fallback when RATE_KV.get resolves to null,
+      // which is the first-request-from-this-IP path.
+      const put = vi.fn().mockResolvedValue(undefined);
+      const kv = { get: vi.fn().mockResolvedValue(null), put };
+      const res = await onRequestGet(makeRateLimitedContext('', kv, { 'cf-connecting-ip': '198.51.100.7' }));
+      expect(res.status).toBe(403); // missing params again, but rate-limit ran
+      expect(put).toHaveBeenCalledWith('rl:signed:198.51.100.7', '1', { expirationTtl: 60 });
+    });
+  });
+
+  // --- Path validation branches ---
+
+  describe('path validation', () => {
+    function makePathCtx(path) {
+      // Build a valid-looking request that gets past the param presence
+      // checks; the path validation runs next.
+      const expires = Math.floor(Date.now() / 1000) + 600;
+      const sig = makeSignature(TEST_SECRET, path, expires);
+      return makeContext(`?path=${encodeURIComponent(path)}&expires=${expires}&sig=${sig}`);
+    }
+
+    it('rejects paths that do not start with /', async () => {
+      const res = await onRequestGet(makePathCtx('relative/no-slash.pdf'));
+      expect(res.status).toBe(403);
+      expect((await res.json()).error).toContain('Invalid path');
+    });
+
+    it('rejects paths containing ".."', async () => {
+      const res = await onRequestGet(makePathCtx('/a/../etc/passwd'));
+      expect(res.status).toBe(403);
+    });
+
+    it('rejects paths containing null bytes', async () => {
+      const res = await onRequestGet(makePathCtx('/a b.pdf'));
+      expect(res.status).toBe(403);
+    });
+
+    it('rejects paths containing double slashes', async () => {
+      const res = await onRequestGet(makePathCtx('/a//b.pdf'));
+      expect(res.status).toBe(403);
+    });
+  });
+
+  describe('OPTIONS preflight', () => {
+    it('returns 204 with CORS headers', async () => {
+      const res = await onRequestOptions();
+      expect(res.status).toBe(204);
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
+      expect(res.headers.get('Access-Control-Allow-Methods')).toContain('GET');
+      expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
+    });
   });
 });

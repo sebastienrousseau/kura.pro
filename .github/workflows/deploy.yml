@@ -85,13 +85,13 @@ jobs:
           echo "digest=sha256:${DIGEST}" >> "$GITHUB_OUTPUT"
 
       - name: Generate SLSA provenance attestation
-        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-name: cloudcdn-pro
           subject-digest: ${{ steps.digest.outputs.digest }}
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -636,6 +636,67 @@ describe('Shared utilities', () => {
       await checkRateLimit(kv, 'test:key', 100, 60);
       expect(kv.put).toHaveBeenCalledWith('test:key', '11', { expirationTtl: 60 });
     });
+
+    it('accepts an env object and dispatches to the KV branch when only RATE_KV is bound', async () => {
+      const kv = { get: vi.fn().mockResolvedValue('3'), put: vi.fn().mockResolvedValue(undefined) };
+      const result = await checkRateLimit({ RATE_KV: kv }, 'test:ip', 10, 60);
+      expect(result).toEqual({ allowed: true, limit: 10, remaining: 6 });
+      expect(kv.put).toHaveBeenCalledWith('test:ip', '4', { expirationTtl: 60 });
+    });
+
+    it('returns allowed=true when env has neither RATE_LIMITER nor RATE_KV', async () => {
+      const result = await checkRateLimit({}, 'test:ip', 10, 60);
+      expect(result.allowed).toBe(true);
+    });
+
+    it('prefers the RATE_LIMITER Durable Object when both bindings are present', async () => {
+      const doResponse = { allowed: true, limit: 10, remaining: 5, resetAt: 1234 };
+      const stubFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify(doResponse), {
+        status: 200, headers: { 'Content-Type': 'application/json' },
+      }));
+      const env = {
+        RATE_LIMITER: {
+          idFromName: vi.fn().mockReturnValue({ toString: () => 'id-1' }),
+          get: vi.fn().mockReturnValue({ fetch: stubFetch }),
+        },
+        RATE_KV: { get: vi.fn(), put: vi.fn() },
+      };
+      const result = await checkRateLimit(env, 'rl:test', 10, 60);
+      expect(result).toEqual(doResponse);
+      expect(env.RATE_LIMITER.idFromName).toHaveBeenCalledWith('rl:test');
+      expect(stubFetch).toHaveBeenCalledTimes(1);
+      // KV must NOT be touched on the happy path.
+      expect(env.RATE_KV.get).not.toHaveBeenCalled();
+    });
+
+    it('falls back to KV when the Durable Object returns a non-2xx response', async () => {
+      const env = {
+        RATE_LIMITER: {
+          idFromName: vi.fn().mockReturnValue('id-2'),
+          get: vi.fn().mockReturnValue({
+            fetch: vi.fn().mockResolvedValue(new Response('err', { status: 500 })),
+          }),
+        },
+        RATE_KV: { get: vi.fn().mockResolvedValue('1'), put: vi.fn().mockResolvedValue(undefined) },
+      };
+      const result = await checkRateLimit(env, 'rl:test', 10, 60);
+      expect(result.allowed).toBe(true);
+      expect(env.RATE_KV.put).toHaveBeenCalled();
+    });
+
+    it('falls back to KV when the Durable Object call throws', async () => {
+      const env = {
+        RATE_LIMITER: {
+          idFromName: vi.fn().mockReturnValue('id-3'),
+          get: vi.fn().mockReturnValue({
+            fetch: vi.fn().mockRejectedValue(new Error('DO down')),
+          }),
+        },
+        RATE_KV: { get: vi.fn().mockResolvedValue('0'), put: vi.fn().mockResolvedValue(undefined) },
+      };
+      const result = await checkRateLimit(env, 'rl:test', 10, 60);
+      expect(result.allowed).toBe(true);
+    });
   });
 
   // ── normalizeQuery / hashString / cache keys ──

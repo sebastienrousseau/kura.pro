@@ -32,7 +32,7 @@ export async function onRequestGet(context) {
 
   // Rate limit: 60 req/minute per IP
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
-  const rl = await checkRateLimit(env.RATE_KV, `rl:stats:${ip}`, 60, 60);
+  const rl = await checkRateLimit(env, `rl:stats:${ip}`, 60, 60);
   if (!rl.allowed) {
     return errorResponse(429, 'TooManyRequests', 'Rate limit exceeded for statistics endpoint. Maximum 60 requests per minute per IP address. Wait before retrying.', { retryAfter: '60', limit: rl.limit });
   }

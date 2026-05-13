@@ -15,6 +15,7 @@ export default defineConfig({
         'functions/api/tokens.js',
         'functions/api/health.js',
         'functions/api/logs.js',
+        'functions/api/rate_limiter_do.js',
       ],
       all: false,
       thresholds: {

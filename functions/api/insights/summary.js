@@ -11,7 +11,7 @@ export async function onRequestGet(context) {
   }
 
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
-  const rl = await checkRateLimit(env.RATE_KV, `rl:insights:${ip}`, 200, 60);
+  const rl = await checkRateLimit(env, `rl:insights:${ip}`, 200, 60);
   if (!rl.allowed) return errorResponse(429, 'TooManyRequests', 'Rate limit exceeded. Maximum 200 requests per minute.', { retryAfter: '60', limit: rl.limit });
 
   const url = new URL(request.url);

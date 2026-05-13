@@ -161,7 +161,7 @@ A short list of the load-bearing controls — the long form lives in [`SECURITY.
 
 ## Known limits and trade-offs
 
-- **Rate limiting is non-atomic.** `checkRateLimit` reads then writes KV. Under burst concurrency, limits can be exceeded by a small multiple. Migration to a Durable Object with atomic increment is on the roadmap. Until then, generous limits are set and the documented contract is "approximate" enforcement.
+- **Rate limiting has two backends.** `checkRateLimit` (in `_shared.js`) prefers the `RateLimiterDO` Durable Object (`functions/api/rate_limiter_do.js`) when bound — atomic increment-if-below via `blockConcurrencyWhile`. When the DO binding is absent it falls back to the legacy KV path, which is read-then-write and therefore non-atomic under burst concurrency. The DO binding is shipped commented-out in `wrangler.toml`; enabling it is a one-time `wrangler deploy` operation to provision the namespace.
 - **Cache API is per-PoP.** Hot queries warm each colo independently. Cold PoPs still pay the AI cost until they accumulate hits.
 - **Manifest cache is per-isolate.** Different isolates within the same PoP may have slightly different views of the manifest for up to 30 seconds after a deploy.
 - **Workers AI free-tier neurons are the binding cost.** All AI features assume they may be temporarily unavailable and degrade gracefully.

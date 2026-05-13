@@ -16,3 +16,21 @@ index_name = "cloudcdn-knowledge"
 [[kv_namespaces]]
 binding = "RATE_KV"
 id = "e5688bf85dff4b16988c4a3853bb7171"
+
+# Durable Object rate limiter — atomic increment-if-below counter.
+# checkRateLimit() in functions/api/_shared.js auto-detects this binding and
+# falls back to the (non-atomic) KV path when it's absent, so production keeps
+# running through the migration. To activate atomic limits:
+#
+#   1. Uncomment the two stanzas below.
+#   2. Run `npx wrangler deploy` once so Cloudflare provisions the namespace
+#      from the migration tag.
+#   3. Subsequent deploys will use the DO path automatically.
+#
+# [[durable_objects.bindings]]
+# name       = "RATE_LIMITER"
+# class_name = "RateLimiterDO"
+#
+# [[migrations]]
+# tag         = "v1"
+# new_classes = ["RateLimiterDO"]

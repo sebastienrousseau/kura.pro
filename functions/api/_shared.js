@@ -224,11 +224,55 @@ export async function authenticateAny(request, env) {
 }
 
 // ── Rate Limiting ──
-// NOTE: KV read-then-write is not atomic. Under high concurrency, bursts may
-// slightly exceed limits. This is acceptable for edge KV; for stricter
-// enforcement, migrate to Durable Objects with atomic counters.
+//
+// Two backends, picked at runtime:
+//
+//   1. Durable Object (preferred) — atomic increment-if-below via
+//      blockConcurrencyWhile. Bind a `RATE_LIMITER` DO namespace
+//      (see functions/api/rate_limiter_do.js) to get this path.
+//
+//   2. KV fallback — read-then-write, NOT atomic. Under burst concurrency
+//      bursts can exceed the limit by a small multiple. Kept as the default
+//      so existing deployments continue to work without a DO migration.
+//
+// Both backends return the same shape: { allowed, limit, remaining, resetAt? }.
+//
+// Callers may pass either an env object (preferred — enables DO detection) or
+// a bare KV namespace (legacy signature, retained for backwards compatibility
+// in tests). The helper sniffs the shape and dispatches accordingly.
 
-export async function checkRateLimit(kv, key, limit, windowSeconds) {
+function looksLikeKv(x) {
+  return !!x && typeof x.get === 'function' && typeof x.put === 'function';
+}
+
+export async function checkRateLimit(envOrKv, key, limit, windowSeconds) {
+  // Permissive when nothing is wired up — keeps local dev painless.
+  if (!envOrKv) return { allowed: true };
+
+  // Legacy signature: caller passed a KV namespace directly.
+  if (looksLikeKv(envOrKv)) {
+    return checkRateLimitKv(envOrKv, key, limit, windowSeconds);
+  }
+
+  // Modern signature: caller passed env. Prefer the DO when available.
+  if (envOrKv.RATE_LIMITER && typeof envOrKv.RATE_LIMITER.idFromName === 'function') {
+    try {
+      const id = envOrKv.RATE_LIMITER.idFromName(key);
+      const stub = envOrKv.RATE_LIMITER.get(id);
+      const res = await stub.fetch('https://rate-limiter.internal/increment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit, windowSeconds }),
+      });
+      if (res.ok) return await res.json();
+      // Fall through to KV if the DO call returned a non-2xx — degraded but safe.
+    } catch { /* DO unavailable — fall through */ }
+  }
+
+  return checkRateLimitKv(envOrKv.RATE_KV, key, limit, windowSeconds);
+}
+
+async function checkRateLimitKv(kv, key, limit, windowSeconds) {
   if (!kv) return { allowed: true };
   const count = parseInt(await kv.get(key) || '0', 10);
   if (count >= limit) return { allowed: false, limit, remaining: 0 };

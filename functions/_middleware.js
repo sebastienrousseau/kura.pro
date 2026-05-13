@@ -86,7 +86,53 @@ function isAssetPath(path) {
   return ASSET_EXT.has(getExtension(path));
 }
 
+// ── Global security headers ──
+// Applied to every response by the outer onRequest wrapper. These are
+// per-response and per-origin baseline protections; per-route hardening
+// (CSP, etc.) is still the responsibility of the route handler.
+const SECURITY_HEADERS = {
+  // Forces HTTPS for one year, includes subdomains, eligible for preload.
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+  // Disables MIME-type sniffing — defends against script injection via
+  // mislabelled responses.
+  "X-Content-Type-Options": "nosniff",
+  // Strip referrer when crossing to a different origin; keep full URL on
+  // same-origin so analytics on the dashboard still work.
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  // Disable browser features we never use; reduces drive-by-feature risk.
+  "Permissions-Policy":
+    "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), interest-cohort=()",
+  // Legacy clickjacking defence; modern browsers use frame-ancestors CSP
+  // but this stays for older browsers and security scanners.
+  "X-Frame-Options": "DENY",
+  // Permit cross-origin embedding of asset responses (the whole point of
+  // a CDN). Without this, fetch() with credentials: 'include' from other
+  // origins would fail under post-Spectre default policies.
+  "Cross-Origin-Resource-Policy": "cross-origin",
+};
+
+function applySecurityHeaders(response) {
+  // Don't touch redirects or responses with no body — they don't need it
+  // and mutating headers on Response.redirect() is awkward.
+  if (response.status >= 300 && response.status < 400) return response;
+
+  const headers = new Headers(response.headers);
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
+    if (!headers.has(k)) headers.set(k, v);
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export async function onRequest(context) {
+  const response = await routeRequest(context);
+  return applySecurityHeaders(response);
+}
+
+async function routeRequest(context) {
   const { request, env } = context;
   // Extract pathname without full URL parse — request.url is always absolute
   // in Workers, so we find the path after the host.

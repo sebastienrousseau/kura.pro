@@ -413,4 +413,56 @@ describe('Middleware: onRequest', () => {
       expect(ctx.next).toHaveBeenCalled();
     });
   });
+
+  describe('global security headers', () => {
+    it('sets HSTS, nosniff, Referrer-Policy, Permissions-Policy, X-Frame-Options, CORP on 200 responses', async () => {
+      const ctx = makeContext('/');
+      const res = await onRequest(ctx);
+      expect(res.headers.get('Strict-Transport-Security')).toBe('max-age=31536000; includeSubDomains; preload');
+      expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
+      expect(res.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
+      expect(res.headers.get('Permissions-Policy')).toContain('geolocation=()');
+      expect(res.headers.get('Permissions-Policy')).toContain('interest-cohort=()');
+      expect(res.headers.get('X-Frame-Options')).toBe('DENY');
+      expect(res.headers.get('Cross-Origin-Resource-Policy')).toBe('cross-origin');
+    });
+
+    it('applies headers to asset responses', async () => {
+      const ctx = makeContext('/proj/v1/logos/logo.svg');
+      const res = await onRequest(ctx);
+      expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
+      expect(res.headers.get('Cross-Origin-Resource-Policy')).toBe('cross-origin');
+      // Cache-Tag still applied alongside security headers.
+      expect(res.headers.get('Cache-Tag')).toBeTruthy();
+    });
+
+    it('applies headers to /manifest.json responses', async () => {
+      const ctx = makeContext('/manifest.json');
+      const res = await onRequest(ctx);
+      expect(res.headers.get('Strict-Transport-Security')).toBeTruthy();
+      // Pre-existing Cache-Control survives the wrap.
+      expect(res.headers.get('Cache-Control')).toBe('public, max-age=3600, must-revalidate');
+    });
+
+    it('does not clobber existing security headers from downstream handlers', async () => {
+      // /dashboard/ routes through context.next() so nextResponse wins.
+      const customResponse = new Response('ok', {
+        status: 200,
+        headers: { 'X-Frame-Options': 'SAMEORIGIN' },
+      });
+      const ctx = makeContext('/dashboard/', { nextResponse: customResponse });
+      const res = await onRequest(ctx);
+      expect(res.headers.get('X-Frame-Options')).toBe('SAMEORIGIN');
+    });
+
+    it('does not touch redirect responses', async () => {
+      // /dashboard without trailing slash 301-redirects.
+      const ctx = makeContext('/dashboard');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      // Redirects are exempt — they have no body and headers like HSTS
+      // aren't needed since the next hop will set them.
+      expect(res.headers.get('Strict-Transport-Security')).toBeNull();
+    });
+  });
 });

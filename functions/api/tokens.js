@@ -41,6 +41,7 @@ const VALID_SCOPES = new Set([
   'purge:write',
   'pipeline:write',
   'webhooks:read', 'webhooks:write',
+  'ai:read',
 ]);
 
 async function getTokenRegistry(kv) {

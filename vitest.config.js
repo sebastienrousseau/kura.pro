@@ -19,6 +19,7 @@ export default defineConfig({
         'functions/api/assets.js',
         'functions/api/search.js',
         'functions/api/core/zones.js',
+        'functions/api/core/audit-logs.js',
         'functions/api/storage/batch.js',
       ],
       all: false,

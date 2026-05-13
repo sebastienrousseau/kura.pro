@@ -272,6 +272,88 @@ export async function checkRateLimit(envOrKv, key, limit, windowSeconds) {
   return checkRateLimitKv(envOrKv.RATE_KV, key, limit, windowSeconds);
 }
 
+// ── Audit log ──
+//
+// Persistent append-only trail for sensitive control-plane operations:
+// token create/revoke, webhook register/remove, zone delete, purge.
+// Entries land in RATE_KV under `audit:YYYY-MM-DD` keys with a 90-day TTL,
+// then can be read by GET /api/core/audit-logs (AccountKey gated).
+//
+// The append is bounded — at most 5,000 entries per day, oldest dropped
+// first — so the value at a single key cannot grow unboundedly. KV's
+// per-value cap is 25 MiB which gives us roughly that headroom anyway.
+//
+// Write-side is best-effort: KV failures swallow silently because we do
+// NOT want to fail the user's mutation just because the audit trail is
+// briefly unavailable. The user-facing operation has already succeeded
+// by the time we get here.
+
+const AUDIT_KEY_PREFIX = 'audit:';
+const AUDIT_MAX_PER_DAY = 5000;
+const AUDIT_TTL_SECONDS = 86400 * 90; // 90 days
+
+/**
+ * Append a new audit-log entry to today's bucket.
+ *
+ * @param {object} env     Worker env containing RATE_KV
+ * @param {Request} request Original request (used to extract IP + UA)
+ * @param {string} action   One of: token.create, token.revoke,
+ *                          webhook.create, webhook.delete, zone.create,
+ *                          zone.delete, purge.execute, etc.
+ * @param {object} meta     Operation-specific metadata. Do NOT pass secrets.
+ */
+export async function appendAuditLog(env, request, action, meta = {}) {
+  const kv = env?.RATE_KV;
+  if (!kv) return;
+  const date = new Date().toISOString().slice(0, 10);
+  const key = AUDIT_KEY_PREFIX + date;
+  try {
+    const raw = await kv.get(key);
+    const entries = raw ? JSON.parse(raw) : [];
+    entries.push({
+      timestamp: new Date().toISOString(),
+      action,
+      ip: request?.headers?.get('cf-connecting-ip') || 'unknown',
+      userAgent: (request?.headers?.get('user-agent') || '').slice(0, 256),
+      requestId: env.data?.trace?.traceId || null,
+      meta,
+    });
+    if (entries.length > AUDIT_MAX_PER_DAY) {
+      entries.splice(0, entries.length - AUDIT_MAX_PER_DAY);
+    }
+    await kv.put(key, JSON.stringify(entries), { expirationTtl: AUDIT_TTL_SECONDS });
+  } catch { /* audit is best-effort */ }
+}
+
+/**
+ * Read audit-log entries from the most recent N days, newest first.
+ * Returns a flat array; the caller is expected to gate with AccountKey
+ * before calling this.
+ */
+export async function queryAuditLog(env, { days = 7, action = null, limit = 500 } = {}) {
+  const kv = env?.RATE_KV;
+  if (!kv) return [];
+  const cappedDays = Math.min(Math.max(parseInt(days, 10) || 1, 1), 90);
+  const cappedLimit = Math.min(Math.max(parseInt(limit, 10) || 100, 1), 5000);
+  const out = [];
+  for (let i = 0; i < cappedDays; i++) {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() - i);
+    const key = AUDIT_KEY_PREFIX + d.toISOString().slice(0, 10);
+    let raw;
+    try { raw = await kv.get(key); } catch { continue; }
+    if (!raw) continue;
+    let parsed;
+    try { parsed = JSON.parse(raw); } catch { continue; }
+    for (const entry of parsed) out.push(entry);
+  }
+  out.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
+  if (action) {
+    return out.filter((e) => e.action === action).slice(0, cappedLimit);
+  }
+  return out.slice(0, cappedLimit);
+}
+
 async function checkRateLimitKv(kv, key, limit, windowSeconds) {
   if (!kv) return { allowed: true };
   const count = parseInt(await kv.get(key) || '0', 10);

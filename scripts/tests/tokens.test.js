@@ -235,7 +235,7 @@ describe('Tokens API', () => {
       const json = await res.json();
 
       // Tamper: set expiry to past
-      const registry = JSON.parse(kv.put.mock.calls.at(-1)[1]);
+      const registry = JSON.parse(kv.put.mock.calls.find(c => c[0] === 'tokens:registry')[1]);
       registry[0].expiresAt = '2020-01-01T00:00:00Z';
       kv.get.mockImplementation(key => key === 'tokens:registry' ? Promise.resolve(JSON.stringify(registry)) : Promise.resolve(null));
 
@@ -250,7 +250,7 @@ describe('Tokens API', () => {
       const res = await onRequestPost(ctx);
       const json = await res.json();
 
-      const registry = JSON.parse(kv.put.mock.calls.at(-1)[1]);
+      const registry = JSON.parse(kv.put.mock.calls.find(c => c[0] === 'tokens:registry')[1]);
       kv.get.mockImplementation(key => key === 'tokens:registry' ? Promise.resolve(JSON.stringify(registry)) : Promise.resolve(null));
 
       const req = new Request('https://cloudcdn.pro/api/test', { headers: { Authorization: `Bearer ${json.Token.secret}` } });
@@ -264,7 +264,7 @@ describe('Tokens API', () => {
       const res = await onRequestPost(ctx);
       const json = await res.json();
 
-      const registry = JSON.parse(kv.put.mock.calls.at(-1)[1]);
+      const registry = JSON.parse(kv.put.mock.calls.find(c => c[0] === 'tokens:registry')[1]);
       kv.get.mockImplementation(key => key === 'tokens:registry' ? Promise.resolve(JSON.stringify(registry)) : Promise.resolve(null));
 
       const req = new Request('https://cloudcdn.pro/api/test', { headers: { Authorization: `Bearer ${json.Token.secret}` } });
@@ -285,7 +285,7 @@ describe('Tokens API', () => {
       const ctx = makeCtx('POST', '', { key: 'admin-key', kv, body: { name: 'Reader', scopes: ['assets:read'], expiresInDays: 30 } });
       const res = await onRequestPost(ctx);
       const json = await res.json();
-      const registry = JSON.parse(kv.put.mock.calls.at(-1)[1]);
+      const registry = JSON.parse(kv.put.mock.calls.find(c => c[0] === 'tokens:registry')[1]);
       kv.get.mockImplementation(key => key === 'tokens:registry' ? Promise.resolve(JSON.stringify(registry)) : Promise.resolve(null));
 
       const req = new Request('https://cloudcdn.pro/api/test', { headers: { Authorization: `Bearer ${json.Token.secret}` } });
@@ -308,7 +308,7 @@ describe('Tokens API', () => {
       const ctx = makeCtx('POST', '', { key: 'admin-key', kv, body: { name: 'NarrowToken', scopes: ['assets:read'], expiresInDays: 30 } });
       const res = await onRequestPost(ctx);
       const json = await res.json();
-      const registry = JSON.parse(kv.put.mock.calls.at(-1)[1]);
+      const registry = JSON.parse(kv.put.mock.calls.find(c => c[0] === 'tokens:registry')[1]);
       kv.get.mockImplementation(key => key === 'tokens:registry' ? Promise.resolve(JSON.stringify(registry)) : Promise.resolve(null));
 
       const req = new Request('https://cloudcdn.pro/api/test', { headers: { Authorization: `Bearer ${json.Token.secret}` } });

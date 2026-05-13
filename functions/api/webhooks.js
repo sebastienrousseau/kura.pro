@@ -14,7 +14,7 @@
  *   pipeline.completed
  */
 
-import { authenticateAccount, log } from './_shared.js';
+import { authenticateAccount, log, appendAuditLog } from './_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -203,6 +203,7 @@ export async function onRequestPost(context) {
   await saveWebhooks(kv, webhooks);
 
   log.info('WEBHOOK_CREATED', `Webhook registered for ${events.join(', ')}`, { id: webhook.id, url });
+  await appendAuditLog(env, request, 'webhook.create', { id: webhook.id, url, events });
 
   return new Response(JSON.stringify({ HttpCode: 201, Message: 'Webhook registered.', Webhook: webhook }), { status: 201, headers: CORS });
 }
@@ -235,6 +236,7 @@ export async function onRequestDelete(context) {
   await saveWebhooks(kv, webhooks);
 
   log.info('WEBHOOK_DELETED', `Webhook removed`, { id, url: removed.url });
+  await appendAuditLog(env, request, 'webhook.delete', { id, url: removed.url });
 
   return new Response(JSON.stringify({ HttpCode: 200, Message: 'Webhook removed.' }), { headers: CORS });
 }

@@ -21,7 +21,7 @@
  *   scopes[], createdAt, expiresAt, lastUsedAt
  */
 
-import { authenticateAccount, log } from './_shared.js';
+import { authenticateAccount, log, appendAuditLog } from './_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -149,6 +149,7 @@ export async function onRequestPost(context) {
   await saveTokenRegistry(kv, tokens);
 
   log.info('TOKEN_CREATED', `Token "${name}" created`, { id: entry.id, scopes });
+  await appendAuditLog(env, request, 'token.create', { id: entry.id, name: entry.name, scopes, expiresAt });
 
   return new Response(JSON.stringify({
     HttpCode: 201,
@@ -191,6 +192,7 @@ export async function onRequestDelete(context) {
   await saveTokenRegistry(kv, tokens);
 
   log.info('TOKEN_REVOKED', `Token "${removed.name}" revoked`, { id });
+  await appendAuditLog(env, request, 'token.revoke', { id, name: removed.name });
 
   return new Response(JSON.stringify({ HttpCode: 200, Message: 'Token revoked.' }), { headers: CORS });
 }

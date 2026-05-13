@@ -7,7 +7,7 @@
  * Auth: AccountKey header (env.ACCOUNT_KEY) — separated from StorageKey.
  */
 
-import { checkRateLimit, errorResponse, fetchWithTimeout, log, cdnOrigin } from '../_shared.js';
+import { checkRateLimit, errorResponse, fetchWithTimeout, log, cdnOrigin, appendAuditLog } from '../_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -158,6 +158,8 @@ export async function onRequestPost(context) {
       method: 'PATCH', headers,
       body: JSON.stringify({ sha: commitSha }),
     });
+
+    await appendAuditLog(env, request, 'zone.create', { name, commit: commitSha });
 
     return new Response(JSON.stringify({
       HttpCode: 201,

@@ -1,4 +1,4 @@
-import { log } from './_shared.js';
+import { log, appendAuditLog } from './_shared.js';
 import { validateToken } from './tokens.js';
 
 /**
@@ -169,6 +169,14 @@ export async function onRequestPost(context) {
   }
 
   const status = cfResult.success ? 200 : 502;
+
+  // Audit only successful purges — failures are operational noise.
+  if (cfResult.success) {
+    await appendAuditLog(env, request, 'purge.execute', {
+      mode: body.purge_everything ? 'everything' : (body.urls ? 'urls' : 'tags'),
+      count: body.purge_everything ? null : (body.urls?.length || body.tags?.length || 0),
+    });
+  }
 
   return new Response(
     JSON.stringify({

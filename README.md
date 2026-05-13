@@ -24,7 +24,8 @@ CloudCDN is a multi-tenant CDN platform built entirely on Cloudflare Workers, Pa
 - **54 tenant zones** with isolated `v1/` directory structures
 - **1,400+ optimized assets** — single source per image, derivatives on demand
 - **12 edge API endpoints** across 6 planes (Storage, Core, Assets, Insights, Delivery, AI)
-- **2,000 tests** with 100% statement/branch/function/line coverage
+- **2,140+ tests** with 100% statement/branch/function/line coverage
+- **Quota-resilient AI** — response cache, neuron budget, circuit breaker, and curated FAQ fallback keep `/api/search` and `/api/chat` answering when Workers AI is exhausted
 - **Signed commits** enforced end-to-end — from developer machine to edge deployment
 
 ## Architecture
@@ -71,8 +72,8 @@ graph TD
 | **Format Negotiation** | `/api/auto` reads the browser `Accept` header and serves the optimal format (AVIF > WebP > PNG) automatically. |
 | **Signed URLs** | HMAC-SHA256 time-limited URLs for protected assets with constant-time signature verification. |
 | **HLS Streaming** | Adaptive bitrate video delivery via HTTP Live Streaming playlists and byte-range segmentation. |
-| **Semantic Search** | Natural language asset search powered by Workers AI embeddings and Vectorize vector similarity. |
-| **AI Concierge** | RAG-powered chat assistant with SSE streaming, confidence scoring, and follow-up suggestions. |
+| **Semantic Search** | Natural language asset search powered by Workers AI embeddings and Vectorize vector similarity. Day-bucketed edge cache, neuron budget, and fuzzy fallback keep results flowing when AI quota is exhausted — responses are annotated with `mode: vector \| fuzzy \| cached`. |
+| **AI Concierge** | RAG-powered chat assistant with SSE streaming, confidence scoring, and follow-up suggestions. Layered fallback: edge response cache → 30-entry curated FAQ → templated default. Failures never surface as HTTP errors; `metadata.source` is `ai \| cached \| curated`. |
 | **Asset Pipeline** | Upload a single SVG → automatic directory scaffold with PWA icons, banners, and favicon. |
 | **Zone Management** | Create, delete, and configure tenant zones via GitOps commits through the Core API. |
 | **Edge Analytics** | Real-time request tracking, bandwidth monitoring, cache ratio, geo distribution, and error tracking. |
@@ -166,11 +167,13 @@ curl 'https://cloudcdn.pro/api/auto?path=/myproject/v1/logos/logo'
 | `CLOUDFLARE_API_TOKEN` | Cache purge, domains |
 | `CLOUDFLARE_ZONE_ID` | Cache invalidation |
 | `SIGNED_URL_SECRET` | HMAC signed URL generation |
+| `AI_DAILY_BUDGET` | Workers AI neuron soft cap per UTC day (default `9000`). When tripped, `/api/search` and `/api/chat` switch to cached + fuzzy / curated answers. |
+| `AI_CB_TTL_SEC` | Circuit-breaker open duration in seconds after a quota error (default `60`). |
 
 ## Testing
 
 ```bash
-npm test                # 2,000 tests across 50 suites
+npm test                # 2,140+ tests across 55 suites
 npm run test:coverage   # 100% statement/branch/function/line
 npm run test:visual     # Playwright visual regression (10 screenshots)
 npm run test:load       # k6 load test (1,000 VUs)
@@ -187,7 +190,8 @@ npm run test:audit      # npm dependency security audit
 | Cross-cutting (auth, CORS, pagination, streaming) | 13 | 250+ |
 | OpenAPI spec validation | 2 | 500+ |
 | Infrastructure (manifest, client libs) | 8 | 400+ |
-| **Total** | **50** | **2,000** |
+| AI fallback (cache, budget, breaker, curated) | 5 | 40+ |
+| **Total** | **55** | **2,140+** |
 
 </details>
 
@@ -200,6 +204,16 @@ npm run test:audit      # npm dependency security audit
 - **HSTS preload** — `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
 - **SHA-pinned Actions** — all GitHub Actions pinned by commit hash
 - **Signed commits** — every deployment verified via GitHub API before reaching the edge
+
+## Resilience — AI quota fallback
+
+`/api/search` and `/api/chat` depend on Cloudflare Workers AI and Vectorize, both of which have daily quotas. To keep users error-free when those exhaust, both endpoints run three layered fallbacks (see `functions/api/_shared.js`):
+
+1. **Edge response cache** — Workers Cache API, day-bucketed key path. Hot queries replay instantly with zero AI cost. Search TTL 1h, chat TTL 24h.
+2. **Neuron budget + circuit breaker** — per-day usage counter in KV (`ai:neurons:YYYY-MM-DD`) against `AI_DAILY_BUDGET`. Quota-shaped errors (429, codes 3040/7006/9001, or `quota|capacity|too many|rate limit|exceeded` substrings) flip `ai:cb:open` for `AI_CB_TTL_SEC`, short-circuiting subsequent AI calls.
+3. **Curated fallback for chat** — 30-entry FAQ at `functions/api/chat-fallback.json` (seeded from `cdn/en/content/{faq,pricing,limits}.md`). Token-Jaccard match against question variants; replay through the same SSE event sequence (`metadata`/`token`/`done`) so the client only needs `metadata.source` (`ai | cached | curated`) and `metadata.degraded` to render.
+
+Search annotates its mode (`vector | fuzzy | cached`) on every response. AI failures never surface as 5xx — chat falls back to the curated answer, search falls back to fuzzy.
 
 ## Scripts
 

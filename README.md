@@ -161,24 +161,38 @@ curl 'https://cloudcdn.pro/api/auto?path=/myproject/v1/logos/logo'
 
 ## Environment Variables
 
+A short list of the most common variables is below. The full reference —
+every env var, secret, and binding the runtime consumes, with the
+`wrangler` command to set each — lives in
+[`SECRETS.md`](./SECRETS.md).
+
 | Variable | Description |
 | :--- | :--- |
 | `ACCOUNT_KEY` | Core API authentication (admin) |
+| `ACCESS_KEY` | Public-read AccessKey for `/api/assets`, `/api/insights/*`, `/api/transform`, `/api/ai/*` |
 | `STORAGE_KEY` | Storage API authentication (files) |
-| `DASHBOARD_PASSWORD` | Dashboard login |
+| `DASHBOARD_PASSWORD` | Dashboard login (password fallback) |
+| `PASSKEY_STRICT_VERIFY` | Set to `1` to reject WebAuthn assertions that fail cryptographic verification. Default: loose mode (logs but accepts), used during rollout. |
 | `GITHUB_TOKEN` | GitOps mutations (upload/delete) |
 | `GITHUB_REPO` | Repository for Git-based storage |
-| `CLOUDFLARE_ACCOUNT_ID` | Custom domains, analytics |
 | `CLOUDFLARE_API_TOKEN` | Cache purge, domains |
 | `CLOUDFLARE_ZONE_ID` | Cache invalidation |
 | `SIGNED_URL_SECRET` | HMAC signed URL generation |
 | `AI_DAILY_BUDGET` | Workers AI neuron soft cap per UTC day (default `9000`). When tripped, `/api/search` and `/api/chat` switch to cached + fuzzy / curated answers. |
 | `AI_CB_TTL_SEC` | Circuit-breaker open duration in seconds after a quota error (default `60`). |
 
+### Operator health check
+
+`GET /api/health` returns the binding-presence summary cheaply. Pass
+`?deep=1` to actually exercise each binding (ASSETS manifest fetch,
+KV probe, AI/Vectorize/Durable-Object/WAE/Queue shape checks) and get
+per-binding latency + healthy/unhealthy state. Status is `200 ok` when
+required bindings are reachable; `503 degraded` otherwise.
+
 ## Testing
 
 ```bash
-npm test                # 2,570+ tests across 66 suites
+npm test                # 2,800+ tests across 67 suites
 npm run test:coverage   # 100% statement/branch/function/line
 npm run test:visual     # Playwright visual regression (10 screenshots)
 npm run test:load       # k6 load test (1,000 VUs)

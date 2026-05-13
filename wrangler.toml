@@ -48,3 +48,18 @@ id = "e5688bf85dff4b16988c4a3853bb7171"
 # [[analytics_engine_datasets]]
 # binding = "METRICS"
 # dataset = "cloudcdn_metrics"
+
+# Cloudflare Queues — webhook delivery with retries + DLQ.
+# dispatchWebhook() in functions/api/webhooks.js auto-detects this binding
+# and falls back to direct fire-and-forget when absent.
+#
+# Operator setup:
+#   1. `npx wrangler queues create cloudcdn-webhooks`
+#      `npx wrangler queues create cloudcdn-webhooks-dlq` (optional DLQ)
+#   2. Uncomment the producer stanza below.
+#   3. Deploy the consumer Worker (see functions/api/webhook_consumer.js
+#      for the canonical handler; Pages does not run queue consumers).
+#
+# [[queues.producers]]
+# binding    = "WEBHOOK_QUEUE"
+# queue      = "cloudcdn-webhooks"

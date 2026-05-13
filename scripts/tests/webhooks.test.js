@@ -377,6 +377,26 @@ describe('Webhooks API', () => {
       expect(globalThis.fetch).not.toHaveBeenCalled();
     });
 
+    it('enqueues messages on the WEBHOOK_QUEUE when bound (no direct fetch)', async () => {
+      const kv = makeKV({ 'webhooks:registered': JSON.stringify([
+        { id: 'w1', url: 'https://a.example.com/h', secret: 'a'.repeat(40), active: true, events: ['asset.created'] },
+        { id: 'w2', url: 'https://b.example.com/h', secret: null,             active: true, events: ['asset.created'] },
+      ]) });
+      const send = vi.fn().mockResolvedValue(undefined);
+      globalThis.fetch = vi.fn();
+      await dispatchWebhook({ RATE_KV: kv, WEBHOOK_QUEUE: { send } }, 'asset.created', { path: '/x.png' });
+      // Two messages enqueued (one per matching webhook), zero direct fetches.
+      expect(send).toHaveBeenCalledTimes(2);
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+      const first = send.mock.calls[0][0];
+      expect(first).toMatchObject({
+        webhookId: 'w1', url: 'https://a.example.com/h', event: 'asset.created', attempt: 0,
+      });
+      const parsedBody = JSON.parse(first.body);
+      expect(parsedBody.event).toBe('asset.created');
+      expect(parsedBody.data.path).toBe('/x.png');
+    });
+
     it('silently exits when getWebhooks throws (KV read fails)', async () => {
       // Forces the outer catch in dispatchWebhook (webhooks.js:168).
       const kv = {

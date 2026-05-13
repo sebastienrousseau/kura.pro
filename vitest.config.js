@@ -16,6 +16,7 @@ export default defineConfig({
         'functions/api/health.js',
         'functions/api/logs.js',
         'functions/api/rate_limiter_do.js',
+        'functions/api/webhook_consumer.js',
         'functions/api/assets.js',
         'functions/api/search.js',
         'functions/api/core/zones.js',

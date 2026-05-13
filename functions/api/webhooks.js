@@ -248,7 +248,20 @@ export async function onRequestOptions() {
 /**
  * Dispatch a webhook event. Called by other endpoints via waitUntil().
  *
- * @param {object} env - Worker env with RATE_KV binding
+ * Two delivery paths:
+ *
+ *   1. When `env.WEBHOOK_QUEUE` is bound, each matching webhook is sent
+ *      to the Cloudflare Queue as a separate message. A consumer Worker
+ *      (see functions/api/webhook_consumer.js for the canonical shape)
+ *      handles delivery with exponential backoff and dead-lettering.
+ *      This is the production path — the request handler returns in
+ *      microseconds regardless of webhook target latency.
+ *
+ *   2. When the queue binding is absent (default / local dev), we fall
+ *      back to fire-and-forget direct delivery. No retries, single
+ *      attempt with a 5-second timeout — same behaviour as before.
+ *
+ * @param {object} env - Worker env with RATE_KV binding (and optional WEBHOOK_QUEUE)
  * @param {string} event - Event name (e.g., 'asset.created')
  * @param {object} payload - Event data
  */
@@ -260,38 +273,54 @@ export async function dispatchWebhook(env, event, payload) {
     let webhooks;
     try { webhooks = await getWebhooks(kv); } catch { return; }
 
-  const matching = webhooks.filter(w => w.active && w.events.includes(event));
-  if (matching.length === 0) return;
+    const matching = webhooks.filter(w => w.active && w.events.includes(event));
+    if (matching.length === 0) return;
 
-  const body = JSON.stringify({
-    event,
-    timestamp: new Date().toISOString(),
-    data: payload,
-  });
+    const body = JSON.stringify({
+      event,
+      timestamp: new Date().toISOString(),
+      data: payload,
+    });
 
-  const deliveries = matching.map(async (webhook) => {
-    const headers = { 'Content-Type': 'application/json', 'User-Agent': 'CloudCDN-Webhook/1.0' };
-
-    // HMAC signature if secret is configured
-    if (webhook.secret) {
-      const encoder = new TextEncoder();
-      const key = await crypto.subtle.importKey('raw', encoder.encode(webhook.secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-      const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(body));
-      const hex = [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('');
-      headers['X-Webhook-Signature'] = `sha256=${hex}`;
+    // ── Path 1: queue-backed delivery with retries (production) ──
+    if (env.WEBHOOK_QUEUE && typeof env.WEBHOOK_QUEUE.send === 'function') {
+      await Promise.allSettled(matching.map((webhook) =>
+        env.WEBHOOK_QUEUE.send({
+          webhookId: webhook.id,
+          url: webhook.url,
+          secret: webhook.secret,
+          event,
+          body,
+          attempt: 0,
+        })
+      ));
+      return;
     }
 
-    try {
-      const controller = new AbortController();
-      /* v8 ignore next -- timeout fires only when a webhook target stalls > 5s */
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      await fetch(webhook.url, { method: 'POST', headers, body, signal: controller.signal });
-      clearTimeout(timeoutId);
-    } catch (err) {
-      log.warn('WEBHOOK_DELIVERY_FAILED', `Failed to deliver ${event} to ${webhook.url}`, { error: err.message });
-    }
-  });
+    // ── Path 2: direct fire-and-forget (legacy / dev) ──
+    const deliveries = matching.map(async (webhook) => {
+      const headers = { 'Content-Type': 'application/json', 'User-Agent': 'CloudCDN-Webhook/1.0' };
 
-  await Promise.allSettled(deliveries);
+      // HMAC signature if secret is configured
+      if (webhook.secret) {
+        const encoder = new TextEncoder();
+        const key = await crypto.subtle.importKey('raw', encoder.encode(webhook.secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+        const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(body));
+        const hex = [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('');
+        headers['X-Webhook-Signature'] = `sha256=${hex}`;
+      }
+
+      try {
+        const controller = new AbortController();
+        /* v8 ignore next -- timeout fires only when a webhook target stalls > 5s */
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        await fetch(webhook.url, { method: 'POST', headers, body, signal: controller.signal });
+        clearTimeout(timeoutId);
+      } catch (err) {
+        log.warn('WEBHOOK_DELIVERY_FAILED', `Failed to deliver ${event} to ${webhook.url}`, { error: err.message });
+      }
+    });
+
+    await Promise.allSettled(deliveries);
   } catch { /* webhook delivery is best-effort */ }
 }

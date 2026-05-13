@@ -226,4 +226,29 @@ describe('Core Statistics API', () => {
     expect(res.status).toBe(401);
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
   });
+
+  it('formats KB-scale bandwidth (1 KiB <= b < 1 MiB)', async () => {
+    // 2 KiB in bytes — exercises the KB branch of formatBytes
+    const ctx = makeCtx('?days=1', {
+      accountKey: 'acct-123',
+      kv: makeKV({ bandwidth: '2048', hits: '1' }),
+    });
+    const res = await onRequestGet(ctx);
+    const json = await res.json();
+    const fmt = JSON.stringify(json);
+    expect(fmt).toContain(' KB');
+  });
+
+  it('formats GB-scale bandwidth (b >= 1 GiB)', async () => {
+    // 2 GiB in bytes — exercises the GB branch of formatBytes
+    const twoGib = String(2 * 1024 * 1024 * 1024);
+    const ctx = makeCtx('?days=1', {
+      accountKey: 'acct-123',
+      kv: makeKV({ bandwidth: twoGib, hits: '1000000' }),
+    });
+    const res = await onRequestGet(ctx);
+    const json = await res.json();
+    const fmt = JSON.stringify(json);
+    expect(fmt).toContain(' GB');
+  });
 });

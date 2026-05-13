@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-const { onRequestGet } = await import('../../functions/api/auto.js');
+const { onRequestGet, onRequestOptions } = await import('../../functions/api/auto.js');
 
 const originalFetch = globalThis.fetch;
 
@@ -418,5 +418,41 @@ describe('GET /api/auto', () => {
     Object.defineProperty(ctx.request, 'headers', { value: { get: () => '*/*' } });
     const res = await onRequestGet(ctx);
     expect(res.status).toBe(400);
+  });
+
+  it('prefers JXL when Accept advertises image/jxl', async () => {
+    globalThis.fetch = mockFetchForFormats(['jxl']);
+    try {
+      const res = await onRequestGet(makeContext('?path=/x/y/logo', 'image/jxl,*/*'));
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('image/jxl');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('defaults Accept to empty string when header is absent (uses PNG fallback)', async () => {
+    globalThis.fetch = mockFetchForFormats(['png']);
+    try {
+      const ctx = {
+        request: {
+          url: 'https://cloudcdn.pro/api/auto?path=/x/y/logo',
+          headers: { get: () => null }, // no Accept header at all
+        },
+      };
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('image/png');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('OPTIONS returns 204 with CORS preflight headers', async () => {
+    const res = await onRequestOptions();
+    expect(res.status).toBe(204);
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
+    expect(res.headers.get('Access-Control-Allow-Methods')).toContain('GET');
+    expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
   });
 });

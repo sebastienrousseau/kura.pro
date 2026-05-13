@@ -73,27 +73,48 @@ function base64urlToBuffer(b64url) {
 
 async function getCredentials(kv) {
   const raw = await kv.get(PASSKEYS_KEY);
-  return raw ? JSON.parse(raw) : [];
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    // Corrupted KV value — fail soft so authBegin can still return an
+    // empty allowCredentials list rather than crashing the Worker.
+    // The caller will see "Unknown credential" on completion instead of
+    // an opaque Worker exception, and we'll see the issue surface in WAE.
+    return [];
+  }
 }
 
 async function saveCredentials(kv, creds) {
   await kv.put(PASSKEYS_KEY, JSON.stringify(creds));
 }
 
+function jsonError(message, status, extra = {}) {
+  return new Response(JSON.stringify({ error: message, ...extra }), { status, headers: CORS });
+}
+
 /**
- * POST handler — routes by URL suffix.
+ * POST handler — routes by URL suffix. Wraps every sub-handler in a
+ * try/catch so a thrown KV/JSON/WebCrypto error returns a JSON 500 the
+ * client can read, rather than a Cloudflare "Worker threw exception"
+ * HTML page that the dashboard can't parse.
  */
 export async function onRequestPost(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const path = url.pathname;
 
-  if (path.endsWith('/register/begin')) return registerBegin(request, env);
-  if (path.endsWith('/register/complete')) return registerComplete(request, env);
-  if (path.endsWith('/auth/begin')) return authBegin(request, env);
-  if (path.endsWith('/auth/complete')) return authComplete(request, env);
+  try {
+    if (path.endsWith('/register/begin')) return await registerBegin(request, env);
+    if (path.endsWith('/register/complete')) return await registerComplete(request, env);
+    if (path.endsWith('/auth/begin')) return await authBegin(request, env);
+    if (path.endsWith('/auth/complete')) return await authComplete(request, env);
+  } catch (err) {
+    return jsonError('Passkey handler failed', 500, { detail: err?.message || String(err) });
+  }
 
-  return new Response(JSON.stringify({ error: 'Unknown passkey endpoint' }), { status: 404, headers: CORS });
+  return jsonError('Unknown passkey endpoint', 404);
 }
 
 /**
@@ -271,23 +292,27 @@ async function authComplete(request, env) {
  */
 export async function onRequestGet(context) {
   const { request, env } = context;
-  if (!(await authenticateAdmin(request, env))) {
-    return new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401, headers: CORS });
+  try {
+    if (!(await authenticateAdmin(request, env))) {
+      return jsonError('Authentication required.', 401);
+    }
+
+    const kv = env.RATE_KV;
+    if (!kv) return jsonError('KV unavailable.', 503);
+
+    const creds = await getCredentials(kv);
+    const safe = creds.map(c => ({
+      id: c.id,
+      name: c.name,
+      createdAt: c.createdAt,
+      lastUsedAt: c.lastUsedAt,
+      signCount: c.signCount,
+    }));
+
+    return new Response(JSON.stringify({ Passkeys: safe, Count: safe.length }), { headers: CORS });
+  } catch (err) {
+    return jsonError('Passkey handler failed', 500, { detail: err?.message || String(err) });
   }
-
-  const kv = env.RATE_KV;
-  if (!kv) return new Response(JSON.stringify({ error: 'KV unavailable.' }), { status: 503, headers: CORS });
-
-  const creds = await getCredentials(kv);
-  const safe = creds.map(c => ({
-    id: c.id,
-    name: c.name,
-    createdAt: c.createdAt,
-    lastUsedAt: c.lastUsedAt,
-    signCount: c.signCount,
-  }));
-
-  return new Response(JSON.stringify({ Passkeys: safe, Count: safe.length }), { headers: CORS });
 }
 
 /**
@@ -295,25 +320,29 @@ export async function onRequestGet(context) {
  */
 export async function onRequestDelete(context) {
   const { request, env } = context;
-  if (!(await authenticateAdmin(request, env))) {
-    return new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401, headers: CORS });
+  try {
+    if (!(await authenticateAdmin(request, env))) {
+      return jsonError('Authentication required.', 401);
+    }
+
+    const kv = env.RATE_KV;
+    if (!kv) return jsonError('KV unavailable.', 503);
+
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+    if (!id) return jsonError('"id" parameter required.', 400);
+
+    const creds = await getCredentials(kv);
+    const idx = creds.findIndex(c => c.id === id);
+    if (idx === -1) return jsonError('Passkey not found.', 404);
+
+    creds.splice(idx, 1);
+    await saveCredentials(kv, creds);
+
+    return new Response(JSON.stringify({ ok: true, message: 'Passkey removed.' }), { headers: CORS });
+  } catch (err) {
+    return jsonError('Passkey handler failed', 500, { detail: err?.message || String(err) });
   }
-
-  const kv = env.RATE_KV;
-  if (!kv) return new Response(JSON.stringify({ error: 'KV unavailable.' }), { status: 503, headers: CORS });
-
-  const url = new URL(request.url);
-  const id = url.searchParams.get('id');
-  if (!id) return new Response(JSON.stringify({ error: '"id" parameter required.' }), { status: 400, headers: CORS });
-
-  const creds = await getCredentials(kv);
-  const idx = creds.findIndex(c => c.id === id);
-  if (idx === -1) return new Response(JSON.stringify({ error: 'Passkey not found.' }), { status: 404, headers: CORS });
-
-  creds.splice(idx, 1);
-  await saveCredentials(kv, creds);
-
-  return new Response(JSON.stringify({ ok: true, message: 'Passkey removed.' }), { headers: CORS });
 }
 
 export async function onRequestOptions() {

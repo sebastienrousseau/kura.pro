@@ -205,4 +205,67 @@ describe('Passkeys API', () => {
       expect(res.status).toBe(204);
     });
   });
+
+  describe('resilience against corrupt KV state', () => {
+    it('authBegin returns empty allowCredentials when KV value is malformed JSON', async () => {
+      const kv = makeKV({ 'passkeys:credentials': '{not-json' });
+      const ctx = makeCtx('/auth/begin', 'POST', { kv });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.allowCredentials).toEqual([]);
+    });
+
+    it('authBegin tolerates a non-array KV value (returns empty list)', async () => {
+      const kv = makeKV({ 'passkeys:credentials': '{"oops":"object-not-array"}' });
+      const ctx = makeCtx('/auth/begin', 'POST', { kv });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.allowCredentials).toEqual([]);
+    });
+
+    it('POST returns JSON 500 (not a Worker crash) when a handler throws', async () => {
+      const throwingKv = {
+        get: vi.fn().mockRejectedValue(new Error('kv backplane unreachable')),
+        put: vi.fn().mockRejectedValue(new Error('kv backplane unreachable')),
+      };
+      const ctx = makeCtx('/auth/begin', 'POST', { kv: throwingKv });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(500);
+      const json = await res.json();
+      expect(json.error).toBe('Passkey handler failed');
+      expect(json.detail).toContain('kv backplane');
+    });
+
+    it('GET returns JSON 500 when getCredentials KV-reads throw', async () => {
+      const throwingKv = {
+        get: vi.fn().mockRejectedValue(new Error('storage offline')),
+      };
+      const ctx = makeCtx('', 'GET', { key: 'admin-key', kv: throwingKv });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(500);
+      const json = await res.json();
+      expect(json.error).toBe('Passkey handler failed');
+    });
+
+    it('DELETE returns JSON 500 when KV throws mid-operation', async () => {
+      const throwingKv = {
+        get: vi.fn().mockRejectedValue(new Error('boom')),
+      };
+      const ctx = makeCtx('?id=p1', 'DELETE', { key: 'admin-key', kv: throwingKv });
+      const res = await onRequestDelete(ctx);
+      expect(res.status).toBe(500);
+      const json = await res.json();
+      expect(json.error).toBe('Passkey handler failed');
+    });
+
+    it('POST routes to a JSON 404 for unknown passkey path', async () => {
+      const ctx = makeCtx('/nope/unknown', 'POST');
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(404);
+      const json = await res.json();
+      expect(json.error).toContain('Unknown passkey endpoint');
+    });
+  });
 });

@@ -79,6 +79,144 @@ function challengeSecret(env) {
   return env.PASSKEY_CHALLENGE_SECRET || env.DASHBOARD_SECRET || env.DASHBOARD_PASSWORD;
 }
 
+// ── WebAuthn assertion verification ──
+
+/**
+ * Convert a DER-encoded ECDSA signature (as emitted by authenticators) to
+ * the raw r||s concatenation that WebCrypto's `verify` expects.
+ *
+ * DER form: `30 <total-len> 02 <r-len> <r-bytes> 02 <s-len> <s-bytes>`.
+ * Both r and s can be 0x00-padded to encode the high bit, so we strip
+ * leading zeros and re-pad to 32 bytes apiece. P-256 → 64-byte output.
+ */
+export function derEcdsaToRaw(der) {
+  if (!(der instanceof Uint8Array)) der = new Uint8Array(der);
+  if (der[0] !== 0x30) throw new Error('Invalid DER: missing sequence tag');
+  let offset = 2;
+  if (der[1] & 0x80) offset += der[1] & 0x7f; // long-form length skip
+  if (der[offset] !== 0x02) throw new Error('Invalid DER: missing r integer');
+  const rLen = der[offset + 1];
+  let r = der.slice(offset + 2, offset + 2 + rLen);
+  offset = offset + 2 + rLen;
+  if (der[offset] !== 0x02) throw new Error('Invalid DER: missing s integer');
+  const sLen = der[offset + 1];
+  let s = der.slice(offset + 2, offset + 2 + sLen);
+  // Strip a single leading 0x00 that DER adds to disambiguate positive ints
+  if (r.length > 32 && r[0] === 0x00) r = r.slice(r.length - 32);
+  if (s.length > 32 && s[0] === 0x00) s = s.slice(s.length - 32);
+  // Left-pad to 32 bytes (Web Crypto wants fixed-length r||s)
+  const pad = (buf) => {
+    if (buf.length === 32) return buf;
+    const out = new Uint8Array(32);
+    out.set(buf, 32 - buf.length);
+    return out;
+  };
+  const raw = new Uint8Array(64);
+  raw.set(pad(r), 0);
+  raw.set(pad(s), 32);
+  return raw;
+}
+
+/**
+ * Try to import a stored credential public key as SPKI. Returns `null` if
+ * the bytes don't parse as either ES256 (P-256) or RS256 — that signals a
+ * legacy attestation-object credential that needs re-registration.
+ */
+export async function importStoredPublicKey(spkiBytes) {
+  // Try ES256 first — it's by far the most common authenticator algorithm.
+  try {
+    return {
+      key: await crypto.subtle.importKey(
+        'spki', spkiBytes,
+        { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']
+      ),
+      alg: 'ES256',
+    };
+  } catch { /* fall through to RS256 */ }
+  try {
+    return {
+      key: await crypto.subtle.importKey(
+        'spki', spkiBytes,
+        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']
+      ),
+      alg: 'RS256',
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Verify a WebAuthn authentication assertion per the Level 2 spec, minus
+ * the user-presence/user-verification flag enforcement (we don't gate on
+ * those today). Returns `{ valid, reason? }`.
+ *
+ * Inputs are all base64url strings as sent by the dashboard's login JS.
+ */
+export async function verifyAssertion({
+  storedPublicKeyB64,
+  authenticatorDataB64,
+  signatureB64,
+  clientDataJSONB64,
+  expectedOrigin,
+  expectedChallengeB64,
+}) {
+  if (!storedPublicKeyB64 || !authenticatorDataB64 || !signatureB64 || !clientDataJSONB64) {
+    return { valid: false, reason: 'missing assertion fields' };
+  }
+
+  // 1. Parse and validate clientDataJSON.
+  let clientData;
+  const clientDataBytes = base64urlToBuffer(clientDataJSONB64);
+  try {
+    clientData = JSON.parse(new TextDecoder().decode(clientDataBytes));
+  } catch {
+    return { valid: false, reason: 'clientDataJSON not valid UTF-8 JSON' };
+  }
+  if (clientData.type !== 'webauthn.get') {
+    return { valid: false, reason: `unexpected type: ${clientData.type}` };
+  }
+  if (clientData.origin !== expectedOrigin) {
+    return { valid: false, reason: `origin mismatch: ${clientData.origin}` };
+  }
+  if (clientData.challenge !== expectedChallengeB64) {
+    return { valid: false, reason: 'challenge mismatch' };
+  }
+
+  // 2. Compute the signed payload: authData || sha256(clientDataJSON).
+  const clientDataHash = new Uint8Array(await crypto.subtle.digest('SHA-256', clientDataBytes));
+  const authData = new Uint8Array(base64urlToBuffer(authenticatorDataB64));
+  const signedData = new Uint8Array(authData.length + clientDataHash.length);
+  signedData.set(authData, 0);
+  signedData.set(clientDataHash, authData.length);
+
+  // 3. Import the stored public key (try ES256, then RS256).
+  const spki = new Uint8Array(base64urlToBuffer(storedPublicKeyB64));
+  const imported = await importStoredPublicKey(spki);
+  if (!imported) {
+    return { valid: false, reason: 'stored publicKey is not SPKI; legacy credential needs re-registration' };
+  }
+
+  // 4. Verify the signature.
+  const sigBytes = new Uint8Array(base64urlToBuffer(signatureB64));
+  try {
+    if (imported.alg === 'ES256') {
+      const rawSig = derEcdsaToRaw(sigBytes);
+      const ok = await crypto.subtle.verify(
+        { name: 'ECDSA', hash: 'SHA-256' }, imported.key, rawSig, signedData
+      );
+      return ok ? { valid: true, alg: 'ES256' } : { valid: false, reason: 'ECDSA signature failed verification' };
+    } else {
+      const ok = await crypto.subtle.verify(
+        'RSASSA-PKCS1-v1_5', imported.key, sigBytes, signedData
+      );
+      return ok ? { valid: true, alg: 'RS256' } : { valid: false, reason: 'RSA signature failed verification' };
+    }
+  } catch (err) {
+    return { valid: false, reason: `verify threw: ${err?.message || err}` };
+  }
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
@@ -334,6 +472,42 @@ async function authComplete(request, env) {
     return new Response(JSON.stringify({ error: 'Unknown credential.' }), { status: 401, headers: CORS });
   }
 
+  // Cryptographic verification of the WebAuthn assertion. Required when
+  // the client provides authenticatorData/signature/clientDataJSON (which
+  // the current dashboard JS does post-Sprint-12); falls back to legacy
+  // credentialId-presence-only verification for old clients that haven't
+  // been updated yet, surfacing the mode via response header so we can
+  // monitor migration progress.
+  const hasAssertion = !!(authenticatorData && signature && clientDataJSON);
+  let verifyMode = 'legacy';
+  let verifyReason = null;
+  if (hasAssertion) {
+    const expectedOrigin = `https://${new URL(request.url).hostname}`;
+    const result = await verifyAssertion({
+      storedPublicKeyB64: cred.publicKey,
+      authenticatorDataB64: authenticatorData,
+      signatureB64: signature,
+      clientDataJSONB64: clientDataJSON,
+      expectedOrigin,
+      expectedChallengeB64: challenge,
+    });
+    if (result.valid) {
+      verifyMode = result.alg || 'strict';
+    } else if (result.reason && result.reason.startsWith('stored publicKey is not SPKI')) {
+      // Legacy attestation-object credential — accept (no worse than the
+      // pre-Sprint-12 status quo) but flag for re-registration.
+      verifyMode = 'legacy-spki';
+      verifyReason = result.reason;
+    } else {
+      // Real verification failure (origin mismatch, bad signature, etc.)
+      // — refuse.
+      return new Response(JSON.stringify({
+        error: 'Assertion verification failed.',
+        detail: result.reason,
+      }), { status: 401, headers: CORS });
+    }
+  }
+
   // Bump signCount / lastUsedAt — best-effort. WebAuthn uses signCount for
   // replay defense, but failing the login because KV is over quota is a
   // worse outcome than skipping a counter update. We surface the failure
@@ -355,13 +529,28 @@ async function authComplete(request, env) {
   const token = `${expires}.${nonce}`;
   const sig = await hmacSign(secret, token);
 
-  const headers = {
-    ...CORS,
-    'Set-Cookie': `cdn_session=${token}.${sig}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
-  };
-  if (saveError) headers['X-Passkey-Counter-Save'] = `failed: ${saveError}`;
+  // Multiple Set-Cookie headers can't go through a plain object — use
+  // the array form below. We set the canonical Path=/ session, plus:
+  //   - a non-HttpOnly indicator cookie for the dashboard's login/logout
+  //     UI toggle (matches the password-login flow).
+  //   - a Max-Age=0 cookie at Path=/dashboard to clear any stale session
+  //     left over from pre-fix deploys (Slice 2 of Sprint 12).
+  const setCookies = [
+    `cdn_session=${token}.${sig}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
+    `cdn_logged_in=1; Path=/; Secure; SameSite=Strict; Max-Age=604800`,
+    `cdn_session=; Path=/dashboard; HttpOnly; Secure; SameSite=Strict; Max-Age=0`,
+  ];
 
-  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  const responseHeaders = new Headers(CORS);
+  for (const c of setCookies) responseHeaders.append('Set-Cookie', c);
+  responseHeaders.set('X-Passkey-Verification', verifyMode);
+  if (verifyReason) responseHeaders.set('X-Passkey-Verification-Reason', verifyReason);
+  if (saveError) responseHeaders.set('X-Passkey-Counter-Save', `failed: ${saveError}`);
+
+  return new Response(JSON.stringify({ ok: true, verification: verifyMode }), {
+    status: 200,
+    headers: responseHeaders,
+  });
 }
 
 /**

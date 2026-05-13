@@ -47,15 +47,23 @@ const LOGIN_HTML = `<!DOCTYPE html>
     <p class="error ERRCLASS">Invalid password. Please try again.</p>
   </form>
   <script>
+  function b64url(bytes) {
+    return btoa(String.fromCharCode(...new Uint8Array(bytes)))
+      .replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=/g,'');
+  }
+  function b64urlToBytes(s) {
+    return Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0));
+  }
   async function loginWithPasskey() {
     try {
       const beginRes = await fetch('/api/passkeys/auth/begin', { method: 'POST' });
       if (!beginRes.ok) { alert('No passkeys registered.'); return; }
       const options = await beginRes.json();
-      options.challenge = Uint8Array.from(atob(options.challenge.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0));
+      const originalChallenge = options.challenge; // keep the base64url string for the server roundtrip
+      options.challenge = b64urlToBytes(options.challenge);
       if (options.allowCredentials) {
         options.allowCredentials = options.allowCredentials.map(c => ({
-          ...c, id: Uint8Array.from(atob(c.id.replace(/-/g,'+').replace(/_/g,'/')), ch => ch.charCodeAt(0))
+          ...c, id: b64urlToBytes(c.id),
         }));
       }
       const credential = await navigator.credentials.get({ publicKey: options });
@@ -63,8 +71,15 @@ const LOGIN_HTML = `<!DOCTYPE html>
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          credentialId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=/g,''),
-          challenge: btoa(String.fromCharCode(...options.challenge)).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=/g,''),
+          credentialId: b64url(credential.rawId),
+          challenge: originalChallenge,
+          // Cryptographic verification fields (Sprint 12) — the server uses
+          // these to verify the authenticator's signature against the stored
+          // public key. Older server builds ignore them and fall through to
+          // credentialId-only checks, so this is back-compat with /api/passkeys.
+          authenticatorData: b64url(credential.response.authenticatorData),
+          signature: b64url(credential.response.signature),
+          clientDataJSON: b64url(credential.response.clientDataJSON),
         }),
       });
       if (completeRes.ok) window.location.href = '/dashboard/';

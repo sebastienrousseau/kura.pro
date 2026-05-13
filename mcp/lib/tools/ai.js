@@ -94,4 +94,23 @@ export function registerAiTools(server) {
       return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
     }
   );
+
+  server.tool(
+    'remove_background',
+    'Remove the background from an image, isolating the subject on a transparent alpha layer. **Not yet implemented** — the endpoint returns HTTP 501 because Cloudflare Workers AI does not currently include a segmentation/matting model (U^2-Net / rembg-class). The route is documented and discoverable so agents and clients can integrate ahead of the model landing; when a model becomes available the implementation will swap in without changing this contract. Use the smart_crop tool today for subject-aware framing as the nearest substitute.',
+    { url: URL_PATH },
+    async ({ url }) => {
+      // Intentionally lenient: this endpoint always returns 501, and we
+      // surface that to the agent as a structured tool result rather than
+      // a thrown error — agents should be able to read the "blocked by
+      // dependency" message and route around it.
+      try {
+        const res = await api.post('/api/ai/background-remove', { url });
+        return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+      } catch (err) {
+        const body = err?.response?.data ?? { error: { code: 'NotImplemented', message: err?.message || String(err) } };
+        return { content: [{ type: 'text', text: JSON.stringify(body, null, 2) }] };
+      }
+    }
+  );
 }

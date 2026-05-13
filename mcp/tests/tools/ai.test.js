@@ -127,4 +127,23 @@ describe('ai tools', () => {
     const url = new URL(globalThis.fetch.mock.calls[0][0]);
     expect(url.searchParams.has('size')).toBe(false);
   });
+
+  it('remove_background POSTs to /api/ai/background-remove (501 stub)', async () => {
+    // Stub returns 501 with a structured body; the MCP tool should surface
+    // the body as text content rather than throwing, so the agent can read
+    // the "blocked by dependency" hint.
+    mockFetch({
+      error: { code: 'NotImplemented', message: 'Background removal requires a segmentation model...' },
+      HttpCode: 501,
+    });
+    const tools = await getTools();
+    const result = await tools.remove_background({ url: '/x.png' });
+    const parsed = JSON.parse(result.content[0].text);
+    expect(parsed.error.code).toBe('NotImplemented');
+
+    const [url, opts] = globalThis.fetch.mock.calls[0];
+    expect(url).toContain('/api/ai/background-remove');
+    expect(opts.method).toBe('POST');
+    expect(JSON.parse(opts.body)).toEqual({ url: '/x.png' });
+  });
 });

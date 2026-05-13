@@ -54,7 +54,7 @@ describe('MCP Server', () => {
     'transform_image',
     'cache_purge',
     'pipeline_ingest',
-    // AI (7)
+    // AI (8)
     'semantic_search',
     'health_check',
     'generate_alt_text',
@@ -62,11 +62,12 @@ describe('MCP Server', () => {
     'moderate_image',
     'placeholder_lqip',
     'placeholder_blurhash',
+    'remove_background',
   ];
 
   it(`registers ${expectedTools.length} tools`, () => {
     // McpServer stores tools internally — we verify by checking the tool count
-    expect(expectedTools.length).toBe(29);
+    expect(expectedTools.length).toBe(30);
   });
 
   for (const toolName of expectedTools) {

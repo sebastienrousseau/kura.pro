@@ -7780,6 +7780,258 @@
           }
         }
       }
+    },
+    "/api/ai/background-remove": {
+      "get": {
+        "operationId": "backgroundRemoveGet",
+        "summary": "Remove image background (not yet implemented)",
+        "description": "Isolate the subject of an image on a transparent alpha layer. **This endpoint is documented but not yet implemented** \u2014 calls return HTTP 501. Cloudflare Workers AI does not currently include a segmentation/matting model (U^2-Net or rembg-class), so we cannot produce a pixel-accurate alpha mask at the edge.\n\nThe route, request shape, and response envelope are fixed now so clients and agents can integrate ahead of the model landing; when Workers AI adds a segmentation primitive (or we ship one via Workers AI Custom Models), the implementation will swap in without changing this contract.\n\nNearest substitute today: `/api/ai/smart-crop` returns a subject gravity that pairs with `/api/transform?gravity=` for subject-aware framing \u2014 not the same as transparent-background removal, but the right tool for most thumbnail-style use cases.",
+        "tags": [
+          "AI"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          },
+          {
+            "AccessKey": []
+          },
+          {
+            "BearerToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "description": "Relative asset path of the image to process.",
+            "schema": {
+              "type": "string",
+              "maxLength": 2048
+            }
+          }
+        ],
+        "responses": {
+          "501": {
+            "description": "Not Implemented. Background removal is blocked on a Workers AI segmentation model that does not yet exist in the catalog. The response body includes a `details` entry pointing at the blocking dependency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "NotImplemented",
+                    "message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI.",
+                    "details": [
+                      {
+                        "code": "BlockedByDependency",
+                        "target": "@cf/* segmentation models",
+                        "message": "No matting model in Workers AI catalog yet."
+                      }
+                    ]
+                  },
+                  "HttpCode": 501,
+                  "Message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - invalid parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 401,
+                  "Message": "Unauthorized"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "backgroundRemovePost",
+        "summary": "Remove image background (not yet implemented)",
+        "description": "Isolate the subject of an image on a transparent alpha layer. **This endpoint is documented but not yet implemented** \u2014 calls return HTTP 501. Cloudflare Workers AI does not currently include a segmentation/matting model (U^2-Net or rembg-class), so we cannot produce a pixel-accurate alpha mask at the edge.\n\nThe route, request shape, and response envelope are fixed now so clients and agents can integrate ahead of the model landing; when Workers AI adds a segmentation primitive (or we ship one via Workers AI Custom Models), the implementation will swap in without changing this contract.\n\nNearest substitute today: `/api/ai/smart-crop` returns a subject gravity that pairs with `/api/transform?gravity=` for subject-aware framing \u2014 not the same as transparent-background removal, but the right tool for most thumbnail-style use cases.",
+        "tags": [
+          "AI"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          },
+          {
+            "AccessKey": []
+          },
+          {
+            "BearerToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "url"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "maxLength": 2048,
+                    "description": "Relative asset path."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "501": {
+            "description": "Not Implemented (same body as GET).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "NotImplemented",
+                    "message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI.",
+                    "details": [
+                      {
+                        "code": "BlockedByDependency",
+                        "target": "@cf/* segmentation models",
+                        "message": "No matting model in Workers AI catalog yet."
+                      }
+                    ]
+                  },
+                  "HttpCode": 501,
+                  "Message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - invalid parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - upstream returned no usable response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream returned empty response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 401,
+                  "Message": "Unauthorized"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

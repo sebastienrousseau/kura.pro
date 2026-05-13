@@ -28,58 +28,281 @@ function ghHeaders(token) {
   };
 }
 
+// ── SVG sanitizer ──
+//
+// Defending against the regex-sanitizer bypass classes CodeQL warns
+// about (`js/incomplete-multi-character-sanitization`, `js/bad-tag-filter`)
+// means we don't write `.replace(/<script.../)` at all. Instead we walk
+// the input string with indexOf + slice, drop boundaries we recognize as
+// unsafe, and keep everything else verbatim. Three independent passes,
+// each one a focused string-walk:
+//
+//   1. stripDisallowedTags  — removes <script>, <iframe>, <foreignObject>,
+//      <object>, <embed>, <link> and their matching closers, tolerating
+//      whitespace inside the closing tag (per HTML spec) and nested-tag
+//      bypass payloads like `<scr<script>ipt>`.
+//   2. stripEventHandlers   — removes `on*` attributes from every tag,
+//      whatever whitespace/quoting they use.
+//   3. stripUnsafeUriValues — neutralizes javascript: / data:text/html
+//      URI values inside href / xlink:href / src / action / formaction
+//      attributes, replacing the value with an empty string.
+//
+// The full sanitizer iterates the three passes until the input is stable
+// (cap at 8 iterations to bound pathological deeply-nested payloads).
+// Tests live in scripts/tests/pipeline.test.js.
+
+const DISALLOWED_TAGS = new Set([
+  'script', 'iframe', 'foreignobject', 'object', 'embed', 'link',
+]);
+
+const URI_ATTRS = new Set(['href', 'xlink:href', 'src', 'action', 'formaction']);
+
 /**
- * Sanitize SVG content — strip dangerous elements and attributes.
- *
- * Iterated until no further changes happen on a pass. The fixed-point
- * loop defends against the two classes of bypass that regex-only
- * sanitization is famous for:
- *
- *   1. Nested tags — `<scr<script>ipt>` looks safe to a single-pass
- *      regex (the *inner* `<script>...</script>` matches and is
- *      removed), but removing the inner span produces `<script>` which
- *      is then renderable. A loop catches the new tag on the next pass.
- *
- *   2. Tolerant closing tags — the HTML spec accepts `</script\t\nbar>`
- *      as a valid `</script>` close. The strict regex would miss it,
- *      leaving an *unbalanced* opening `<script>` and a load of
- *      attacker-controlled JS still in the string.
- *
- * CodeQL flags both as `js/incomplete-multi-character-sanitization`
- * and `js/bad-tag-filter`; the multi-pass + permissive closer-pattern
- * is the canonical fix.
- *
- * Exported for testing.
+ * Find the next `<` that opens a tag whose lowercased name is in `names`.
+ * Returns `{ start, nameEnd, name }` or `null`.
+ */
+function findTagOpening(s, names, from = 0) {
+  let i = from;
+  while (i < s.length) {
+    const lt = s.indexOf('<', i);
+    if (lt === -1) return null;
+    // Skip "</tag" closers in this walk — handled by findTagClose.
+    if (s[lt + 1] === '/') { i = lt + 1; continue; }
+    let j = lt + 1;
+    while (j < s.length && /[a-zA-Z0-9]/.test(s[j])) j++;
+    const name = s.slice(lt + 1, j).toLowerCase();
+    if (name && names.has(name)) return { start: lt, nameEnd: j, name };
+    i = lt + 1;
+  }
+}
+
+/**
+ * Find a closing tag `</NAME...>` starting at or after `from`. Tolerates
+ * arbitrary whitespace and attribute-like cruft between the name and `>`,
+ * which HTML5 permits in closing tags.
+ */
+function findTagClose(s, name, from) {
+  let i = from;
+  const lowerName = name.toLowerCase();
+  while (i < s.length) {
+    const lt = s.indexOf('</', i);
+    if (lt === -1) return null;
+    let j = lt + 2;
+    while (j < s.length && /[a-zA-Z0-9]/.test(s[j])) j++;
+    const found = s.slice(lt + 2, j).toLowerCase();
+    if (found === lowerName) {
+      const gt = s.indexOf('>', j);
+      if (gt === -1) return null;
+      return { start: lt, end: gt + 1 };
+    }
+    i = lt + 1;
+  }
+}
+
+/**
+ * Find the `>` that ends a tag opened at `from`. Returns the index
+ * just past the `>` (or s.length if unterminated).
+ */
+function findTagEnd(s, from) {
+  let i = from;
+  let quote = null;
+  while (i < s.length) {
+    const c = s[i];
+    if (quote) {
+      if (c === quote) quote = null;
+    } else if (c === '"' || c === "'") {
+      quote = c;
+    } else if (c === '>') {
+      return i + 1;
+    }
+    i++;
+  }
+  return s.length;
+}
+
+function stripDisallowedTags(s) {
+  let out = '';
+  let i = 0;
+  while (i < s.length) {
+    const hit = findTagOpening(s, DISALLOWED_TAGS, i);
+    if (!hit) { out += s.slice(i); break; }
+    out += s.slice(i, hit.start);
+    const openEnd = findTagEnd(s, hit.nameEnd);
+    // Self-closing? Look for `/>` at the open-tag's end.
+    const selfClose = openEnd >= 2 && s[openEnd - 2] === '/';
+    if (selfClose) { i = openEnd; continue; }
+    // Find matching closer; if none, drop to EOF (defensive — an
+    // unbalanced <script> with no closer is itself an attack signal).
+    const closer = findTagClose(s, hit.name, openEnd);
+    if (!closer) { i = s.length; continue; }
+    i = closer.end;
+  }
+  // Sweep orphan closers (`</script ...>` with no opener left over).
+  return stripOrphanClosers(out);
+}
+
+function stripOrphanClosers(s) {
+  let out = '';
+  let i = 0;
+  while (i < s.length) {
+    const lt = s.indexOf('</', i);
+    if (lt === -1) { out += s.slice(i); break; }
+    let j = lt + 2;
+    while (j < s.length && /[a-zA-Z0-9]/.test(s[j])) j++;
+    const name = s.slice(lt + 2, j).toLowerCase();
+    if (DISALLOWED_TAGS.has(name)) {
+      out += s.slice(i, lt);
+      const gt = s.indexOf('>', j);
+      if (gt === -1) { i = s.length; break; }
+      i = gt + 1;
+    } else {
+      out += s.slice(i, lt + 1);
+      i = lt + 1;
+    }
+  }
+  return out;
+}
+
+/**
+ * Strip every attribute whose name starts with `on` (case-insensitive)
+ * from each tag's attribute list.
+ */
+function stripEventHandlers(s) {
+  let out = '';
+  let i = 0;
+  while (i < s.length) {
+    const lt = s.indexOf('<', i);
+    if (lt === -1) { out += s.slice(i); break; }
+    out += s.slice(i, lt);
+    // Find tag name end
+    const tagStart = lt + (s[lt + 1] === '/' ? 2 : 1);
+    let j = tagStart;
+    while (j < s.length && /[a-zA-Z0-9:-]/.test(s[j])) j++;
+    out += s.slice(lt, j);
+    // Walk attributes inside the tag
+    while (j < s.length && s[j] !== '>') {
+      if (/\s/.test(s[j])) { out += s[j]; j++; continue; }
+      // Read attribute name
+      const nameStart = j;
+      while (j < s.length && /[a-zA-Z0-9:_-]/.test(s[j])) j++;
+      // Guarantee forward progress on chars that aren't whitespace,
+      // attr-name, or `>` (stray `!`, `=` with no preceding name, etc.).
+      // Without this guard, the outer while loop would spin forever.
+      if (j === nameStart) { out += s[j]; j++; continue; }
+      const attrName = s.slice(nameStart, j).toLowerCase();
+      // Optional whitespace + '=' + quoted/unquoted value
+      let valEnd = j;
+      let k = j;
+      while (k < s.length && /\s/.test(s[k])) k++;
+      if (s[k] === '=') {
+        k++;
+        while (k < s.length && /\s/.test(s[k])) k++;
+        if (s[k] === '"' || s[k] === "'") {
+          const q = s[k]; k++;
+          while (k < s.length && s[k] !== q) k++;
+          if (k < s.length) k++; // consume closer
+        } else {
+          while (k < s.length && !/[\s>]/.test(s[k])) k++;
+        }
+        valEnd = k;
+      }
+      // Drop if this is an event handler attribute. We treat any 2+ char
+      // attribute starting with "on" as an event handler, matching the
+      // browser's own dispatch table (onclick, onmouseover, etc.).
+      if (attrName.length >= 2 && attrName.charAt(0) === 'o' && attrName.charAt(1) === 'n') {
+        // Trim a single leading whitespace we already appended for spacing,
+        // since the attribute is being removed entirely.
+        if (out.length > 0 && /\s/.test(out[out.length - 1])) out = out.slice(0, -1);
+        j = valEnd;
+      } else {
+        out += s.slice(nameStart, valEnd);
+        j = valEnd;
+      }
+    }
+    if (j < s.length) { out += s[j]; j++; }
+    i = j;
+  }
+  return out;
+}
+
+/**
+ * Replace javascript: and data:text/html URI values inside any URI-bearing
+ * attribute with an empty string. Operates per-tag so we don't false-match
+ * values in arbitrary text content.
+ */
+function stripUnsafeUriValues(s) {
+  let out = '';
+  let i = 0;
+  while (i < s.length) {
+    const lt = s.indexOf('<', i);
+    if (lt === -1) { out += s.slice(i); break; }
+    out += s.slice(i, lt);
+    const tagStart = lt + (s[lt + 1] === '/' ? 2 : 1);
+    let j = tagStart;
+    while (j < s.length && /[a-zA-Z0-9:-]/.test(s[j])) j++;
+    out += s.slice(lt, j);
+    while (j < s.length && s[j] !== '>') {
+      if (/\s/.test(s[j])) { out += s[j]; j++; continue; }
+      const nameStart = j;
+      while (j < s.length && /[a-zA-Z0-9:_-]/.test(s[j])) j++;
+      // Forward-progress guard — same rationale as in stripEventHandlers.
+      if (j === nameStart) { out += s[j]; j++; continue; }
+      const attrName = s.slice(nameStart, j).toLowerCase();
+      let k = j;
+      while (k < s.length && /\s/.test(s[k])) k++;
+      if (s[k] === '=') {
+        k++;
+        while (k < s.length && /\s/.test(s[k])) k++;
+        if (s[k] === '"' || s[k] === "'") {
+          const q = s[k];
+          const valStart = k + 1;
+          let v = valStart;
+          while (v < s.length && s[v] !== q) v++;
+          const value = s.slice(valStart, v).trim().toLowerCase();
+          const isUnsafe = URI_ATTRS.has(attrName) && (
+            value.startsWith('javascript:') || value.startsWith('data:text/html')
+          );
+          if (isUnsafe) {
+            // Normalize the cleared value to double-quoted "" — it's
+            // the canonical empty-attribute form and makes downstream
+            // diffing/assertions consistent regardless of whether the
+            // attacker payload used single or double quotes.
+            out += s.slice(nameStart, j) + '=""';
+          } else {
+            out += s.slice(nameStart, v + 1);
+          }
+          k = v + 1;
+        } else {
+          const valStart = k;
+          while (k < s.length && !/[\s>]/.test(s[k])) k++;
+          out += s.slice(nameStart, k);
+        }
+      } else {
+        out += s.slice(nameStart, k);
+      }
+      j = k;
+    }
+    if (j < s.length) { out += s[j]; j++; }
+    i = j;
+  }
+  return out;
+}
+
+/**
+ * Sanitize SVG content. Iterates the three string-walking passes until
+ * the output stabilizes (cap at 8 iterations to bound pathological
+ * deeply-nested payloads). Exported for testing.
  */
 export function sanitizeSvg(svgContent) {
-  let svg = svgContent;
+  let svg = String(svgContent || '');
   let prev;
-  let iterations = 0;
-  do {
+  for (let i = 0; i < 8; i++) {
     prev = svg;
-    // <script>...</script> with content. Closing tag may have whitespace
-    // and arbitrary attribute-like cruft before its `>` per HTML spec.
-    svg = svg.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[\s\S]*?>/gi, '');
-    // Orphan opening / self-closing <script ...>.
-    svg = svg.replace(/<script\b[^>]*\/?>/gi, '');
-    // Orphan closing </script ...>.
-    svg = svg.replace(/<\/script\b[\s\S]*?>/gi, '');
-    // Inline event handler attributes (onclick=, onerror=, etc.).
-    svg = svg.replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
-    // javascript: URIs in href / xlink:href / src / action / formaction.
-    svg = svg.replace(
-      /(href|xlink:href|src|action|formaction)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi,
-      '$1=""'
-    );
-    // data:text/html URIs.
-    svg = svg.replace(
-      /(href|xlink:href|src|action|formaction)\s*=\s*(?:"data:text\/html[^"]*"|'data:text\/html[^']*')/gi,
-      '$1=""'
-    );
-    // Stop runaway in pathological inputs. 8 passes is more than enough
-    // for any sensible nesting depth.
-    if (++iterations > 8) break;
-  } while (svg !== prev);
+    svg = stripDisallowedTags(svg);
+    svg = stripEventHandlers(svg);
+    svg = stripUnsafeUriValues(svg);
+    if (svg === prev) break;
+  }
   return svg;
 }
 

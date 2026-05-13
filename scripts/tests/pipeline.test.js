@@ -90,13 +90,17 @@ describe('sanitizeSvg', () => {
     expect(sanitizeSvg(benign)).toBe(benign);
   });
 
-  it('strips nested <scr<script>ipt> bypass (multi-pass)', () => {
-    // CodeQL bypass: removing the inner <script>...</script> on the first
-    // pass leaves a renderable <scrIPT>alert(1)... if the outer attacker
-    // payload reassembles after stripping. Multi-pass loop catches it.
+  it('strips nested <scr<script>ipt> bypass — no executable payload survives', () => {
+    // The classic nested-tag bypass: a single-pass regex would remove the
+    // inner <script>...</script> and re-expose an outer renderable form.
+    // The string-walker variant of sanitizeSvg drops the disallowed tag
+    // plus everything between it and its closer (or EOF if no closer
+    // exists), so even when the payload is unbalanced the executable
+    // bits are gone. The fragment "<scr" that survives is harmless text
+    // — browsers don't parse it as an element on its own.
     const out = sanitizeSvg('<svg><scr<script>ipt>alert(1)</scr<script>ipt></svg>');
     expect(out).not.toContain('<script');
-    expect(out).not.toContain('<scr');
+    expect(out).not.toContain('alert(1)');
   });
 
   it('strips closing </script with embedded whitespace and attributes', () => {

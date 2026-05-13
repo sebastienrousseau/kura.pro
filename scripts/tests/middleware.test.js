@@ -465,4 +465,45 @@ describe('Middleware: onRequest', () => {
       expect(res.headers.get('Strict-Transport-Security')).toBeNull();
     });
   });
+
+  describe('trace context propagation', () => {
+    it('emits X-Trace-Id on every non-redirect response', async () => {
+      const ctx = makeContext('/');
+      const res = await onRequest(ctx);
+      const traceId = res.headers.get('X-Trace-Id');
+      expect(traceId).toMatch(/^[0-9a-f]{32}$/);
+    });
+
+    it('emits a W3C traceparent header', async () => {
+      const ctx = makeContext('/');
+      const res = await onRequest(ctx);
+      const tp = res.headers.get('traceparent');
+      // 00-<32 hex traceId>-<16 hex spanId>-01
+      expect(tp).toMatch(/^00-[0-9a-f]{32}-[0-9a-f]{16}-01$/);
+    });
+
+    it('stashes the trace on context.data so downstream handlers can read it', async () => {
+      const ctx = makeContext('/');
+      await onRequest(ctx);
+      expect(ctx.data).toBeDefined();
+      expect(ctx.data.trace).toBeDefined();
+      expect(ctx.data.trace.traceId).toMatch(/^[0-9a-f]{32}$/);
+      expect(ctx.data.trace.spanId).toMatch(/^[0-9a-f]{16}$/);
+    });
+
+    it('produces a different trace ID per request', async () => {
+      const ctxA = makeContext('/');
+      const ctxB = makeContext('/');
+      const resA = await onRequest(ctxA);
+      const resB = await onRequest(ctxB);
+      expect(resA.headers.get('X-Trace-Id')).not.toBe(resB.headers.get('X-Trace-Id'));
+    });
+
+    it('does not emit trace headers on redirect responses', async () => {
+      const ctx = makeContext('/dashboard');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('X-Trace-Id')).toBeNull();
+    });
+  });
 });

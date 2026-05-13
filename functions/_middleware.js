@@ -9,6 +9,7 @@
  */
 
 import { trackRequest } from "./api/analytics.js";
+import { createTrace } from "./api/_shared.js";
 
 // Pre-compiled extension check — faster than regex for hot path
 const ASSET_EXT = new Set(["webp", "avif", "jxl", "png", "svg", "ico", "mp4"]);
@@ -111,7 +112,7 @@ const SECURITY_HEADERS = {
   "Cross-Origin-Resource-Policy": "cross-origin",
 };
 
-function applySecurityHeaders(response) {
+function applyResponseEnvelope(response, trace) {
   // Don't touch redirects or responses with no body — they don't need it
   // and mutating headers on Response.redirect() is awkward.
   if (response.status >= 300 && response.status < 400) return response;
@@ -119,6 +120,14 @@ function applySecurityHeaders(response) {
   const headers = new Headers(response.headers);
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
     if (!headers.has(k)) headers.set(k, v);
+  }
+  // Trace ID surfaces in two headers so it's easy to extract from either
+  // server logs (X-Trace-Id) or anything that already understands W3C
+  // distributed tracing (traceparent). Both fields are safe to expose —
+  // they're random UUIDs with no PII.
+  if (trace) {
+    if (!headers.has("X-Trace-Id")) headers.set("X-Trace-Id", trace.traceId);
+    if (!headers.has("traceparent")) headers.set("traceparent", trace.traceparent);
   }
   return new Response(response.body, {
     status: response.status,
@@ -128,8 +137,23 @@ function applySecurityHeaders(response) {
 }
 
 export async function onRequest(context) {
+  // Mint a trace at request entry. Downstream handlers can pick it up via
+  // context.data.trace (Cloudflare passes context.data between handlers)
+  // or read traceparent off the request headers; existing handlers keep
+  // working unchanged.
+  const trace = createTrace(context.request);
+  context.data = context.data || {};
+  context.data.trace = trace;
+  try {
+    const inboundHeaders = new Headers(context.request.headers);
+    if (!inboundHeaders.has("traceparent")) {
+      inboundHeaders.set("traceparent", trace.traceparent);
+      context.request = new Request(context.request, { headers: inboundHeaders });
+    }
+  } catch { /* immutable request — fall back to context.data only */ }
+
   const response = await routeRequest(context);
-  return applySecurityHeaders(response);
+  return applyResponseEnvelope(response, trace);
 }
 
 async function routeRequest(context) {

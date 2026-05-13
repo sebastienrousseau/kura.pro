@@ -279,17 +279,30 @@
           const text = e.target.result;
           svgBase64 = btoa(text);
 
-          // Preview
+          // Preview — render via Blob URL + <img>, NOT innerHTML.
+          //
+          // Dropping the raw SVG into a container's innerHTML would
+          // execute any <script> the file carries (or fire any
+          // onerror=, onload=, etc. handlers) in the admin's dashboard
+          // origin. That's a self-XSS surface even though the
+          // server-side sanitizer cleans the SVG before it's stored.
+          //
+          // Browsers do NOT execute scripts when an SVG is loaded via
+          // <img src="...">: script tags inside are ignored and event
+          // handlers don't fire. Same visual result, zero script
+          // surface in the dashboard session.
           const preview = $('#preview');
           preview.innerHTML = '';
-          const container = document.createElement('div');
-          container.innerHTML = text;
-          const svgEl = container.querySelector('svg');
-          if (svgEl) {
-            svgEl.style.maxWidth = '200px';
-            svgEl.style.maxHeight = '200px';
-            preview.appendChild(svgEl);
-          }
+          const blob = new Blob([text], { type: 'image/svg+xml' });
+          const blobUrl = URL.createObjectURL(blob);
+          const img = document.createElement('img');
+          img.src = blobUrl;
+          img.alt = file.name || 'SVG preview';
+          img.style.maxWidth = '200px';
+          img.style.maxHeight = '200px';
+          img.addEventListener('load', () => URL.revokeObjectURL(blobUrl), { once: true });
+          img.addEventListener('error', () => URL.revokeObjectURL(blobUrl), { once: true });
+          preview.appendChild(img);
           preview.classList.add('visible');
           updateSubmit();
         };

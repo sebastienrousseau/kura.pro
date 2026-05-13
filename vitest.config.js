@@ -34,6 +34,7 @@ export default defineConfig({
         'functions/api/insights/top-assets.js',
         'functions/api/purge.js',
         'functions/api/lqip.js',
+        'functions/api/blurhash.js',
         'functions/api/ai/alt-text.js',
         'functions/api/ai/smart-crop.js',
         'functions/api/ai/moderate.js',

@@ -15,7 +15,7 @@ import {
   AI_COST, aiBudgetState, aiBudgetCharge, aiBudgetTrip, isAiQuotaError,
   normalizeQuery, hashString, buildCacheKey, cacheGet, cacheSet,
 } from './_shared.js';
-import fallbackData from './chat-fallback.json' with { type: 'json' };
+import fallbackData from './chat-fallback.json';
 
 const MONTHLY_LIMIT = 1000;
 const CHAT_CACHE_TTL_SEC = 86400;

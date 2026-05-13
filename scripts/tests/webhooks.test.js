@@ -68,31 +68,175 @@ describe('Webhooks API', () => {
       expect(res.status).toBe(401);
     });
 
+    // A 32+ char secret is now mandatory; use a constant 64-char hex string.
+    const SECRET = 'a'.repeat(64);
+
     it('creates a webhook', async () => {
       const kv = makeKV();
-      const ctx = makeCtx('POST', '', { key: 'test-key', kv, body: { url: 'https://hook.example.com/cb', events: ['asset.created', 'asset.deleted'] } });
+      const ctx = makeCtx('POST', '', { key: 'test-key', kv, body: {
+        url: 'https://hook.example.com/cb', events: ['asset.created', 'asset.deleted'], secret: SECRET,
+      } });
       const res = await onRequestPost(ctx);
       expect(res.status).toBe(201);
       const json = await res.json();
       expect(json.Webhook.url).toBe('https://hook.example.com/cb');
       expect(json.Webhook.events).toEqual(['asset.created', 'asset.deleted']);
       expect(json.Webhook.id).toBeTruthy();
+      expect(json.Webhook.secret).toBe(SECRET);
     });
 
     it('rejects non-https URLs', async () => {
-      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'http://evil.com', events: ['asset.created'] } });
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'http://evil.com', events: ['asset.created'], secret: SECRET } });
       const res = await onRequestPost(ctx);
       expect(res.status).toBe(400);
     });
 
-    it('allows http://localhost for dev', async () => {
-      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'http://localhost:3000/hook', events: ['asset.created'] } });
+    it('rejects http://localhost (no longer permitted)', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'http://localhost:3000/hook', events: ['asset.created'], secret: SECRET } });
       const res = await onRequestPost(ctx);
-      expect(res.status).toBe(201);
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects https://localhost host', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://localhost:3000/hook', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.Message.toLowerCase()).toContain('internal');
+    });
+
+    it('rejects RFC1918 IP hosts', async () => {
+      const cases = ['https://10.0.0.1/h', 'https://192.168.1.1/h', 'https://172.16.0.1/h', 'https://127.0.0.1/h'];
+      for (const url of cases) {
+        const ctx = makeCtx('POST', '', { key: 'test-key', body: { url, events: ['asset.created'], secret: SECRET } });
+        const res = await onRequestPost(ctx);
+        expect(res.status).toBe(400);
+      }
+    });
+
+    it('rejects 0.0.0.0/8 hosts', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://0.0.0.0/h', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects 0/8 IPs other than the literal 0.0.0.0', async () => {
+      // 0.1.2.3 skips the early-return literal check and hits `if (a === 0)`.
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://0.1.2.3/h', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+    });
+
+    it('accepts public IPs that look close to private ranges but aren\'t', async () => {
+      // Each URL below targets a specific && branch in isBlockedHost:
+      //   169.253.x.x — NOT link-local (link-local is 169.254.0.0/16)
+      //   192.169.x.x — NOT RFC1918
+      //   172.15.x.x  — NOT in 172.16.0.0/12 (lower boundary - 1)
+      //   172.32.x.x  — NOT in 172.16.0.0/12 (upper boundary + 1)
+      const kv = makeKV();
+      for (const url of [
+        'https://169.253.1.1/h',
+        'https://192.169.1.1/h',
+        'https://172.15.1.1/h',
+        'https://172.32.1.1/h',
+      ]) {
+        const ctx = makeCtx('POST', '', {
+          key: 'test-key', kv, body: { url, events: ['asset.created'], secret: SECRET },
+        });
+        const res = await onRequestPost(ctx);
+        expect(res.status).toBe(201);
+      }
+    });
+
+    it('rejects IPv6 unique-local (fd00::/8) hosts', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://[fd00::1]/h', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects empty-string URL', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: '', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.Message).toContain('required');
+    });
+
+    it('rejects link-local 169.254.169.254 (cloud metadata)', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://169.254.169.254/latest/meta-data/', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects other 169.254.x.x link-local addresses', async () => {
+      // Bypasses the literal "169.254.169.254" check at the top of
+      // isBlockedHost and hits the IPv4 range check at line 66.
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://169.254.1.1/h', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects .internal and .local suffixes', async () => {
+      for (const url of ['https://service.internal/h', 'https://printer.local/h']) {
+        const ctx = makeCtx('POST', '', { key: 'test-key', body: { url, events: ['asset.created'], secret: SECRET } });
+        const res = await onRequestPost(ctx);
+        expect(res.status).toBe(400);
+      }
+    });
+
+    it('rejects URLs with embedded credentials', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://user:pass@example.com/h', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.Message.toLowerCase()).toContain('credentials');
+    });
+
+    it('rejects URLs longer than 2048 chars', async () => {
+      const longPath = 'a'.repeat(2100);
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: `https://example.com/${longPath}`, events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects malformed URLs', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'not a url', events: ['asset.created'], secret: SECRET } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects a missing secret', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://hook.example.com/cb', events: ['asset.created'] } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.Message).toContain('32 characters');
+    });
+
+    it('rejects a short secret (< 32 chars)', async () => {
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://hook.example.com/cb', events: ['asset.created'], secret: 'short' } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects oversized request body via Content-Length', async () => {
+      const h = new Headers();
+      h.set('AccountKey', 'test-key');
+      h.set('content-length', String(100_000));
+      const ctx = {
+        request: new Request('https://cloudcdn.pro/api/webhooks', {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify({ url: 'https://hook.example.com/cb', events: ['asset.created'], secret: SECRET, pad: 'x'.repeat(100_000) }),
+        }),
+        env: { ACCOUNT_KEY: 'test-key', RATE_KV: makeKV() },
+      };
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(413);
     });
 
     it('rejects invalid events', async () => {
-      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://a.com', events: ['invalid.event'] } });
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://hook.example.com/cb', events: ['invalid.event'], secret: SECRET } });
       const res = await onRequestPost(ctx);
       expect(res.status).toBe(400);
       const json = await res.json();
@@ -106,7 +250,7 @@ describe('Webhooks API', () => {
       const kv = makeKV({ 'webhooks:registered': JSON.stringify(full) });
       const ctx = makeCtx('POST', '', {
         key: 'test-key', kv,
-        body: { url: 'https://new.example.com/hook', events: ['asset.created'] },
+        body: { url: 'https://new.example.com/hook', events: ['asset.created'], secret: SECRET },
       });
       const res = await onRequestPost(ctx);
       expect(res.status).toBe(400);
@@ -115,7 +259,7 @@ describe('Webhooks API', () => {
     });
 
     it('rejects empty events', async () => {
-      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://a.com', events: [] } });
+      const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://hook.example.com/cb', events: [], secret: SECRET } });
       const res = await onRequestPost(ctx);
       expect(res.status).toBe(400);
     });

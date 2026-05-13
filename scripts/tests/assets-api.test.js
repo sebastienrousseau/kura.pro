@@ -338,4 +338,48 @@ describe('Metadata API — extended', () => {
     expect(res.status).toBe(204);
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
   });
+
+  describe('rate limit and error paths', () => {
+    it('returns 429 when rate limit is exceeded', async () => {
+      const ctx = makeCtx('/api/assets', { accessKey: 'test-key' });
+      // Override env with a saturated RATE_KV so checkRateLimit denies.
+      ctx.env.RATE_KV = {
+        get: vi.fn().mockResolvedValue('99999'),
+        put: vi.fn(),
+      };
+      const res = await assetsModule.onRequestGet(ctx);
+      expect(res.status).toBe(429);
+      expect(res.headers.get('Retry-After')).toBeTruthy();
+    });
+
+    it('sorts by project name (ascending) when sort=project', async () => {
+      const ctx = makeCtx('/api/assets?sort=project&order=asc&per_page=200', { accessKey: 'test-key' });
+      const res = await assetsModule.onRequestGet(ctx);
+      const json = await res.json();
+      const projects = json.Data.map(a => a.project);
+      const sorted = [...projects].sort();
+      expect(projects).toEqual(sorted);
+    });
+
+    it('sorts by project name (descending) when sort=project&order=desc', async () => {
+      const ctx = makeCtx('/api/assets?sort=project&order=desc&per_page=200', { accessKey: 'test-key' });
+      const res = await assetsModule.onRequestGet(ctx);
+      const json = await res.json();
+      const projects = json.Data.map(a => a.project);
+      const sorted = [...projects].sort().reverse();
+      expect(projects).toEqual(sorted);
+    });
+
+    it('returns 503 when the manifest fetch throws', async () => {
+      const ctx = makeCtx('/api/assets', { accessKey: 'test-key' });
+      // Bust the isolate-scoped manifest cache by ensuring a fresh first call.
+      const shared = await import('../../functions/api/_shared.js');
+      shared.clearManifestCache();
+      ctx.env.ASSETS = { fetch: vi.fn().mockRejectedValue(new Error('boom')) };
+      const res = await assetsModule.onRequestGet(ctx);
+      expect(res.status).toBe(503);
+      const json = await res.json();
+      expect(json.Message).toContain('manifest');
+    });
+  });
 });

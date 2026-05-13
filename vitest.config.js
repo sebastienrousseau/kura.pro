@@ -16,6 +16,10 @@ export default defineConfig({
         'functions/api/health.js',
         'functions/api/logs.js',
         'functions/api/rate_limiter_do.js',
+        'functions/api/assets.js',
+        'functions/api/search.js',
+        'functions/api/core/zones.js',
+        'functions/api/storage/batch.js',
       ],
       all: false,
       thresholds: {

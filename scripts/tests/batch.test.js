@@ -294,6 +294,125 @@ describe('Batch Upload API', () => {
       expect(json.Message).toContain('1 file(s) uploaded');
     });
 
+    it('treats a malformed percent-escape in file.path as the raw string', async () => {
+      // Exercises the catch branch around decodeURIComponent in batch.js:79.
+      // Path includes an invalid %FX escape; decode throws and the handler
+      // falls back to the raw path, which still passes the traversal checks.
+      globalThis.fetch = vi.fn()
+        .mockResolvedValueOnce(new Response(JSON.stringify({ object: { sha: 'h' } }), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ tree: { sha: 't' } }), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'b' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'nt' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'c' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ object: { sha: 'c' } }), { status: 200 }));
+      const ctx = makeContext({
+        accessKey: 'test-key-123',
+        body: { files: [{ path: 'clients/test/%FX-malformed.svg', content: 'PHN2Zz48L3N2Zz4=', encoding: 'base64' }] },
+        env: { STORAGE_KEY: 'test-key-123', GITHUB_TOKEN: 'g', GITHUB_REPO: 'u/r' },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(201);
+    });
+
+    it('defaults to base64 encoding when file.encoding is omitted', async () => {
+      // Exercises the falsy branch of `file.encoding || 'base64'` in batch.js.
+      globalThis.fetch = vi.fn()
+        .mockResolvedValueOnce(new Response(JSON.stringify({ object: { sha: 'h' } }), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ tree: { sha: 't' } }), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'b' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'nt' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'c' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ object: { sha: 'c' } }), { status: 200 }));
+      const ctx = makeContext({
+        accessKey: 'test-key-123',
+        // No `encoding` field on this file.
+        body: { files: [{ path: 'clients/test/no-encoding.svg', content: 'PHN2Zz48L3N2Zz4=' }] },
+        env: { STORAGE_KEY: 'test-key-123', GITHUB_TOKEN: 'g', GITHUB_REPO: 'u/r' },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(201);
+      const blobCall = globalThis.fetch.mock.calls[2]; // 3rd fetch = blob POST
+      const blobBody = JSON.parse(blobCall[1].body);
+      expect(blobBody.encoding).toBe('base64');
+    });
+
+    it('swallows cache-purge fetch failures without affecting the response', async () => {
+      // The purge call is fire-and-forget via waitUntil + .catch(() => {}).
+      // Force the catch to run so its handler (batch.js:172) is covered.
+      const waitUntils = [];
+      const ctx = makeContext({
+        accessKey: 'test-key-123',
+        body: { files: [validFile()] },
+        env: {
+          STORAGE_KEY: 'test-key-123',
+          GITHUB_TOKEN: 'g', GITHUB_REPO: 'u/r',
+          CLOUDFLARE_ZONE_ID: 'z', CLOUDFLARE_API_TOKEN: 't',
+        },
+      });
+      ctx.waitUntil = (p) => { waitUntils.push(p); };
+      let purgeFetchCall = 0;
+      globalThis.fetch = vi.fn().mockImplementation((url) => {
+        if (url.includes('purge_cache')) {
+          purgeFetchCall++;
+          return Promise.reject(new Error('purge network down'));
+        }
+        return Promise.resolve(new Response(JSON.stringify({ object: { sha: 'x' }, tree: { sha: 't' }, sha: 'x' }), { status: 200 }));
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(201);
+      // Drain waitUntil so the catch handler actually runs.
+      await Promise.all(waitUntils);
+      expect(purgeFetchCall).toBe(1);
+    });
+
+    it('cache purge URLs preserve paths that do not start with clients/', async () => {
+      // Exercises the false path of the clients/ prefix-strip ternary in batch.js.
+      globalThis.fetch = vi.fn()
+        .mockResolvedValueOnce(new Response(JSON.stringify({ object: { sha: 'h' } }), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ tree: { sha: 't' } }), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'b' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'nt' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ sha: 'c' }), { status: 201 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ object: { sha: 'c' } }), { status: 200 }))
+        .mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
+      const waitUntilFn = vi.fn();
+      const ctx = makeContext({
+        accessKey: 'test-key-123',
+        body: { files: [validFile('stocks/images/non-clients-photo.webp')] },
+        env: {
+          STORAGE_KEY: 'test-key-123',
+          GITHUB_TOKEN: 'ghp_test', GITHUB_REPO: 'user/repo',
+          CLOUDFLARE_ZONE_ID: 'zone123', CLOUDFLARE_API_TOKEN: 'cftoken',
+        },
+      });
+      ctx.waitUntil = waitUntilFn;
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(201);
+      // The purge call (last fetch invocation) must contain the un-stripped path
+      const purgeCall = globalThis.fetch.mock.calls.at(-1);
+      const purgeBody = JSON.parse(purgeCall[1].body);
+      expect(purgeBody.files[0]).toContain('stocks/images/non-clients-photo.webp');
+      expect(purgeBody.files[0]).not.toContain('/clients/');
+    });
+
+    it('returns 500 when GitHub commit fetch fails (between ref and blob)', async () => {
+      globalThis.fetch = vi.fn()
+        .mockResolvedValueOnce(new Response(JSON.stringify({ object: { sha: 'h' } }), { status: 200 }))
+        .mockResolvedValueOnce(new Response('forbidden', { status: 403 })); // commit fetch fails
+      const ctx = makeContext({
+        accessKey: 'test-key-123',
+        body: { files: [validFile()] },
+        env: { STORAGE_KEY: 'test-key-123', GITHUB_TOKEN: 'g', GITHUB_REPO: 'u/r' },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(500);
+      // The generic catch path stamps a templated user-facing message; we
+      // assert on the shape, not the specific phase that failed.
+      const json = await res.json();
+      expect(json.HttpCode).toBe(500);
+      expect(json.Message.toLowerCase()).toContain('batch upload');
+    });
+
     it('triggers cache purge when Cloudflare env vars are set', async () => {
       globalThis.fetch = vi.fn()
         .mockResolvedValueOnce(new Response(JSON.stringify({ object: { sha: 'h' } }), { status: 200 }))  // ref

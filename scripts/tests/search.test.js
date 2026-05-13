@@ -408,6 +408,140 @@ describe('GET /api/search', () => {
     }
   });
 
+  it('returns 429 when the rate limit is exceeded', async () => {
+    const ctx = makeCtx('/api/search?q=anything');
+    ctx.env.RATE_KV = {
+      get: vi.fn().mockResolvedValue('9999'),
+      put: vi.fn(),
+    };
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(429);
+    expect(res.headers.get('Retry-After')).toBeTruthy();
+  });
+
+  it('recompute-min covers both then and else branches after eviction', async () => {
+    // Constructs a manifest where:
+    //   - Three entries score equally low.
+    //   - One entry scores higher and triggers eviction.
+    // After eviction, the recompute-min loop iterates twice, with one
+    // comparison strictly less (TRUE branch) and one equal (ELSE branch).
+    //
+    // limit=3 forces the heap to size 3 before eviction, which is what makes
+    // the recompute-min loop iterate at least twice.
+    const shared = await import('../../functions/api/_shared.js');
+    shared.getManifest.mockResolvedValueOnce([
+      { name: 'ent1-blue', path: '/a', project: 'p', category: 'c', format: 'webp', size: 1 },
+      { name: 'ent2-blue', path: '/b', project: 'p', category: 'c', format: 'webp', size: 1 },
+      { name: 'ent3-blue', path: '/c', project: 'p', category: 'c', format: 'webp', size: 1 },
+      { name: 'ent4-blue-pattern', path: '/d', project: 'p', category: 'c', format: 'webp', size: 1 },
+    ]);
+    const ctx = makeCtx('/api/search?q=blue+pattern&limit=3');
+    const res = await onRequestGet(ctx);
+    const json = await res.json();
+    expect(json.results).toHaveLength(3);
+    // Top result is the multi-match entry which displaced one of the singles.
+    expect(json.results[0].name).toBe('ent4-blue-pattern');
+    // Restore default behaviour for subsequent tests.
+    shared.getManifest.mockResolvedValue(testManifest);
+  });
+
+  it('replaces a lower-scoring result with a higher one when the heap is full', async () => {
+    // Forces all four interesting branches in fuzzySearch:
+    //   - Initial find-min loop (after second push) takes the THEN branch.
+    //   - Recompute-min loop (after eviction) takes the THEN branch.
+    //
+    // Token order: banking, hero, dark, blue, gradient, pattern (6 tokens,
+    // invLen = 1/6 ≈ 0.167). Iteration over the 4-entry test manifest:
+    //   1. dark-blue-banking-hero → banking, hero, dark, blue → 4/6 = 0.667
+    //   2. nature-green-landscape → 0 matches → SKIP
+    //   3. red-abstract-pattern   → pattern → 1/6 = 0.167 — heap fills to
+    //      [0.667, 0.167]; find-min runs and the inner if compares
+    //      0.167 < 0.667 → TRUE.
+    //   4. blue-gradient-bg       → banking (in project "bankingonai"),
+    //      blue, gradient → 3/6 = 0.5 — strictly greater than minScore
+    //      (0.167) and strictly less than the existing max (0.667), so
+    //      eviction runs and the recompute-min loop's inner if compares
+    //      0.5 < 0.667 → TRUE.
+    //
+    // Result heap: [{0.667 entry 1}, {0.5 entry 4}].
+    const ctx = makeCtx('/api/search?q=banking+hero+dark+blue+gradient+pattern&limit=2');
+    const res = await onRequestGet(ctx);
+    const json = await res.json();
+    expect(json.results).toHaveLength(2);
+    expect(json.results[0].name).toContain('banking-hero');
+    expect(json.results[1].name).toBe('blue-gradient-bg');
+    expect(json.results[0].score).toBeGreaterThan(json.results[1].score);
+  });
+
+  it('falls back to the "unknown" client-IP key when cf-connecting-ip is missing', async () => {
+    // Forces the right-hand side of `cf-connecting-ip || 'unknown'`.
+    const ctx = {
+      request: { url: 'https://cloudcdn.pro/api/search?q=banking', headers: new Headers() },
+      env: {
+        AI: undefined, VECTOR_INDEX: undefined,
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+        ASSETS: { fetch: vi.fn().mockResolvedValue(new Response('[]')) },
+      },
+    };
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(200);
+    // checkRateLimit was invoked with key suffix "unknown"
+    expect(ctx.env.RATE_KV.put).toHaveBeenCalledWith(
+      expect.stringContaining(':unknown'),
+      expect.any(String),
+      expect.any(Object),
+    );
+  });
+
+  it('handles vector matches with empty metadata via the || fallbacks', async () => {
+    // Score above threshold so results.push runs, but metadata is empty so
+    // every `m.metadata?.X || default` evaluates its right operand.
+    const ctx = makeCtx('/api/search?q=banking', {
+      AI: { run: vi.fn().mockResolvedValue({ data: [[0.1]] }) },
+      VECTOR_INDEX: {
+        query: vi.fn().mockResolvedValue({
+          matches: [{ id: 'fallback-id', score: 0.9, metadata: {} }],
+        }),
+      },
+    });
+    const res = await onRequestGet(ctx);
+    const json = await res.json();
+    expect(json.results).toHaveLength(1);
+    expect(json.results[0].name).toBe('fallback-id'); // falls back to m.id
+    expect(json.results[0].path).toBe('');
+    expect(json.results[0].project).toBe('');
+    expect(json.results[0].category).toBe('');
+    expect(json.results[0].format).toBe('');
+    expect(json.results[0].size).toBe(0);
+  });
+
+  it('returns 500 when getManifest itself throws (defensive)', async () => {
+    const shared = await import('../../functions/api/_shared.js');
+    // Replace the mocked resolver with one that rejects for this test only.
+    const prior = shared.getManifest;
+    shared.getManifest.mockRejectedValueOnce(new Error('manifest down'));
+    try {
+      const ctx = makeCtx('/api/search?q=banking');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(500);
+      const json = await res.json();
+      expect(json.error).toContain('Search failed');
+    } finally {
+      // restore default behaviour for subsequent tests
+      shared.getManifest.mockResolvedValue(testManifest);
+      void prior;
+    }
+  });
+
+  it('OPTIONS preflight returns 204 with proper CORS headers', async () => {
+    const { onRequestOptions } = await import('../../functions/api/search.js');
+    const res = await onRequestOptions();
+    expect(res.status).toBe(204);
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
+    expect(res.headers.get('Access-Control-Allow-Methods')).toContain('GET');
+    expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
+  });
+
   it('trips circuit breaker on AI quota error', async () => {
     const put = vi.fn().mockResolvedValue(undefined);
     const quotaErr = Object.assign(new Error('429 Too Many Requests'), { status: 429 });

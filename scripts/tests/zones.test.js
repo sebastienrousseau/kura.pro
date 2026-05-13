@@ -274,4 +274,74 @@ describe('Core Zones API', () => {
     const res = await onRequestPost(ctx);
     expect(res.status).toBe(401);
   });
+
+  it('POST returns 400 when the body is malformed JSON', async () => {
+    const h = new Headers();
+    h.set('AccountKey', 'acct-123');
+    const ctx = {
+      request: {
+        url: 'https://cloudcdn.pro/api/core/zones',
+        method: 'POST',
+        headers: h,
+        // request.json() rejects to simulate a malformed body
+        json: vi.fn().mockRejectedValue(new Error('malformed')),
+      },
+      env: {
+        ACCOUNT_KEY: 'acct-123',
+        GITHUB_TOKEN: 'gh-token',
+        GITHUB_REPO: 'owner/repo',
+        RATE_KV: makeKV(),
+        ASSETS: { fetch: vi.fn().mockResolvedValue(new Response('[]')) },
+      },
+    };
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(400);
+    expect((await res.json()).Message.toLowerCase()).toContain('json');
+  });
+
+  it('GET formats byte-scale total sizes in the listing', async () => {
+    // Forces the `b < 1024` branch in formatBytes (zones.js:185).
+    const tinyManifest = [
+      { name: 'tiny.svg', path: 'akande/v1/logos/tiny.svg', project: 'akande', category: 'logos', format: 'svg', size: 64 },
+    ];
+    const h = new Headers();
+    h.set('AccountKey', 'acct-123');
+    const ctx = {
+      request: { url: 'https://cloudcdn.pro/api/core/zones', method: 'GET', headers: h },
+      env: {
+        ACCOUNT_KEY: 'acct-123',
+        RATE_KV: makeKV(),
+        ASSETS: { fetch: vi.fn().mockResolvedValue(new Response(JSON.stringify(tinyManifest), { status: 200 })) },
+      },
+    };
+    const shared = await import('../../functions/api/_shared.js');
+    shared.clearManifestCache();
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain(' B"');
+  });
+
+  it('GET formats MB-scale total sizes in the listing', async () => {
+    // Manifest with a >1 MB asset forces the formatBytes() MB branch.
+    const bigManifest = [
+      { name: 'huge.mp4', path: 'akande/v1/video/huge.mp4', project: 'akande', category: 'video', format: 'mp4', size: 2 * 1048576 },
+    ];
+    const h = new Headers();
+    h.set('AccountKey', 'acct-123');
+    const ctx = {
+      request: { url: 'https://cloudcdn.pro/api/core/zones', method: 'GET', headers: h },
+      env: {
+        ACCOUNT_KEY: 'acct-123',
+        RATE_KV: makeKV(),
+        ASSETS: { fetch: vi.fn().mockResolvedValue(new Response(JSON.stringify(bigManifest), { status: 200 })) },
+      },
+    };
+    const shared = await import('../../functions/api/_shared.js');
+    shared.clearManifestCache();
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain('MB');
+  });
 });

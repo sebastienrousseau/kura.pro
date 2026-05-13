@@ -11,6 +11,22 @@
     }
     return CDN_BASE + path;
   }
+
+  // HTML-attribute escape for snippet builders. Filenames can contain
+  // characters that an HTML parser would re-interpret — `&` is the big
+  // one (e.g. `henry-&-co-2059736.webp`'s `&co` would parse as a busted
+  // HTML entity when pasted into a page). Apply this anywhere we drop a
+  // URL or asset.name into the value of an attribute that will later be
+  // re-parsed as HTML.
+  function htmlAttr(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   const PAGE_SIZE = 60;
 
   let manifest = [];
@@ -242,7 +258,7 @@
       const type = btn.dataset.type;
       if (type === 'url') copyToClipboard(cdnUrl, 'URL');
       else if (type === 'markdown') copyToClipboard(`![${asset.name}](${cdnUrl})`, 'Markdown');
-      else if (type === 'html') copyToClipboard(`<img src="${cdnUrl}" alt="${asset.name}">`, 'HTML');
+      else if (type === 'html') copyToClipboard(`<img src="${htmlAttr(cdnUrl)}" alt="${htmlAttr(asset.name)}">`, 'HTML');
       else if (type === 'transform') openTransformPanel('/' + asset.path, asset.name);
     });
     return card;
@@ -360,7 +376,7 @@
     tfOutput.textContent = url || '';
 
     if (url) {
-      document.getElementById('tf-snippet-html').textContent = `<img src="${url}" alt="Asset" loading="lazy">`;
+      document.getElementById('tf-snippet-html').textContent = `<img src="${htmlAttr(url)}" alt="Asset" loading="lazy">`;
       document.getElementById('tf-snippet-md').textContent = `![Asset](${url})`;
       document.getElementById('tf-snippet-css').textContent = `background-image: url('${url}');`;
     }

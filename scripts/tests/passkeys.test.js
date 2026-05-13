@@ -157,6 +157,50 @@ describe('Passkeys API', () => {
       expect(cookie).toContain('SameSite=Strict');
     });
 
+    it('still authenticates when KV.put fails on signCount update (best-effort)', async () => {
+      // Simulate the production failure mode: KV is over its daily write
+      // quota, so saveCredentials throws — but the user's passkey is real
+      // and shouldn't be rejected because we couldn't bump a counter.
+      const credsList = [{ credentialId: 'cred-1', signCount: 5 }];
+      const failingKv = {
+        get: vi.fn(async (key) => {
+          if (key === 'passkeys:credentials') return JSON.stringify(credsList);
+          return null;
+        }),
+        put: vi.fn(async (key) => {
+          if (key === 'passkeys:credentials') throw new Error('KV put() limit exceeded for the day.');
+        }),
+      };
+
+      const beginRes = await onRequestPost(makeCtx('/auth/begin', 'POST', { kv: failingKv }));
+      const { challenge } = await beginRes.json();
+
+      const ctx = makeCtx('/auth/complete', 'POST', {
+        kv: failingKv,
+        body: { credentialId: 'cred-1', challenge },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Set-Cookie')).toContain('cdn_session=');
+      // The failure is surfaced via header so it's visible in logs.
+      expect(res.headers.get('X-Passkey-Counter-Save')).toContain('KV put() limit exceeded');
+    });
+
+    it('sets the session cookie with Path=/ so /api/passkeys/* sees it', async () => {
+      const kv = makeKV({
+        'passkeys:credentials': JSON.stringify([{ credentialId: 'cred-1', signCount: 0 }]),
+      });
+      const beginRes = await onRequestPost(makeCtx('/auth/begin', 'POST', { kv }));
+      const { challenge } = await beginRes.json();
+
+      const ctx = makeCtx('/auth/complete', 'POST', {
+        kv,
+        body: { credentialId: 'cred-1', challenge },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.headers.get('Set-Cookie')).toContain('Path=/');
+    });
+
     it('rejects a challenge issued for the register flow (cross-flow replay defence)', async () => {
       const kv = makeKV({
         'passkeys:credentials': JSON.stringify([{ credentialId: 'cred-1', signCount: 0 }]),

@@ -334,10 +334,18 @@ async function authComplete(request, env) {
     return new Response(JSON.stringify({ error: 'Unknown credential.' }), { status: 401, headers: CORS });
   }
 
-  // Update last used
+  // Bump signCount / lastUsedAt — best-effort. WebAuthn uses signCount for
+  // replay defense, but failing the login because KV is over quota is a
+  // worse outcome than skipping a counter update. We surface the failure
+  // via a response header so operators can see it in logs.
   cred.lastUsedAt = new Date().toISOString();
   cred.signCount++;
-  await saveCredentials(kv, creds);
+  let saveError = null;
+  try {
+    await saveCredentials(kv, creds);
+  } catch (err) {
+    saveError = err?.message || String(err);
+  }
 
   // Create session using the same secret we signed the challenge with —
   // both flows use challengeSecret(env), which falls back to DASHBOARD_SECRET
@@ -347,13 +355,13 @@ async function authComplete(request, env) {
   const token = `${expires}.${nonce}`;
   const sig = await hmacSign(secret, token);
 
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: {
-      ...CORS,
-      'Set-Cookie': `cdn_session=${token}.${sig}; Path=/dashboard; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
-    },
-  });
+  const headers = {
+    ...CORS,
+    'Set-Cookie': `cdn_session=${token}.${sig}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
+  };
+  if (saveError) headers['X-Passkey-Counter-Save'] = `failed: ${saveError}`;
+
+  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
 }
 
 /**

@@ -2002,6 +2002,108 @@
           }
         },
         "description": "Response from /api/core/audit-logs: persistent audit trail entries (90-day retention)."
+      },
+      "HealthResponse": {
+        "type": "object",
+        "description": "Service health summary, including per-binding probe results when `?deep=1` is set.",
+        "required": [
+          "status",
+          "timestamp",
+          "apiVersion",
+          "bindings",
+          "checks"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded"
+            ],
+            "description": "Overall service status."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "apiVersion": {
+            "type": "string"
+          },
+          "bindings": {
+            "type": "object",
+            "description": "Boolean presence of each Cloudflare binding.",
+            "properties": {
+              "assets": {
+                "type": "boolean"
+              },
+              "kv": {
+                "type": "boolean"
+              },
+              "ai": {
+                "type": "boolean"
+              },
+              "vectorize": {
+                "type": "boolean"
+              },
+              "rateLimiter": {
+                "type": "boolean"
+              },
+              "metrics": {
+                "type": "boolean"
+              },
+              "webhookQueue": {
+                "type": "boolean"
+              },
+              "auditLogKv": {
+                "type": "boolean"
+              }
+            }
+          },
+          "checks": {
+            "type": "array",
+            "description": "Per-binding probe results.",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "configured",
+                "healthy",
+                "method"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "configured": {
+                  "type": "boolean"
+                },
+                "healthy": {
+                  "type": "boolean"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "shape",
+                    "manifest-fetch",
+                    "kv-get"
+                  ]
+                },
+                "latencyMs": {
+                  "type": "integer",
+                  "description": "Round-trip latency (only present for I/O probes)."
+                },
+                "optional": {
+                  "type": "boolean",
+                  "description": "When true, missing-but-configured doesn't degrade the service."
+                },
+                "error": {
+                  "type": "string",
+                  "description": "Failure reason when healthy=false."
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -7519,6 +7621,159 @@
                 "example": {
                   "HttpCode": 429,
                   "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Service health and binding status",
+        "description": "Health probe for monitors and operators. By default returns a cheap binding-presence summary (no I/O). Pass `?deep=1` to actually exercise each binding: ASSETS via a manifest.json fetch, RATE_KV via a probe key read, plus shape checks for AI, VECTOR_INDEX, RATE_LIMITER, METRICS, WEBHOOK_QUEUE, and AUDIT_LOG_KV.\n\nHTTP status reflects health: 200 when ok, 503 when degraded. Required bindings (ASSETS, RATE_KV) degrade the service when missing or broken; optional bindings only degrade when configured-but-broken (so a deploy that hasn't enabled the AI surface stays 200 ok).\n\nPublic endpoint (no auth). Cache: no-store.",
+        "tags": [
+          "AI"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "deep",
+            "in": "query",
+            "required": false,
+            "description": "When set to `1`, run real I/O probes against ASSETS and RATE_KV. Adds 1-2 round-trips per check; safe for low-frequency monitoring.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "0",
+                "1"
+              ]
+            },
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service is healthy. All required bindings reachable; any configured optional bindings also reachable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "ok",
+                  "timestamp": "2026-05-13T20:00:00.000Z",
+                  "apiVersion": "2026-04-01",
+                  "bindings": {
+                    "assets": true,
+                    "kv": true,
+                    "ai": true,
+                    "vectorize": true,
+                    "rateLimiter": false,
+                    "metrics": false,
+                    "webhookQueue": false,
+                    "auditLogKv": true
+                  },
+                  "checks": [
+                    {
+                      "name": "assets",
+                      "configured": true,
+                      "healthy": true,
+                      "latencyMs": 8,
+                      "method": "manifest-fetch"
+                    },
+                    {
+                      "name": "kv",
+                      "configured": true,
+                      "healthy": true,
+                      "latencyMs": 3,
+                      "method": "kv-get"
+                    },
+                    {
+                      "name": "ai",
+                      "configured": true,
+                      "healthy": true,
+                      "method": "shape",
+                      "optional": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request \u2014 invalid parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service is degraded. At least one required binding is missing or unreachable, or a configured optional binding is broken. Inspect the `checks` array to identify which.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "degraded",
+                  "timestamp": "2026-05-13T20:00:00.000Z",
+                  "apiVersion": "2026-04-01",
+                  "bindings": {
+                    "assets": true,
+                    "kv": false,
+                    "ai": true,
+                    "vectorize": true,
+                    "rateLimiter": false,
+                    "metrics": false,
+                    "webhookQueue": false,
+                    "auditLogKv": false
+                  },
+                  "checks": [
+                    {
+                      "name": "kv",
+                      "configured": false,
+                      "healthy": false,
+                      "method": "shape",
+                      "error": "binding missing"
+                    }
+                  ]
                 }
               }
             }

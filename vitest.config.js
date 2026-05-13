@@ -21,6 +21,8 @@ export default defineConfig({
         'functions/api/search.js',
         'functions/api/signed.js',
         'functions/api/pipeline.js',
+        // Escape glob brackets so vitest doesn't treat them as a char class.
+        'functions/api/storage/\\[\\[path\\]\\].js',
         'functions/api/core/zones.js',
         'functions/api/core/audit-logs.js',
         'functions/api/storage/batch.js',

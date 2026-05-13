@@ -127,6 +127,36 @@ describe('sanitizeSvg', () => {
     expect(out).not.toContain('alert(1)');
   });
 
+  it('neutralises vbscript: URIs', () => {
+    const out = sanitizeSvg('<a href="vbscript:msgbox(1)"/>');
+    expect(out).not.toContain('vbscript:');
+    expect(out).toContain('href=""');
+  });
+
+  it('neutralises broad data: URIs beyond just text/html', () => {
+    // data:image/svg+xml could re-introduce a script-bearing SVG;
+    // data:application/* could carry XHTML; both must be stripped.
+    const svg = sanitizeSvg('<a href="data:image/svg+xml;utf8,<svg/>"/>');
+    expect(svg).not.toContain('data:image/svg+xml');
+    expect(svg).toContain('href=""');
+
+    const app = sanitizeSvg('<a xlink:href="data:application/xhtml+xml,..."/>');
+    expect(app).not.toContain('data:application');
+    expect(app).toContain('xlink:href=""');
+  });
+
+  it('preserves inert data: image URIs (png/jpeg/webp/gif/avif)', () => {
+    // 1x1 transparent PNG in base64 — legitimate inline asset use.
+    const png = sanitizeSvg('<image href="data:image/png;base64,iVBORw0KGgo="/>');
+    expect(png).toContain('data:image/png;base64');
+
+    const jpeg = sanitizeSvg('<image href="data:image/jpeg;base64,/9j/"/>');
+    expect(jpeg).toContain('data:image/jpeg;base64');
+
+    const webp = sanitizeSvg('<image href="data:image/webp;base64,UklGR"/>');
+    expect(webp).toContain('data:image/webp;base64');
+  });
+
   it('terminates on pathological input (no infinite loop)', () => {
     // Deeply nested scripts should not loop forever; the 8-iteration cap
     // breaks out and we still produce a sanitized string.

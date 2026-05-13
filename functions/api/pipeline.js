@@ -57,6 +57,38 @@ const DISALLOWED_TAGS = new Set([
 
 const URI_ATTRS = new Set(['href', 'xlink:href', 'src', 'action', 'formaction']);
 
+// data: URIs we DO allow inside SVG attribute values. Restricted to
+// binary raster image types — these can't be reparsed by the browser
+// as HTML/SVG/script, so they're inert. Everything else (data:text/*,
+// data:application/*, data:image/svg+xml, etc.) gets stripped.
+const SAFE_DATA_PREFIXES = [
+  'data:image/png',
+  'data:image/jpeg',
+  'data:image/jpg',
+  'data:image/webp',
+  'data:image/gif',
+  'data:image/avif',
+];
+
+/**
+ * Decide whether a URI attribute value is unsafe to keep. The check
+ * covers every executable scheme CodeQL flags in
+ * `js/incomplete-url-scheme-check` (javascript:, vbscript:) plus the
+ * data: family, with a narrow allowlist of inert image subtypes.
+ */
+function isUnsafeUriValue(value) {
+  const v = String(value || '').trim().toLowerCase();
+  if (v.startsWith('javascript:')) return true;
+  if (v.startsWith('vbscript:')) return true;
+  if (v.startsWith('data:')) {
+    for (const safe of SAFE_DATA_PREFIXES) {
+      if (v.startsWith(safe)) return false;
+    }
+    return true; // any other data: (text/html, image/svg+xml, application/*, etc.)
+  }
+  return false;
+}
+
 /**
  * Find the next `<` that opens a tag whose lowercased name is in `names`.
  * Returns `{ start, nameEnd, name }` or `null`.
@@ -258,10 +290,8 @@ function stripUnsafeUriValues(s) {
           const valStart = k + 1;
           let v = valStart;
           while (v < s.length && s[v] !== q) v++;
-          const value = s.slice(valStart, v).trim().toLowerCase();
-          const isUnsafe = URI_ATTRS.has(attrName) && (
-            value.startsWith('javascript:') || value.startsWith('data:text/html')
-          );
+          const rawValue = s.slice(valStart, v);
+          const isUnsafe = URI_ATTRS.has(attrName) && isUnsafeUriValue(rawValue);
           if (isUnsafe) {
             // Normalize the cleared value to double-quoted "" — it's
             // the canonical empty-attribute form and makes downstream

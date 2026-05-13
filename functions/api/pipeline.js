@@ -9,6 +9,7 @@
  */
 
 import { authenticateAccount, errorResponse, jsonResponse, fetchWithTimeout, log, cdnOrigin } from './_shared.js';
+import { authorizeWithScope } from './tokens.js';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -49,9 +50,9 @@ export function sanitizeSvg(svgContent) {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  // Auth: AccountKey required
-  if (!authenticateAccount(request, env)) {
-    return errorResponse(401, 'Unauthorized', 'AccountKey header is required for pipeline operations. This is a control-plane endpoint that creates infrastructure assets.');
+  // Auth: AccountKey OR a scoped Bearer token with "pipeline:write"
+  if (!await authorizeWithScope(request, env, 'pipeline:write', () => authenticateAccount(request, env))) {
+    return errorResponse(401, 'Unauthorized', 'AccountKey header or a scoped Bearer token with "pipeline:write" is required for pipeline operations. This is a control-plane endpoint that creates infrastructure assets.');
   }
 
   if (!env.GITHUB_TOKEN || !env.GITHUB_REPO) {

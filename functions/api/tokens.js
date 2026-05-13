@@ -232,3 +232,18 @@ export async function validateToken(env, request, requiredScope) {
 
   return true;
 }
+
+/**
+ * Authorize a request using either a scoped bearer token or a caller-supplied
+ * fallback (typically AccessKey or AccountKey auth).
+ *
+ * Token check runs first so that integrators using scoped tokens get the
+ * tight permission they registered for. If no token is present, the fallback
+ * decides — preserving the existing auth contract for legacy clients.
+ *
+ * Returns boolean. The fallback may be sync or async.
+ */
+export async function authorizeWithScope(request, env, scope, fallback) {
+  if (await validateToken(env, request, scope)) return true;
+  return Promise.resolve(fallback()).then(Boolean);
+}

@@ -13,6 +13,7 @@
  */
 
 import { authenticateAccess, fetchWithTimeout, log, cdnOrigin } from '../_shared.js';
+import { authorizeWithScope } from '../tokens.js';
 import { dispatchWebhook } from '../webhooks.js';
 
 const CORS_HEADERS = {
@@ -96,7 +97,7 @@ function buildFileEntry(name, path, size, isDir, dateCreated, lastChanged) {
 export async function onRequestGet(context) {
   const { request, env, params } = context;
 
-  if (!await authenticateAccess(request, env)) return unauthorized();
+  if (!await authorizeWithScope(request, env, 'storage:read', () => authenticateAccess(request, env))) return unauthorized();
 
   const pathSegments = params.path || [];
   const storagePath = resolveStoragePath(pathSegments);
@@ -233,7 +234,7 @@ async function downloadFile(env, request, filePath) {
 export async function onRequestPut(context) {
   const { request, env, params } = context;
 
-  if (!await authenticateAccess(request, env)) return unauthorized();
+  if (!await authorizeWithScope(request, env, 'storage:write', () => authenticateAccess(request, env))) return unauthorized();
 
   const pathSegments = params.path || [];
   const storagePath = resolveStoragePath(pathSegments);
@@ -383,7 +384,7 @@ export async function onRequestPut(context) {
 export async function onRequestDelete(context) {
   const { request, env, params } = context;
 
-  if (!await authenticateAccess(request, env)) return unauthorized();
+  if (!await authorizeWithScope(request, env, 'storage:write', () => authenticateAccess(request, env))) return unauthorized();
 
   const pathSegments = params.path || [];
   const storagePath = resolveStoragePath(pathSegments);
@@ -481,7 +482,7 @@ export async function onRequestDelete(context) {
 export async function onRequestHead(context) {
   const { request, env, params } = context;
 
-  if (!await authenticateAccess(request, env)) return unauthorized();
+  if (!await authorizeWithScope(request, env, 'storage:read', () => authenticateAccess(request, env))) return unauthorized();
 
   const pathSegments = params.path || [];
   const storagePath = resolveStoragePath(pathSegments);

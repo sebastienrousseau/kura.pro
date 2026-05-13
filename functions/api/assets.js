@@ -10,6 +10,7 @@
  */
 
 import { getManifest, authenticateAccess, streamJsonArray, extractParams, checkRateLimit, errorResponse, CORS_JSON } from './_shared.js';
+import { authorizeWithScope } from './tokens.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -24,8 +25,8 @@ const MAX_PER_PAGE = 200;
 export async function onRequestGet(context) {
   const { request, env } = context;
 
-  if (!(await authenticateAccess(request, env))) {
-    return new Response(JSON.stringify({ HttpCode: 401, Message: 'Authentication required. Provide a valid API key in the request header. Use "AccessKey" for storage and asset operations, or "AccountKey" for zone management and analytics.' }), { status: 401, headers: CORS });
+  if (!(await authorizeWithScope(request, env, 'assets:read', () => authenticateAccess(request, env)))) {
+    return new Response(JSON.stringify({ HttpCode: 401, Message: 'Authentication required. Provide a valid API key in the request header. Use "AccessKey" for storage and asset operations, "AccountKey" for zone management, or a scoped Bearer token with "assets:read".' }), { status: 401, headers: CORS });
   }
 
   // Rate limit: 1000 req/minute per IP

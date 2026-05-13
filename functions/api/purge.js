@@ -1,4 +1,5 @@
 import { log } from './_shared.js';
+import { validateToken } from './tokens.js';
 
 /**
  * Cache invalidation endpoint.
@@ -27,9 +28,11 @@ function today() {
 export async function onRequestPost(context) {
   const { env, request } = context;
 
-  // Auth
+  // Auth: PURGE_KEY in x-api-key header, OR a scoped Bearer token with "purge:write"
   const apiKey = request.headers.get("x-api-key");
-  if (!env.PURGE_KEY || apiKey !== env.PURGE_KEY) {
+  const apiKeyOk = env.PURGE_KEY && apiKey === env.PURGE_KEY;
+  const tokenOk = !apiKeyOk && (await validateToken(env, request, "purge:write"));
+  if (!apiKeyOk && !tokenOk) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: CORS_HEADERS,

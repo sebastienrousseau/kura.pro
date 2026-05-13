@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { onRequestGet, onRequestPost, onRequestDelete, onRequestOptions, validateToken } = await import('../../functions/api/tokens.js');
+const { onRequestGet, onRequestPost, onRequestDelete, onRequestOptions, validateToken, authorizeWithScope } = await import('../../functions/api/tokens.js');
 
 function makeKV(data = {}) {
   const store = { ...data };
@@ -276,6 +276,60 @@ describe('Tokens API', () => {
       const req = new Request('https://cloudcdn.pro/api/test', { headers: { Authorization: 'Bearer cdnsk_abc' } });
       const result = await validateToken({}, req, 'storage:read');
       expect(result).toBe(false);
+    });
+  });
+
+  describe('authorizeWithScope', () => {
+    it('returns true when a valid token matches the required scope (no fallback needed)', async () => {
+      const kv = makeKV();
+      const ctx = makeCtx('POST', '', { key: 'admin-key', kv, body: { name: 'Reader', scopes: ['assets:read'], expiresInDays: 30 } });
+      const res = await onRequestPost(ctx);
+      const json = await res.json();
+      const registry = JSON.parse(kv.put.mock.calls.at(-1)[1]);
+      kv.get.mockImplementation(key => key === 'tokens:registry' ? Promise.resolve(JSON.stringify(registry)) : Promise.resolve(null));
+
+      const req = new Request('https://cloudcdn.pro/api/test', { headers: { Authorization: `Bearer ${json.Token.secret}` } });
+      const fallback = vi.fn().mockReturnValue(false);
+      const ok = await authorizeWithScope(req, { RATE_KV: kv }, 'assets:read', fallback);
+      expect(ok).toBe(true);
+      expect(fallback).not.toHaveBeenCalled();
+    });
+
+    it('falls through to the supplied fallback when no token is present', async () => {
+      const req = new Request('https://cloudcdn.pro/api/test');
+      const fallback = vi.fn().mockReturnValue(true);
+      const ok = await authorizeWithScope(req, { RATE_KV: makeKV() }, 'storage:read', fallback);
+      expect(ok).toBe(true);
+      expect(fallback).toHaveBeenCalled();
+    });
+
+    it('falls through to the fallback when the token has the wrong scope', async () => {
+      const kv = makeKV();
+      const ctx = makeCtx('POST', '', { key: 'admin-key', kv, body: { name: 'NarrowToken', scopes: ['assets:read'], expiresInDays: 30 } });
+      const res = await onRequestPost(ctx);
+      const json = await res.json();
+      const registry = JSON.parse(kv.put.mock.calls.at(-1)[1]);
+      kv.get.mockImplementation(key => key === 'tokens:registry' ? Promise.resolve(JSON.stringify(registry)) : Promise.resolve(null));
+
+      const req = new Request('https://cloudcdn.pro/api/test', { headers: { Authorization: `Bearer ${json.Token.secret}` } });
+      const fallback = vi.fn().mockReturnValue(true);
+      const ok = await authorizeWithScope(req, { RATE_KV: kv }, 'storage:write', fallback);
+      expect(ok).toBe(true);
+      expect(fallback).toHaveBeenCalled();
+    });
+
+    it('awaits async fallbacks', async () => {
+      const req = new Request('https://cloudcdn.pro/api/test');
+      const fallback = vi.fn().mockResolvedValue(true);
+      const ok = await authorizeWithScope(req, { RATE_KV: makeKV() }, 'storage:read', fallback);
+      expect(ok).toBe(true);
+    });
+
+    it('returns false when neither the token nor the fallback authorize', async () => {
+      const req = new Request('https://cloudcdn.pro/api/test');
+      const fallback = vi.fn().mockReturnValue(false);
+      const ok = await authorizeWithScope(req, { RATE_KV: makeKV() }, 'storage:read', fallback);
+      expect(ok).toBe(false);
     });
   });
 });

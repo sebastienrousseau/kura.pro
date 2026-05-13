@@ -9,6 +9,7 @@
  */
 
 import { authenticateAccess, fetchWithTimeout, log, cdnOrigin } from '../_shared.js';
+import { authorizeWithScope } from '../tokens.js';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -31,8 +32,8 @@ function ghHeaders(token) {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  if (!await authenticateAccess(request, env)) {
-    return new Response(JSON.stringify({ HttpCode: 401, Message: 'Authentication required. Provide a valid API key in the request header. Use "AccessKey" for storage and asset operations, or "AccountKey" for zone management and analytics.' }), {
+  if (!await authorizeWithScope(request, env, 'storage:write', () => authenticateAccess(request, env))) {
+    return new Response(JSON.stringify({ HttpCode: 401, Message: 'Authentication required. Provide a valid API key in the request header. Use "AccessKey" for storage and asset operations, or "AccountKey" for zone management and analytics. Scoped tokens with "storage:write" are also accepted as Bearer tokens.' }), {
       status: 401, headers: CORS_HEADERS,
     });
   }

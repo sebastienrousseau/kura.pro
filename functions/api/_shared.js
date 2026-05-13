@@ -236,6 +236,188 @@ export async function checkRateLimit(kv, key, limit, windowSeconds) {
   return { allowed: true, limit, remaining: limit - count - 1 };
 }
 
+// ── Workers AI quota guard ──
+// Workers AI free tier ≈ 10k neurons/day. When exhausted, calls throw 429-style
+// errors. We track usage in KV per UTC day and trip a short-lived circuit
+// breaker so downstream requests can switch to a degraded path immediately
+// without re-issuing failing AI calls.
+//
+// Approximated per-call costs (neurons). Real costs vary by token count;
+// these are conservative averages chosen to avoid under-counting bursts.
+export const AI_COST = {
+  embed_bge_base: 0.05,
+  llama_8b_fast: 6,
+};
+
+const AI_DAILY_BUDGET_DEFAULT = 9000;
+const AI_CB_TTL_SEC_DEFAULT = 60;
+
+function aiBudgetKeys() {
+  const d = new Date();
+  const day = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+  return { usageKey: `ai:neurons:${day}`, breakerKey: 'ai:cb:open' };
+}
+
+function aiBudgetCapacity(env) {
+  const raw = env?.AI_DAILY_BUDGET;
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : AI_DAILY_BUDGET_DEFAULT;
+}
+
+function aiBudgetBreakerTtl(env) {
+  const raw = env?.AI_CB_TTL_SEC;
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : AI_CB_TTL_SEC_DEFAULT;
+}
+
+/**
+ * Returns current quota state without mutating it.
+ * Cheap enough to call on every AI-dependent request.
+ */
+export async function aiBudgetState(env) {
+  const kv = env?.RATE_KV;
+  const capacity = aiBudgetCapacity(env);
+  if (!kv) return { used: 0, capacity, circuitOpen: false, exhausted: false };
+  const { usageKey, breakerKey } = aiBudgetKeys();
+  let used = 0;
+  let circuitOpen = false;
+  try {
+    const [u, b] = await Promise.all([kv.get(usageKey), kv.get(breakerKey)]);
+    used = parseFloat(u) || 0;
+    circuitOpen = b === '1';
+  } catch { /* KV transient — treat as available */ }
+  return { used, capacity, circuitOpen, exhausted: circuitOpen || used >= capacity };
+}
+
+/**
+ * Charge neurons against today's budget. Non-blocking semantics — callers should
+ * await but ignore failures; KV write errors must not fail the user request.
+ */
+export async function aiBudgetCharge(env, neurons) {
+  const kv = env?.RATE_KV;
+  if (!kv || !(neurons > 0)) return;
+  const { usageKey } = aiBudgetKeys();
+  try {
+    const prior = parseFloat(await kv.get(usageKey)) || 0;
+    // 2-day TTL handles cross-day requests in flight at midnight UTC.
+    await kv.put(usageKey, String(prior + neurons), { expirationTtl: 86400 * 2 });
+  } catch { /* swallow */ }
+}
+
+/**
+ * Open the circuit so subsequent requests in the next window skip the AI
+ * call entirely. Called when a request observes a quota error directly.
+ */
+export async function aiBudgetTrip(env, reason = 'quota') {
+  const kv = env?.RATE_KV;
+  if (!kv) return;
+  const { breakerKey } = aiBudgetKeys();
+  try {
+    await kv.put(breakerKey, '1', { expirationTtl: aiBudgetBreakerTtl(env) });
+  } catch { /* swallow */ }
+  log.warn('ai_circuit_open', 'Workers AI circuit breaker tripped', { reason });
+}
+
+/**
+ * Heuristically detect Workers AI quota / capacity errors so we can trip the
+ * breaker on them specifically rather than on every transient failure.
+ *
+ * Workers AI surfaces quota issues through several shapes: thrown Errors with
+ * status 429, AiError instances with codes 3040/7006/9001, or messages
+ * containing "capacity", "quota", "rate", or "too many".
+ */
+export function isAiQuotaError(err) {
+  if (!err) return false;
+  const status = err.status ?? err.statusCode ?? err.code;
+  if (status === 429 || status === '429') return true;
+  if (status === 3040 || status === 7006 || status === 9001) return true;
+  const msg = String(err.message || err).toLowerCase();
+  return msg.includes('quota')
+    || msg.includes('capacity')
+    || msg.includes('too many')
+    || msg.includes('rate limit')
+    || msg.includes('exceeded');
+}
+
+// ── Response cache (Workers Cache API) ──
+// Cheap edge-local cache for idempotent AI/search responses. Keyed by a
+// caller-supplied path under a synthetic origin so it never collides with
+// the public CDN cache. Day-rotated key path so curated knowledge changes
+// take effect within 24h without manual purge.
+
+const CACHE_ORIGIN = 'https://cache.cloudcdn.internal';
+
+export function normalizeQuery(s) {
+  if (!s) return '';
+  // Lowercase, replace any non-alphanumeric run with a single space, trim.
+  let out = '';
+  let lastSpace = true;
+  const lower = String(s).toLowerCase();
+  for (let i = 0; i < lower.length; i++) {
+    const c = lower.charCodeAt(i);
+    const isAlnum = (c >= 97 && c <= 122) || (c >= 48 && c <= 57);
+    if (isAlnum) {
+      out += lower[i];
+      lastSpace = false;
+    } else if (!lastSpace) {
+      out += ' ';
+      lastSpace = true;
+    }
+  }
+  return out.trim();
+}
+
+export async function hashString(s) {
+  const buf = await crypto.subtle.digest('SHA-256', ENCODER.encode(s));
+  const bytes = new Uint8Array(buf);
+  let hex = '';
+  for (let i = 0; i < bytes.length; i++) hex += HEX[bytes[i]];
+  return hex;
+}
+
+function dayBucket() {
+  const d = new Date();
+  return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}`;
+}
+
+export function buildCacheKey(namespace, hash) {
+  return `${CACHE_ORIGIN}/${namespace}/${dayBucket()}/${hash}`;
+}
+
+/**
+ * Read a previously cached JSON response. Returns null on miss or when the
+ * Cache API isn't bound (workerd test runner).
+ */
+export async function cacheGet(cacheKey) {
+  const cache = globalThis.caches?.default;
+  if (!cache) return null;
+  try {
+    const res = await cache.match(new Request(cacheKey));
+    if (!res) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Persist a JSON payload under cacheKey with a short TTL.
+ * `ttlSec` is advisory — Cache API honours it via max-age.
+ */
+export async function cacheSet(cacheKey, payload, ttlSec) {
+  const cache = globalThis.caches?.default;
+  if (!cache) return;
+  try {
+    const res = new Response(JSON.stringify(payload), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': `public, max-age=${Math.max(1, ttlSec | 0)}`,
+      },
+    });
+    await cache.put(new Request(cacheKey), res);
+  } catch { /* cache write failures are non-fatal */ }
+}
+
 // ── Fetch with timeout (for external API calls) ──
 
 export async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {

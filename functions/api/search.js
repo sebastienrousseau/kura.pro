@@ -10,7 +10,13 @@
  *   - No new URL() — pathname extracted from raw string
  */
 
-import { getManifest, checkRateLimit, errorResponse } from './_shared.js';
+import {
+  getManifest, checkRateLimit, errorResponse,
+  AI_COST, aiBudgetState, aiBudgetCharge, aiBudgetTrip, isAiQuotaError,
+  normalizeQuery, hashString, buildCacheKey, cacheGet, cacheSet,
+} from './_shared.js';
+
+const SEARCH_CACHE_TTL_SEC = 3600;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -132,12 +138,29 @@ export async function onRequestGet(context) {
   }
 
   try {
-    let results = [];
+    // 0. Response cache lookup — cheap, no AI cost, no Vectorize cost.
+    const cacheHash = await hashString(`${normalizeQuery(query)}|${limit}`);
+    const cacheKey = buildCacheKey('search', cacheHash);
+    const cached = await cacheGet(cacheKey);
+    if (cached) {
+      return new Response(
+        JSON.stringify({ ...cached, mode: 'cached' }),
+        { headers: CORS_HEADERS }
+      );
+    }
 
-    // 1. Vector search
-    if (AI && VECTOR_INDEX) {
+    let results = [];
+    let mode = 'fuzzy';
+    let degraded = false;
+
+    // 1. Vector search — only attempt when AI budget allows.
+    const budget = AI && VECTOR_INDEX ? await aiBudgetState(env) : { exhausted: true };
+    if (AI && VECTOR_INDEX && !budget.exhausted) {
       try {
         const { data: queryVector } = await AI.run('@cf/baai/bge-base-en-v1.5', { text: [query] });
+        // Charge after success only — failed calls don't bill on Workers AI.
+        await aiBudgetCharge(env, AI_COST.embed_bge_base);
+
         const matches = await VECTOR_INDEX.query(queryVector[0], { topK: limit, namespace: 'assets', returnMetadata: 'all' });
 
         for (const m of matches.matches) {
@@ -153,17 +176,32 @@ export async function onRequestGet(context) {
             });
           }
         }
-      } catch {}
+        if (results.length > 0) mode = 'vector';
+      } catch (err) {
+        // Trip breaker on quota-shaped errors so the next ~60s of requests
+        // skip the AI call entirely instead of repeatedly failing.
+        if (isAiQuotaError(err)) await aiBudgetTrip(env, 'search_vector_quota');
+      }
+    } else if (AI && VECTOR_INDEX && budget.exhausted) {
+      degraded = true;
     }
 
-    // 2. Fuzzy fallback
+    // 2. Fuzzy fallback — also serves when AI is disabled, exhausted, or low-confidence.
     if (results.length === 0) {
       const manifest = await getManifest(env, rawUrl);
       const index = getSearchIndex(manifest);
       results = fuzzySearch(index, query, limit);
+      mode = 'fuzzy';
     }
 
-    return new Response(JSON.stringify({ results, query, count: results.length }), { headers: CORS_HEADERS });
+    const body = { results, query, count: results.length, mode, degraded };
+
+    // Cache vector results — the expensive path. Fuzzy is already cheap.
+    if (mode === 'vector' && results.length > 0) {
+      await cacheSet(cacheKey, body, SEARCH_CACHE_TTL_SEC);
+    }
+
+    return new Response(JSON.stringify(body), { headers: CORS_HEADERS });
   } catch {
     return new Response(JSON.stringify({ error: 'Search failed. Please try again.' }), { status: 500, headers: CORS_HEADERS });
   }

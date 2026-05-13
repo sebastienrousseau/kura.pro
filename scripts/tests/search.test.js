@@ -307,4 +307,120 @@ describe('GET /api/search', () => {
     expect(json.count).toBe(0);
     expect(json.query).toBe('zzzzzzzzz');
   });
+
+  // --- Cache + budget + degraded mode (Layers 1+2) ---
+
+  it('annotates fuzzy fallback with mode="fuzzy"', async () => {
+    const res = await onRequestGet(makeCtx('/api/search?q=banking'));
+    const json = await res.json();
+    expect(json.mode).toBe('fuzzy');
+  });
+
+  it('marks degraded=true when AI is available but budget is exhausted', async () => {
+    const ctx = makeCtx('/api/search?q=banking', {
+      AI: { run: vi.fn().mockResolvedValue({ data: [[0.1]] }) },
+      VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+      RATE_KV: {
+        get: vi.fn().mockImplementation((k) => Promise.resolve(k.startsWith('ai:neurons:') ? '99999' : null)),
+        put: vi.fn(),
+      },
+    });
+    const res = await onRequestGet(ctx);
+    const json = await res.json();
+    expect(json.mode).toBe('fuzzy');
+    expect(json.degraded).toBe(true);
+    // AI must not have been called when budget is exhausted.
+    expect(ctx.env.AI.run).not.toHaveBeenCalled();
+  });
+
+  it('returns mode="vector" and caches when vector path succeeds', async () => {
+    const store = new Map();
+    const prior = globalThis.caches;
+    globalThis.caches = {
+      default: {
+        match: vi.fn(async (req) => {
+          const u = typeof req === 'string' ? req : req.url;
+          return store.has(u) ? new Response(store.get(u), { headers: { 'Content-Type': 'application/json' } }) : undefined;
+        }),
+        put: vi.fn(async (req, res) => {
+          const u = typeof req === 'string' ? req : req.url;
+          store.set(u, await res.text());
+        }),
+      },
+    };
+    try {
+      const ctx = makeCtx('/api/search?q=banking+hero', {
+        AI: { run: vi.fn().mockResolvedValue({ data: [[0.1, 0.2]] }) },
+        VECTOR_INDEX: {
+          query: vi.fn().mockResolvedValue({
+            matches: [{ id: 'x', score: 0.9, metadata: { name: 'hero', path: '/hero.webp', project: 'p', category: 'c', format: 'webp', size: 100 } }],
+          }),
+        },
+      });
+      const res = await onRequestGet(ctx);
+      const json = await res.json();
+      expect(json.mode).toBe('vector');
+      expect(json.results.length).toBe(1);
+      expect(store.size).toBe(1);
+    } finally {
+      globalThis.caches = prior;
+    }
+  });
+
+  it('replays cached responses with mode="cached"', async () => {
+    const store = new Map();
+    const prior = globalThis.caches;
+    globalThis.caches = {
+      default: {
+        match: vi.fn(async (req) => {
+          const u = typeof req === 'string' ? req : req.url;
+          return store.has(u) ? new Response(store.get(u), { headers: { 'Content-Type': 'application/json' } }) : undefined;
+        }),
+        put: vi.fn(async (req, res) => {
+          const u = typeof req === 'string' ? req : req.url;
+          store.set(u, await res.text());
+        }),
+      },
+    };
+    try {
+      const ctx = makeCtx('/api/search?q=banking+hero', {
+        AI: { run: vi.fn().mockResolvedValue({ data: [[0.1, 0.2]] }) },
+        VECTOR_INDEX: {
+          query: vi.fn().mockResolvedValue({
+            matches: [{ id: 'x', score: 0.9, metadata: { name: 'hero', path: '/hero.webp', project: 'p', category: 'c', format: 'webp', size: 100 } }],
+          }),
+        },
+      });
+      // First call populates the cache.
+      await onRequestGet(ctx);
+      // Second call should hit cache and skip AI entirely.
+      const ctx2 = makeCtx('/api/search?q=banking+hero', {
+        AI: { run: vi.fn() },
+        VECTOR_INDEX: { query: vi.fn() },
+      });
+      const res2 = await onRequestGet(ctx2);
+      const json2 = await res2.json();
+      expect(json2.mode).toBe('cached');
+      expect(ctx2.env.AI.run).not.toHaveBeenCalled();
+      expect(ctx2.env.VECTOR_INDEX.query).not.toHaveBeenCalled();
+    } finally {
+      globalThis.caches = prior;
+    }
+  });
+
+  it('trips circuit breaker on AI quota error', async () => {
+    const put = vi.fn().mockResolvedValue(undefined);
+    const quotaErr = Object.assign(new Error('429 Too Many Requests'), { status: 429 });
+    const ctx = makeCtx('/api/search?q=banking', {
+      AI: { run: vi.fn().mockRejectedValue(quotaErr) },
+      VECTOR_INDEX: { query: vi.fn() },
+      RATE_KV: { get: vi.fn().mockResolvedValue(null), put },
+    });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    // Fuzzy fallback still returns results.
+    expect(json.results.length).toBeGreaterThan(0);
+    expect(put.mock.calls.some((c) => c[0] === 'ai:cb:open')).toBe(true);
+  });
 });

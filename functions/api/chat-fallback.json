@@ -1,0 +1,378 @@
+{
+  "version": "2026-05-13",
+  "source": "cdn/en/content/{faq,pricing,limits}.md",
+  "matchThreshold": 0.35,
+  "entries": [
+    {
+      "id": "what-is-cloudcdn",
+      "questions": [
+        "what is cloudcdn",
+        "what does cloudcdn do",
+        "tell me about cloudcdn",
+        "cloudcdn overview"
+      ],
+      "answer": "CloudCDN is a **Git-native image CDN**. You `git push` images to a GitHub repo and they're automatically optimized (WebP + AVIF) and served globally from Cloudflare's 300+ edge locations with sub-100ms latency. No dashboard uploads, no SDKs — your workflow is `git push`.",
+      "sources": ["faq.md"],
+      "followUps": ["How do I upload assets?", "What formats are supported?", "Is there a free tier?"]
+    },
+    {
+      "id": "how-different",
+      "questions": [
+        "how is cloudcdn different from cloudinary",
+        "how does cloudcdn compare to imgix",
+        "cloudcdn vs cloudinary",
+        "cloudcdn vs imgix"
+      ],
+      "answer": "CloudCDN uses a **Git-native workflow** — no dashboards, no SDKs, no credit systems. Cloudinary starts at $89/mo on credits; Imgix at $25/mo on bundles. CloudCDN's Pro tier is $29/mo with straightforward bandwidth billing.",
+      "sources": ["faq.md", "pricing.md"],
+      "followUps": ["What's included in Pro?", "Is there a free tier?", "Show me the pricing table"]
+    },
+    {
+      "id": "pricing-overview",
+      "questions": [
+        "how much does cloudcdn cost",
+        "what is the pricing",
+        "pricing plans",
+        "tell me about the plans",
+        "what do you charge"
+      ],
+      "answer": "Three tiers: **Free** ($0, 10 GB/mo), **Pro** ($29/mo, 100 GB/mo + transform API + custom domains), and **Enterprise** (custom, unlimited + SSO/SAML + 99.99% SLA). Pro overage is $0.05/GB; Free pauses delivery if you exceed.",
+      "sources": ["pricing.md"],
+      "followUps": ["What's in the free tier?", "What does Pro include?", "Can I try Pro?"]
+    },
+    {
+      "id": "free-tier",
+      "questions": [
+        "is there a free tier",
+        "free tier limits",
+        "what is the free plan",
+        "is cloudcdn free for open source",
+        "free plan features"
+      ],
+      "answer": "Yes — the **Free tier is permanently free** with 10 GB/month bandwidth. No credit card, no trial expiration. Ideal for OSS project logos, banners, icons, and docs assets. If you exceed 10 GB, delivery pauses until next month; files stay in Git.",
+      "sources": ["pricing.md", "faq.md"],
+      "followUps": ["What's the Pro tier?", "How does bandwidth billing work?", "Can I upgrade later?"]
+    },
+    {
+      "id": "pro-tier",
+      "questions": [
+        "what does pro include",
+        "pro tier features",
+        "what is the pro plan",
+        "pro plan features",
+        "pro tier"
+      ],
+      "answer": "**Pro is $29/mo** ($278/yr — save 20%). Includes 100 GB bandwidth, the Image Transformation API (resize/crop/format on the fly), up to 5 custom domains with auto SSL, basic analytics, and 99.9% SLA with priority email support (24h response). Overage at $0.05/GB.",
+      "sources": ["pricing.md"],
+      "followUps": ["Is there a free trial?", "What does the transform API do?", "How do custom domains work?"]
+    },
+    {
+      "id": "enterprise-tier",
+      "questions": [
+        "what is enterprise",
+        "enterprise plan features",
+        "enterprise tier",
+        "what does enterprise include"
+      ],
+      "answer": "**Enterprise** is custom-priced and adds unlimited bandwidth, unlimited custom domains, batch transform processing, SSO/SAML, audit logs (12-month retention), IP allowlisting, real-time per-asset analytics, GDPR DPA, data-residency options (EU/US), and 99.99% uptime SLA with financial credits. Email sales@cloudcdn.pro.",
+      "sources": ["pricing.md"],
+      "followUps": ["How do I contact sales?", "What about compliance?", "What's the SLA?"]
+    },
+    {
+      "id": "free-trial",
+      "questions": [
+        "is there a free trial",
+        "can i try pro",
+        "free trial",
+        "trial period"
+      ],
+      "answer": "Yes — **14-day full-access Pro trial**, no credit card required. If you don't subscribe, it automatically reverts to the Free tier. No data loss, no payment friction.",
+      "sources": ["pricing.md", "faq.md"],
+      "followUps": ["What does Pro include?", "How do I upgrade?", "How does billing work?"]
+    },
+    {
+      "id": "supported-formats",
+      "questions": [
+        "what formats are supported",
+        "which image formats",
+        "supported file types",
+        "what file types can i upload",
+        "image formats"
+      ],
+      "answer": "**Upload:** PNG, JPEG, SVG, ICO, WebP. The pipeline auto-generates WebP (q80) and AVIF (q65) variants for every PNG/JPEG. SVG and ICO are served as-is. MP4 is supported for video up to 25 MB.",
+      "sources": ["faq.md", "limits.md"],
+      "followUps": ["Can I override quality?", "What about JPEG XL?", "What's the max file size?"]
+    },
+    {
+      "id": "max-file-size",
+      "questions": [
+        "what is the max file size",
+        "maximum file size",
+        "how big can files be",
+        "file size limit"
+      ],
+      "answer": "**25 MB per file** for CDN delivery. Files over 25 MB stay in the Git repo but aren't served from the edge. For reference, a high-quality 4K PNG is typically 5–15 MB.",
+      "sources": ["limits.md"],
+      "followUps": ["What formats are supported?", "What are the bandwidth limits?", "How does deployment work?"]
+    },
+    {
+      "id": "bandwidth-billing",
+      "questions": [
+        "how does bandwidth billing work",
+        "how is bandwidth measured",
+        "bandwidth limits",
+        "bandwidth pricing"
+      ],
+      "answer": "Bandwidth = bytes delivered from edge to end users. **Free**: 10 GB/mo (delivery pauses on overage). **Pro**: 100 GB/mo, $0.05/GB overage. **Enterprise**: unlimited. Origin pulls, CI/CD transfers, and Concierge API calls don't count.",
+      "sources": ["pricing.md", "limits.md"],
+      "followUps": ["What if I exceed the free tier?", "Can I upgrade mid-month?", "How do I see usage?"]
+    },
+    {
+      "id": "transform-api",
+      "questions": [
+        "how does the transformation api work",
+        "what is the transform api",
+        "image transformation",
+        "resize images",
+        "how do i resize"
+      ],
+      "answer": "Append URL params to any asset (Pro+): `?w=800&h=600&fit=cover&format=auto&q=80`. Supported: `w/h` (1–8192px), `fit` (cover/contain/fill/inside/outside), `format` (auto/webp/avif/png/jpeg), `q` (1–100), `blur` (1–250), `sharpen` (1–10), `gravity` (center/face/north/south/east/west/...). Limit: 50,000 transforms/month on Pro.",
+      "sources": ["faq.md", "limits.md"],
+      "followUps": ["How does format=auto work?", "What's the transform limit?", "Show me a face-crop example"]
+    },
+    {
+      "id": "format-auto",
+      "questions": [
+        "how does format auto work",
+        "automatic format negotiation",
+        "what is format auto",
+        "auto format"
+      ],
+      "answer": "`?format=auto` reads the browser's `Accept` header and serves **AVIF** first (if supported), then **WebP**, then the original. Every visitor gets the smallest file their browser can decode. Pro+ only.",
+      "sources": ["faq.md"],
+      "followUps": ["What about JPEG XL?", "What's the AVIF quality?", "Can I force a format?"]
+    },
+    {
+      "id": "transform-limit",
+      "questions": [
+        "what is the transformation limit",
+        "transform limit",
+        "how many transforms per month",
+        "transformations per month"
+      ],
+      "answer": "**Pro: 50,000 transforms/month.** **Enterprise: unlimited.** Each unique URL with params counts as one transform; identical URLs are served from cache and don't recount. Max output dimensions are 8192 × 8192.",
+      "sources": ["limits.md"],
+      "followUps": ["What params are supported?", "Are cached transforms free?", "How do I upgrade?"]
+    },
+    {
+      "id": "cache-purge",
+      "questions": [
+        "how do i purge the cache",
+        "cache purge",
+        "clear the cdn cache",
+        "invalidate cache",
+        "how to purge"
+      ],
+      "answer": "**Free:** purges happen automatically on deploy. **Pro/Enterprise:** purge specific URLs, surrogate tags, or everything via the Cloudflare dashboard or API. Purge API is rate-limited to 100 calls/day.",
+      "sources": ["faq.md", "limits.md"],
+      "followUps": ["How does caching work?", "What's the cache hit ratio?", "How do I bust cache?"]
+    },
+    {
+      "id": "cache-headers",
+      "questions": [
+        "how does caching work",
+        "what are the cache headers",
+        "cache control",
+        "browser caching"
+      ],
+      "answer": "Assets are served with `Cache-Control: public, max-age=31536000, immutable` — browsers and edges cache for one year. To update an asset, change the filename (e.g. `logo-v2.webp`); that's the standard cache-busting approach. The `manifest.json` itself is cached for 5 minutes.",
+      "sources": ["faq.md"],
+      "followUps": ["How do I purge cache?", "What's the cache hit ratio?", "How fast is delivery?"]
+    },
+    {
+      "id": "performance-ttfb",
+      "questions": [
+        "how fast is delivery",
+        "what is the ttfb",
+        "latency",
+        "delivery speed",
+        "how fast"
+      ],
+      "answer": "Median TTFB **under 50ms** in NA/EU, **under 100ms globally**. Assets are served with immutable cache headers (1-year max-age), so repeat visits hit the browser cache. Production assets typically see **>95% edge cache hit ratio**.",
+      "sources": ["faq.md", "performance.md"],
+      "followUps": ["How does caching work?", "Where are the edge locations?", "What is the SLA?"]
+    },
+    {
+      "id": "how-to-upload",
+      "questions": [
+        "how do i upload assets",
+        "how to upload images",
+        "how do i deploy",
+        "how to add files",
+        "upload workflow"
+      ],
+      "answer": "Clone the repo, drop files into your project folder, commit and push:\n```bash\ngit clone git@github.com:sebastienrousseau/cloudcdn.pro.git\ncp my-logo.png cloudcdn.pro/my-project/images/logos/\ngit add my-project/ && git commit -S -m \"add logo\"\ngit push origin main\n```\nWithin **1–2 minutes** your asset is live at `https://cloudcdn.pro/my-project/images/logos/my-logo.webp`.",
+      "sources": ["faq.md"],
+      "followUps": ["Are signed commits required?", "How do I use a custom domain?", "What's the deploy limit?"]
+    },
+    {
+      "id": "signed-commits",
+      "questions": [
+        "are signed commits required",
+        "signed commits mandatory",
+        "do i need to sign commits",
+        "gpg signing",
+        "ssh signing"
+      ],
+      "answer": "**Yes.** All pushes to `main` require signed commits (SSH Ed25519 or GPG). This ensures every asset change is cryptographically verified. See `guide-security.md` for SSH key generation and Git signing setup.",
+      "sources": ["faq.md"],
+      "followUps": ["How do I set up SSH signing?", "What if I use GPG?", "Is my data secure?"]
+    },
+    {
+      "id": "custom-domain",
+      "questions": [
+        "can i use a custom domain",
+        "how do custom domains work",
+        "custom domain setup",
+        "use my own domain"
+      ],
+      "answer": "**Pro:** up to 5 custom domains with automatic SSL. **Enterprise:** unlimited with wildcard SSL. Add a CNAME pointing to `cloudcdn.pro` and email support@cloudcdn.pro — provisioning takes minutes.",
+      "sources": ["faq.md", "pricing.md"],
+      "followUps": ["What's in the Pro tier?", "Is SSL automatic?", "How do I contact support?"]
+    },
+    {
+      "id": "security",
+      "questions": [
+        "is my data secure",
+        "how secure is cloudcdn",
+        "security",
+        "data protection",
+        "ddos protection"
+      ],
+      "answer": "Assets are served over **HTTPS with TLS 1.3**. The origin repo lives on GitHub with branch protection. Cloudflare provides DDoS protection, WAF, and bot mitigation on all plans. Signed commits on `main` are mandatory.",
+      "sources": ["faq.md"],
+      "followUps": ["Are signed commits required?", "Is CloudCDN GDPR compliant?", "Where is data stored?"]
+    },
+    {
+      "id": "gdpr",
+      "questions": [
+        "is cloudcdn gdpr compliant",
+        "gdpr compliance",
+        "is it gdpr safe",
+        "data residency"
+      ],
+      "answer": "**Yes.** CloudCDN runs on Cloudflare, which processes data per GDPR. We offer a **Data Processing Agreement (DPA)** for Enterprise customers. We don't store personal user data — only static files. Data-residency options (EU/US) on Enterprise.",
+      "sources": ["faq.md", "compliance.md"],
+      "followUps": ["Where is data stored?", "What's in the Enterprise tier?", "How do I get a DPA?"]
+    },
+    {
+      "id": "data-storage",
+      "questions": [
+        "where is data stored",
+        "where are files stored",
+        "data location",
+        "where do you store assets"
+      ],
+      "answer": "Asset files live in the **GitHub repository (US)** and are cached at **Cloudflare's 300+ global edge locations**. Cached copies expire after 1 year or on new deployment. Enterprise customers can pin residency (EU or US only).",
+      "sources": ["faq.md"],
+      "followUps": ["Is CloudCDN GDPR compliant?", "How many edge locations?", "How fast is delivery?"]
+    },
+    {
+      "id": "deploy-limits",
+      "questions": [
+        "deployment limits",
+        "how many files per deploy",
+        "deploy frequency",
+        "deployment quotas"
+      ],
+      "answer": "**Max 20,000 files** per deployment. **No hard size cap** — uploads are incremental. **One concurrent deploy** (overlapping pushes queue). Deploy frequency is unlimited; every push to `main` triggers a deploy.",
+      "sources": ["limits.md"],
+      "followUps": ["What's the max file size?", "How fast is the deploy?", "What if a deploy fails?"]
+    },
+    {
+      "id": "platforms",
+      "questions": [
+        "does it work on macos",
+        "does it work on linux",
+        "does it work on windows",
+        "wsl support",
+        "supported platforms"
+      ],
+      "answer": "Yes — **macOS, Linux, and Windows (WSL2)** are all supported. You only need Git 2.34+ and an SSH key for signed commits. No Node.js, no package managers, no build tools required.",
+      "sources": ["faq.md"],
+      "followUps": ["How do I set up SSH signing?", "Do I need to install anything?", "How do I upload assets?"]
+    },
+    {
+      "id": "mcp-server",
+      "questions": [
+        "is there an mcp server",
+        "mcp support",
+        "how do i use mcp",
+        "claude integration",
+        "ai agent integration"
+      ],
+      "answer": "Yes — the **`@cloudcdn/mcp-server`** package exposes 20 tools (storage, assets, transforms, analytics, search, purge, webhooks, tokens, logs) via the Model Context Protocol. Compatible with Claude Code, Claude Desktop, Cursor, Windsurf, and any MCP-aware client. Install with `npm i -g @cloudcdn/mcp-server` and point the binary at your `CLOUDCDN_ACCESS_KEY`.",
+      "sources": ["api-reference.md"],
+      "followUps": ["How do I get an access key?", "What tools are exposed?", "How do I authenticate?"]
+    },
+    {
+      "id": "quality-override",
+      "questions": [
+        "can i override the quality",
+        "how do i set quality",
+        "custom quality settings",
+        "image quality"
+      ],
+      "answer": "**Pro+:** the transform API takes `?q=N` (1–100). Higher = larger files, better fidelity. Defaults are WebP q80 and AVIF q65 (chosen for best size/quality balance). **Free tier** uses the defaults only.",
+      "sources": ["faq.md"],
+      "followUps": ["How does the transform API work?", "What's the default quality?", "Format auto?"]
+    },
+    {
+      "id": "upgrade-downgrade",
+      "questions": [
+        "can i upgrade",
+        "can i downgrade",
+        "how do i change plans",
+        "switch plans"
+      ],
+      "answer": "**Upgrades** take effect immediately and are **prorated**. **Downgrades** take effect at the next billing cycle. Cancel anytime — no contracts.",
+      "sources": ["faq.md"],
+      "followUps": ["Is there a free trial?", "How does billing work?", "What if I exceed bandwidth?"]
+    },
+    {
+      "id": "support",
+      "questions": [
+        "how do i get support",
+        "contact support",
+        "support options",
+        "help"
+      ],
+      "answer": "**Free:** community / GitHub Issues. **Pro:** priority email at support@cloudcdn.pro, 24h response SLA. **Enterprise:** dedicated account manager, private Slack, 1h response SLA. For sales: sales@cloudcdn.pro.",
+      "sources": ["pricing.md"],
+      "followUps": ["What's in Pro?", "How do I report a bug?", "What's the SLA?"]
+    },
+    {
+      "id": "sla",
+      "questions": [
+        "what is the sla",
+        "uptime guarantee",
+        "sla terms",
+        "service credits"
+      ],
+      "answer": "**Free:** best-effort (~99.9%). **Pro:** 99.9% uptime guarantee, 10% service credit per 0.1% below threshold. **Enterprise:** 99.99% uptime, financial credits — 25% for <99.99%, 50% for <99.9%, 100% for <99.0%.",
+      "sources": ["pricing.md"],
+      "followUps": ["What's in Enterprise?", "How is uptime measured?", "What's the support SLA?"]
+    },
+    {
+      "id": "no-match-default",
+      "questions": [
+        "fallback default",
+        "default reply",
+        "_default_no_match"
+      ],
+      "answer": "I'm running in **degraded mode** right now (our AI assistant is briefly unavailable) and I don't have a curated answer for that specific question. Please email **support@cloudcdn.pro** — we typically respond within 24 hours on Pro and 1 hour on Enterprise. You can also browse the docs at https://cloudcdn.pro/en/content/faq.",
+      "sources": ["faq.md"],
+      "followUps": ["What is CloudCDN?", "What's the pricing?", "How do I upload assets?"]
+    }
+  ]
+}

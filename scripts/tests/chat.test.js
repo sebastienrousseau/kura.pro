@@ -161,10 +161,10 @@ describe('POST /api/chat', () => {
     await readFullStream(res);
   });
 
-  // --- AI error ---
-  it('returns 500 on AI error', async () => {
+  // --- AI error → graceful curated fallback (Layer 3) ---
+  it('falls back to curated SSE when embedding fails', async () => {
     const ctx = makeContext({
-      body: { message: 'hello' },
+      body: { message: 'what is cloudcdn' },
       env: {
         AI: { run: vi.fn().mockRejectedValue(new Error('AI unavailable')) },
         VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
@@ -172,7 +172,98 @@ describe('POST /api/chat', () => {
       },
     });
     const res = await onRequestPost(ctx);
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toBe('text/event-stream');
+    const body = await readFullStream(res);
+    expect(body).toContain('"source":"curated"');
+    expect(body).toContain('"degraded":true');
+    expect(body).toContain('event: done');
+  });
+
+  it('trips circuit breaker on AI quota error', async () => {
+    const put = vi.fn().mockResolvedValue(undefined);
+    const quotaErr = Object.assign(new Error('429 Too Many Requests'), { status: 429 });
+    const ctx = makeContext({
+      body: { message: 'hello' },
+      env: {
+        AI: { run: vi.fn().mockRejectedValue(quotaErr) },
+        VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put },
+      },
+    });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(200);
+    // Breaker key should have been written
+    const breakerCall = put.mock.calls.find((c) => c[0] === 'ai:cb:open');
+    expect(breakerCall).toBeTruthy();
+    expect(breakerCall[1]).toBe('1');
+  });
+
+  it('serves curated SSE when AI binding is missing', async () => {
+    // Bypass makeContext — its ?? defaults would override an explicit null.
+    const ctx = {
+      request: { json: vi.fn().mockResolvedValue({ message: 'how much does cloudcdn cost' }) },
+      env: {
+        AI: null,
+        VECTOR_INDEX: null,
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+      },
+    };
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(200);
+    const body = await readFullStream(res);
+    expect(body).toContain('"source":"curated"');
+    // Pricing question should match the pricing-overview entry which mentions tiers.
+    expect(body.toLowerCase()).toContain('tier');
+  });
+
+  it('serves curated SSE when AI daily budget is exhausted', async () => {
+    const ctx = makeContext({
+      body: { message: 'what is cloudcdn' },
+      env: {
+        RATE_KV: {
+          // Return a value above default budget (9000) for the neuron counter.
+          get: vi.fn().mockImplementation((k) => {
+            if (k.startsWith('ai:neurons:')) return Promise.resolve('99999');
+            return Promise.resolve(null);
+          }),
+          put: vi.fn(),
+        },
+      },
+    });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(200);
+    const body = await readFullStream(res);
+    expect(body).toContain('"source":"curated"');
+    expect(body).toContain('"degraded":true');
+  });
+
+  it('curated fallback matches a known question (pricing)', async () => {
+    const ctx = {
+      request: { json: vi.fn().mockResolvedValue({ message: 'pricing plans' }) },
+      env: {
+        AI: null, VECTOR_INDEX: null,
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+      },
+    };
+    const res = await onRequestPost(ctx);
+    const body = await readFullStream(res);
+    // "pricing plans" should hit the pricing-overview entry, not the no-match default.
+    expect(body).toContain('"confidence":"high"');
+  });
+
+  it('curated fallback returns no-match-default for nonsense queries', async () => {
+    const ctx = {
+      request: { json: vi.fn().mockResolvedValue({ message: 'qwerty xyzzy flibbertigibbet' }) },
+      env: {
+        AI: null, VECTOR_INDEX: null,
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+      },
+    };
+    const res = await onRequestPost(ctx);
+    const body = await readFullStream(res);
+    expect(body).toContain('"confidence":"low"');
+    expect(body.toLowerCase()).toContain('support@cloudcdn.pro');
   });
 
   // --- Streaming with full consumption ---

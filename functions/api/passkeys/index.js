@@ -479,6 +479,7 @@ async function authComplete(request, env) {
   // been updated yet, surfacing the mode via response header so we can
   // monitor migration progress.
   const hasAssertion = !!(authenticatorData && signature && clientDataJSON);
+  const strictMode = env.PASSKEY_STRICT_VERIFY === '1';
   let verifyMode = 'legacy';
   let verifyReason = null;
   if (hasAssertion) {
@@ -498,13 +499,21 @@ async function authComplete(request, env) {
       // pre-Sprint-12 status quo) but flag for re-registration.
       verifyMode = 'legacy-spki';
       verifyReason = result.reason;
-    } else {
-      // Real verification failure (origin mismatch, bad signature, etc.)
-      // — refuse.
+    } else if (strictMode) {
+      // Strict mode (opt-in via PASSKEY_STRICT_VERIFY=1): real verification
+      // failures (origin/type/challenge/signature mismatch) refuse the
+      // login.
       return new Response(JSON.stringify({
         error: 'Assertion verification failed.',
         detail: result.reason,
       }), { status: 401, headers: CORS });
+    } else {
+      // Loose mode (default): real verification failed but we still
+      // accept the login to avoid locking out admins during the
+      // strict-mode rollout. The failure reason is reported in headers
+      // so operators can see it in logs before flipping the flag.
+      verifyMode = 'loose';
+      verifyReason = result.reason;
     }
   }
 

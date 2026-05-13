@@ -100,6 +100,7 @@ function makeCtx(path, method = 'POST', options = {}) {
       ACCOUNT_KEY: options.accountKey ?? 'admin-key',
       RATE_KV: kv,
       DASHBOARD_SECRET: options.dashboardSecret ?? 'test-secret',
+      ...(options.strict ? { PASSKEY_STRICT_VERIFY: '1' } : {}),
     },
   };
 }
@@ -543,8 +544,41 @@ describe('Passkeys API', () => {
       expect(json.verification).toBe('ES256');
     });
 
-    it('rejects an assertion with origin mismatch (401)', async () => {
+    it('rejects an assertion with origin mismatch when PASSKEY_STRICT_VERIFY=1 (401)', async () => {
       // Mint an assertion claiming a different origin.
+      const v = await mintAssertion({ origin: 'https://attacker.example' });
+      const kv = makeKV({
+        'passkeys:credentials': JSON.stringify([{
+          credentialId: 'cred-1', publicKey: v.storedPublicKeyB64, signCount: 0,
+        }]),
+      });
+
+      const beginRes = await onRequestPost(makeCtx('/auth/begin', 'POST', { kv, strict: true }));
+      const { challenge } = await beginRes.json();
+      const tampered = await mintAssertion({ origin: 'https://attacker.example', challenge });
+      kv.put('passkeys:credentials', JSON.stringify([{
+        credentialId: 'cred-1', publicKey: tampered.storedPublicKeyB64, signCount: 0,
+      }]));
+
+      const ctx = makeCtx('/auth/complete', 'POST', {
+        kv,
+        strict: true,
+        body: {
+          credentialId: 'cred-1',
+          challenge,
+          authenticatorData: tampered.authenticatorDataB64,
+          signature: tampered.signatureB64,
+          clientDataJSON: tampered.clientDataJSONB64,
+        },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(401);
+      const json = await res.json();
+      expect(json.error).toContain('verification failed');
+      expect(json.detail).toContain('origin mismatch');
+    });
+
+    it('default (loose) mode accepts an origin-mismatch assertion but flags X-Passkey-Verification=loose', async () => {
       const v = await mintAssertion({ origin: 'https://attacker.example' });
       const kv = makeKV({
         'passkeys:credentials': JSON.stringify([{
@@ -559,6 +593,7 @@ describe('Passkeys API', () => {
         credentialId: 'cred-1', publicKey: tampered.storedPublicKeyB64, signCount: 0,
       }]));
 
+      // No `strict: true` — default loose mode.
       const ctx = makeCtx('/auth/complete', 'POST', {
         kv,
         body: {
@@ -570,10 +605,12 @@ describe('Passkeys API', () => {
         },
       });
       const res = await onRequestPost(ctx);
-      expect(res.status).toBe(401);
-      const json = await res.json();
-      expect(json.error).toContain('verification failed');
-      expect(json.detail).toContain('origin mismatch');
+      // Loose mode preserves pre-Sprint-12 behaviour for the rollout window:
+      // login succeeds even when the assertion fails verification, so admins
+      // aren't locked out before we can confirm SPKI keys are correct in KV.
+      expect(res.status).toBe(200);
+      expect(res.headers.get('X-Passkey-Verification')).toBe('loose');
+      expect(res.headers.get('X-Passkey-Verification-Reason')).toContain('origin mismatch');
     });
 
     it('falls through in legacy mode when assertion fields are omitted', async () => {

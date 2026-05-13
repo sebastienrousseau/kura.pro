@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { onRequestPost } = await import('../../functions/api/chat.js');
+const { onRequestPost, onRequestOptions } = await import('../../functions/api/chat.js');
 
 function makeContext({ body, env = {} }) {
   return {
@@ -250,6 +250,40 @@ describe('POST /api/chat', () => {
     const body = await readFullStream(res);
     // "pricing plans" should hit the pricing-overview entry, not the no-match default.
     expect(body).toContain('"confidence":"high"');
+  });
+
+  it('curated fallback handles messages with no alphanumeric tokens', async () => {
+    // "!!!" passes the trim-non-empty check but normalizes to "" — qTokens.size === 0
+    // hits the empty-token short-circuit in findCuratedMatch (chat.js:76, 81).
+    const ctx = {
+      request: { json: vi.fn().mockResolvedValue({ message: '!!!' }) },
+      env: {
+        AI: null, VECTOR_INDEX: null,
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+      },
+    };
+    const res = await onRequestPost(ctx);
+    const body = await readFullStream(res);
+    expect(res.status).toBe(200);
+    expect(body).toContain('"source":"curated"');
+    expect(body).toContain('"confidence":"low"');
+  });
+
+  it('curated fallback returns no-match-default when best score is below threshold', async () => {
+    // "the" overlaps with many bundled question variants but never enough to
+    // clear the 0.35 Jaccard threshold, so we hit the false branch of
+    // `if (best && bestScore >= threshold)` and fall to the no-match entry.
+    const ctx = {
+      request: { json: vi.fn().mockResolvedValue({ message: 'the' }) },
+      env: {
+        AI: null, VECTOR_INDEX: null,
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+      },
+    };
+    const res = await onRequestPost(ctx);
+    const body = await readFullStream(res);
+    expect(body).toContain('"confidence":"low"');
+    expect(body.toLowerCase()).toContain('support@cloudcdn.pro');
   });
 
   it('curated fallback returns no-match-default for nonsense queries', async () => {
@@ -928,5 +962,198 @@ describe('POST /api/chat', () => {
     const res = await onRequestPost(ctx);
     const body = await readFullStream(res);
     expect(body).toContain('"followUps":[]');
+  });
+
+  // --- LLM stream creation failure path (covers chat.js:256-257) ---
+
+  it('falls back to curated when LLM stream call fails', async () => {
+    const ctx = makeContext({
+      body: { message: 'what is cloudcdn' },
+      env: {
+        AI: {
+          run: vi.fn()
+            // embedding succeeds
+            .mockResolvedValueOnce({ data: [[0.1]] })
+            // LLM stream rejects with non-quota error
+            .mockRejectedValueOnce(new Error('upstream unavailable')),
+        },
+        VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+      },
+    });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(200);
+    const body = await readFullStream(res);
+    expect(body).toContain('"source":"curated"');
+    expect(body).toContain('"degraded":true');
+  });
+
+  it('trips circuit breaker when LLM stream call hits quota', async () => {
+    const put = vi.fn().mockResolvedValue(undefined);
+    const quotaErr = Object.assign(new Error('Capacity exceeded'), { code: 3040 });
+    const ctx = makeContext({
+      body: { message: 'pricing' },
+      env: {
+        AI: {
+          run: vi.fn()
+            .mockResolvedValueOnce({ data: [[0.1]] })
+            .mockRejectedValueOnce(quotaErr),
+        },
+        VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+        RATE_KV: { get: vi.fn().mockResolvedValue(null), put },
+      },
+    });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(200);
+    expect(put.mock.calls.some((c) => c[0] === 'ai:cb:open')).toBe(true);
+  });
+
+  // --- Successful stream caches the response (covers chat.js:331) ---
+
+  it('caches a substantive AI response for replay', async () => {
+    // Build a stream whose tokens accumulate to >40 chars so it crosses
+    // CHAT_MIN_TEXT_FOR_CACHE and the cacheSet branch runs.
+    const longBody = 'CloudCDN is a Git-native image CDN delivering optimized assets worldwide.';
+    const stream = makeAIStream([
+      `data: ${JSON.stringify({ response: longBody })}\n\n`,
+      `data: ${JSON.stringify({ response: '\nFOLLOW_UPS: A?|B?' })}\n\n`,
+      'data: [DONE]\n\n',
+    ]);
+    const cachePut = vi.fn().mockResolvedValue(undefined);
+    const prior = globalThis.caches;
+    globalThis.caches = {
+      default: {
+        match: vi.fn().mockResolvedValue(undefined),
+        put: cachePut,
+      },
+    };
+    try {
+      const ctx = makeContext({
+        body: { message: 'what is cloudcdn' },
+        env: {
+          AI: {
+            run: vi.fn()
+              .mockResolvedValueOnce({ data: [[0.1]] })
+              .mockResolvedValueOnce(stream),
+          },
+          VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+          RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+        },
+      });
+      const res = await onRequestPost(ctx);
+      await readFullStream(res);
+      expect(cachePut).toHaveBeenCalledTimes(1);
+      const [req, cached] = cachePut.mock.calls[0];
+      expect((typeof req === 'string' ? req : req.url)).toContain('/chat/');
+      const cachedJson = JSON.parse(await cached.text());
+      expect(cachedJson.text).toContain('CloudCDN');
+      expect(cachedJson.text).not.toContain('FOLLOW_UPS');
+    } finally {
+      globalThis.caches = prior;
+    }
+  });
+
+  it('replays a cached chat response as SSE without calling AI', async () => {
+    const prior = globalThis.caches;
+    const cachedPayload = {
+      text: 'CloudCDN is a Git-native image CDN.',
+      sources: ['faq.md'],
+      confidence: 'high',
+      followUps: ['How do I upload?'],
+    };
+    globalThis.caches = {
+      default: {
+        match: vi.fn().mockResolvedValue(new Response(JSON.stringify(cachedPayload), {
+          headers: { 'Content-Type': 'application/json' },
+        })),
+        put: vi.fn(),
+      },
+    };
+    try {
+      const aiRun = vi.fn();
+      const ctx = makeContext({
+        body: { message: 'what is cloudcdn' },
+        env: {
+          AI: { run: aiRun },
+          VECTOR_INDEX: { query: vi.fn() },
+          RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+        },
+      });
+      const res = await onRequestPost(ctx);
+      const body = await readFullStream(res);
+      expect(body).toContain('"source":"cached"');
+      expect(body).toContain('"degraded":true');
+      expect(body).toContain('CloudCDN is a Git-native');
+      expect(aiRun).not.toHaveBeenCalled();
+    } finally {
+      globalThis.caches = prior;
+    }
+  });
+
+  it('falls through to live AI when cached payload has no text', async () => {
+    // Edge case: cache returns malformed payload — handler should NOT replay
+    // it; it should fall through and call AI normally.
+    const prior = globalThis.caches;
+    globalThis.caches = {
+      default: {
+        match: vi.fn().mockResolvedValue(new Response(JSON.stringify({ sources: [] }), {
+          headers: { 'Content-Type': 'application/json' },
+        })),
+        put: vi.fn().mockResolvedValue(undefined),
+      },
+    };
+    try {
+      const stream = makeAIStream(['data: {"response":"live"}\n\ndata: [DONE]\n\n']);
+      const ctx = makeContext({
+        body: { message: 'something' },
+        env: {
+          AI: { run: vi.fn().mockResolvedValueOnce({ data: [[0.1]] }).mockResolvedValueOnce(stream) },
+          VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+          RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+        },
+      });
+      const res = await onRequestPost(ctx);
+      const body = await readFullStream(res);
+      expect(body).toContain('"source":"ai"');
+      expect(ctx.env.AI.run).toHaveBeenCalled();
+    } finally {
+      globalThis.caches = prior;
+    }
+  });
+
+  it('skips cache write for trivial responses', async () => {
+    const stream = makeAIStream([
+      'data: {"response":"hi"}\n\ndata: [DONE]\n\n',
+    ]);
+    const cachePut = vi.fn();
+    const prior = globalThis.caches;
+    globalThis.caches = { default: { match: vi.fn().mockResolvedValue(undefined), put: cachePut } };
+    try {
+      const ctx = makeContext({
+        body: { message: 'hello' },
+        env: {
+          AI: { run: vi.fn().mockResolvedValueOnce({ data: [[0.1]] }).mockResolvedValueOnce(stream) },
+          VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+          RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+        },
+      });
+      const res = await onRequestPost(ctx);
+      await readFullStream(res);
+      expect(cachePut).not.toHaveBeenCalled();
+    } finally {
+      globalThis.caches = prior;
+    }
+  });
+
+  // --- OPTIONS preflight (covers chat.js onRequestOptions) ---
+
+  describe('OPTIONS', () => {
+    it('returns 204 with CORS headers', async () => {
+      const res = await onRequestOptions();
+      expect(res.status).toBe(204);
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
+      expect(res.headers.get('Access-Control-Allow-Methods')).toContain('POST');
+      expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
+    });
   });
 });

@@ -99,6 +99,21 @@ describe('Webhooks API', () => {
       expect(json.Message).toContain('Invalid events');
     });
 
+    it('returns 400 when registry is at MAX_WEBHOOKS', async () => {
+      const full = Array.from({ length: 25 }, (_, i) => ({
+        id: `w-${i}`, url: 'https://x.com', events: ['asset.created'], active: true,
+      }));
+      const kv = makeKV({ 'webhooks:registered': JSON.stringify(full) });
+      const ctx = makeCtx('POST', '', {
+        key: 'test-key', kv,
+        body: { url: 'https://new.example.com/hook', events: ['asset.created'] },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.Message).toContain('Maximum 25');
+    });
+
     it('rejects empty events', async () => {
       const ctx = makeCtx('POST', '', { key: 'test-key', body: { url: 'https://a.com', events: [] } });
       const res = await onRequestPost(ctx);
@@ -135,6 +150,38 @@ describe('Webhooks API', () => {
       const ctx = makeCtx('DELETE', '', { key: 'test-key' });
       const res = await onRequestDelete(ctx);
       expect(res.status).toBe(400);
+    });
+
+    it('returns 401 without AccountKey', async () => {
+      const ctx = makeCtx('DELETE', '?id=anything');
+      const res = await onRequestDelete(ctx);
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe('503 when RATE_KV is missing', () => {
+    function makeCtxNoKv(method, query = '') {
+      const h = new Headers();
+      h.set('AccountKey', 'test-key');
+      return {
+        request: new Request(`https://cloudcdn.pro/api/webhooks${query}`, {
+          method, headers: h,
+          ...(method === 'POST' ? { body: JSON.stringify({ url: 'https://x.com/h', events: ['asset.created'] }) } : {}),
+        }),
+        env: { ACCOUNT_KEY: 'test-key', RATE_KV: null },
+      };
+    }
+    it('GET returns 503', async () => {
+      const res = await onRequestGet(makeCtxNoKv('GET'));
+      expect(res.status).toBe(503);
+    });
+    it('POST returns 503', async () => {
+      const res = await onRequestPost(makeCtxNoKv('POST'));
+      expect(res.status).toBe(503);
+    });
+    it('DELETE returns 503', async () => {
+      const res = await onRequestDelete(makeCtxNoKv('DELETE', '?id=x'));
+      expect(res.status).toBe(503);
     });
   });
 
@@ -184,6 +231,32 @@ describe('Webhooks API', () => {
       globalThis.fetch = vi.fn();
       await dispatchWebhook({ RATE_KV: kv }, 'asset.created', {});
       expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+
+    it('silently exits when getWebhooks throws (KV read fails)', async () => {
+      // Forces the outer catch in dispatchWebhook (webhooks.js:168).
+      const kv = {
+        get: vi.fn().mockRejectedValue(new Error('KV read failure')),
+        put: vi.fn(),
+      };
+      globalThis.fetch = vi.fn();
+      await dispatchWebhook({ RATE_KV: kv }, 'asset.created', { path: '/x.png' });
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+
+    it('logs a warning when delivery fetch throws', async () => {
+      const kv = makeKV({ 'webhooks:registered': JSON.stringify([{ active: true, events: ['asset.created'], url: 'https://hook.example.com/cb' }]) });
+      globalThis.fetch = vi.fn().mockRejectedValue(new Error('network down'));
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      try {
+        await dispatchWebhook({ RATE_KV: kv }, 'asset.created', { path: '/x.png' });
+        expect(warn).toHaveBeenCalled();
+        const entry = JSON.parse(warn.mock.calls[0][0]);
+        expect(entry.code).toBe('WEBHOOK_DELIVERY_FAILED');
+        expect(entry.error).toBe('network down');
+      } finally {
+        warn.mockRestore();
+      }
     });
   });
 });

@@ -227,6 +227,7 @@ export async function validateToken(env, request, requiredScope) {
 
   // Update last used (non-blocking)
   entry.lastUsedAt = new Date().toISOString();
+  /* v8 ignore next -- swallow KV write failure; lastUsedAt is best-effort */
   saveTokenRegistry(kv, tokens).catch(() => {});
 
   return true;

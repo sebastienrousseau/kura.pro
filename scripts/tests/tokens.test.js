@@ -106,6 +106,44 @@ describe('Tokens API', () => {
       expect(daysFromNow).toBeGreaterThan(360);
       expect(daysFromNow).toBeLessThanOrEqual(366);
     });
+
+    it('returns 401 without AccountKey', async () => {
+      const ctx = makeCtx('POST', '', { body: { name: 'X', scopes: ['assets:read'] } });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(401);
+    });
+
+    it('returns 400 for invalid JSON body', async () => {
+      const h = new Headers();
+      h.set('AccountKey', 'admin-key');
+      const ctx = {
+        request: new Request('https://cloudcdn.pro/api/tokens', {
+          method: 'POST',
+          headers: h,
+          body: '{not json',
+        }),
+        env: { ACCOUNT_KEY: 'admin-key', RATE_KV: makeKV() },
+      };
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.Message).toContain('Invalid JSON');
+    });
+
+    it('returns 400 when registry is at MAX_TOKENS', async () => {
+      const full = Array.from({ length: 50 }, (_, i) => ({
+        id: `t-${i}`, name: `T${i}`, hash: 'h', scopes: ['assets:read'],
+      }));
+      const kv = makeKV({ 'tokens:registry': JSON.stringify(full) });
+      const ctx = makeCtx('POST', '', {
+        key: 'admin-key', kv,
+        body: { name: 'Overflow', scopes: ['assets:read'] },
+      });
+      const res = await onRequestPost(ctx);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.Message).toContain('Maximum 50');
+    });
   });
 
   describe('DELETE /api/tokens', () => {
@@ -127,6 +165,38 @@ describe('Tokens API', () => {
       const ctx = makeCtx('DELETE', '', { key: 'admin-key' });
       const res = await onRequestDelete(ctx);
       expect(res.status).toBe(400);
+    });
+
+    it('returns 401 without AccountKey', async () => {
+      const ctx = makeCtx('DELETE', '?id=anything');
+      const res = await onRequestDelete(ctx);
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe('503 when RATE_KV is missing', () => {
+    function makeCtxNoKv(method, query = '') {
+      const h = new Headers();
+      h.set('AccountKey', 'admin-key');
+      return {
+        request: new Request(`https://cloudcdn.pro/api/tokens${query}`, {
+          method, headers: h,
+          ...(method === 'POST' ? { body: JSON.stringify({ name: 'x', scopes: ['assets:read'] }) } : {}),
+        }),
+        env: { ACCOUNT_KEY: 'admin-key', RATE_KV: null },
+      };
+    }
+    it('GET returns 503', async () => {
+      const res = await onRequestGet(makeCtxNoKv('GET'));
+      expect(res.status).toBe(503);
+    });
+    it('POST returns 503', async () => {
+      const res = await onRequestPost(makeCtxNoKv('POST'));
+      expect(res.status).toBe(503);
+    });
+    it('DELETE returns 503', async () => {
+      const res = await onRequestDelete(makeCtxNoKv('DELETE', '?id=x'));
+      expect(res.status).toBe(503);
     });
   });
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { onRequestGet } = await import('../../functions/api/transform.js');
+const { onRequestGet, onRequestOptions } = await import('../../functions/api/transform.js');
 
 function makeContext(queryString, env = {}) {
   return {
@@ -562,5 +562,15 @@ describe('GET /api/transform', () => {
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+
+  describe('OPTIONS', () => {
+    it('returns 204 with CORS preflight headers', async () => {
+      const res = await onRequestOptions();
+      expect(res.status).toBe(204);
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
+      expect(res.headers.get('Access-Control-Allow-Methods')).toContain('GET');
+      expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
+    });
   });
 });

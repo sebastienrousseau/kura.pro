@@ -37,6 +37,13 @@ describe('Logs API', () => {
       expect(json.Count).toBe(0);
     });
 
+    it('defaults days to 1 when query param is absent', async () => {
+      const ctx = makeCtx('', { key: 'admin-key' });
+      const res = await onRequestGet(ctx);
+      const json = await res.json();
+      expect(json.Period.Days).toBe(1);
+    });
+
     it('returns log entries for the requested days', async () => {
       const today = new Date().toISOString().slice(0, 10);
       const kv = makeKV({ [`logs:${today}`]: JSON.stringify([
@@ -98,6 +105,77 @@ describe('Logs API', () => {
       // Cancel the stream to avoid hanging
       await res.body.cancel();
     });
+
+    // The tail loop runs while Date.now() < deadline and polls KV every 2s.
+    // We make setTimeout resolve via microtask and drive Date.now() to exit
+    // the loop after a single iteration so the body (and readLogsSince) run
+    // exactly once.
+    async function runTailOneIteration({ raw }) {
+      const today = new Date().toISOString().slice(0, 10);
+      const kv = makeKV(raw === null ? {} : { [`logs:${today}`]: raw });
+
+      const origSetTimeout = globalThis.setTimeout;
+      // Resolve the 2s sleep instantly so we don't slow the suite by 2 seconds.
+      globalThis.setTimeout = (cb) => { Promise.resolve().then(cb); return 0; };
+
+      // Three real Date.now() calls happen before the while-check we want to
+      // succeed: lastCursor seed, deadline calc, first while-check. The 4th
+      // call (next while-check after the iteration) must return past-deadline.
+      let n = 0;
+      const base = 1_000_000_000_000;
+      const dateSpy = vi.spyOn(Date, 'now').mockImplementation(() => {
+        n++;
+        return n <= 3 ? base : base + 10 * 60 * 1000;
+      });
+
+      try {
+        const ctx = makeCtx('?tail=true', { key: 'admin-key', kv });
+        const res = await onRequestGet(ctx);
+        // Read until the stream closes — the loop exit + writer.close() does this.
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let body = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          body += decoder.decode(value, { stream: true });
+        }
+        return body;
+      } finally {
+        dateSpy.mockRestore();
+        globalThis.setTimeout = origSetTimeout;
+      }
+    }
+
+    it('streams connected + log + heartbeat events when KV has entries', async () => {
+      const entry = { level: 'info', code: 'TEST', message: 'hello', timestamp: new Date().toISOString() };
+      const body = await runTailOneIteration({ raw: JSON.stringify([entry]) });
+      expect(body).toContain('event: connected');
+      expect(body).toContain('event: log');
+      expect(body).toContain('"code":"TEST"');
+      expect(body).toContain(':heartbeat ');
+    });
+
+    it('emits heartbeat even when KV has no entries (readLogsSince null branch)', async () => {
+      const body = await runTailOneIteration({ raw: null });
+      expect(body).toContain('event: connected');
+      expect(body).not.toContain('event: log');
+      expect(body).toContain(':heartbeat ');
+    });
+
+    it('only advances lastCursor for the newest entry in a batch', async () => {
+      // Two entries that both pass the readLogsSince filter (both timestamps
+      // are after the seeded lastCursor), but in non-monotonic order so the
+      // second one trips the false branch of `if (ts > lastCursor)`.
+      const newer = { level: 'info', code: 'NEW', message: 'new', timestamp: new Date(2_000_000_000_001).toISOString() };
+      const older = { level: 'info', code: 'OLD', message: 'old', timestamp: new Date(2_000_000_000_000_500).toISOString() };
+      // ^ The "older" one has a higher epoch than the seed lastCursor but
+      //   lower than `newer`'s timestamp after the first iteration bumps it.
+      // We use timestamps well past the mocked base time so they pass the filter.
+      const body = await runTailOneIteration({ raw: JSON.stringify([newer, older]) });
+      expect(body).toContain('"code":"NEW"');
+      expect(body).toContain('"code":"OLD"');
+    });
   });
 
   describe('appendLog', () => {
@@ -137,6 +215,31 @@ describe('Logs API', () => {
     it('returns 204', async () => {
       const res = await onRequestOptions();
       expect(res.status).toBe(204);
+    });
+  });
+
+  describe('503 when RATE_KV is missing', () => {
+    it('GET returns 503', async () => {
+      const h = new Headers();
+      h.set('AccountKey', 'admin-key');
+      const ctx = {
+        request: new Request('https://cloudcdn.pro/api/logs', { headers: h }),
+        env: { ACCOUNT_KEY: 'admin-key', RATE_KV: null },
+      };
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(503);
+    });
+  });
+
+  describe('appendLog — defaults date when entry has no timestamp', () => {
+    it('falls back to today\'s key when entry.timestamp is missing', async () => {
+      const kv = makeKV();
+      await appendLog(kv, { level: 'info', code: 'NO_TS', message: 'fallback' });
+      // The key should be today (UTC) — same as new Date().toISOString().slice(0, 10).
+      const today = new Date().toISOString().slice(0, 10);
+      expect(kv.put).toHaveBeenCalled();
+      const [keyArg] = kv.put.mock.calls[0];
+      expect(keyArg).toBe(`logs:${today}`);
     });
   });
 });

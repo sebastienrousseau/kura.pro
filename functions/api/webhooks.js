@@ -190,6 +190,7 @@ export async function dispatchWebhook(env, event, payload) {
 
     try {
       const controller = new AbortController();
+      /* v8 ignore next -- timeout fires only when a webhook target stalls > 5s */
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       await fetch(webhook.url, { method: 'POST', headers, body, signal: controller.signal });
       clearTimeout(timeoutId);

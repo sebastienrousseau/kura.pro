@@ -64,6 +64,7 @@ function streamLogs(kv, request) {
         const entries = await readLogsSince(kv, lastCursor);
         for (const entry of entries) {
           await writer.write(encoder.encode(`event: log\ndata: ${JSON.stringify(entry)}\n\n`));
+          /* v8 ignore next -- readLogsSince already filters out entries with no/invalid timestamp */
           if (entry.timestamp) {
             const ts = new Date(entry.timestamp).getTime();
             if (ts > lastCursor) lastCursor = ts;

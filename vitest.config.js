@@ -33,6 +33,7 @@ export default defineConfig({
         'functions/api/insights/summary.js',
         'functions/api/insights/top-assets.js',
         'functions/api/purge.js',
+        'functions/api/lqip.js',
         'functions/api/storage/batch.js',
       ],
       all: false,

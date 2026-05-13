@@ -132,7 +132,7 @@ describe('GET /api/auto', () => {
     const ctx = makeContext('?path=/img/logo', '*/*');
     const res = await onRequestGet(ctx);
     expect(res.status).toBe(200);
-    expect(res.headers.get('Vary')).toBe('Accept');
+    expect(res.headers.get('Vary')).toContain('Accept');
   });
 
   // --- Cache headers ---
@@ -359,7 +359,7 @@ describe('GET /api/auto', () => {
     globalThis.fetch = mockFetchForFormats(['png']);
     const ctx = makeContext('?path=/img/logo', '*/*');
     const res = await onRequestGet(ctx);
-    expect(res.headers.get('Vary')).toBe('Accept');
+    expect(res.headers.get('Vary')).toContain('Accept');
   });
 
   it('handles Accept with text/html (should serve png fallback)', async () => {
@@ -454,5 +454,67 @@ describe('GET /api/auto', () => {
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
     expect(res.headers.get('Access-Control-Allow-Methods')).toContain('GET');
     expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
+  });
+
+  describe('network-aware format selection', () => {
+    function makeNetworkCtx(query, accept, extra = {}) {
+      const headerMap = { accept, ...extra };
+      return {
+        request: {
+          url: `https://cloudcdn.pro/api/auto${query}`,
+          headers: { get: (n) => headerMap[n.toLowerCase()] ?? null },
+        },
+      };
+    }
+
+    it('skips JXL/AVIF when Save-Data is on, prefers WebP', async () => {
+      globalThis.fetch = mockFetchForFormats(['avif', 'webp', 'png']);
+      try {
+        const ctx = makeNetworkCtx('?path=/img/logo', 'image/avif,*/*', { 'save-data': 'on' });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
+        expect(res.headers.get('Content-Type')).toBe('image/webp');
+        expect(res.headers.get('X-Network-Aware')).toBe('slow');
+        // First fetch call should be .webp, not .avif
+        expect(globalThis.fetch.mock.calls[0][0]).toContain('.webp');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('skips JXL/AVIF on slow ECT (3g)', async () => {
+      globalThis.fetch = mockFetchForFormats(['avif', 'webp', 'png']);
+      try {
+        const ctx = makeNetworkCtx('?path=/img/logo', 'image/avif,*/*', { 'sec-ch-effective-connection-type': '3g' });
+        const res = await onRequestGet(ctx);
+        expect(res.headers.get('Content-Type')).toBe('image/webp');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('does not interfere with a fast 4g client', async () => {
+      globalThis.fetch = mockFetchForFormats(['avif', 'webp', 'png']);
+      try {
+        const ctx = makeNetworkCtx('?path=/img/logo', 'image/avif,*/*', { 'sec-ch-effective-connection-type': '4g' });
+        const res = await onRequestGet(ctx);
+        expect(res.headers.get('Content-Type')).toBe('image/avif');
+        expect(res.headers.get('X-Network-Aware')).toBeNull();
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('Vary header includes Save-Data and ECT for cache-correctness', async () => {
+      globalThis.fetch = mockFetchForFormats(['png']);
+      try {
+        const ctx = makeNetworkCtx('?path=/img/logo', '*/*');
+        const res = await onRequestGet(ctx);
+        expect(res.headers.get('Vary')).toContain('Save-Data');
+        expect(res.headers.get('Vary')).toContain('Sec-CH-Effective-Connection-Type');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
   });
 });

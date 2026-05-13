@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { onRequestGet, onRequestOptions } = await import('../../functions/api/transform.js');
+const { onRequestGet, onRequestOptions, isLowBandwidthClient } = await import('../../functions/api/transform.js');
 
 function makeContext(queryString, env = {}) {
   return {
@@ -152,7 +152,9 @@ describe('GET /api/transform', () => {
       const res = await onRequestGet(ctx);
       expect(res.status).toBe(200);
       expect(res.headers.get('Cache-Control')).toBe('public, max-age=31536000, immutable');
-      expect(res.headers.get('Vary')).toBe('Accept');
+      expect(res.headers.get('Vary')).toContain('Accept');
+      expect(res.headers.get('Vary')).toContain('Save-Data');
+      expect(res.headers.get('Vary')).toContain('Sec-CH-Effective-Connection-Type');
       expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
       // Verify fetch was called with correct cf.image options
       const fetchCall = globalThis.fetch.mock.calls[0];
@@ -571,6 +573,121 @@ describe('GET /api/transform', () => {
       expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
       expect(res.headers.get('Access-Control-Allow-Methods')).toContain('GET');
       expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
+    });
+  });
+
+  describe('network-aware delivery', () => {
+    function makeNetworkCtx(query, requestHeaders = {}, env = {}) {
+      const h = new Headers(requestHeaders);
+      return {
+        request: { url: `https://cloudcdn.pro/api/transform${query}`, headers: h, cf: env.cf },
+        env: {
+          RATE_KV: env.RATE_KV ?? { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+        },
+      };
+    }
+
+    describe('isLowBandwidthClient', () => {
+      it('detects Save-Data: on', () => {
+        const req = { headers: new Headers({ 'save-data': 'on' }) };
+        expect(isLowBandwidthClient(req)).toBe(true);
+      });
+      it('detects Save-Data: ON (case-insensitive)', () => {
+        const req = { headers: new Headers({ 'save-data': 'ON' }) };
+        expect(isLowBandwidthClient(req)).toBe(true);
+      });
+      it('does not flag Save-Data: off', () => {
+        const req = { headers: new Headers({ 'save-data': 'off' }) };
+        expect(isLowBandwidthClient(req)).toBe(false);
+      });
+      it('detects slow ECT values', () => {
+        for (const ect of ['slow-2g', '2g', '3g']) {
+          const req = { headers: new Headers({ 'sec-ch-effective-connection-type': ect }) };
+          expect(isLowBandwidthClient(req)).toBe(true);
+        }
+      });
+      it('does not flag fast ECT values', () => {
+        for (const ect of ['4g', '5g']) {
+          const req = { headers: new Headers({ 'sec-ch-effective-connection-type': ect }) };
+          expect(isLowBandwidthClient(req)).toBe(false);
+        }
+      });
+      it('returns false when no headers exist', () => {
+        expect(isLowBandwidthClient({})).toBe(false);
+        expect(isLowBandwidthClient(null)).toBe(false);
+      });
+    });
+
+    it('clamps quality to 60 when Save-Data is on', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeNetworkCtx('?url=/test.png&q=95', { 'save-data': 'on' });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
+        expect(res.headers.get('X-Network-Aware')).toBe('slow');
+        const cfOpts = globalThis.fetch.mock.calls[0][1].cf.image;
+        expect(cfOpts.quality).toBe(60);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('keeps a caller-supplied quality lower than the ceiling', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeNetworkCtx('?url=/test.png&q=40', { 'save-data': 'on' });
+        await onRequestGet(ctx);
+        const cfOpts = globalThis.fetch.mock.calls[0][1].cf.image;
+        expect(cfOpts.quality).toBe(40);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('forces WebP when format is unspecified and network is slow', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeNetworkCtx('?url=/test.png', { 'sec-ch-effective-connection-type': '3g' });
+        await onRequestGet(ctx);
+        const cfOpts = globalThis.fetch.mock.calls[0][1].cf.image;
+        expect(cfOpts.format).toBe('webp');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('does NOT override explicit format=avif even on slow networks', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeNetworkCtx('?url=/test.png&format=avif', { 'save-data': 'on' });
+        await onRequestGet(ctx);
+        const cfOpts = globalThis.fetch.mock.calls[0][1].cf.image;
+        expect(cfOpts.format).toBe('avif');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('does not stamp X-Network-Aware when client is on a fast connection', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeNetworkCtx('?url=/test.png', { 'sec-ch-effective-connection-type': '4g' });
+        const res = await onRequestGet(ctx);
+        expect(res.headers.get('X-Network-Aware')).toBeNull();
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('reads connection type from request.cf when present', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeNetworkCtx('?url=/test.png', {}, { cf: { clientAcceptEncoding: 'gzip', connectionType: '2g' } });
+        const res = await onRequestGet(ctx);
+        expect(res.headers.get('X-Network-Aware')).toBe('slow');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 });

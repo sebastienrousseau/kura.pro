@@ -56,7 +56,7 @@ describe('Edge Services — Transform returns image params', () => {
     const ctx = { request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png' }, env: { RATE_KV: null } };
     const res = await transformModule.onRequestGet(ctx);
     expect(res.headers.get('Cache-Control')).toContain('immutable');
-    expect(res.headers.get('Vary')).toBe('Accept');
+    expect(res.headers.get('Vary')).toContain('Accept');
   });
 });
 
@@ -102,7 +102,7 @@ describe('Edge Services — Auto negotiates format from Accept header', () => {
       },
     };
     const res = await autoModule.onRequestGet(ctx);
-    expect(res.headers.get('Vary')).toBe('Accept');
+    expect(res.headers.get('Vary')).toContain('Accept');
   });
 });
 
@@ -279,7 +279,7 @@ describe('Edge Services — Response headers', () => {
     globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
     const ctx = { request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png' }, env: {} };
     const res = await transformModule.onRequestGet(ctx);
-    expect(res.headers.get('Vary')).toBe('Accept');
+    expect(res.headers.get('Vary')).toContain('Accept');
   });
 
   it('transform response has CORS header', async () => {
@@ -298,7 +298,7 @@ describe('Edge Services — Response headers', () => {
       },
     };
     const res = await autoModule.onRequestGet(ctx);
-    expect(res.headers.get('Vary')).toBe('Accept');
+    expect(res.headers.get('Vary')).toContain('Accept');
   });
 
   it('stream master playlist has correct Content-Type', async () => {

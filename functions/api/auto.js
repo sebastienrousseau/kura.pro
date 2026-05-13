@@ -21,6 +21,9 @@ const FORMAT_CHAIN = [
   { ext: 'svg', mime: 'image/svg+xml' },
 ];
 
+// Connection types we treat as "slow"; matches transform.js's SLOW_ECT.
+const SLOW_ECT = new Set(['slow-2g', '2g', '3g']);
+
 /**
  * Determine the preferred format index based on the Accept header.
  * Priority: JXL > AVIF > WebP > PNG > SVG
@@ -30,6 +33,20 @@ function preferredStartIndex(accept) {
   if (accept.includes('image/avif')) return 1;
   if (accept.includes('image/webp')) return 2;
   return 3; // start at png
+}
+
+/**
+ * Detect a low-bandwidth client signal. Mirrors transform.js for consistency
+ * but kept here as a separate function so auto.js stays self-contained.
+ */
+function isLowBandwidth(request) {
+  const h = request?.headers;
+  /* v8 ignore next -- callers always pass a Request-shaped object */
+  if (!h || typeof h.get !== 'function') return false;
+  if ((h.get('save-data') || '').toLowerCase() === 'on') return true;
+  const ect = h.get('sec-ch-effective-connection-type');
+  if (ect && SLOW_ECT.has(ect.toLowerCase())) return true;
+  return false;
 }
 
 export async function onRequestGet(context) {
@@ -64,7 +81,14 @@ export async function onRequestGet(context) {
   }
 
   const accept = context.request.headers.get('Accept') || '';
-  const startIdx = preferredStartIndex(accept);
+  let startIdx = preferredStartIndex(accept);
+
+  // Network-aware: on slow/Save-Data clients, skip JXL and AVIF — both have
+  // heavier decoders and benefit slow CPUs less than WebP's size win does.
+  const networkAware = isLowBandwidth(context.request);
+  if (networkAware && startIdx < 2) {
+    startIdx = 2; // jump to WebP
+  }
 
   // Try each format in the fallback chain starting from preferred
   for (let i = startIdx; i < FORMAT_CHAIN.length; i++) {
@@ -77,9 +101,10 @@ export async function onRequestGet(context) {
       if (response.ok) {
         const headers = new Headers(response.headers);
         headers.set('Content-Type', mime);
-        headers.set('Vary', 'Accept');
+        headers.set('Vary', 'Accept, Save-Data, Sec-CH-Effective-Connection-Type');
         headers.set('Cache-Control', 'public, max-age=31536000, immutable');
         headers.set('Access-Control-Allow-Origin', '*');
+        if (networkAware) headers.set('X-Network-Aware', 'slow');
 
         return new Response(response.body, {
           status: 200,

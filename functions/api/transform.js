@@ -8,10 +8,66 @@ const VALID_GRAVITY = new Set([
   'face', 'auto',
 ]);
 
+// Connection types that mean "go easy on this client". Anything in this set
+// triggers Save-Data-style defaults (lower quality, lighter format).
+const SLOW_ECT = new Set(['slow-2g', '2g', '3g']);
+
+// Quality ceiling applied when network-aware downgrade kicks in.
+const LOW_NETWORK_QUALITY_CEILING = 60;
+
 function clamp(val, min, max) {
   const n = parseInt(val, 10);
   if (isNaN(n)) return undefined;
   return Math.max(min, Math.min(max, n));
+}
+
+/**
+ * Detect whether the client has signalled it's on a slow or metered network.
+ *
+ * Reads three signals, in priority order:
+ *   1. Save-Data: on — explicit user preference for reduced data.
+ *   2. Sec-CH-Effective-Connection-Type — Chrome's client hint for ECT.
+ *   3. CF-Worker connection.effective_type — Cloudflare's edge measurement.
+ *
+ * Returns true if any indicates the client should get lighter assets.
+ */
+export function isLowBandwidthClient(request) {
+  const headers = request?.headers;
+  if (headers && typeof headers.get === 'function') {
+    if ((headers.get('save-data') || '').toLowerCase() === 'on') return true;
+    const ect = headers.get('sec-ch-effective-connection-type');
+    if (ect && SLOW_ECT.has(ect.toLowerCase())) return true;
+  }
+  // Cloudflare also surfaces an `ect` field on the cf object when available.
+  const cfEct = request?.cf?.clientAcceptEncoding && request?.cf?.connectionType;
+  if (cfEct && SLOW_ECT.has(String(request.cf.connectionType).toLowerCase())) return true;
+  return false;
+}
+
+/**
+ * Mutate the imageOpts in place to apply network-aware defaults when the
+ * client has signalled a slow or metered connection. Pure server-side
+ * preference — caller-supplied values for quality/format always win.
+ *
+ * @returns true when defaults were applied (so we can stamp the right Vary
+ * headers on the response).
+ */
+function applyNetworkAwareDefaults(request, imageOpts, explicitFormatProvided) {
+  if (!isLowBandwidthClient(request)) return false;
+
+  // Clamp quality to the slow-network ceiling. If the caller asked for less,
+  // honour that — we never want to UP-quality against an explicit q=.
+  if (imageOpts.quality === undefined || imageOpts.quality > LOW_NETWORK_QUALITY_CEILING) {
+    imageOpts.quality = LOW_NETWORK_QUALITY_CEILING;
+  }
+
+  // Prefer WebP over AVIF on slow connections (cheaper to decode, slightly
+  // larger but in the noise once we've capped quality). Only set when the
+  // caller didn't pin a format explicitly.
+  if (!explicitFormatProvided) {
+    imageOpts.format = 'webp';
+  }
+  return true;
 }
 
 export async function onRequestGet(context) {
@@ -79,6 +135,7 @@ export async function onRequestGet(context) {
   }
 
   const format = params.get('format');
+  const explicitFormatProvided = format !== null && format !== 'auto';
   if (format !== null && format !== 'auto') {
     if (!VALID_FORMAT.has(format)) {
       return Response.json({ error: `Invalid parameter: format must be one of ${[...VALID_FORMAT].join(', ')}` }, { status: 400 });
@@ -122,6 +179,11 @@ export async function onRequestGet(context) {
     imageOpts.gravity = gravity;
   }
 
+  // --- Network-aware defaults ---
+  // When Save-Data or a slow ECT is signalled, clamp quality and prefer
+  // WebP over AVIF unless the caller pinned format/quality explicitly.
+  const networkAware = applyNetworkAwareDefaults(context.request, imageOpts, explicitFormatProvided);
+
   // --- Resolve origin URL (SSRF protection: reject absolute URLs) ---
   if (assetUrl.startsWith('http://') || assetUrl.startsWith('https://')) {
     return Response.json(
@@ -152,8 +214,13 @@ export async function onRequestGet(context) {
 
     const headers = new Headers(response.headers);
     headers.set('Cache-Control', 'public, max-age=31536000, immutable');
-    headers.set('Vary', 'Accept');
+    // Vary on every signal we read so intermediate caches don't serve a
+    // high-quality variant to a Save-Data client (or vice versa).
+    headers.set('Vary', 'Accept, Save-Data, Sec-CH-Effective-Connection-Type');
     headers.set('Access-Control-Allow-Origin', '*');
+    if (networkAware) {
+      headers.set('X-Network-Aware', 'slow');
+    }
 
     return new Response(response.body, {
       status: 200,

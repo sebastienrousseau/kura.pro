@@ -159,6 +159,143 @@ A short list of the load-bearing controls — the long form lives in [`SECURITY.
 - The dashboard session cookie is HMAC-signed and expires server-side.
 - The AI chat context comes from Vectorize-indexed Markdown that any push can change — this surface is treated as untrusted and is being moved behind PR review for the `cdn/**/content/` paths.
 
+## Operator-controlled bindings
+
+Three Cloudflare bindings are shipped commented-out in `wrangler.toml`. The code paths that depend on them auto-detect each binding and fall back to a safe default when absent — so production keeps running through every migration. Enabling each is a one-time uncomment + deploy.
+
+### Atomic rate limiter (`RATE_LIMITER`)
+
+```toml
+[[durable_objects.bindings]]
+name       = "RATE_LIMITER"
+class_name = "RateLimiterDO"
+
+[[migrations]]
+tag         = "v1"
+new_classes = ["RateLimiterDO"]
+```
+
+`functions/api/_shared.js#checkRateLimit` prefers the Durable Object when bound (atomic increment-if-below via `blockConcurrencyWhile`) and falls back to the non-atomic KV path when it isn't. First deploy after the uncomment provisions the namespace; subsequent requests use atomic limits automatically. To verify: `npx wrangler tail` and look for `"ai_circuit_open"` log entries — they should be absent or rare in steady state.
+
+### Observability metrics (`METRICS`)
+
+```toml
+[[analytics_engine_datasets]]
+binding = "METRICS"
+dataset = "cloudcdn_metrics"
+```
+
+`recordMetric()` in `_shared.js` writes one data point per request:
+
+| Field | Type | Source |
+|---|---|---|
+| `blob1` | string | request pathname (also indexed) |
+| `blob2` | string | HTTP status |
+| `blob3` | string | `metadata.source` for AI endpoints (`ai`/`cached`/`curated`/`fuzzy`/`vector`) |
+| `blob4` | string | trace ID |
+| `double1` | number | duration in ms |
+| `index1` | string | request pathname |
+
+The dataset is provisioned on first write — no migration step. Query with the Workers Analytics Engine SQL API. Common patterns:
+
+```sql
+-- p50 / p95 / p99 latency per endpoint over the last hour
+SELECT
+  blob1                              AS endpoint,
+  quantileWeighted(0.50)(double1, _sample_interval) AS p50_ms,
+  quantileWeighted(0.95)(double1, _sample_interval) AS p95_ms,
+  quantileWeighted(0.99)(double1, _sample_interval) AS p99_ms,
+  count() * any(_sample_interval)    AS request_count
+FROM cloudcdn_metrics
+WHERE timestamp > now() - INTERVAL '1' HOUR
+GROUP BY blob1
+ORDER BY request_count DESC
+LIMIT 20;
+
+-- Status-code mix per endpoint (4xx/5xx watch)
+SELECT
+  blob1 AS endpoint,
+  blob2 AS status,
+  sum(_sample_interval) AS requests
+FROM cloudcdn_metrics
+WHERE timestamp > now() - INTERVAL '1' HOUR
+  AND toUInt16(blob2) >= 400
+GROUP BY blob1, blob2
+ORDER BY requests DESC;
+
+-- AI fallback rate — what fraction of /api/chat or /api/search served
+-- degraded responses?
+SELECT
+  blob1                                    AS endpoint,
+  blob3                                    AS source,
+  sum(_sample_interval)                    AS requests,
+  sum(_sample_interval) * 100.0
+    / sum(sum(_sample_interval)) OVER (PARTITION BY blob1) AS pct
+FROM cloudcdn_metrics
+WHERE timestamp > now() - INTERVAL '1' DAY
+  AND blob1 IN ('/api/search', '/api/chat')
+GROUP BY blob1, blob3
+ORDER BY blob1, requests DESC;
+
+-- Trace lookup — fetch a single request by trace ID
+SELECT timestamp, blob1, blob2, blob3, double1
+FROM cloudcdn_metrics
+WHERE blob4 = 'PASTE-TRACE-ID-FROM-X-TRACE-ID-HEADER'
+LIMIT 100;
+```
+
+`_sample_interval` is the WAE sample interval — multiplying counts by it gives unbiased totals. The trace ID column is the same value clients see in the `X-Trace-Id` response header.
+
+### Webhook delivery queue (`WEBHOOK_QUEUE`)
+
+```toml
+[[queues.producers]]
+binding    = "WEBHOOK_QUEUE"
+queue      = "cloudcdn-webhooks"
+```
+
+`dispatchWebhook()` in `functions/api/webhooks.js` auto-detects this binding. When present, it enqueues one message per matching webhook target; when absent, it falls back to direct fire-and-forget delivery (single attempt, 5s timeout).
+
+Pages Functions cannot run queue consumers natively. The canonical consumer handler is in `functions/api/webhook_consumer.js` and must be deployed as a separate Worker:
+
+```bash
+# 1. Create the queue and (optional) dead-letter queue
+npx wrangler queues create cloudcdn-webhooks
+npx wrangler queues create cloudcdn-webhooks-dlq
+
+# 2. Scaffold the consumer Worker — a thin shell around webhook_consumer.js
+mkdir -p workers/webhook-consumer/src
+cat > workers/webhook-consumer/src/index.js <<'JS'
+export { webhookQueueHandler as default } from '../../../functions/api/webhook_consumer.js';
+JS
+
+# 3. Consumer wrangler.toml (workers/webhook-consumer/wrangler.toml)
+cat > workers/webhook-consumer/wrangler.toml <<'TOML'
+name = "cloudcdn-webhook-consumer"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[[queues.consumers]]
+queue             = "cloudcdn-webhooks"
+max_batch_size    = 10
+max_batch_timeout = 5
+max_retries       = 5
+dead_letter_queue = "cloudcdn-webhooks-dlq"
+TOML
+
+# 4. Deploy the consumer
+cd workers/webhook-consumer && npx wrangler deploy
+```
+
+The consumer applies exponential backoff (1s → 5s → 25s → 125s) up to 4 attempts per message, then routes to the DLQ. HMAC signing matches the inline delivery path, so receivers see the same `X-Webhook-Signature` header shape regardless of which path delivered.
+
+To inspect the DLQ:
+
+```bash
+# List messages waiting in the dead-letter queue
+npx wrangler queues consumer dead-letter cloudcdn-webhooks-dlq
+```
+
 ## Known limits and trade-offs
 
 - **Rate limiting has two backends.** `checkRateLimit` (in `_shared.js`) prefers the `RateLimiterDO` Durable Object (`functions/api/rate_limiter_do.js`) when bound — atomic increment-if-below via `blockConcurrencyWhile`. When the DO binding is absent it falls back to the legacy KV path, which is read-then-write and therefore non-atomic under burst concurrency. The DO binding is shipped commented-out in `wrangler.toml`; enabling it is a one-time `wrangler deploy` operation to provision the namespace.

@@ -36,6 +36,7 @@ export default defineConfig({
         'functions/api/lqip.js',
         'functions/api/ai/alt-text.js',
         'functions/api/ai/smart-crop.js',
+        'functions/api/ai/moderate.js',
         'functions/api/stream.js',
         'functions/api/core/rules.js',
         'functions/api/analytics.js',

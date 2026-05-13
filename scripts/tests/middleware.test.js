@@ -194,6 +194,14 @@ describe('Middleware: onRequest', () => {
       expect(ctx.next).toHaveBeenCalled();
     });
 
+    it('adds Cache-Control and Vary on /manifest.json responses', async () => {
+      const ctx = makeContext('/manifest.json');
+      const res = await onRequest(ctx);
+      expect(res.headers.get('Cache-Control')).toBe('public, max-age=3600, must-revalidate');
+      expect(res.headers.get('Vary')).toBe('Accept-Encoding');
+      expect(res.status).toBe(200);
+    });
+
     it('passes through /favicon.ico', async () => {
       const ctx = makeContext('/favicon.ico');
       await onRequest(ctx);

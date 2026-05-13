@@ -21,10 +21,10 @@
 
 CloudCDN is a multi-tenant CDN platform built entirely on Cloudflare Workers, Pages, KV, Vectorize, and Workers AI. A single SVG upload scaffolds a complete project directory. Every image is optimized, cached at the edge, and served in under 100ms globally.
 
-- **54 tenant zones** with isolated `v1/` directory structures
-- **1,400+ optimized assets** — single source per image, derivatives on demand
+- **59 tenant zones** with isolated `v1/` directory structures
+- **1,641 optimized assets** in the live manifest — single source per image, derivatives on demand
 - **12 edge API endpoints** across 6 planes (Storage, Core, Assets, Insights, Delivery, AI)
-- **2,140+ tests** with 100% statement/branch/function/line coverage
+- **2,173 tests** with 100% statement/branch/function/line coverage on the gated files
 - **Quota-resilient AI** — response cache, neuron budget, circuit breaker, and curated FAQ fallback keep `/api/search` and `/api/chat` answering when Workers AI is exhausted
 - **Signed commits** enforced end-to-end — from developer machine to edge deployment
 
@@ -49,7 +49,7 @@ graph TD
 
 ```
 /
-├── clients/          54 tenant asset directories
+├── clients/          59 tenant asset directories
 ├── stocks/           Global stock media (images, diagrams, videos)
 ├── cdn/              Application layer (localized pages, dashboard, docs)
 │   ├── en/           English homepage (canonical)
@@ -109,7 +109,7 @@ npm ci
 # Start local development server
 wrangler pages dev .
 
-# Run the full test suite (2,000 tests)
+# Run the full test suite (2,173 tests)
 npm test
 
 # Generate the asset manifest
@@ -173,7 +173,7 @@ curl 'https://cloudcdn.pro/api/auto?path=/myproject/v1/logos/logo'
 ## Testing
 
 ```bash
-npm test                # 2,140+ tests across 55 suites
+npm test                # 2,173 tests across 55 suites
 npm run test:coverage   # 100% statement/branch/function/line
 npm run test:visual     # Playwright visual regression (10 screenshots)
 npm run test:load       # k6 load test (1,000 VUs)
@@ -191,7 +191,7 @@ npm run test:audit      # npm dependency security audit
 | OpenAPI spec validation | 2 | 500+ |
 | Infrastructure (manifest, client libs) | 8 | 400+ |
 | AI fallback (cache, budget, breaker, curated) | 5 | 40+ |
-| **Total** | **55** | **2,140+** |
+| **Total** | **55** | **2,173** |
 
 </details>
 
@@ -235,6 +235,19 @@ Pushes to `main` trigger automatic deployment via Cloudflare Pages:
 2. **Deploy to edge** — `wrangler pages deploy` across 300+ PoPs
 3. **Compress images** — auto-generate WebP/AVIF from new PNGs (signed commit)
 4. **Regenerate manifest** — update asset registry via GitHub API (signed commit)
+
+## Versioning and deprecation
+
+The HTTP API is versioned by date. The current version is surfaced on every response as `X-API-Version` (currently `2026-04-01`). When a new version ships, the previous version is supported for **at least 12 months**. Sunset dates are announced via the `Deprecation` and `Sunset` response headers (RFC 8594) at least 90 days in advance.
+
+The npm package (`@cloudcdn/mcp-server`) follows semantic versioning. Breaking changes ship in major versions only.
+
+## Contributing and security
+
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to set up the project, send a PR, and meet the commit-signing requirement.
+- [`SECURITY.md`](SECURITY.md) — responsible disclosure path and supported-versions policy.
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1.
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — system layout, request flow, and the AI fallback design.
 
 ## License
 

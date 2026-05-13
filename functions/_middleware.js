@@ -103,8 +103,18 @@ export async function onRequest(context) {
   }
 
   // ── 2. Root static files — no rewrite ──
-  if (path === "/manifest.json" || path === "/favicon.ico") {
+  if (path === "/favicon.ico") {
     return context.next();
+  }
+  // manifest.json is large (~320 KB) and served on every dashboard load.
+  // Add a 1 h browser cache so repeat visits don't re-download it.
+  // Cloudflare handles transport compression based on Accept-Encoding.
+  if (path === "/manifest.json") {
+    const res = await context.next();
+    const headers = new Headers(res.headers);
+    headers.set("Cache-Control", "public, max-age=3600, must-revalidate");
+    headers.set("Vary", "Accept-Encoding");
+    return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
   }
 
   // ── 3. CDN pillar ──

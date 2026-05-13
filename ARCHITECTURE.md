@@ -73,12 +73,12 @@ Twelve endpoints across six planes. Authentication scope is enforced per plane a
 
 | Plane | Endpoints | Auth |
 |---|---|---|
-| Storage | `/api/storage/...`, `/api/storage/batch` | AccessKey |
-| Core | `/api/core/zones`, `/api/core/domains`, `/api/core/rules`, `/api/core/statistics` | AccountKey |
-| Assets | `/api/assets` (paginated catalog), `/api/assets/{path}` | AccessKey |
-| Insights | `/api/insights/{summary,top,geo,errors}` | Any control-plane key |
-| Delivery | `/api/transform`, `/api/auto`, `/api/signed`, `/api/stream`, `/api/purge` | Public (rate-limited) |
-| AI | `/api/search`, `/api/chat` | Public (rate-limited) |
+| Storage | `/api/storage/...`, `/api/storage/batch` | AccessKey / `storage:*` scope |
+| Core | `/api/core/{zones,domains,rules,statistics,audit-logs}` | AccountKey |
+| Assets | `/api/assets` (paginated catalog), `/api/assets/{path}` | AccessKey / `assets:read` scope |
+| Insights | `/api/insights/{summary,top,geo,errors,asset}` | Any control-plane key / `insights:read` |
+| Delivery | `/api/transform`, `/api/auto`, `/api/signed`, `/api/stream`, `/api/purge`, `/api/lqip`, `/api/blurhash` | Public (rate-limited) |
+| AI | `/api/search`, `/api/chat`, `/api/ai/{alt-text,smart-crop,moderate}` | Public + `ai:read` for the `/api/ai/*` endpoints |
 
 Cross-cutting concerns live in `functions/api/_shared.js`:
 
@@ -130,6 +130,22 @@ Two endpoints depend on Workers AI and Vectorize: `/api/search` and `/api/chat`.
 Search annotates `mode: vector | fuzzy | cached` on every response. Chat annotates `metadata.source: ai | cached | curated` and `metadata.degraded`. Clients render the same UI regardless of which layer served the response.
 
 The neuron budget is capped per UTC day by `AI_DAILY_BUDGET` (default `9000`, ~90% of the free tier). Quota-shaped errors (HTTP 429 or Workers AI codes 3040/7006/9001, plus message heuristics) flip the circuit breaker for `AI_CB_TTL_SEC` (default `60s`) so subsequent requests skip the AI call entirely.
+
+## AI surface (2026)
+
+Five additional endpoints share the same budget-and-cache infrastructure as `/api/search` and `/api/chat`. Each is a thin wrapper around a Workers AI model with the same three-layer fallback (`cache → budget → curated/default`):
+
+| Endpoint | Model | Returns |
+|---|---|---|
+| `POST /api/ai/alt-text` | `@cf/llava-hf/llava-1.5-7b-hf` | Short accessibility-quality description |
+| `POST /api/ai/smart-crop` | `@cf/llava-hf/llava-1.5-7b-hf` | `gravity` direction compatible with `/api/transform?gravity=` |
+| `POST /api/ai/moderate` | `@cf/llava-hf/llava-1.5-7b-hf` | `{ verdict: safe\|borderline\|unsafe, categories: {nudity,violence,drugs,hateSymbols,gore} }` |
+| `GET /api/lqip` | Cloudflare Image Resizing | `data:image/webp;base64,...` placeholder |
+| `GET /api/blurhash` | Cloudflare Image Resizing | 40-char content hash + data URI |
+
+All three vision endpoints accept the same auth surface (AccountKey / AccessKey / scoped Bearer token with `ai:read`), enforce per-IP rate limits, and cache successful responses for 24h. When the neuron budget trips the circuit breaker, the endpoints return `503 AiUnavailable` rather than a hallucinated answer — callers using them as automated pipeline gates know to retry or queue.
+
+The placeholder endpoints (`/api/lqip`, `/api/blurhash`) don't consume neurons — they piggyback on Cloudflare's image-resizing pipeline. They share the same edge cache namespace (day-bucketed key path) so identical (url, size) tuples are served from cache with zero cost.
 
 ## Asset pipeline
 

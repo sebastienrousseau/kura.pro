@@ -24,8 +24,8 @@ CloudCDN is a multi-tenant CDN platform built entirely on Cloudflare Workers, Pa
 - **59 tenant zones** with isolated `v1/` directory structures
 - **1,641 optimized assets** in the live manifest — single source per image, derivatives on demand
 - **12 edge API endpoints** across 6 planes (Storage, Core, Assets, Insights, Delivery, AI)
-- **2,173 tests** with 100% statement/branch/function/line coverage on the gated files
-- **Quota-resilient AI** — response cache, neuron budget, circuit breaker, and curated FAQ fallback keep `/api/search` and `/api/chat` answering when Workers AI is exhausted
+- **2,570+ tests** with 100% statement/branch/function/line coverage on 38 gated production files
+- **Quota-resilient AI** — response cache, neuron budget, circuit breaker, and curated FAQ fallback keep `/api/search` and `/api/chat` answering when Workers AI is exhausted; vision endpoints share the same guard
 - **Signed commits** enforced end-to-end — from developer machine to edge deployment
 
 ## Architecture
@@ -68,12 +68,17 @@ graph TD
 | | |
 | :--- | :--- |
 | **Edge Delivery** | Static assets served from 300+ Cloudflare data centers with immutable 1-year cache headers and automatic CORS. |
-| **Image Transforms** | On-the-fly resize, format conversion, blur, and sharpen via `/api/transform`. Supports WebP, AVIF, PNG, JPEG. |
-| **Format Negotiation** | `/api/auto` reads the browser `Accept` header and serves the optimal format (AVIF > WebP > PNG) automatically. |
+| **Image Transforms** | On-the-fly resize, format conversion, blur, and sharpen via `/api/transform`. Supports WebP, AVIF, PNG, JPEG. Auto-degrades quality + format on slow networks when `Save-Data` or `Sec-CH-Effective-Connection-Type` indicate a constrained client. |
+| **Format Negotiation** | `/api/auto` reads the browser `Accept` header and serves the optimal format (AVIF > WebP > PNG) automatically. Skips heavier decoders (JPEG XL / AVIF) on `Save-Data` or slow ECT clients. |
+| **AI Vision Endpoints** | `/api/ai/alt-text` generates accessibility descriptions, `/api/ai/smart-crop` returns a subject-aware `gravity` directive, `/api/ai/moderate` classifies images across five safety categories. All three use the shared Workers AI budget guard so a quota dip degrades to the cache, not to an error. |
+| **Progressive Placeholders** | `/api/lqip` returns a base64 data URI for an inline progressive placeholder; `/api/blurhash` returns a 40-char content hash + data URI pair for hash-deduped caching. Both via Cloudflare Image Resizing. |
+| **Per-Asset Analytics** | `/api/insights/asset?path=...` returns daily request counts and error roll-ups per individual asset — answers "how is this image performing" with no extra instrumentation. |
 | **Signed URLs** | HMAC-SHA256 time-limited URLs for protected assets with constant-time signature verification. |
 | **HLS Streaming** | Adaptive bitrate video delivery via HTTP Live Streaming playlists and byte-range segmentation. |
 | **Semantic Search** | Natural language asset search powered by Workers AI embeddings and Vectorize vector similarity. Day-bucketed edge cache, neuron budget, and fuzzy fallback keep results flowing when AI quota is exhausted — responses are annotated with `mode: vector \| fuzzy \| cached`. |
 | **AI Concierge** | RAG-powered chat assistant with SSE streaming, confidence scoring, and follow-up suggestions. Layered fallback: edge response cache → 30-entry curated FAQ → templated default. Failures never surface as HTTP errors; `metadata.source` is `ai \| cached \| curated`. |
+| **MCP Server** | `@cloudcdn/mcp-server` exposes **29 tools** (storage, zones, assets, insights, audit, transform, purge, AI vision, placeholders, semantic search) for AI agents. Drop-in compatible with Claude Code, Claude Desktop, Cursor, Windsurf, and Cline. |
+| **Audit Trail** | Every control-plane mutation (token create/revoke, webhook register/delete, zone create, purge) writes to an immutable 90-day audit log accessible via `/api/core/audit-logs`. Records carry IP, user-agent, trace ID, and action-specific metadata. |
 | **Asset Pipeline** | Upload a single SVG → automatic directory scaffold with PWA icons, banners, and favicon. |
 | **Zone Management** | Create, delete, and configure tenant zones via GitOps commits through the Core API. |
 | **Edge Analytics** | Real-time request tracking, bandwidth monitoring, cache ratio, geo distribution, and error tracking. |
@@ -89,9 +94,9 @@ Six distinct planes with strict authentication separation:
 | **Storage** | `/api/storage/` | AccessKey | Upload, download, delete, batch operations |
 | **Core** | `/api/core/` | AccountKey | Zones, domains, edge rules, statistics |
 | **Assets** | `/api/assets` | AccessKey | Paginated catalog, per-asset metadata |
-| **Insights** | `/api/insights/` | Any key | Summary, top assets, geography, errors |
-| **Delivery** | `/api/transform` `/api/auto` `/api/signed` `/api/stream` `/api/purge` | Public | Edge transforms, format negotiation, signed URLs, HLS, cache |
-| **AI** | `/api/search` `/api/chat` | Public | Semantic search, RAG concierge |
+| **Insights** | `/api/insights/` | Any key | Summary, top assets, geography, errors, **per-asset** |
+| **Delivery** | `/api/transform` `/api/auto` `/api/signed` `/api/stream` `/api/purge` `/api/lqip` `/api/blurhash` | Public | Edge transforms, format negotiation, signed URLs, HLS, cache, placeholders |
+| **AI** | `/api/search` `/api/chat` `/api/ai/alt-text` `/api/ai/smart-crop` `/api/ai/moderate` | Public + `ai:read` scope | Semantic search, RAG concierge, vision endpoints |
 
 Interactive reference with Try It console: **[cloudcdn.pro/api-reference](https://cloudcdn.pro/api-reference)**
 
@@ -173,7 +178,7 @@ curl 'https://cloudcdn.pro/api/auto?path=/myproject/v1/logos/logo'
 ## Testing
 
 ```bash
-npm test                # 2,173 tests across 55 suites
+npm test                # 2,570+ tests across 66 suites
 npm run test:coverage   # 100% statement/branch/function/line
 npm run test:visual     # Playwright visual regression (10 screenshots)
 npm run test:load       # k6 load test (1,000 VUs)

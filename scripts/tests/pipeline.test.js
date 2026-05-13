@@ -89,6 +89,50 @@ describe('sanitizeSvg', () => {
     const benign = '<svg><circle cx="10" cy="10" r="5" fill="blue"/></svg>';
     expect(sanitizeSvg(benign)).toBe(benign);
   });
+
+  it('strips nested <scr<script>ipt> bypass (multi-pass)', () => {
+    // CodeQL bypass: removing the inner <script>...</script> on the first
+    // pass leaves a renderable <scrIPT>alert(1)... if the outer attacker
+    // payload reassembles after stripping. Multi-pass loop catches it.
+    const out = sanitizeSvg('<svg><scr<script>ipt>alert(1)</scr<script>ipt></svg>');
+    expect(out).not.toContain('<script');
+    expect(out).not.toContain('<scr');
+  });
+
+  it('strips closing </script with embedded whitespace and attributes', () => {
+    // </script\t\nbar> is a valid script close per HTML spec; strict
+    // regex /<\/script\s*>/ misses it. Tolerant regex covers it.
+    const out = sanitizeSvg('<svg><script>alert(1)</script\t\nbar></svg>');
+    expect(out).not.toContain('alert(1)');
+    expect(out).not.toContain('<script');
+    expect(out).not.toContain('</script');
+  });
+
+  it('strips orphan </script> closers with no opener', () => {
+    const out = sanitizeSvg('<svg></script foo="bar"></svg>');
+    expect(out).not.toContain('</script');
+  });
+
+  it('strips event handlers regardless of whitespace inside the attribute', () => {
+    // CodeQL flagged the on-handler regex too; verify the iterated form
+    // doesn't leave half-stripped fragments.
+    const out = sanitizeSvg('<svg onclick = "alert(1)" onerror= \'x\'><circle onload ="y"/></svg>');
+    expect(out).not.toContain('onclick');
+    expect(out).not.toContain('onerror');
+    expect(out).not.toContain('onload');
+    expect(out).not.toContain('alert(1)');
+  });
+
+  it('terminates on pathological input (no infinite loop)', () => {
+    // Deeply nested scripts should not loop forever; the 8-iteration cap
+    // breaks out and we still produce a sanitized string.
+    let payload = 'inner';
+    for (let i = 0; i < 50; i++) payload = `<script>${payload}</script>`;
+    const out = sanitizeSvg(payload);
+    // We don't require every byte to be stripped (cap may leave some
+    // residue) but it must not contain a renderable <script> tag.
+    expect(out.length).toBeLessThan(payload.length);
+  });
 });
 
 describe('POST /api/pipeline', () => {

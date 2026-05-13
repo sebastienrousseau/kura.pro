@@ -1300,17 +1300,42 @@
     }
 
     // --- Markdown renderer ---
+    // Allow http(s), mailto, fragments, and relative URLs. Reject any
+    // other scheme (javascript:, data:, vbscript:, file:) by collapsing
+    // it to '#' so a Markdown-link attack ([click](javascript:alert(1)))
+    // can't reintroduce inline JS once we've HTML-escaped the body.
+    function isSafeUrl(url) {
+      const t = String(url || '').trim().toLowerCase();
+      if (!t) return false;
+      if (t.startsWith('http://') || t.startsWith('https://')) return true;
+      if (t.startsWith('mailto:')) return true;
+      if (t.startsWith('#') || t.startsWith('/') || t.startsWith('./') || t.startsWith('../')) return true;
+      // Anything else with a colon before the first slash is a scheme we
+      // haven't allowlisted — reject.
+      const firstSlash = t.indexOf('/');
+      const firstColon = t.indexOf(':');
+      if (firstColon === -1 || (firstSlash !== -1 && firstColon > firstSlash)) return true;
+      return false;
+    }
+
     function formatMarkdown(text) {
       if (!text) return '';
 
-      // Protect code blocks
+      // Escape ALL HTML special characters up front. Markdown markers
+      // (* _ # ` [ ] ( ) | -) are not HTML-special, so the transforms
+      // below still recognize them. Any attacker-supplied <script>,
+      // <img onerror=...>, or other raw HTML is neutralized to text.
+      // Fixes: js/xss-through-dom (innerHTML on AI output).
+      text = escapeHtml(text);
+
+      // Protect code blocks. Content was escaped above so do NOT re-escape.
       const codeBlocks = [];
       text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-        codeBlocks.push(`<pre><code${lang ? ` data-lang="${lang}"` : ''}>${escapeHtml(code.trim())}</code></pre>`);
+        codeBlocks.push(`<pre><code${lang ? ` data-lang="${lang}"` : ''}>${code.trim()}</code></pre>`);
         return `\x00CB${codeBlocks.length - 1}\x00`;
       });
 
-      // Tables
+      // Tables (cell content already escaped).
       text = text.replace(/(?:^|\n)((?:\|.+\|\n)+)/g, (_, tableBlock) => {
         const rows = tableBlock.trim().split('\n');
         if (rows.length < 2) return tableBlock;
@@ -1337,8 +1362,11 @@
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         // Italic
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        // Links
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+        // Links — validate scheme; reject anything not in the allowlist.
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
+          const safe = isSafeUrl(url) ? url : '#';
+          return `<a href="${safe}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+        })
         // Bullet lists
         .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
         // Numbered lists
@@ -1355,11 +1383,12 @@
     }
 
     function escapeHtml(str) {
-      return str
+      return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
   })();
   </script>

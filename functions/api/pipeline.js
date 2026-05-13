@@ -30,20 +30,56 @@ function ghHeaders(token) {
 
 /**
  * Sanitize SVG content — strip dangerous elements and attributes.
+ *
+ * Iterated until no further changes happen on a pass. The fixed-point
+ * loop defends against the two classes of bypass that regex-only
+ * sanitization is famous for:
+ *
+ *   1. Nested tags — `<scr<script>ipt>` looks safe to a single-pass
+ *      regex (the *inner* `<script>...</script>` matches and is
+ *      removed), but removing the inner span produces `<script>` which
+ *      is then renderable. A loop catches the new tag on the next pass.
+ *
+ *   2. Tolerant closing tags — the HTML spec accepts `</script\t\nbar>`
+ *      as a valid `</script>` close. The strict regex would miss it,
+ *      leaving an *unbalanced* opening `<script>` and a load of
+ *      attacker-controlled JS still in the string.
+ *
+ * CodeQL flags both as `js/incomplete-multi-character-sanitization`
+ * and `js/bad-tag-filter`; the multi-pass + permissive closer-pattern
+ * is the canonical fix.
+ *
  * Exported for testing.
  */
 export function sanitizeSvg(svgContent) {
   let svg = svgContent;
-  // Remove <script> blocks (with content)
-  svg = svg.replace(/<script[\s\S]*?<\/script\s*>/gi, '');
-  // Remove self-closing <script />
-  svg = svg.replace(/<script[^>]*\/>/gi, '');
-  // Remove event handler attributes (onclick, onerror, onload, etc.)
-  svg = svg.replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
-  // Remove javascript: URIs in any attribute
-  svg = svg.replace(/(href|xlink:href|src)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, '$1=""');
-  // Remove data: URIs that contain script
-  svg = svg.replace(/(href|xlink:href)\s*=\s*(?:"data:text\/html[^"]*"|'data:text\/html[^']*')/gi, '$1=""');
+  let prev;
+  let iterations = 0;
+  do {
+    prev = svg;
+    // <script>...</script> with content. Closing tag may have whitespace
+    // and arbitrary attribute-like cruft before its `>` per HTML spec.
+    svg = svg.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[\s\S]*?>/gi, '');
+    // Orphan opening / self-closing <script ...>.
+    svg = svg.replace(/<script\b[^>]*\/?>/gi, '');
+    // Orphan closing </script ...>.
+    svg = svg.replace(/<\/script\b[\s\S]*?>/gi, '');
+    // Inline event handler attributes (onclick=, onerror=, etc.).
+    svg = svg.replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+    // javascript: URIs in href / xlink:href / src / action / formaction.
+    svg = svg.replace(
+      /(href|xlink:href|src|action|formaction)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi,
+      '$1=""'
+    );
+    // data:text/html URIs.
+    svg = svg.replace(
+      /(href|xlink:href|src|action|formaction)\s*=\s*(?:"data:text\/html[^"]*"|'data:text\/html[^']*')/gi,
+      '$1=""'
+    );
+    // Stop runaway in pathological inputs. 8 passes is more than enough
+    // for any sensible nesting depth.
+    if (++iterations > 8) break;
+  } while (svg !== prev);
   return svg;
 }
 

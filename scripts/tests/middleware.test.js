@@ -506,4 +506,34 @@ describe('Middleware: onRequest', () => {
       expect(res.headers.get('X-Trace-Id')).toBeNull();
     });
   });
+
+  describe('Workers Analytics Engine emission', () => {
+    it('writes a data point when METRICS binding is bound', async () => {
+      const writeDataPoint = vi.fn();
+      const ctx = makeContext('/');
+      ctx.env.METRICS = { writeDataPoint };
+      await onRequest(ctx);
+      expect(writeDataPoint).toHaveBeenCalledTimes(1);
+      const dp = writeDataPoint.mock.calls[0][0];
+      expect(dp.blobs[0]).toBe('/');
+      expect(dp.blobs[1]).toBe('200');
+      // Trace ID is propagated into the blob set.
+      expect(dp.blobs[3]).toMatch(/^[0-9a-f]{32}$/);
+    });
+
+    it('does not write when METRICS is unbound (no-op)', async () => {
+      const ctx = makeContext('/');
+      // env.METRICS deliberately omitted
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(200);
+    });
+
+    it('swallows WAE write failures without affecting the response', async () => {
+      const writeDataPoint = vi.fn().mockImplementation(() => { throw new Error('WAE outage'); });
+      const ctx = makeContext('/');
+      ctx.env.METRICS = { writeDataPoint };
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(200);
+    });
+  });
 });

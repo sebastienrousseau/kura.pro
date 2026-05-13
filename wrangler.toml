@@ -34,3 +34,17 @@ id = "e5688bf85dff4b16988c4a3853bb7171"
 # [[migrations]]
 # tag         = "v1"
 # new_classes = ["RateLimiterDO"]
+
+# Workers Analytics Engine — high-cardinality, low-cost per-request metrics
+# (request count, latency, status, AI neuron spend, cache hit rate). When the
+# binding is bound, recordMetric() in _shared.js will dispatch; when it's
+# absent the call is a no-op so local dev and tests need no changes.
+#
+# To activate:
+#   1. Uncomment the binding below (Cloudflare provisions the dataset on
+#      first deploy — no migration step required).
+#   2. Query with the WAE SQL API; see docs/observability.md.
+#
+# [[analytics_engine_datasets]]
+# binding = "METRICS"
+# dataset = "cloudcdn_metrics"

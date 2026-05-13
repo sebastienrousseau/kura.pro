@@ -9,7 +9,7 @@
  */
 
 import { trackRequest } from "./api/analytics.js";
-import { createTrace } from "./api/_shared.js";
+import { createTrace, recordMetric } from "./api/_shared.js";
 
 // Pre-compiled extension check — faster than regex for hot path
 const ASSET_EXT = new Set(["webp", "avif", "jxl", "png", "svg", "ico", "mp4"]);
@@ -153,6 +153,19 @@ export async function onRequest(context) {
   } catch { /* immutable request — fall back to context.data only */ }
 
   const response = await routeRequest(context);
+  // Emit one WAE data point per request. No-op when the METRICS binding
+  // is absent (the default until the user uncomments the stanza in
+  // wrangler.toml), so this is safe to call unconditionally.
+  try {
+    const url = new URL(context.request.url);
+    recordMetric(context.env, {
+      endpoint: url.pathname,
+      status: response.status,
+      source: response.headers.get('x-mode') || '',
+      durationMs: Date.now() - trace.startTime,
+      traceId: trace.traceId,
+    });
+  } catch { /* metric emit must never affect the response */ }
   return applyResponseEnvelope(response, trace);
 }
 

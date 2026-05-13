@@ -7,6 +7,7 @@ import {
   checkRateLimit,
   normalizeQuery, hashString, buildCacheKey, cacheGet, cacheSet,
   aiBudgetState, aiBudgetCharge, aiBudgetTrip, isAiQuotaError, AI_COST,
+  recordMetric,
 } from '../../functions/api/_shared.js';
 
 const originalFetch = globalThis.fetch;
@@ -913,6 +914,51 @@ describe('Shared utilities', () => {
     it('exposes per-model neuron estimates', () => {
       expect(AI_COST.embed_bge_base).toBeGreaterThan(0);
       expect(AI_COST.llama_8b_fast).toBeGreaterThan(AI_COST.embed_bge_base);
+    });
+  });
+
+  describe('recordMetric', () => {
+    it('is a no-op when env is missing', () => {
+      // Should not throw.
+      expect(() => recordMetric(undefined, { endpoint: '/x', status: 200 })).not.toThrow();
+    });
+
+    it('is a no-op when METRICS binding is missing', () => {
+      expect(() => recordMetric({}, { endpoint: '/x', status: 200 })).not.toThrow();
+    });
+
+    it('is a no-op when METRICS lacks a writeDataPoint method', () => {
+      expect(() => recordMetric({ METRICS: {} }, { endpoint: '/x', status: 200 })).not.toThrow();
+    });
+
+    it('writes a structured data point when bound', () => {
+      const writeDataPoint = vi.fn();
+      recordMetric({ METRICS: { writeDataPoint } }, {
+        endpoint: '/api/search',
+        status: 200,
+        source: 'vector',
+        durationMs: 42.5,
+        traceId: 'abc123',
+      });
+      expect(writeDataPoint).toHaveBeenCalledTimes(1);
+      const dp = writeDataPoint.mock.calls[0][0];
+      expect(dp.blobs).toEqual(['/api/search', '200', 'vector', 'abc123']);
+      expect(dp.doubles).toEqual([42.5]);
+      expect(dp.indexes).toEqual(['/api/search']);
+    });
+
+    it('coerces missing fields to safe defaults', () => {
+      const writeDataPoint = vi.fn();
+      recordMetric({ METRICS: { writeDataPoint } }, {});
+      const dp = writeDataPoint.mock.calls[0][0];
+      expect(dp.blobs).toEqual(['unknown', '0', '', '']);
+      expect(dp.doubles).toEqual([0]);
+      expect(dp.indexes).toEqual(['unknown']);
+    });
+
+    it('swallows write failures', () => {
+      const writeDataPoint = vi.fn().mockImplementation(() => { throw new Error('WAE down'); });
+      expect(() => recordMetric({ METRICS: { writeDataPoint } }, { endpoint: '/x', status: 200 })).not.toThrow();
     });
   });
 });

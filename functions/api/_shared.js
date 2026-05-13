@@ -581,6 +581,39 @@ export const log = {
   error(code, message, meta) { this._emit('error', code, message, meta); },
 };
 
+// ── Workers Analytics Engine emitter ──
+//
+// recordMetric() writes a single data point to a Cloudflare Workers
+// Analytics Engine (WAE) dataset, if bound. WAE is the right place for
+// high-cardinality per-request signals (endpoint × status × region ×
+// region × AI cost) — it's cheap, indexed, queryable via SQL, and won't
+// rate-limit a hot request path.
+//
+// The binding (env.METRICS) is optional. When it's absent — which is the
+// case in tests and local dev — this function is a no-op. That keeps the
+// hot path zero-overhead and means no caller has to gate on env shape.
+//
+// WAE schema (12 indexes max, ~20 blobs max, 1 double):
+//   blobs:    [endpoint, status, source(ai|cached|curated|fuzzy), trace]
+//   doubles:  [durationMs]
+//   indexes:  [endpoint]   — high-cardinality index for filtering
+export function recordMetric(env, { endpoint, status, source, durationMs, traceId }) {
+  const wae = env?.METRICS;
+  if (!wae || typeof wae.writeDataPoint !== 'function') return;
+  try {
+    wae.writeDataPoint({
+      blobs: [
+        String(endpoint || 'unknown'),
+        String(status ?? 0),
+        String(source || ''),
+        String(traceId || ''),
+      ],
+      doubles: [Number.isFinite(durationMs) ? durationMs : 0],
+      indexes: [String(endpoint || 'unknown')],
+    });
+  } catch { /* WAE write failures must never affect the user response */ }
+}
+
 // ── Request Tracing ──
 
 /**

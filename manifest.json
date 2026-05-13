@@ -2813,7 +2813,7 @@
     "project": "cmn",
     "category": "github",
     "format": "svg",
-    "size": 956917
+    "size": 956908
   },
   {
     "name": "github-cmn.webp",
@@ -3437,7 +3437,7 @@
     "project": "common",
     "category": "buttons",
     "format": "svg",
-    "size": 551
+    "size": 527
   },
   {
     "name": "button-browser.webp",
@@ -3621,7 +3621,7 @@
     "project": "common",
     "category": "buttons",
     "format": "svg",
-    "size": 2616
+    "size": 2597
   },
   {
     "name": "threads-white.svg",
@@ -5221,7 +5221,7 @@
     "project": "html-generator",
     "category": "github",
     "format": "svg",
-    "size": 259766
+    "size": 259743
   },
   {
     "name": "180x180.png",
@@ -5229,7 +5229,7 @@
     "project": "html-generator",
     "category": "icons",
     "format": "png",
-    "size": 16316
+    "size": 16303
   },
   {
     "name": "192x192.png",
@@ -5237,7 +5237,7 @@
     "project": "html-generator",
     "category": "icons",
     "format": "png",
-    "size": 17469
+    "size": 17466
   },
   {
     "name": "512x512.png",
@@ -5253,7 +5253,7 @@
     "project": "html-generator",
     "category": "logos",
     "format": "svg",
-    "size": 258537
+    "size": 258514
   },
   {
     "name": "title-html-generator.svg",
@@ -5877,7 +5877,7 @@
     "project": "mdx-gen",
     "category": "github",
     "format": "svg",
-    "size": 40849
+    "size": 40796
   },
   {
     "name": "180x180.png",
@@ -5909,7 +5909,7 @@
     "project": "mdx-gen",
     "category": "logos",
     "format": "svg",
-    "size": 39628
+    "size": 39545
   },
   {
     "name": "title-mdx-gen.svg",
@@ -6781,7 +6781,7 @@
     "project": "noyalib",
     "category": "banners",
     "format": "svg",
-    "size": 174399
+    "size": 174323
   },
   {
     "name": "favicon.ico",
@@ -6805,7 +6805,7 @@
     "project": "noyalib",
     "category": "github",
     "format": "svg",
-    "size": 117318
+    "size": 117205
   },
   {
     "name": "180x180.png",
@@ -6845,7 +6845,7 @@
     "project": "noyalib",
     "category": "logos",
     "format": "svg",
-    "size": 88350
+    "size": 88312
   },
   {
     "name": "title-noyalib.svg",
@@ -8349,7 +8349,7 @@
     "project": "publications",
     "category": "banners",
     "format": "svg",
-    "size": 151168
+    "size": 109984
   },
   {
     "name": "favicon.ico",
@@ -8373,7 +8373,7 @@
     "project": "publications",
     "category": "github",
     "format": "svg",
-    "size": 214124
+    "size": 149542
   },
   {
     "name": "180x180.png",
@@ -8405,7 +8405,7 @@
     "project": "publications",
     "category": "logos",
     "format": "png",
-    "size": 1002149
+    "size": 980112
   },
   {
     "name": "publications.svg",
@@ -8413,7 +8413,7 @@
     "project": "publications",
     "category": "logos",
     "format": "svg",
-    "size": 116224
+    "size": 115976
   },
   {
     "name": "favicon.ico",
@@ -8445,7 +8445,7 @@
     "project": "pythondev",
     "category": "github",
     "format": "svg",
-    "size": 67201
+    "size": 67148
   },
   {
     "name": "180x180.png",
@@ -8477,7 +8477,7 @@
     "project": "pythondev",
     "category": "logos",
     "format": "svg",
-    "size": 67915
+    "size": 67862
   },
   {
     "name": "title-pythondev.svg",
@@ -8773,7 +8773,7 @@
     "project": "rustdev",
     "category": "icons",
     "format": "png",
-    "size": 52590
+    "size": 52585
   },
   {
     "name": "512x512.png",
@@ -8989,7 +8989,7 @@
     "project": "sebastienrousseau",
     "category": "logos",
     "format": "png",
-    "size": 15616
+    "size": 15446
   },
   {
     "name": "sebastienrousseau.svg",
@@ -9749,7 +9749,7 @@
     "project": "stocks",
     "category": "3D-lattice-graph.svg",
     "format": "svg",
-    "size": 122231
+    "size": 122174
   },
   {
     "name": "ai_quantum_algorithms_efficiency.svg",
@@ -9757,7 +9757,7 @@
     "project": "stocks",
     "category": "ai_quantum_algorithms_efficiency.svg",
     "format": "svg",
-    "size": 96817
+    "size": 96164
   },
   {
     "name": "ai-software-market-revenue-2018-2025-professional.svg",
@@ -9765,7 +9765,7 @@
     "project": "stocks",
     "category": "ai-software-market-revenue-2018-2025-professional.svg",
     "format": "svg",
-    "size": 81205
+    "size": 81166
   },
   {
     "name": "alice-bob-eve-encryption.svg",
@@ -9773,7 +9773,7 @@
     "project": "stocks",
     "category": "alice-bob-eve-encryption.svg",
     "format": "svg",
-    "size": 22835
+    "size": 22803
   },
   {
     "name": "alice-bob-eve-kyber.svg",
@@ -9821,7 +9821,7 @@
     "project": "stocks",
     "category": "mm1_model_architecture.svg",
     "format": "svg",
-    "size": 88673
+    "size": 88475
   },
   {
     "name": "qkd-qc-market-value.svg",
@@ -9837,7 +9837,7 @@
     "project": "stocks",
     "category": "rise-of-open-source-ai-models-bar-chart.svg",
     "format": "svg",
-    "size": 104866
+    "size": 104283
   },
   {
     "name": "a-chosen-soul-IQi4jAlVeOI-unsplash.webp",
@@ -10245,7 +10245,7 @@
     "project": "stocks",
     "category": "antoine-dautry-05A-kdOH6Hw.webp",
     "format": "webp",
-    "size": 3742518
+    "size": 278460
   },
   {
     "name": "aperture-vintage-SshYpuf607g.webp",
@@ -10253,7 +10253,7 @@
     "project": "stocks",
     "category": "aperture-vintage-SshYpuf607g.webp",
     "format": "webp",
-    "size": 621004
+    "size": 788392
   },
   {
     "name": "ari-he-euQVngjZGSI.webp",
@@ -10349,7 +10349,7 @@
     "project": "stocks",
     "category": "bas-van-der-horst-IuVCERDQy5w.webp",
     "format": "webp",
-    "size": 500774
+    "size": 648696
   },
   {
     "name": "bee-on-a-yellow-flower.webp",
@@ -10357,7 +10357,7 @@
     "project": "stocks",
     "category": "bee-on-a-yellow-flower.webp",
     "format": "webp",
-    "size": 1606922
+    "size": 129706
   },
   {
     "name": "ben-o-bro-wpU4veNGnHg.webp",
@@ -10397,7 +10397,7 @@
     "project": "stocks",
     "category": "benjamin-davies-Oja2ty_9ZLMb.webp",
     "format": "webp",
-    "size": 511716
+    "size": 714514
   },
   {
     "name": "benjamin-suter-2400547.webp",
@@ -10429,7 +10429,7 @@
     "project": "stocks",
     "category": "bernardo-lorena-ponte-cEp2Tow6XKk.webp",
     "format": "webp",
-    "size": 576342
+    "size": 852372
   },
   {
     "name": "birger-strahl-fOV7nWWIwRk.webp",
@@ -10493,7 +10493,7 @@
     "project": "stocks",
     "category": "brian-mcgowan-2qkhvkO2CaA.webp",
     "format": "webp",
-    "size": 1981286
+    "size": 71734
   },
   {
     "name": "casey-horner-XE2RmuV6ed0.webp",
@@ -10549,7 +10549,7 @@
     "project": "stocks",
     "category": "circuit_board_cityscape.webp",
     "format": "webp",
-    "size": 4746112
+    "size": 336002
   },
   {
     "name": "clark-tibbs-oqStl2L5oxI.webp",
@@ -10677,7 +10677,7 @@
     "project": "stocks",
     "category": "denys-nevozhai-2vmT5_FeMck.webp",
     "format": "webp",
-    "size": 857356
+    "size": 1144266
   },
   {
     "name": "denys-nevozhai-w7YCquMkv2c.webp",
@@ -10733,7 +10733,7 @@
     "project": "stocks",
     "category": "drone-view-of-london.webp",
     "format": "webp",
-    "size": 5504564
+    "size": 961860
   },
   {
     "name": "dylan-calluy-JpflvzEl5cg.webp",
@@ -10829,7 +10829,7 @@
     "project": "stocks",
     "category": "fuji.webp",
     "format": "webp",
-    "size": 886466
+    "size": 85208
   },
   {
     "name": "fully-homomorphic-encryption.webp",
@@ -10845,7 +10845,7 @@
     "project": "stocks",
     "category": "galina-nelyubova-7ej8VWfwFsg.webp",
     "format": "webp",
-    "size": 2714464
+    "size": 334502
   },
   {
     "name": "galina-nelyubova-NRWhMzpq8z4.webp",
@@ -10853,7 +10853,7 @@
     "project": "stocks",
     "category": "galina-nelyubova-NRWhMzpq8z4.webp",
     "format": "webp",
-    "size": 1985380
+    "size": 298140
   },
   {
     "name": "galina-nelyubova-V70-ng4FuiA.webp",
@@ -10861,7 +10861,7 @@
     "project": "stocks",
     "category": "galina-nelyubova-V70-ng4FuiA.webp",
     "format": "webp",
-    "size": 1213218
+    "size": 208366
   },
   {
     "name": "gdtography-911758.webp",
@@ -10917,7 +10917,7 @@
     "project": "stocks",
     "category": "getty-images-aTWKwJllPOA.webp",
     "format": "webp",
-    "size": 4412540
+    "size": 611026
   },
   {
     "name": "getty-images-LbYCH5UYkWw.webp",
@@ -10997,7 +10997,7 @@
     "project": "stocks",
     "category": "hsbc-from-the-docks.webp",
     "format": "webp",
-    "size": 4774074
+    "size": 649722
   },
   {
     "name": "humphrey-muleba-1660004.webp",
@@ -11005,7 +11005,7 @@
     "project": "stocks",
     "category": "humphrey-muleba-1660004.webp",
     "format": "webp",
-    "size": 719796
+    "size": 922452
   },
   {
     "name": "ian-dooley-DuBNA1QMpPA.webp",
@@ -11101,7 +11101,7 @@
     "project": "stocks",
     "category": "jan-folwarczny-ZXBPMnNVtlE.webp",
     "format": "webp",
-    "size": 580984
+    "size": 763486
   },
   {
     "name": "jase-bloor-oCZHIa1D4EU.webp",
@@ -11709,7 +11709,7 @@
     "project": "stocks",
     "category": "maximalfocus-76McKuOlI5U.webp",
     "format": "webp",
-    "size": 1357302
+    "size": 106028
   },
   {
     "name": "maximalfocus-HakTxidk36I.webp",
@@ -11901,7 +11901,7 @@
     "project": "stocks",
     "category": "nicolas-lysandrou-kDRYBXWFRTI.webp",
     "format": "webp",
-    "size": 542210
+    "size": 796576
   },
   {
     "name": "niketh-vellanki-vJqSAasmCEY.webp",
@@ -11925,7 +11925,7 @@
     "project": "stocks",
     "category": "ocean-ng-L0xOtAnv94Y.webp",
     "format": "webp",
-    "size": 1102236
+    "size": 70412
   },
   {
     "name": "omid-armin-tmD2T6L4cWA.webp",
@@ -12037,7 +12037,7 @@
     "project": "stocks",
     "category": "pedro-lastra-Nyvq2juw4_o.webp",
     "format": "webp",
-    "size": 571098
+    "size": 781184
   },
   {
     "name": "peter-nguyen-OpiZAxueRUE.webp",
@@ -12189,7 +12189,7 @@
     "project": "stocks",
     "category": "quantum-computer-room.webp",
     "format": "webp",
-    "size": 4329534
+    "size": 363062
   },
   {
     "name": "rawpixel-com-369782.webp",
@@ -12309,7 +12309,7 @@
     "project": "stocks",
     "category": "ryoji-iwata-a-qsFZimp1M.webp",
     "format": "webp",
-    "size": 657616
+    "size": 819538
   },
   {
     "name": "ryoma-onita-YbrLAqh3Ssc.webp",
@@ -12589,7 +12589,7 @@
     "project": "stocks",
     "category": "thisisengineering-raeng-TXxiFuQLBKQ.webp",
     "format": "webp",
-    "size": 1897894
+    "size": 447478
   },
   {
     "name": "thomas-tastet-0eqgB57xMeA.webp",
@@ -13005,7 +13005,7 @@
     "project": "wiserone",
     "category": "banners",
     "format": "svg",
-    "size": 74261
+    "size": 74238
   },
   {
     "name": "favicon.ico",
@@ -13021,7 +13021,7 @@
     "project": "wiserone",
     "category": "github",
     "format": "svg",
-    "size": 182350
+    "size": 182327
   },
   {
     "name": "180x180.png",
@@ -13053,7 +13053,7 @@
     "project": "wiserone",
     "category": "logos",
     "format": "svg",
-    "size": 50780
+    "size": 50757
   },
   {
     "name": "title-wiserone.svg",

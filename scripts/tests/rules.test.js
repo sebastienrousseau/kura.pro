@@ -246,4 +246,22 @@ describe('Core Rules API', () => {
     const res = await onRequestPost(ctx);
     expect([200, 400, 502]).toContain(res.status);
   });
+
+  it('GET treats ASSETS 404 for an allowed file as null', async () => {
+    const ctx = makeCtx('GET', { accountKey: 'acct-123' });
+    ctx.env.ASSETS.fetch = vi.fn().mockResolvedValue(new Response('nope', { status: 404 }));
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(200);
+  });
+
+  it('POST 500 when ghFetch throws unexpectedly', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(() => { throw new Error('boom'); });
+    const ctx = makeCtx('POST', {
+      accountKey: 'acct-123',
+      body: { File: '_headers', Content: '/*.webp\n  Cache-Control: x' },
+      githubToken: 'ghp', githubRepo: 'u/r',
+    });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(500);
+  });
 });

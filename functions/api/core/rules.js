@@ -30,6 +30,7 @@ function ghHeaders(token) {
 
 async function ghFetch(url, options = {}) {
   const controller = new AbortController();
+  /* v8 ignore next -- abort timer fires only when GitHub stalls > 10s */
   const timeoutId = setTimeout(() => controller.abort(), 10000);
   try {
     return await fetch(url, { ...options, signal: controller.signal });

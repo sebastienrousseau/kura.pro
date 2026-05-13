@@ -122,13 +122,26 @@ describe('GET /api/stream', () => {
     expect(json.error).toContain('not found');
   });
 
-  it('returns 500 when content-length is missing from HEAD response', async () => {
+  it('returns 500 when content-length is missing from HEAD response (variant playlist path)', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue(
       new Response(null, { status: 200 })
     );
-
     const res = await onRequestGet(
       makeCtx('/api/stream?video=black&quality=720')
+    );
+    expect(res.status).toBe(500);
+    const json = await res.json();
+    expect(json.error).toContain('Cannot determine video size');
+  });
+
+  it('returns 500 when content-length is missing on a segment request', async () => {
+    // The segment branch independently parses Content-Length and 500s when
+    // it cannot derive segmentCount. Exercises stream.js:118-119.
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(null, { status: 200 })
+    );
+    const res = await onRequestGet(
+      makeCtx('/api/stream?video=black&quality=720&segment=0')
     );
     expect(res.status).toBe(500);
     const json = await res.json();

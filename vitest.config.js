@@ -20,6 +20,7 @@ export default defineConfig({
         'functions/api/assets.js',
         'functions/api/search.js',
         'functions/api/signed.js',
+        'functions/api/pipeline.js',
         'functions/api/core/zones.js',
         'functions/api/core/audit-logs.js',
         'functions/api/storage/batch.js',

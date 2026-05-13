@@ -49,4 +49,31 @@ export function registerInsightsTools(server) {
       return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
     }
   );
+
+  server.tool(
+    'insights_asset',
+    'Get per-asset analytics for a single path: request count, daily breakdown, and error roll-up by HTTP status. Path matching is tolerant of leading-slash differences.',
+    {
+      path: z.string().min(1).max(2048).describe('Asset path to query (e.g. "clients/akande/v1/logos/logo.svg" — leading slash optional)'),
+      days: daysParam,
+    },
+    async (params) => {
+      const res = await api.get('/api/insights/asset', { auth: 'access', params });
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'audit_logs',
+    'Read the persistent control-plane audit trail: token creates/revokes, webhook registers/deletes, zone creates, successful purges. Records carry timestamp, action, client IP, user agent, request trace ID, and action-specific metadata. AccountKey-gated.',
+    {
+      days: z.number().int().min(1).max(90).default(7).optional().describe('Days to look back (1-90)'),
+      action: z.string().optional().describe('Filter to a single action (e.g. "token.create", "webhook.delete", "zone.create", "purge.execute")'),
+      limit: z.number().int().min(1).max(5000).default(500).optional().describe('Max entries to return (1-5000)'),
+    },
+    async (params) => {
+      const res = await api.get('/api/core/audit-logs', { auth: 'account', params });
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
 }

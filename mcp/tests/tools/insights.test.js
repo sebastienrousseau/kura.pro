@@ -63,4 +63,26 @@ describe('insights tools', () => {
     const url = new URL(globalThis.fetch.mock.calls[0][0]);
     expect(url.pathname).toBe('/api/insights/errors');
   });
+
+  it('insights_asset queries /api/insights/asset with path and days', async () => {
+    mockFetch({ Path: '/x', TotalRequests: 42, Daily: [] });
+    const tools = await getTools();
+    await tools.insights_asset({ path: 'stocks/photo.webp', days: 14 });
+    const url = new URL(globalThis.fetch.mock.calls[0][0]);
+    expect(url.pathname).toBe('/api/insights/asset');
+    expect(url.searchParams.get('path')).toBe('stocks/photo.webp');
+    expect(url.searchParams.get('days')).toBe('14');
+  });
+
+  it('audit_logs queries /api/core/audit-logs with AccountKey auth', async () => {
+    process.env.CLOUDCDN_ACCOUNT_KEY = 'acct_test';
+    mockFetch({ Entries: [], Count: 0 });
+    const tools = await getTools();
+    await tools.audit_logs({ days: 7, action: 'token.create', limit: 100 });
+    const [url, opts] = globalThis.fetch.mock.calls[0];
+    const u = new URL(url);
+    expect(u.pathname).toBe('/api/core/audit-logs');
+    expect(u.searchParams.get('action')).toBe('token.create');
+    expect(opts.headers.AccountKey).toBe('acct_test');
+  });
 });

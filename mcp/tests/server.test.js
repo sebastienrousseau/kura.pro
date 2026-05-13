@@ -43,23 +43,30 @@ describe('MCP Server', () => {
     // Assets (2)
     'assets_list',
     'assets_search',
-    // Insights (4)
+    // Insights (6)
     'insights_summary',
     'insights_top_assets',
     'insights_geography',
     'insights_errors',
+    'insights_asset',
+    'audit_logs',
     // Delivery (3)
     'transform_image',
     'cache_purge',
     'pipeline_ingest',
-    // AI (2)
+    // AI (7)
     'semantic_search',
     'health_check',
+    'generate_alt_text',
+    'smart_crop',
+    'moderate_image',
+    'placeholder_lqip',
+    'placeholder_blurhash',
   ];
 
   it(`registers ${expectedTools.length} tools`, () => {
     // McpServer stores tools internally — we verify by checking the tool count
-    expect(expectedTools.length).toBe(22);
+    expect(expectedTools.length).toBe(29);
   });
 
   for (const toolName of expectedTools) {

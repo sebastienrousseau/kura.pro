@@ -1,4 +1,4 @@
-import { log, appendAuditLog } from './_shared.js';
+import { log, appendAuditLog, legacyErrorJson } from './_shared.js';
 import { validateToken } from './tokens.js';
 
 /**
@@ -33,18 +33,12 @@ export async function onRequestPost(context) {
   const apiKeyOk = env.PURGE_KEY && apiKey === env.PURGE_KEY;
   const tokenOk = !apiKeyOk && (await validateToken(env, request, "purge:write"));
   if (!apiKeyOk && !tokenOk) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: CORS_HEADERS,
-    });
+    return legacyErrorJson(401, "Unauthorized");
   }
 
   // Required env
   if (!env.CLOUDFLARE_ZONE_ID || !env.CLOUDFLARE_API_TOKEN) {
-    return new Response(
-      JSON.stringify({ error: "Server misconfigured: missing CLOUDFLARE_ZONE_ID or CLOUDFLARE_API_TOKEN" }),
-      { status: 500, headers: CORS_HEADERS }
-    );
+    return legacyErrorJson(500, "Server misconfigured: missing CLOUDFLARE_ZONE_ID or CLOUDFLARE_API_TOKEN");
   }
 
   // Rate limit
@@ -52,9 +46,10 @@ export async function onRequestPost(context) {
   const rateLimitKey = `purge:count:${today()}`;
   const currentCount = parseInt(await kv.get(rateLimitKey) || "0", 10);
   if (currentCount >= MAX_PURGES_PER_DAY) {
-    return new Response(
-      JSON.stringify({ error: `Rate limit exceeded: max ${MAX_PURGES_PER_DAY} purges per day` }),
-      { status: 429, headers: CORS_HEADERS }
+    return legacyErrorJson(
+      429,
+      `Rate limit exceeded: max ${MAX_PURGES_PER_DAY} purges per day`,
+      { limit: MAX_PURGES_PER_DAY, retryAfter: 86400 }
     );
   }
 
@@ -63,10 +58,7 @@ export async function onRequestPost(context) {
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
-      status: 400,
-      headers: CORS_HEADERS,
-    });
+    return legacyErrorJson(400, "Invalid JSON body");
   }
 
   // Build Cloudflare API payload — exactly one mode allowed
@@ -75,67 +67,37 @@ export async function onRequestPost(context) {
   const activeCount = modes.filter(Boolean).length;
 
   if (activeCount > 1) {
-    return new Response(
-      JSON.stringify({ error: "Only one of purge_everything, urls, or tags may be specified per request" }),
-      { status: 400, headers: CORS_HEADERS }
-    );
+    return legacyErrorJson(400, "Only one of purge_everything, urls, or tags may be specified per request");
   }
 
   if (body.purge_everything === true) {
     cfPayload = { purge_everything: true };
   } else if (Array.isArray(body.urls)) {
     if (body.urls.length === 0) {
-      return new Response(JSON.stringify({ error: "urls array is empty" }), {
-        status: 400,
-        headers: CORS_HEADERS,
-      });
+      return legacyErrorJson(400, "urls array is empty");
     }
     if (body.urls.length > MAX_URLS) {
-      return new Response(
-        JSON.stringify({ error: `Too many URLs: max ${MAX_URLS} per request` }),
-        { status: 400, headers: CORS_HEADERS }
-      );
+      return legacyErrorJson(400, `Too many URLs: max ${MAX_URLS} per request`);
     }
     const invalid = body.urls.filter((u) => !u.startsWith(ALLOWED_PREFIX));
     if (invalid.length > 0) {
-      return new Response(
-        JSON.stringify({
-          error: `All URLs must start with ${ALLOWED_PREFIX}`,
-          invalid,
-        }),
-        { status: 400, headers: CORS_HEADERS }
-      );
+      return legacyErrorJson(400, `All URLs must start with ${ALLOWED_PREFIX}`, { extra: { invalid } });
     }
     cfPayload = { files: body.urls };
   } else if (Array.isArray(body.tags)) {
     if (body.tags.length === 0) {
-      return new Response(JSON.stringify({ error: "tags array is empty" }), {
-        status: 400,
-        headers: CORS_HEADERS,
-      });
+      return legacyErrorJson(400, "tags array is empty");
     }
     if (body.tags.length > MAX_TAGS) {
-      return new Response(
-        JSON.stringify({ error: `Too many tags: max ${MAX_TAGS} per request` }),
-        { status: 400, headers: CORS_HEADERS }
-      );
+      return legacyErrorJson(400, `Too many tags: max ${MAX_TAGS} per request`);
     }
     const invalidTags = body.tags.filter((t) => typeof t !== "string" || !TAG_PATTERN.test(t));
     if (invalidTags.length > 0) {
-      return new Response(
-        JSON.stringify({
-          error: "Tags must be alphanumeric with hyphens only",
-          invalid: invalidTags,
-        }),
-        { status: 400, headers: CORS_HEADERS }
-      );
+      return legacyErrorJson(400, "Tags must be alphanumeric with hyphens only", { extra: { invalid: invalidTags } });
     }
     cfPayload = { tags: body.tags };
   } else {
-    return new Response(
-      JSON.stringify({ error: 'Request must include "urls" array, "tags" array, or "purge_everything": true' }),
-      { status: 400, headers: CORS_HEADERS }
-    );
+    return legacyErrorJson(400, 'Request must include "urls" array, "tags" array, or "purge_everything": true');
   }
 
   // Call Cloudflare API
@@ -153,10 +115,7 @@ export async function onRequestPost(context) {
     });
   } catch (err) {
     log.error("PURGE_ERROR", err.message);
-    return new Response(
-      JSON.stringify({ error: "Failed to reach Cloudflare API" }),
-      { status: 502, headers: CORS_HEADERS }
-    );
+    return legacyErrorJson(502, "Failed to reach Cloudflare API");
   }
 
   const cfResult = await cfResponse.json();

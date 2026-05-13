@@ -1,3 +1,5 @@
+import { legacyErrorJson } from './_shared.js';
+
 export const SEGMENT_DURATION = 10;
 export const ASSUMED_BITRATE = 2_500_000; // ~2.5 Mbps estimate for source files
 export const SEGMENT_BYTES = (ASSUMED_BITRATE / 8) * SEGMENT_DURATION; // bytes per segment
@@ -23,7 +25,7 @@ function m3u8Response(body, cacheSecs = 300) {
 }
 
 function errorResponse(message, status = 400) {
-  return Response.json({ error: message }, { status, headers: CORS_HEADERS });
+  return legacyErrorJson(status, message, { headers: CORS_HEADERS });
 }
 
 function generateMasterPlaylist(video) {

@@ -5,6 +5,8 @@
  * POST /api/analytics        — record a hit (called by trackRequest helper)
  */
 
+import { legacyErrorJson } from './_shared.js';
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Content-Type": "application/json",
@@ -140,10 +142,7 @@ export async function onRequestGet(context) {
     const ip = request.headers.get("cf-connecting-ip") || "unknown";
     const count = parseInt(await env.RATE_KV.get(`rl:analytics:${ip}`) || "0", 10);
     if (count >= 100) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-        status: 429,
-        headers: { ...CORS_HEADERS, "Retry-After": "60" },
-      });
+      return legacyErrorJson(429, "Rate limit exceeded", { limit: 100, retryAfter: 60 });
     }
     await env.RATE_KV.put(`rl:analytics:${ip}`, String(count + 1), { expirationTtl: 60 });
   }
@@ -152,10 +151,7 @@ export async function onRequestGet(context) {
   if (env.ANALYTICS_KEY) {
     const key = request.headers.get("x-api-key");
     if (key !== env.ANALYTICS_KEY) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: CORS_HEADERS,
-      });
+      return legacyErrorJson(401, "Unauthorized");
     }
   }
 
@@ -214,10 +210,7 @@ export async function onRequestPost(context) {
   if (env.ANALYTICS_KEY) {
     const key = request.headers.get("x-api-key");
     if (key !== env.ANALYTICS_KEY) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: CORS_HEADERS,
-      });
+      return legacyErrorJson(401, "Unauthorized");
     }
   }
 
@@ -240,10 +233,7 @@ export async function onRequestPost(context) {
 
     return new Response(JSON.stringify({ ok: true }), { headers: CORS_HEADERS });
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid request body" }), {
-      status: 400,
-      headers: CORS_HEADERS,
-    });
+    return legacyErrorJson(400, "Invalid request body");
   }
 }
 

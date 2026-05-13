@@ -8,6 +8,8 @@
  * with fallback chain: avif → webp → png → svg.
  */
 
+import { legacyErrorJson } from './_shared.js';
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Content-Type': 'application/json',
@@ -66,18 +68,12 @@ export async function onRequestGet(context) {
   }
 
   if (!path) {
-    return Response.json(
-      { error: 'Missing required parameter: path' },
-      { status: 400, headers: CORS_HEADERS }
-    );
+    return legacyErrorJson(400, 'Missing required parameter: path');
   }
 
   // Path validation (SSRF / traversal protection)
   if (path.includes('..') || path.includes('\0') || path.includes('//')) {
-    return Response.json(
-      { error: 'Invalid path: contains disallowed sequences.' },
-      { status: 400, headers: CORS_HEADERS }
-    );
+    return legacyErrorJson(400, 'Invalid path: contains disallowed sequences.');
   }
 
   const accept = context.request.headers.get('Accept') || '';
@@ -117,10 +113,7 @@ export async function onRequestGet(context) {
     }
   }
 
-  return Response.json(
-    { error: 'No suitable format found for the given path' },
-    { status: 404, headers: CORS_HEADERS }
-  );
+  return legacyErrorJson(404, 'No suitable format found for the given path');
 }
 
 export async function onRequestOptions() {

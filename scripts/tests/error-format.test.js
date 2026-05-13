@@ -5,7 +5,7 @@
  * 429 is rate limit, messages are 150+ chars, and JSON is valid.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { clearManifestCache, errorResponse } from '../../functions/api/_shared.js';
+import { clearManifestCache, errorResponse, legacyErrorJson } from '../../functions/api/_shared.js';
 
 const zonesModule = await import('../../functions/api/core/zones.js');
 const zoneDetailModule = await import('../../functions/api/core/zones/[[id]].js');
@@ -342,5 +342,51 @@ describe('Error Format — Additional error scenarios', () => {
   it('errorResponse with extra metadata includes it', () => {
     const res = errorResponse(429, 'RateLimit', 'Too many requests. Rate limit exceeded for this endpoint. Maximum requests per minute per IP address reached. Wait before retrying.', { retryAfter: '30', limit: 50 });
     expect(res.headers.get('Retry-After')).toBe('30');
+  });
+});
+
+describe('legacyErrorJson — additive envelope for legacy endpoints', () => {
+  it('preserves the legacy string `error` field for back-compat', async () => {
+    const res = legacyErrorJson(400, 'Missing url');
+    const json = await res.json();
+    expect(json.error).toBe('Missing url');
+    expect(json.HttpCode).toBe(400);
+    expect(json.Message).toBe('Missing url');
+    expect(json.requestId).toMatch(/^[0-9a-f]{8}-/);
+    expect(json.timestamp).toMatch(/^\d{4}-/);
+    expect(json.apiVersion).toBeTruthy();
+  });
+
+  it('attaches tracing headers', () => {
+    const res = legacyErrorJson(400, 'bad');
+    expect(res.headers.get('X-Request-ID')).toMatch(/^[0-9a-f]{8}-/);
+    expect(res.headers.get('X-API-Version')).toBeTruthy();
+    expect(res.headers.get('Content-Type')).toBe('application/json');
+  });
+
+  it('sets Retry-After and X-RateLimit-* headers on 429 when limit supplied', () => {
+    const res = legacyErrorJson(429, 'Rate limit', { limit: 100, retryAfter: 30 });
+    expect(res.status).toBe(429);
+    expect(res.headers.get('Retry-After')).toBe('30');
+    expect(res.headers.get('X-RateLimit-Limit')).toBe('100');
+    expect(res.headers.get('X-RateLimit-Remaining')).toBe('0');
+  });
+
+  it('defaults Retry-After to 60 when not specified on 429', () => {
+    const res = legacyErrorJson(429, 'Rate limit');
+    expect(res.headers.get('Retry-After')).toBe('60');
+    expect(res.headers.get('X-RateLimit-Limit')).toBeNull();
+  });
+
+  it('merges options.extra into the body', async () => {
+    const res = legacyErrorJson(400, 'Tag rejected', { extra: { invalid: ['bad tag'] } });
+    const json = await res.json();
+    expect(json.invalid).toEqual(['bad tag']);
+    expect(json.error).toBe('Tag rejected');
+  });
+
+  it('merges options.headers into response headers', () => {
+    const res = legacyErrorJson(404, 'Not found', { headers: { 'X-Custom': 'yes' } });
+    expect(res.headers.get('X-Custom')).toBe('yes');
   });
 });

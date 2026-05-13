@@ -750,6 +750,50 @@ export function errorResponse(status, code, message, options = {}) {
 }
 
 /**
+ * Legacy error helper: preserves the historical `{ error: "<string>" }` body so
+ * existing clients keep working, while additively layering the standard envelope
+ * (HttpCode/Message/requestId/timestamp/apiVersion) and tracing headers.
+ *
+ * Used by endpoints whose response shape predates the RFC 9457 / Microsoft
+ * guidelines migration (purge, stream, auto, analytics, transform).
+ *
+ * @param {number} status - HTTP status code
+ * @param {string} message - Human-readable error message (becomes `error` and `Message`)
+ * @param {object} [options] - Optional: extra body fields, retryAfter, limit, headers
+ * @returns {Response}
+ */
+export function legacyErrorJson(status, message, options = {}) {
+  const requestId = crypto.randomUUID();
+  const body = {
+    error: message,
+    HttpCode: status,
+    Message: message,
+    requestId,
+    timestamp: new Date().toISOString(),
+    apiVersion: API_VERSION,
+    ...(options.extra || {}),
+  };
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'X-Request-ID': requestId,
+    'X-API-Version': API_VERSION,
+    ...(options.headers || {}),
+  };
+
+  if (status === 429) {
+    headers['Retry-After'] = String(options.retryAfter || 60);
+    if (options.limit) {
+      headers['X-RateLimit-Limit'] = String(options.limit);
+      headers['X-RateLimit-Remaining'] = '0';
+    }
+  }
+
+  return new Response(JSON.stringify(body), { status, headers });
+}
+
+/**
  * Build a standards-compliant success response with tracing headers.
  */
 export function jsonResponse(body, status = 200, extraHeaders = {}) {

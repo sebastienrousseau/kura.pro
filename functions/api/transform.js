@@ -1,3 +1,5 @@
+import { legacyErrorJson } from './_shared.js';
+
 const MONTHLY_LIMIT = 50000;
 
 const VALID_FIT = new Set(['cover', 'contain', 'fill', 'inside', 'outside']);
@@ -85,10 +87,11 @@ export async function onRequestGet(context) {
     } catch {}
 
     if (monthCount >= MONTHLY_LIMIT) {
-      return Response.json(
-        { error: 'limit_reached', message: 'Monthly transform limit reached.' },
-        { status: 429 }
-      );
+      return legacyErrorJson(429, 'limit_reached', {
+        extra: { message: 'Monthly transform limit reached.' },
+        limit: MONTHLY_LIMIT,
+        retryAfter: 86400,
+      });
     }
 
     try {
@@ -99,10 +102,7 @@ export async function onRequestGet(context) {
   // --- Validate required param ---
   const assetUrl = params.get('url');
   if (!assetUrl) {
-    return Response.json(
-      { error: 'Missing required parameter: url' },
-      { status: 400 }
-    );
+    return legacyErrorJson(400, 'Missing required parameter: url');
   }
 
   // --- Build image options ---
@@ -112,7 +112,7 @@ export async function onRequestGet(context) {
   if (w !== null) {
     const val = clamp(w, 1, 8192);
     if (val === undefined) {
-      return Response.json({ error: 'Invalid parameter: w must be 1-8192' }, { status: 400 });
+      return legacyErrorJson(400, 'Invalid parameter: w must be 1-8192');
     }
     imageOpts.width = val;
   }
@@ -121,7 +121,7 @@ export async function onRequestGet(context) {
   if (h !== null) {
     const val = clamp(h, 1, 8192);
     if (val === undefined) {
-      return Response.json({ error: 'Invalid parameter: h must be 1-8192' }, { status: 400 });
+      return legacyErrorJson(400, 'Invalid parameter: h must be 1-8192');
     }
     imageOpts.height = val;
   }
@@ -129,7 +129,7 @@ export async function onRequestGet(context) {
   const fit = params.get('fit');
   if (fit !== null) {
     if (!VALID_FIT.has(fit)) {
-      return Response.json({ error: `Invalid parameter: fit must be one of ${[...VALID_FIT].join(', ')}` }, { status: 400 });
+      return legacyErrorJson(400, `Invalid parameter: fit must be one of ${[...VALID_FIT].join(', ')}`);
     }
     imageOpts.fit = fit;
   }
@@ -138,7 +138,7 @@ export async function onRequestGet(context) {
   const explicitFormatProvided = format !== null && format !== 'auto';
   if (format !== null && format !== 'auto') {
     if (!VALID_FORMAT.has(format)) {
-      return Response.json({ error: `Invalid parameter: format must be one of ${[...VALID_FORMAT].join(', ')}` }, { status: 400 });
+      return legacyErrorJson(400, `Invalid parameter: format must be one of ${[...VALID_FORMAT].join(', ')}`);
     }
     imageOpts.format = format;
   }
@@ -148,7 +148,7 @@ export async function onRequestGet(context) {
   if (q !== null) {
     const val = clamp(q, 1, 100);
     if (val === undefined) {
-      return Response.json({ error: 'Invalid parameter: q must be 1-100' }, { status: 400 });
+      return legacyErrorJson(400, 'Invalid parameter: q must be 1-100');
     }
     imageOpts.quality = val;
   }
@@ -157,7 +157,7 @@ export async function onRequestGet(context) {
   if (blur !== null) {
     const val = clamp(blur, 1, 250);
     if (val === undefined) {
-      return Response.json({ error: 'Invalid parameter: blur must be 1-250' }, { status: 400 });
+      return legacyErrorJson(400, 'Invalid parameter: blur must be 1-250');
     }
     imageOpts.blur = val;
   }
@@ -166,7 +166,7 @@ export async function onRequestGet(context) {
   if (sharpen !== null) {
     const val = clamp(sharpen, 1, 10);
     if (val === undefined) {
-      return Response.json({ error: 'Invalid parameter: sharpen must be 1-10' }, { status: 400 });
+      return legacyErrorJson(400, 'Invalid parameter: sharpen must be 1-10');
     }
     imageOpts.sharpen = val;
   }
@@ -174,7 +174,7 @@ export async function onRequestGet(context) {
   const gravity = params.get('gravity');
   if (gravity !== null) {
     if (!VALID_GRAVITY.has(gravity)) {
-      return Response.json({ error: `Invalid parameter: gravity must be one of ${[...VALID_GRAVITY].join(', ')}` }, { status: 400 });
+      return legacyErrorJson(400, `Invalid parameter: gravity must be one of ${[...VALID_GRAVITY].join(', ')}`);
     }
     imageOpts.gravity = gravity;
   }
@@ -186,16 +186,10 @@ export async function onRequestGet(context) {
 
   // --- Resolve origin URL (SSRF protection: reject absolute URLs) ---
   if (assetUrl.startsWith('http://') || assetUrl.startsWith('https://')) {
-    return Response.json(
-      { error: 'Absolute URLs are not allowed. Use a relative path (e.g., /project/v1/logos/logo.webp).' },
-      { status: 400 }
-    );
+    return legacyErrorJson(400, 'Absolute URLs are not allowed. Use a relative path (e.g., /project/v1/logos/logo.webp).');
   }
   if (assetUrl.includes('..') || assetUrl.includes('\0') || assetUrl.includes('//')) {
-    return Response.json(
-      { error: 'Invalid path: contains disallowed sequences.' },
-      { status: 400 }
-    );
+    return legacyErrorJson(400, 'Invalid path: contains disallowed sequences.');
   }
   const originUrl = new URL(assetUrl, url.origin).toString();
 
@@ -206,10 +200,8 @@ export async function onRequestGet(context) {
     });
 
     if (!response.ok) {
-      return Response.json(
-        { error: `Upstream returned ${response.status}` },
-        { status: response.status >= 400 && response.status < 500 ? 400 : 502 }
-      );
+      const proxyStatus = response.status >= 400 && response.status < 500 ? 400 : 502;
+      return legacyErrorJson(proxyStatus, `Upstream returned ${response.status}`);
     }
 
     const headers = new Headers(response.headers);
@@ -227,10 +219,7 @@ export async function onRequestGet(context) {
       headers,
     });
   } catch (err) {
-    return Response.json(
-      { error: 'Failed to transform image' },
-      { status: 500 }
-    );
+    return legacyErrorJson(500, 'Failed to transform image');
   }
 }
 

@@ -46,47 +46,7 @@ const LOGIN_HTML = `<!DOCTYPE html>
     <button type="button" id="passkey-btn" style="width:100%;background:#1a1d27;border:1px solid #2a2d3a;border-radius:0.5rem;padding:0.625rem;color:#e2e4ea;font-size:0.875rem;cursor:pointer;margin-top:0.5rem;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#2a2d3a'" onclick="loginWithPasskey()">Sign in with Passkey</button>
     <p class="error ERRCLASS">Invalid password. Please try again.</p>
   </form>
-  <script>
-  function b64url(bytes) {
-    return btoa(String.fromCharCode(...new Uint8Array(bytes)))
-      .replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=/g,'');
-  }
-  function b64urlToBytes(s) {
-    return Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0));
-  }
-  async function loginWithPasskey() {
-    try {
-      const beginRes = await fetch('/api/passkeys/auth/begin', { method: 'POST' });
-      if (!beginRes.ok) { alert('No passkeys registered.'); return; }
-      const options = await beginRes.json();
-      const originalChallenge = options.challenge; // keep the base64url string for the server roundtrip
-      options.challenge = b64urlToBytes(options.challenge);
-      if (options.allowCredentials) {
-        options.allowCredentials = options.allowCredentials.map(c => ({
-          ...c, id: b64urlToBytes(c.id),
-        }));
-      }
-      const credential = await navigator.credentials.get({ publicKey: options });
-      const completeRes = await fetch('/api/passkeys/auth/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          credentialId: b64url(credential.rawId),
-          challenge: originalChallenge,
-          // Cryptographic verification fields (Sprint 12) — the server uses
-          // these to verify the authenticator's signature against the stored
-          // public key. Older server builds ignore them and fall through to
-          // credentialId-only checks, so this is back-compat with /api/passkeys.
-          authenticatorData: b64url(credential.response.authenticatorData),
-          signature: b64url(credential.response.signature),
-          clientDataJSON: b64url(credential.response.clientDataJSON),
-        }),
-      });
-      if (completeRes.ok) window.location.href = '/dashboard/';
-      else alert('Passkey authentication failed.');
-    } catch (e) { if (e.name !== 'NotAllowedError') alert('Passkey error: ' + e.message); }
-  }
-  </script>
+  <script src="/dashboard/_login.js"></script>
 </body>
 </html>`;
 
@@ -146,120 +106,35 @@ const SETUP_PASSKEY_HTML = `<!DOCTYPE html>
     <a href="/dashboard/" class="btn-skip" id="skip-link">Skip for now — go to dashboard</a>
   </div>
 
-  <script>
-  async function loadExisting() {
-    try {
-      const res = await fetch('/api/passkeys', {
-        credentials: 'include',
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data.Passkeys && data.Passkeys.length > 0) {
-        const container = document.getElementById('existing-passkeys');
-        container.style.display = 'block';
-        container.innerHTML = '<label style="margin-bottom:0.5rem;">Registered Passkeys</label>' +
-          data.Passkeys.map(p =>
-            '<div class="passkey-item"><div><span class="name">' + p.name + '</span><br><span class="date">Added ' + new Date(p.createdAt).toLocaleDateString() + '</span></div></div>'
-          ).join('');
-      }
-    } catch {}
-  }
-
-  async function registerPasskey() {
-    const btn = document.getElementById('register-btn');
-    const status = document.getElementById('status');
-    const name = document.getElementById('passkey-name').value.trim() || 'Passkey';
-
-    btn.disabled = true;
-    status.className = 'status';
-    status.textContent = 'Starting registration...';
-
-    try {
-      // 1. Get challenge from server
-      const beginRes = await fetch('/api/passkeys/register/begin', { method: 'POST', credentials: 'include' });
-      if (!beginRes.ok) {
-        const err = await beginRes.json();
-        throw new Error(err.error || 'Failed to start registration');
-      }
-      const options = await beginRes.json();
-
-      // 2. Decode challenge and user ID
-      function b64urlToBytes(b64url) {
-        const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
-        const raw = atob(b64);
-        return Uint8Array.from(raw, c => c.charCodeAt(0));
-      }
-      function bytesToB64url(bytes) {
-        return btoa(String.fromCharCode(...new Uint8Array(bytes)))
-          .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');
-      }
-
-      options.challenge = b64urlToBytes(options.challenge);
-      options.user.id = b64urlToBytes(options.user.id);
-      if (options.excludeCredentials) {
-        options.excludeCredentials = options.excludeCredentials.map(c => ({
-          ...c, id: b64urlToBytes(c.id)
-        }));
-      }
-
-      status.textContent = 'Waiting for device...';
-
-      // 3. Create credential via WebAuthn
-      const credential = await navigator.credentials.create({ publicKey: options });
-
-      status.textContent = 'Completing registration...';
-
-      // 4. Send credential back to server
-      const completeRes = await fetch('/api/passkeys/register/complete', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          credentialId: bytesToB64url(credential.rawId),
-          publicKey: bytesToB64url(credential.response.getPublicKey ? credential.response.getPublicKey() : credential.response.attestationObject),
-          challenge: bytesToB64url(options.challenge),
-          name: name,
-        }),
-      });
-
-      if (!completeRes.ok) {
-        const err = await completeRes.json();
-        throw new Error(err.error || 'Registration failed');
-      }
-
-      // 5. Success
-      status.className = 'status success';
-      status.textContent = '';
-      document.getElementById('success-check').classList.add('show');
-      document.getElementById('skip-link').textContent = 'Continue to dashboard';
-      btn.textContent = 'Register Another';
-      btn.disabled = false;
-      loadExisting();
-    } catch (e) {
-      if (e.name === 'NotAllowedError') {
-        status.className = 'status';
-        status.textContent = 'Cancelled.';
-      } else {
-        status.className = 'status error';
-        status.textContent = e.message;
-      }
-      btn.disabled = false;
-    }
-  }
-
-  // Check if WebAuthn is supported
-  if (!window.PublicKeyCredential) {
-    document.getElementById('register-btn').disabled = true;
-    document.getElementById('status').textContent = 'Passkeys are not supported in this browser.';
-    document.getElementById('status').className = 'status error';
-  }
-
-  loadExisting();
-  </script>
+  <script src="/dashboard/_setup-passkey.js"></script>
 </body>
 </html>`;
 
-export async function onRequest(context) {
+// Dashboard CSP override — the global middleware ships a strict
+// script-src 'self' for public pages, but the dashboard has inline
+// onclick/onchange/oninput attributes (and a couple of large inline
+// <script> blocks in cdn/en/dashboard/index.html and upload.html)
+// that strict CSP would block. The dashboard is admin-only and
+// doesn't render attacker-controlled content, so we relax script-src
+// here with 'unsafe-inline'. Style policies, base-uri, form-action,
+// frame-ancestors and object-src all stay strict to match the rest
+// of the site.
+const DASHBOARD_CSP =
+  "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; " +
+  "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
+  "object-src 'none'; upgrade-insecure-requests";
+
+function withDashboardCsp(response) {
+  const headers = new Headers(response.headers);
+  headers.set('Content-Security-Policy', DASHBOARD_CSP);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+async function handleRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const secret = env.DASHBOARD_SECRET || env.DASHBOARD_PASSWORD;
@@ -370,6 +245,17 @@ export async function onRequest(context) {
     });
   }
 
+  // Public assets needed by the unauthenticated login page. The login HTML
+  // references /dashboard/_login.js for the passkey button handler (CSP
+  // requires same-origin script-src, so we can't keep it inline). This
+  // route bypasses the session check so the browser can fetch the JS
+  // without first being redirected to the login page.
+  if (url.pathname === '/dashboard/_login.js') {
+    const rewritten = new URL(request.url);
+    rewritten.pathname = '/cdn/en/dashboard/_login.js';
+    return env.ASSETS.fetch(new Request(rewritten.toString(), request));
+  }
+
   // Verify session cookie
   const cookies = parseCookies(request.headers.get('Cookie'));
   const session = cookies[SESSION_COOKIE];
@@ -396,4 +282,12 @@ export async function onRequest(context) {
 
   // Not authenticated — redirect to login
   return Response.redirect(new URL('/dashboard/login', url.origin).toString(), 302);
+}
+
+export async function onRequest(context) {
+  const response = await handleRequest(context);
+  // Skip header rewriting on redirects — they have no body and editing
+  // their headers via the new Response() trick strips the Location.
+  if (response.status >= 300 && response.status < 400) return response;
+  return withDashboardCsp(response);
 }

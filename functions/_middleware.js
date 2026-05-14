@@ -110,20 +110,34 @@ const SECURITY_HEADERS = {
   // a CDN). Without this, fetch() with credentials: 'include' from other
   // origins would fail under post-Spectre default policies.
   "Cross-Origin-Resource-Policy": "cross-origin",
-  // Minimal Content-Security-Policy — adds defense-in-depth without
-  // touching inline-script support (the dashboard has several legit
-  // inline <script> blocks that a strict script-src would break).
-  //   - base-uri 'self'       — block <base href="https://attacker"> injection
-  //   - form-action 'self'    — keep form posts same-origin (only the
-  //                             /dashboard/login form exists today, same origin)
-  //   - frame-ancestors 'none' — modern replacement for X-Frame-Options:
-  //                             DENY; both stay for layered coverage
-  //   - object-src 'none'     — block <object>/<embed>/legacy Flash
-  //   - upgrade-insecure-requests — auto-upgrade any http: subresources
-  //                             accidentally introduced (Markdown link
-  //                             URLs from AI responses, etc.)
+  // Content-Security-Policy — public-page strict mode.
+  //   - script-src 'self'      — block any inline <script> or third-party
+  //                              script load. The public homepage's inline
+  //                              code has been externalized into
+  //                              /shared/widgets/chat.js and
+  //                              /shared/homepage-lang-switcher.js, so this
+  //                              is now safe to enforce. Future XSS via the
+  //                              chat widget's AI content would not execute.
+  //   - style-src 'self' 'unsafe-inline' — many inline `style="..."`
+  //                              attributes across the dashboard and the
+  //                              homepage; tightening style-src is a
+  //                              separate refactor with much smaller
+  //                              blast-radius savings.
+  //   - base-uri 'self'        — block <base href="https://attacker">
+  //   - form-action 'self'     — keep form posts same-origin
+  //   - frame-ancestors 'none' — modern replacement for X-Frame-Options DENY
+  //   - object-src 'none'      — block <object>/<embed>/legacy Flash
+  //   - upgrade-insecure-requests — auto-upgrade http: subresources
+  //
+  // Dashboard routes (/dashboard/*) override this header with a relaxed
+  // variant — they have inline event handlers (onclick/onchange/oninput)
+  // that strict script-src would break. The dashboard is admin-only and
+  // doesn't render attacker-controlled content, so the threat model is
+  // different. See functions/dashboard/_middleware.js for the override.
   "Content-Security-Policy":
-    "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests",
+    "script-src 'self'; style-src 'self' 'unsafe-inline'; " +
+    "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
+    "object-src 'none'; upgrade-insecure-requests",
 };
 
 function applyResponseEnvelope(response, trace) {

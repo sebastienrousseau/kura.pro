@@ -12,11 +12,11 @@ $ErrorActionPreference = 'Stop'
 
 $CdnBase = if ($env:CLOUDCDN_URL) { $env:CLOUDCDN_URL } else { 'https://cloudcdn.pro' }
 $Source = "$CdnBase/dist/stratos/stratos.mjs"
-# Expected SHA-256 of stratos.mjs as served by https://cloudcdn.pro/dist/
-# stratos/stratos.mjs. Cloudflare Pages appends a trailing newline on
-# delivery, so this hash is taken from the *delivered* bytes, not the
-# source file in git. Bumped on each release.
-$ExpectedSha = '85aeca2967183e827ffb1e17c53f132bc14b8cd3c8c0a28532059fb1a6a7114e'
+# Expected SHA-256 of stratos.mjs as delivered. Matches the source file
+# in git verbatim — Invoke-WebRequest writes the response body
+# byte-for-byte to disk, no trailing-newline injection. Bumped on each
+# release.
+$ExpectedSha = '98306c394345fc18b8610c0113e6ef94f071ceba47de0f07eb45a9204effaf27'
 $Version = '0.1.0'
 
 # Pre-flight: Node must be on PATH and >= 18.

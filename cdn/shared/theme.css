@@ -1,0 +1,72 @@
+/*
+ * Shared theme tokens for CloudCDN pages.
+ *
+ * Sits on top of Skeletonic's compiled CSS (which uses native light-dark()
+ * and color-scheme). [data-theme] on <html> forces a specific branch when
+ * the user makes an explicit choice; otherwise prefers-color-scheme wins.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --bg:            light-dark(#f7f8fb, #08090d);
+  --surface:       light-dark(#ffffff, #0f1117);
+  --surface-2:     light-dark(#f0f2f7, #1a1d27);
+  --border:        light-dark(rgba(99,102,241,0.18), rgba(99,102,241,0.15));
+  --border-subtle: light-dark(rgba(0,0,0,0.08),     rgba(255,255,255,0.06));
+
+  --text:       light-dark(#1a1d27, #e2e4ea);
+  --text-muted: light-dark(#5b5f73, #8b8fa3);
+  --text-dim:   light-dark(#8b8fa3, #5b5f73);
+  --heading:    light-dark(#0a0c12, #ffffff);
+
+  --accent:       #6366f1;
+  --accent-hover: light-dark(#4f46e5, #818cf8);
+  --accent-glow:  rgba(99,102,241,0.4);
+  --accent-soft:  light-dark(rgba(99,102,241,0.08), rgba(99,102,241,0.10));
+  --accent-text:  light-dark(#4338ca, #a5b4fc);
+
+  --green:        light-dark(#16a34a, #4ade80);
+  --green-soft:   light-dark(rgba(22,163,74,0.10),  rgba(34,197,94,0.10));
+  --green-border: light-dark(rgba(22,163,74,0.30),  rgba(34,197,94,0.20));
+
+  /* Subtle backgrounds (hover scrims, code blocks). Dark theme darkens
+     toward black; light theme darkens toward soft grey. */
+  --hover-soft:    light-dark(rgba(0,0,0,0.04),     rgba(255,255,255,0.04));
+  --hover-soft-2:  light-dark(rgba(0,0,0,0.06),     rgba(255,255,255,0.06));
+  --code-bg:       light-dark(rgba(0,0,0,0.05),     rgba(0,0,0,0.30));
+  --code-block-bg: light-dark(rgba(0,0,0,0.06),     rgba(0,0,0,0.40));
+  --shadow-lg:     light-dark(0 8px 48px rgba(0,0,0,0.10), 0 8px 48px rgba(0,0,0,0.50));
+  --shadow-md:     light-dark(0 16px 48px rgba(0,0,0,0.10), 0 16px 48px rgba(0,0,0,0.50));
+
+  --radius:    0.75rem;
+  --radius-lg: 1rem;
+  --font:      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+[data-theme="light"] { color-scheme: light; }
+[data-theme="dark"]  { color-scheme: dark;  }
+
+/* Theme toggle button — minimal, fits the existing nav pattern */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6rem;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+.theme-toggle svg { width: 1.125rem; height: 1.125rem; }
+.theme-toggle .icon-sun  { display: none;  }
+.theme-toggle .icon-moon { display: block; }
+[data-theme="light"] .theme-toggle .icon-sun  { display: block; }
+[data-theme="light"] .theme-toggle .icon-moon { display: none;  }

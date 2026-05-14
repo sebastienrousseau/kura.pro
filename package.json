@@ -13,7 +13,7 @@
     "test:load:smoke": "k6 run --duration 10s --vus 10 scripts/tests/load.k6.js",
     "test:audit": "npm audit --audit-level=high",
     "test:all": "npm test && npm run test:visual",
-    "build:css": "tailwindcss -i cdn/dashboard/input.css -o cdn/dashboard/tailwind.css --minify",
+    "build:css": "tailwindcss -i cdn/en/dashboard/input.css -o cdn/en/dashboard/tailwind.css --minify",
     "build:manifest": "node scripts/generate-manifest.mjs",
     "build:locales": "node scripts/i18n/build-locales.mjs",
     "build:skeletonic": "node scripts/build-skeletonic.mjs",

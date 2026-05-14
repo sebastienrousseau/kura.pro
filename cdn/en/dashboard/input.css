@@ -1,9 +1,18 @@
 @import "tailwindcss";
 
+/* Drive Tailwind's `dark:` variant from our [data-theme] attribute so the
+   theme toggle in the nav (theme-toggle.js) controls Tailwind utility
+   classes as well as our custom theme.css tokens. The static
+   `class="dark"` on <html> is no longer required. */
+@custom-variant dark (&:where([data-theme="dark"] *, [data-theme="dark"]));
+
 @theme {
-  --color-surface: #0f1117;
-  --color-card: #1a1d27;
-  --color-border: #2a2d3a;
+  /* Tailwind utility tokens — light-dark() so bg-surface, text-foo, etc.
+     flip with the [data-theme] attribute. The dark branch matches the
+     previous (single-theme) values; the light branch tracks theme.css. */
+  --color-surface: light-dark(#ffffff, #0f1117);
+  --color-card: light-dark(#f0f2f7, #1a1d27);
+  --color-border: light-dark(#dbe1ea, #2a2d3a);
   --color-accent: #6366f1;
-  --color-accent-hover: #818cf8;
+  --color-accent-hover: light-dark(#4f46e5, #818cf8);
 }

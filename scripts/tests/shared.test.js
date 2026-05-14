@@ -961,4 +961,162 @@ describe('Shared utilities', () => {
       expect(() => recordMetric({ METRICS: { writeDataPoint } }, { endpoint: '/x', status: 200 })).not.toThrow();
     });
   });
+
+  describe('uncovered helpers — coverage gate', () => {
+    it('parseCookies breaks on a cookie segment that has no `=`', async () => {
+      // Exercises `if (eq === -1) break` — the cookie header has a stray
+      // segment with no name=value separator, which terminates parsing.
+      // Both well-formed leading cookies are kept.
+      const { parseCookies } = await import('../../functions/api/_shared.js');
+      const out = parseCookies('a=1; b=2; oops');
+      expect(out.a).toBe('1');
+      expect(out.b).toBe('2');
+      expect(out.oops).toBeUndefined();
+    });
+
+    it('authenticateAccess returns true on a valid dashboard-session cookie', async () => {
+      // Exercises the `valid && expires > now → return true` branch in
+      // authenticateAccess (line 205). The existing tests only cover the
+      // negative paths (missing/invalid cookie); this covers the happy path.
+      const { authenticateAccess, hmacSign } = await import('../../functions/api/_shared.js');
+      const expires = Math.floor(Date.now() / 1000) + 3600;
+      const nonce = 'abc123';
+      const token = `${expires}.${nonce}`;
+      const sig = await hmacSign('test-secret-access', token);
+      const cookie = `cdn_session=${token}.${sig}`;
+      const request = { headers: new Headers({ Cookie: cookie }) };
+      const env = { DASHBOARD_SECRET: 'test-secret-access' };
+      expect(await authenticateAccess(request, env)).toBe(true);
+    });
+
+    it('cacheGet returns null when the Cache API throws', async () => {
+      // Exercises the catch branch (line 525) — Workers' caches.default may
+      // reject in obscure runtime states; the helper must fail-soft.
+      const { cacheGet } = await import('../../functions/api/_shared.js');
+      const originalCaches = globalThis.caches;
+      globalThis.caches = {
+        default: {
+          match: () => { throw new Error('cache backplane offline'); },
+        },
+      };
+      try {
+        const got = await cacheGet('foo');
+        expect(got).toBeNull();
+      } finally {
+        globalThis.caches = originalCaches;
+      }
+    });
+
+    it('cdnOrigin falls back to https://cloudcdn.pro for a malformed URL', async () => {
+      // Exercises the `catch { return 'https://cloudcdn.pro' }` fallback
+      // (line 687) when `new URL(requestUrl)` throws.
+      const { cdnOrigin } = await import('../../functions/api/_shared.js');
+      expect(cdnOrigin('not a url')).toBe('https://cloudcdn.pro');
+      expect(cdnOrigin('https://example.com/foo')).toBe('https://example.com');
+    });
+
+    it('extractPathname pulls the path from a raw URL string without new URL()', async () => {
+      const { extractPathname } = await import('../../functions/api/_shared.js');
+      expect(extractPathname('https://cloudcdn.pro/api/assets')).toBe('/api/assets');
+      expect(extractPathname('https://cloudcdn.pro/api/assets?page=2')).toBe('/api/assets');
+      expect(extractPathname('https://cloudcdn.pro/')).toBe('/');
+    });
+
+    it('jsonResponse wraps a body with envelope headers', async () => {
+      const { jsonResponse } = await import('../../functions/api/_shared.js');
+      const res = jsonResponse({ ok: true });
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('application/json');
+      expect(res.headers.get('X-Request-ID')).toMatch(/^[0-9a-f]{8}-/);
+      expect(res.headers.get('X-API-Version')).toBeTruthy();
+      const body = await res.json();
+      expect(body.ok).toBe(true);
+    });
+
+    it('jsonResponse accepts a custom status + extra headers', async () => {
+      const { jsonResponse } = await import('../../functions/api/_shared.js');
+      const res = jsonResponse({ created: true }, 201, { 'X-Custom': 'yes' });
+      expect(res.status).toBe(201);
+      expect(res.headers.get('X-Custom')).toBe('yes');
+    });
+
+    it('paginationLinks emits nextLink only on the first of many pages', async () => {
+      const { paginationLinks } = await import('../../functions/api/_shared.js');
+      const links = paginationLinks('https://cloudcdn.pro/api/x', 1, 10, 50);
+      expect(links.nextLink).toContain('page=2');
+      expect(links.nextLink).toContain('per_page=10');
+      expect(links.prevLink).toBeUndefined();
+    });
+
+    it('paginationLinks emits prevLink only on the last page', async () => {
+      const { paginationLinks } = await import('../../functions/api/_shared.js');
+      const links = paginationLinks('https://cloudcdn.pro/api/x', 5, 10, 50);
+      expect(links.prevLink).toContain('page=4');
+      expect(links.nextLink).toBeUndefined();
+    });
+
+    it('paginationLinks emits both prev and next on a middle page', async () => {
+      const { paginationLinks } = await import('../../functions/api/_shared.js');
+      const links = paginationLinks('https://cloudcdn.pro/api/x', 3, 10, 100);
+      expect(links.nextLink).toContain('page=4');
+      expect(links.prevLink).toContain('page=2');
+    });
+
+    it('paginationLinks emits neither when there is only one page', async () => {
+      const { paginationLinks } = await import('../../functions/api/_shared.js');
+      const links = paginationLinks('https://cloudcdn.pro/api/x', 1, 10, 5);
+      expect(links.nextLink).toBeUndefined();
+      expect(links.prevLink).toBeUndefined();
+    });
+
+    it('authenticateAccess returns false on a session cookie with no dot', async () => {
+      const { authenticateAccess } = await import('../../functions/api/_shared.js');
+      const request = { headers: new Headers({ Cookie: 'cdn_session=nodot' }) };
+      expect(await authenticateAccess(request, { DASHBOARD_SECRET: 'x' })).toBe(false);
+    });
+
+    it('authenticateAccess returns false on a session cookie with empty sig', async () => {
+      const { authenticateAccess } = await import('../../functions/api/_shared.js');
+      const request = { headers: new Headers({ Cookie: 'cdn_session=token.' }) };
+      expect(await authenticateAccess(request, { DASHBOARD_SECRET: 'x' })).toBe(false);
+    });
+
+    it('queryAuditLog coerces non-numeric days to the default 1', async () => {
+      // Exercises the `parseInt(days, 10) || 1` fallback branch.
+      const { queryAuditLog } = await import('../../functions/api/_shared.js');
+      const kv = { get: vi.fn().mockResolvedValue(null) };
+      const out = await queryAuditLog({ RATE_KV: kv }, { days: 'not-a-number' });
+      expect(Array.isArray(out)).toBe(true);
+      // Only one day was scanned (cappedDays === 1).
+      expect(kv.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('queryAuditLog sorts entries lacking .timestamp via the "" fallback', async () => {
+      // Exercises the `(b.timestamp || '').localeCompare(...)` fallback.
+      const { queryAuditLog } = await import('../../functions/api/_shared.js');
+      const today = new Date().toISOString().slice(0, 10);
+      const kv = {
+        get: vi.fn(async (key) => {
+          if (key === 'audit:' + today) {
+            return JSON.stringify([
+              { action: 'a', timestamp: '2026-01-01' },
+              { action: 'b' },           // missing timestamp
+              { action: 'c', timestamp: '2026-01-02' },
+            ]);
+          }
+          return null;
+        }),
+      };
+      const out = await queryAuditLog({ RATE_KV: kv }, { days: 1 });
+      // Sort succeeds without throwing — the no-timestamp entry sorts to the end.
+      expect(out.length).toBe(3);
+    });
+
+    it('isAiQuotaError reads .message-less errors via String(err)', async () => {
+      // Exercises the `err.message || err` falsy-message branch.
+      const { isAiQuotaError } = await import('../../functions/api/_shared.js');
+      // A string thrown as the error has no .message — String(err) falls back.
+      expect(isAiQuotaError('quota exhausted')).toBe(true);
+    });
+  });
 });

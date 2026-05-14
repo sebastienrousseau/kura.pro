@@ -42,6 +42,8 @@ export default defineConfig({
         'functions/api/core/rules.js',
         'functions/api/analytics.js',
         'functions/api/storage/batch.js',
+        'functions/_middleware.js',
+        'functions/api/_shared.js',
       ],
       all: false,
       thresholds: {

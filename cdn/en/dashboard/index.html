@@ -295,11 +295,11 @@
         <div class="bg-card border border-border rounded-lg p-4">
           <label class="block text-xs text-gray-400 mb-3 uppercase tracking-wider">Destination</label>
           <div class="flex gap-3">
-            <button id="up-mode-client" class="flex-1 p-3 bg-surface border-2 border-accent rounded-lg text-left transition text-sm" onclick="setUploadMode('client')">
+            <button id="up-mode-client" class="flex-1 p-3 bg-surface border-2 border-accent rounded-lg text-left transition text-sm">
               <span class="font-semibold text-white block mb-0.5">Client Zone</span>
               <span class="text-xs text-gray-400">New tenant with v1/ structure</span>
             </button>
-            <button id="up-mode-stock" class="flex-1 p-3 bg-surface border-2 border-border rounded-lg text-left transition text-sm" onclick="setUploadMode('stock')">
+            <button id="up-mode-stock" class="flex-1 p-3 bg-surface border-2 border-border rounded-lg text-left transition text-sm">
               <span class="font-semibold text-white block mb-0.5">Stock Media</span>
               <span class="text-xs text-gray-400">Global stocks/images/ library</span>
             </button>
@@ -309,7 +309,7 @@
         <!-- Name input (client mode) -->
         <div id="up-name-field" class="bg-card border border-border rounded-lg p-4">
           <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Zone Name</label>
-          <input type="text" id="up-name" placeholder="e.g. mybrand" class="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent" oninput="slugifyName()">
+          <input type="text" id="up-name" placeholder="e.g. mybrand" class="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent">
           <p id="up-slug" class="text-xs text-accent mt-1 font-mono min-h-[18px]"></p>
         </div>
 
@@ -328,7 +328,7 @@
 
         <!-- Submit -->
         <div class="pt-2">
-          <button id="up-submit" class="flex items-center justify-center gap-2 bg-accent text-white font-medium w-full sm:w-auto px-8 py-3 rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-40 disabled:cursor-not-allowed" disabled onclick="executePipeline()">
+          <button id="up-submit" class="flex items-center justify-center gap-2 bg-accent text-white font-medium w-full sm:w-auto px-8 py-3 rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Upload &amp; Generate
           </button>
@@ -339,8 +339,8 @@
       <div class="space-y-4">
         <div class="bg-card border border-border rounded-lg p-4">
           <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Source SVG</label>
-          <div id="up-dropzone" class="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer transition hover:border-accent" onclick="document.getElementById('up-file').click()">
-            <input type="file" id="up-file" accept=".svg" class="hidden" onchange="handleSvgFile(this)">
+          <div id="up-dropzone" class="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer transition hover:border-accent">
+            <input type="file" id="up-file" accept=".svg" class="hidden">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;color:#5b5f73"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <p class="text-sm text-gray-400">Drop an SVG file here or click to browse</p>
             <p id="up-filename" class="text-xs text-green-400 mt-2 font-medium hidden"></p>
@@ -409,145 +409,6 @@
   <script src="app.js"></script>
 
   <!-- Upload tab logic (inline — only runs when tab is active) -->
-  <script>
-  (() => {
-    let uploadMode = 'client';
-    let svgData = null;
-    let svgFilename = '';
-
-    window.setUploadMode = function(mode) {
-      uploadMode = mode;
-      document.getElementById('up-mode-client').className = mode === 'client'
-        ? 'flex-1 p-4 bg-card border-2 border-accent rounded-xl text-left transition'
-        : 'flex-1 p-4 bg-card border-2 border-border rounded-xl text-left transition';
-      document.getElementById('up-mode-stock').className = mode === 'stock'
-        ? 'flex-1 p-4 bg-card border-2 border-accent rounded-xl text-left transition'
-        : 'flex-1 p-4 bg-card border-2 border-border rounded-xl text-left transition';
-      document.getElementById('up-name-field').style.display = mode === 'client' ? '' : 'none';
-      checkReady();
-    };
-
-    window.slugifyName = function() {
-      const raw = document.getElementById('up-name').value;
-      const slug = raw.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-      document.getElementById('up-slug').textContent = slug ? 'clients/' + slug + '/v1/' : '';
-      checkReady();
-    };
-
-    window.handleSvgFile = function(input) {
-      const file = input.files[0];
-      if (!file) return;
-      svgFilename = file.name;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        svgData = e.target.result.split(',')[1]; // base64 after data:...;base64,
-        document.getElementById('up-filename').textContent = file.name;
-        document.getElementById('up-filename').classList.remove('hidden');
-        document.getElementById('up-dropzone').classList.add('border-green-600');
-        // Preview
-        const preview = document.getElementById('up-preview');
-        const container = document.getElementById('up-preview-svg');
-        container.innerHTML = '';
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.style.cssText = 'max-width:160px;max-height:160px;';
-        img.alt = file.name;
-        container.appendChild(img);
-        preview.classList.remove('hidden');
-        checkReady();
-      };
-      reader.readAsDataURL(file);
-    };
-
-    function checkReady() {
-      const nameOk = uploadMode === 'stock' || document.getElementById('up-name').value.trim().length >= 2;
-      document.getElementById('up-submit').disabled = !(svgData && nameOk);
-    }
-
-    window.executePipeline = async function() {
-      const btn = document.getElementById('up-submit');
-      btn.disabled = true;
-      btn.textContent = 'Processing...';
-
-      const progress = document.getElementById('up-progress');
-      const steps = document.getElementById('up-steps');
-      progress.classList.remove('hidden');
-      steps.innerHTML = '';
-
-      function addStep(text, status) {
-        const el = document.createElement('div');
-        el.className = 'flex items-center gap-2 text-sm';
-        const dot = status === 'done' ? 'text-green-400' : status === 'active' ? 'text-accent animate-pulse' : 'text-gray-600';
-        el.innerHTML = '<span class="w-2 h-2 rounded-full inline-block ' + dot + '" style="background:currentColor"></span><span class="text-gray-300">' + text + '</span>';
-        steps.appendChild(el);
-        return el;
-      }
-
-      addStep('Validating input...', 'done');
-      addStep('Sanitizing SVG...', 'active');
-
-      const name = uploadMode === 'client' ? document.getElementById('up-name').value.toLowerCase().replace(/[^a-z0-9-]/g, '-') : '';
-
-      try {
-        const res = await fetch('/api/pipeline', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'AccountKey': sessionStorage.getItem('accountKey') || '' },
-          body: JSON.stringify({
-            mode: uploadMode,
-            name: name,
-            svg: svgData,
-            generateIcons: document.getElementById('up-icons').checked,
-            generateBanners: document.getElementById('up-banners').checked,
-          }),
-        });
-
-        steps.lastChild.querySelector('span:first-child').className = 'w-2 h-2 rounded-full inline-block text-green-400';
-        steps.lastChild.querySelector('span:first-child').style.background = 'currentColor';
-        addStep('Uploading to repository...', 'done');
-        addStep('Pipeline complete', 'done');
-
-        if (res.ok) {
-          const data = await res.json();
-          const result = document.getElementById('up-result');
-          const files = document.getElementById('up-result-files');
-          result.classList.remove('hidden');
-          files.innerHTML = '';
-          (data.Files || []).forEach(f => {
-            const el = document.createElement('p');
-            el.textContent = f;
-            files.appendChild(el);
-          });
-        } else {
-          const err = await res.json();
-          addStep('Error: ' + (err.Message || 'Upload failed'), 'error');
-        }
-      } catch (e) {
-        addStep('Network error: ' + e.message, 'error');
-      }
-
-      btn.textContent = 'Upload & Generate';
-      btn.disabled = false;
-    };
-
-    // Drag and drop
-    const dz = document.getElementById('up-dropzone');
-    if (dz) {
-      dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('border-accent'); });
-      dz.addEventListener('dragleave', () => dz.classList.remove('border-accent'));
-      dz.addEventListener('drop', e => {
-        e.preventDefault();
-        dz.classList.remove('border-accent');
-        const file = e.dataTransfer.files[0];
-        if (file && file.name.endsWith('.svg')) {
-          const input = document.getElementById('up-file');
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          input.files = dt.files;
-          handleSvgFile(input);
-        }
-      });
-    }
-  })();
-  </script>
+  <script src="_upload-tab.js" defer></script>
 </body>
 </html>

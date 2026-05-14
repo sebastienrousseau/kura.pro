@@ -190,15 +190,43 @@
       },
       "JsonErrorResponse": {
         "type": "object",
-        "description": "Simplified JSON error response used by public-facing endpoints (transform, auto, search, chat, purge) that return a single error string.",
+        "description": "Error envelope returned by endpoints that historically used a flat `{ error: string }` shape (auto, transform, purge, stream, analytics). Since Sprint 11 these endpoints route through legacyErrorJson(), which preserves the original string `error` field for back-compat while additively layering the standard envelope (HttpCode, Message, requestId, timestamp, apiVersion) plus tracing response headers (X-Request-ID, X-API-Version). Some endpoints attach further context fields (e.g. `invalid` array on purge tag-validation errors).",
         "properties": {
           "error": {
             "type": "string",
+            "description": "Human-readable error message, or a machine-readable error code on rate-limit responses (e.g. \"limit_reached\").",
             "example": "Missing required parameter: url"
+          },
+          "HttpCode": {
+            "type": "integer",
+            "description": "Mirror of the HTTP status code, for clients that pin to JSON-body parsing.",
+            "example": 400
+          },
+          "Message": {
+            "type": "string",
+            "description": "Same human-readable text as `error` \u2014 Microsoft-Guidelines-style alias kept for envelope consistency with other API responses.",
+            "example": "Missing required parameter: url"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Per-request UUID, also surfaced in the X-Request-ID response header. Use it when reporting an issue so operators can correlate logs."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 timestamp of when the error response was minted on the edge."
+          },
+          "apiVersion": {
+            "type": "string",
+            "description": "Pinned API version string, also surfaced in X-API-Version.",
+            "example": "2026-04-01"
           }
         },
         "required": [
-          "error"
+          "error",
+          "HttpCode",
+          "Message"
         ]
       },
       "Pagination": {

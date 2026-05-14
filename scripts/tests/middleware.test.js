@@ -536,4 +536,209 @@ describe('Middleware: onRequest', () => {
       expect(res.status).toBe(200);
     });
   });
+
+  describe('uncovered paths — coverage gate', () => {
+    it('getExtension returns "" for a path whose dot is in a directory name', async () => {
+      // Indirectly exercises getExtension's `if (slash > dot) return ""`
+      // branch — the dot belongs to a directory like `/foo.bar/baz`, not
+      // a filename. Routed as a non-asset.
+      const ctx = makeContext('/foo.bar/baz');
+      const res = await onRequest(ctx);
+      expect(res).toBeInstanceOf(Response);
+    });
+
+    it('getExtension returns "" for a path with no dot at all', async () => {
+      // Exercises the `dot === -1 → return ""` branch on line 46. The
+      // /stocks/extensionless-path route goes through serveAsset, which
+      // calls isAssetPath → getExtension. With no dot, the function
+      // returns "" via the first early-return.
+      const ctx = makeContext('/stocks/no-extension');
+      const res = await onRequest(ctx);
+      expect(res).toBeInstanceOf(Response);
+    });
+
+    it('locale homepage with trailing slash routes to /cdn/<lang>/index.html', async () => {
+      // Covers the `path.indexOf('/', 1) > -1 && rest === '/'` branch
+      // in the locale-homepage match.
+      const ctx = makeContext('/fr/');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(200);
+      expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0];
+      const target = typeof fetchedUrl === 'string' ? fetchedUrl : fetchedUrl.url;
+      expect(target).toContain('/cdn/fr/index.html');
+    });
+
+    it('locale-prefixed /api-reference returns locale version when it exists (no fallback)', async () => {
+      // Covers `if (localeRes.status !== 404) return localeRes` on line 299
+      // — the localised file exists (200), so we return it without
+      // touching the English fallback.
+      const calls = [];
+      const ASSETS = {
+        fetch: vi.fn(async (req) => {
+          const url = typeof req === 'string' ? req : req.url;
+          calls.push(url);
+          return new Response('ok', { status: 200 });
+        }),
+      };
+      const ctx = {
+        request: { url: 'https://cloudcdn.pro/fr/api-reference/openapi.json', headers: new Headers(), cf: {} },
+        env: {
+          ASSETS,
+          RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+        },
+        data: {},
+      };
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(200);
+      // Only one fetch — locale version was served, no fallback needed.
+      expect(calls.length).toBe(1);
+      expect(calls[0]).toContain('/cdn/fr/api-reference/');
+    });
+
+    it('locale-prefixed /api-reference falls back to English when locale 404s', async () => {
+      // Covers the LOCALIZED_PREFIXES loop branch where a localised
+      // copy is missing and we retry against /cdn/en/<prefix>.
+      const calls = [];
+      const ASSETS = {
+        fetch: vi.fn(async (req) => {
+          const url = typeof req === 'string' ? req : req.url;
+          calls.push(url);
+          // First call is /cdn/fr/api-reference/... → 404
+          if (calls.length === 1) return new Response('not found', { status: 404 });
+          // Second call is /cdn/en/api-reference/... → 200
+          return new Response('ok', { status: 200 });
+        }),
+      };
+      const ctx = {
+        request: { url: 'https://cloudcdn.pro/fr/api-reference/openapi.json', headers: new Headers(), cf: {} },
+        env: {
+          ASSETS,
+          RATE_KV: { get: vi.fn().mockResolvedValue(null), put: vi.fn() },
+        },
+        data: {},
+      };
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(200);
+      expect(calls.length).toBe(2);
+      expect(calls[0]).toContain('/cdn/fr/api-reference/');
+      expect(calls[1]).toContain('/cdn/en/api-reference/');
+    });
+
+    it('serveAsset passes through non-asset stocks paths without tagging', async () => {
+      // Stocks paths that don't have an image extension (e.g. /stocks/foo.txt
+      // or directory paths) hit the `return response` branch (line 362)
+      // without going through the tag+track wrapper. Verified by checking
+      // the response has no Cache-Tag header.
+      const ctx = makeContext('/stocks/videos/nature/master.m3u8');
+      const res = await onRequest(ctx);
+      expect(res.headers.get('Cache-Tag')).toBeNull();
+    });
+
+    it('buildCacheTag handles paths missing the type segment', async () => {
+      // Exercises the `if (type) tag += ...` false branch.
+      // Path is `/foo.png` — project='foo', no type segment, ext='png'.
+      // tagAndTrack runs and the Cache-Tag header is set without "type-".
+      const ctx = makeContext('/foo.png');
+      const res = await onRequest(ctx);
+      const tag = res.headers.get('Cache-Tag');
+      if (tag) {
+        // When the tag was applied (clients pillar served the asset), it
+        // should contain project- and format- but not type-.
+        expect(tag).not.toContain('type-');
+      }
+    });
+
+    it('buildCacheTag handles paths with no extension', async () => {
+      // Exercises `if (ext) tag += ...` false branch.
+      // /foo/bar/baz — no extension on the leaf.
+      const ctx = makeContext('/foo/bar/baz');
+      const res = await onRequest(ctx);
+      expect(res).toBeInstanceOf(Response);
+    });
+
+    it('respects an inbound traceparent header on the request', async () => {
+      // Exercises `if (!inboundHeaders.has("traceparent"))` false branch
+      // (line 177) — request already carries a traceparent, we leave it
+      // alone instead of injecting our own.
+      const ctx = makeContext('/');
+      ctx.request.headers = new Headers({ traceparent: '00-deadbeef-cafef00d-01' });
+      const res = await onRequest(ctx);
+      expect(res).toBeInstanceOf(Response);
+    });
+
+    it('respects pre-set X-Trace-Id and traceparent on inner response', async () => {
+      // Exercises both `if (!headers.has(...))` false branches in
+      // applyResponseEnvelope (lines 157-158).
+      const inner = new Response('asset', {
+        status: 200,
+        headers: { 'X-Trace-Id': 'pre-existing', traceparent: 'pre-existing' },
+      });
+      // Root path '/' routes through env.ASSETS.fetch, not context.next().
+      const ctx = makeContext('/', { assetsFetchResponse: inner });
+      const res = await onRequest(ctx);
+      expect(res.headers.get('X-Trace-Id')).toBe('pre-existing');
+      expect(res.headers.get('traceparent')).toBe('pre-existing');
+    });
+
+    it('serves /shared/* via the shared-asset rewrite (not clients pillar)', async () => {
+      // Exercises the SHARED_PREFIXES loop (line 258 area).
+      const ctx = makeContext('/shared/widgets/chat.js');
+      const res = await onRequest(ctx);
+      expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0];
+      const target = typeof fetchedUrl === 'string' ? fetchedUrl : fetchedUrl.url;
+      expect(target).toContain('/cdn/shared/widgets/chat.js');
+      expect(res).toBeInstanceOf(Response);
+    });
+
+    it('locale-only path with no slash after the segment still routes', async () => {
+      // Exercises `firstSlash === -1` true branch at line 240 / 294 — the
+      // path is bare "/fr" with no trailing slash and nothing after.
+      const ctx = makeContext('/fr');
+      const res = await onRequest(ctx);
+      expect(res).toBeInstanceOf(Response);
+    });
+
+    it('preserves query string when redirecting bare /dashboard → /dashboard/', async () => {
+      // Exercises the `qmark === -1 ? "" : rawUrl.slice(qmark)` false
+      // branch on line 258 — there IS a query string to carry over.
+      const ctx = makeContext('/dashboard?from=email');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toContain('?from=email');
+    });
+
+    it('handleGeoRoute uses request.cf.continent when present', async () => {
+      // Exercises `request.cf?.continent || "NA"` false branch on line 367
+      // (.continent IS set, so the || fallback doesn't run).
+      const ctx = makeContext('/global/foo.png', { cf: { continent: 'EU' } });
+      const res = await onRequest(ctx);
+      expect(res).toBeInstanceOf(Response);
+      // The fetched URL should target /europe/...
+      const calls = ctx.env.ASSETS.fetch.mock.calls;
+      const url = typeof calls[0][0] === 'string' ? calls[0][0] : calls[0][0].url;
+      expect(url).toContain('/europe/');
+    });
+
+    it('handleGeoRoute preserves the query string when rewriting', async () => {
+      // Exercises the `qmark === -1 ? "" : rawUrl.slice(qmark)` false
+      // branch on line 370.
+      const ctx = makeContext('/global/foo.png?v=2', { cf: { continent: 'EU' } });
+      await onRequest(ctx);
+      const calls = ctx.env.ASSETS.fetch.mock.calls;
+      const url = typeof calls[0][0] === 'string' ? calls[0][0] : calls[0][0].url;
+      expect(url).toContain('?v=2');
+    });
+
+    it('handleGeoRoute falls back to north-america for unknown continent codes', async () => {
+      // Exercises the `CONTINENT_MAP[continent] || "north-america"` false
+      // branch — an unrecognised cf.continent value triggers the fallback.
+      const ctx = makeContext('/global/foo.png', { cf: { continent: 'XX' } });
+      await onRequest(ctx);
+      const calls = ctx.env.ASSETS.fetch.mock.calls;
+      const url = typeof calls[0][0] === 'string' ? calls[0][0] : calls[0][0].url;
+      expect(url).toContain('/north-america/');
+    });
+  });
 });

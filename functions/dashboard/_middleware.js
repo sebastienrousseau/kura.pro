@@ -110,17 +110,15 @@ const SETUP_PASSKEY_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// Dashboard CSP override — the global middleware ships a strict
-// script-src 'self' for public pages, but the dashboard has inline
-// onclick/onchange/oninput attributes (and a couple of large inline
-// <script> blocks in cdn/en/dashboard/index.html and upload.html)
-// that strict CSP would block. The dashboard is admin-only and
-// doesn't render attacker-controlled content, so we relax script-src
-// here with 'unsafe-inline'. Style policies, base-uri, form-action,
-// frame-ancestors and object-src all stay strict to match the rest
-// of the site.
+// Dashboard CSP — matches the global public-page CSP exactly now that
+// all inline <script> blocks and onclick/onchange/oninput attributes
+// have been externalized (see cdn/en/dashboard/_upload-tab.js and
+// _upload-page.js). The override stays here as a single source of
+// truth for what /dashboard/* responses serve, and so any future
+// dashboard-only tightening (e.g. stricter style-src) is colocated
+// with the auth handler.
 const DASHBOARD_CSP =
-  "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; " +
+  "script-src 'self'; style-src 'self' 'unsafe-inline'; " +
   "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
   "object-src 'none'; upgrade-insecure-requests";
 

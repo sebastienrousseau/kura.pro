@@ -16,6 +16,13 @@
     "build:css": "tailwindcss -i cdn/dashboard/input.css -o cdn/dashboard/tailwind.css --minify",
     "build:manifest": "node scripts/generate-manifest.mjs",
     "build:locales": "node scripts/i18n/build-locales.mjs",
+    "build:all": "npm run build:manifest && npm run build:locales && npm run build:css",
+    "health": "curl -s https://cloudcdn.pro/api/health?deep=1 | jq .",
+    "secrets:list": "npx wrangler pages secret list --project-name=cloudcdn-pro",
+    "secrets:set": "npx wrangler pages secret put --project-name=cloudcdn-pro",
+    "ci:status": "gh run list --limit 3 --json databaseId,name,status,conclusion,headSha",
+    "ci:alerts": "gh api 'repos/sebastienrousseau/cloudcdn.pro/code-scanning/alerts?state=open' --jq 'length'",
+    "lint:csp": "echo '\\nPublic CSP:' && curl -sI https://cloudcdn.pro/ | grep -i content-security-policy && echo '\\nDashboard CSP:' && curl -sI https://cloudcdn.pro/dashboard/login | grep -i content-security-policy",
     "prepare": "husky"
   },
   "devDependencies": {

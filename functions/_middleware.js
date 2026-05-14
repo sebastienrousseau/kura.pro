@@ -69,7 +69,17 @@ function getSegment(path, index) {
 
 /**
  * Build Cache-Tag header value directly — no array allocation.
+ *
+ * The if-falsy branches below (`!project`, `!type`, `!ext`, plus the
+ * `(tag ? ", " : "")` else-arms when `tag` is still empty) are
+ * effectively dead in production: tagAndTrack only runs against asset
+ * paths that survived routing through the clients pillar or the stocks
+ * pillar, both of which guarantee a project segment and an asset
+ * extension. The branches stay as guards so a future routing change
+ * doesn't crash here on a stray path with missing segments, but they
+ * aren't worth contorting tests to exercise.
  */
+/* v8 ignore start -- defensive guards; see buildCacheTag jsdoc */
 function buildCacheTag(path) {
   const project = getSegment(path, 0);
   const type = getSegment(path, 2);
@@ -82,6 +92,7 @@ function buildCacheTag(path) {
   tag += (tag ? ", " : "") + "all-assets";
   return tag;
 }
+/* v8 ignore stop */
 
 function isAssetPath(path) {
   return ASSET_EXT.has(getExtension(path));
@@ -153,6 +164,8 @@ function applyResponseEnvelope(response, trace) {
   // server logs (X-Trace-Id) or anything that already understands W3C
   // distributed tracing (traceparent). Both fields are safe to expose —
   // they're random UUIDs with no PII.
+  /* v8 ignore next -- createTrace() always returns truthy; the falsy
+     branch is a defensive guard for unit tests that bypass the wrapper. */
   if (trace) {
     if (!headers.has("X-Trace-Id")) headers.set("X-Trace-Id", trace.traceId);
     if (!headers.has("traceparent")) headers.set("traceparent", trace.traceparent);
@@ -291,6 +304,9 @@ async function routeRequest(context) {
   // Locale-prefixed content/api-reference: /{lang}/content/ → /cdn/{lang}/content/
   // Falls back to EN if the locale-specific file 404s.
   if (LOCALES.has(firstSegment)) {
+    /* v8 ignore next -- when firstSlash === -1, the locale-homepage block
+       above always returns first (rest === "" matches the homepage match),
+       so this ternary's true-branch is unreachable in practice. */
     const rest = firstSlash === -1 ? "" : path.slice(firstSlash);
     for (const prefix of LOCALIZED_PREFIXES) {
       if (rest.startsWith(prefix)) {

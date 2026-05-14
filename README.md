@@ -108,6 +108,34 @@ cd cloudcdn.pro
 npm ci
 ```
 
+### Stratos CLI
+
+The companion command-line client is **Stratos**, distributed as a
+single Node ≥ 18 script. One-liner install:
+
+```bash
+# macOS / Linux
+curl -sL https://cloudcdn.pro/dist/stratos/install.sh | bash
+
+# Windows (PowerShell)
+irm https://cloudcdn.pro/dist/stratos/install.ps1 | iex
+```
+
+Each installer verifies a pinned SHA-256 before placing a `stratos`
+shim on `$PATH`. Then:
+
+```bash
+stratos version
+stratos health --deep
+stratos purge https://cloudcdn.pro/akande/v1/logos/logo.svg
+stratos signed /clients/akande/private.pdf --expires 1700000000
+stratos assets --project=akande --format=svg
+```
+
+Configure via environment variables: `CLOUDCDN_URL`,
+`CLOUDCDN_ACCOUNT_KEY`, `CLOUDCDN_ACCESS_KEY`, `SIGNED_URL_SECRET`.
+See [SECRETS.md](./SECRETS.md) for the full reference.
+
 ## First 5 Minutes
 
 ```bash

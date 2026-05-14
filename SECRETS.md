@@ -78,6 +78,24 @@ without them via in-process fallbacks.
 | `WEBHOOK_QUEUE` | Cloudflare Queue | Webhook delivery with exponential backoff (1s → 5s → 25s → 125s) and a DLQ. When absent, `dispatchWebhook()` delivers inline (works but blocks the request and has no retry). |
 | `AUDIT_LOG_KV` | KV namespace (alias) | Distinct KV for audit log entries. When unset, audit entries co-locate in `RATE_KV` — fine in practice; separate them only if you need stricter retention or access policies on the audit trail specifically. |
 
+## Stratos CLI environment
+
+The Stratos command-line client reads its own set of environment
+variables (none of these are server-side secrets — they're client-side
+inputs the CLI uses to authenticate against the API):
+
+| Variable | Purpose |
+| :--- | :--- |
+| `CLOUDCDN_URL` | API base URL. Defaults to `https://cloudcdn.pro`; set to your deployment URL for staging/preview. |
+| `CLOUDCDN_ACCOUNT_KEY` | Mirror of the server's `ACCOUNT_KEY`. Required for control-plane commands (`stratos purge`, etc.). |
+| `CLOUDCDN_ACCESS_KEY` | Mirror of the server's `ACCESS_KEY`. Required for read-only commands (`stratos assets`). |
+| `SIGNED_URL_SECRET` | Mirror of the server's `SIGNED_URL_SECRET`. Required for `stratos signed` to mint HMAC-signed URLs locally. |
+| `STRATOS_PREFIX` | (Installer-only) Override the install location for the `stratos` shim. Defaults to `/usr/local/bin` if writable, else `~/.local/bin`. |
+
+Set these in your shell rc / `direnv` / CI secrets — never in source
+control. The CLI prints a clear error and exits non-zero when a
+required variable is missing for the command being run.
+
 ## How to verify what's wired up
 
 The deep health endpoint reports every binding's status:

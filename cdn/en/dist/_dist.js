@@ -40,13 +40,13 @@
         },
         installer_unix: {
           file: 'install.sh',
-          size: '3.0 KB',
-          sha256: '1b4991f2289b8215cd541bd10ed90bc5cd2858208fc6abcf3ee5da859e386130',
+          size: '3.9 KB',
+          sha256: '914fec2e2c9749ccdcb71a6bff46164419daefb78b17a121e9592ec229b68c3a',
         },
         installer_windows: {
           file: 'install.ps1',
-          size: '2.7 KB',
-          sha256: '7bc434285a8db83a6ad703be5c2477f0f7a4b39395374d8dcd0336fa4fde807b',
+          size: '3.6 KB',
+          sha256: 'e0026d86c8502c099e10fc1b691d92ae1f78b44e5364e84c2f4a7b21092d59e4',
         },
       },
       install: {

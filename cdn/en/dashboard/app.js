@@ -723,7 +723,13 @@
     function resultItem(asset) {
       const ext = asset.format.toUpperCase();
       const badgeColor = ext === 'SVG' ? 'text-emerald-400' : ext === 'PNG' ? 'text-blue-400' : ext === 'WEBP' ? 'text-purple-400' : ext === 'AVIF' ? 'text-orange-400' : 'text-gray-400';
-      return `<div data-result="${escAttr(asset.path)}" class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 border border-transparent transition" onclick="document.querySelector('#search-modal').__selectResult('${escAttr(asset.path)}')">
+      // No inline onclick — click is handled by event delegation below.
+      // The previous inline form was fragile: the asset path lived inside
+      // a `'...'` JS string inside a `"..."` HTML attribute, and a path
+      // containing `'` would break out of the JS literal even after
+      // escAttr (which only HTML-encodes — the browser decodes back
+      // before the inline JS string parser runs).
+      return `<div data-result="${escAttr(asset.path)}" class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 border border-transparent transition">
         <div class="w-8 h-8 bg-card rounded border border-border flex items-center justify-center shrink-0 overflow-hidden">
           ${['png','webp','avif','svg','ico','jxl'].includes(asset.format) ? `<img src="${escAttr(assetUrl(asset.path))}" class="w-full h-full object-contain" loading="lazy" alt="">` : `<span class="text-[9px] ${badgeColor} font-bold">${ext}</span>`}
         </div>
@@ -735,6 +741,16 @@
       </div>`;
     }
 
+    // Event delegation: single listener on the results container catches
+    // clicks on every [data-result] row. Reads the asset path from the
+    // DOM dataset (already HTML-decoded by the browser) so no JS-string
+    // escaping issues are possible regardless of what's in the path.
+    results.addEventListener('click', (e) => {
+      const row = e.target.closest('[data-result]');
+      if (!row) return;
+      selectResult(row.dataset.result);
+    });
+
     function selectResult(path) {
       closeModal();
       // Set the hidden search input and apply filters to scroll to the result
@@ -744,9 +760,6 @@
       const assetsBtn = document.querySelector('[data-tab="assets"]');
       if (assetsBtn && !assetsBtn.classList.contains('active')) assetsBtn.click();
     }
-
-    // Expose selectResult for inline onclick
-    modal.__selectResult = selectResult;
 
     function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }

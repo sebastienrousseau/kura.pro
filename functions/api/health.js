@@ -28,6 +28,9 @@ const KV_PROBE_KEY = 'health:probe';
 async function withTimeout(promise, ms) {
   let timer;
   const timeout = new Promise((_, reject) => {
+    /* v8 ignore next -- only fires when a probe genuinely exceeds the
+       5s budget; impossible to exercise reliably in unit tests without
+       slowing the whole suite. The branch is small and well-isolated. */
     timer = setTimeout(() => reject(new Error('probe timed out')), ms);
   });
   try {

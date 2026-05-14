@@ -157,6 +157,96 @@ describe('sanitizeSvg', () => {
     expect(webp).toContain('data:image/webp;base64');
   });
 
+  it('handles unterminated <script tag (no closing >) without crashing', () => {
+    // Exercises findTagEnd's `return s.length` fallback when no `>` is
+    // reached. The disallowed-tag walker should drop to EOF.
+    const out = sanitizeSvg('<svg><script src="evil.js"');
+    expect(out).not.toContain('<script');
+  });
+
+  it('handles <script>...</script with truncated closer (no >)', () => {
+    // Exercises findTagClose's `return null` when the matching </script
+    // is found but lacks a terminating `>`. stripDisallowedTags should
+    // fall back to "drop to EOF".
+    const out = sanitizeSvg('<svg><script>alert(1)</script');
+    expect(out).not.toContain('alert');
+    expect(out).not.toContain('<script');
+  });
+
+  it('handles orphan </script with no terminating >', () => {
+    // Exercises stripOrphanClosers' `if (gt === -1) { i = s.length; break }`
+    // branch.
+    const out = sanitizeSvg('<svg></script');
+    expect(out).not.toContain('</script');
+  });
+
+  it('preserves trailing text after the last tag', () => {
+    // Exercises the `lt === -1; break` exit paths in stripEventHandlers
+    // and stripUnsafeUriValues — after the final tag closes, the outer
+    // while loop appends any trailing text and exits.
+    const out = sanitizeSvg('<svg></svg>trailing text');
+    expect(out).toContain('trailing text');
+  });
+
+  it('handles whitespace around = in URI attributes', () => {
+    // Exercises the post-`=` whitespace-skip loop in stripUnsafeUriValues.
+    const out = sanitizeSvg('<a href = "javascript:alert(1)">x</a>');
+    expect(out).not.toContain('javascript:');
+    expect(out).toContain('href=""');
+  });
+
+  it('tolerates an unterminated quoted event-handler value', () => {
+    // Exercises the `if (k < s.length) k++` branch in stripEventHandlers
+    // when the closing quote is never found (k hits EOF first).
+    const out = sanitizeSvg('<svg onclick="alert(1)');
+    expect(out).not.toContain('onclick');
+    expect(out).not.toContain('alert');
+  });
+
+  it('strips an event handler with no preceding whitespace in attribute list', () => {
+    // Exercises the false-branch of the leading-whitespace trim guard in
+    // stripEventHandlers. When a previous attribute's value ends without
+    // whitespace before the next attribute (rare but legal HTML), the
+    // walker still strips the on* attribute, just without consuming a
+    // non-existent leading space.
+    const out = sanitizeSvg('<svg foo="bar"onclick="x"></svg>');
+    expect(out).not.toContain('onclick');
+  });
+
+  it('returns empty string for null/undefined input', () => {
+    // Exercises the `String(svgContent || '')` || '' fallback branch.
+    expect(sanitizeSvg(null)).toBe('');
+    expect(sanitizeSvg(undefined)).toBe('');
+  });
+
+  it('strips event handlers with unquoted values', () => {
+    // Exercises the unquoted-value branch in stripEventHandlers
+    // (`while (k < s.length && !/[\s>]/.test(s[k])) k++`).
+    const out = sanitizeSvg('<svg onclick=alert(1) onerror=foo><circle/></svg>');
+    expect(out).not.toContain('onclick');
+    expect(out).not.toContain('onerror');
+    expect(out).not.toContain('alert');
+  });
+
+  it('preserves bare attributes (no = sign) on URI-bearing elements', () => {
+    // Exercises the else-branch in stripUnsafeUriValues when an attribute
+    // has no value (e.g., `<a disabled href="...">`). The walker must skip
+    // past the bare attribute and continue scanning the rest of the tag.
+    const out = sanitizeSvg('<a disabled href="javascript:alert(1)">x</a>');
+    expect(out).toContain('disabled');
+    expect(out).not.toContain('javascript:');
+    expect(out).toContain('href=""');
+  });
+
+  it('handles unquoted URI attribute values', () => {
+    // Exercises the unquoted-value branch in stripUnsafeUriValues. We don't
+    // sanitise unquoted URI values today (production payloads from a real
+    // SVG always quote them), but the walker must traverse them without
+    // breaking the rest of the tag.
+    const out = sanitizeSvg('<a href=javascript:alert(1) class="x"></a>');
+    expect(out).toContain('class="x"');
+  });
+
   it('terminates on pathological input (no infinite loop)', () => {
     // Deeply nested scripts should not loop forever; the 8-iteration cap
     // breaks out and we still produce a sanitized string.

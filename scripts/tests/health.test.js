@@ -217,6 +217,60 @@ describe('GET /api/health?deep=1', () => {
     expect(rl.error).toContain('idFromName');
   });
 
+  it('flags VECTOR_INDEX with wrong shape as unhealthy', async () => {
+    const ctx = makeCtx({
+      url: 'https://cloudcdn.pro/api/health?deep=1',
+      vectorize: { /* no query() */ },
+    });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(503);
+    const json = await res.json();
+    const v = json.checks.find((c) => c.name === 'vectorize');
+    expect(v.healthy).toBe(false);
+    expect(v.error).toContain('.query()');
+  });
+
+  it('flags METRICS with wrong shape as unhealthy', async () => {
+    const ctx = makeCtx({
+      url: 'https://cloudcdn.pro/api/health?deep=1',
+      metrics: { /* no writeDataPoint() */ },
+    });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(503);
+    const json = await res.json();
+    const m = json.checks.find((c) => c.name === 'metrics');
+    expect(m.healthy).toBe(false);
+    expect(m.error).toContain('writeDataPoint');
+  });
+
+  it('flags WEBHOOK_QUEUE with wrong shape as unhealthy', async () => {
+    const ctx = makeCtx({
+      url: 'https://cloudcdn.pro/api/health?deep=1',
+      webhookQueue: { /* no send() */ },
+    });
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(503);
+    const json = await res.json();
+    const w = json.checks.find((c) => c.name === 'webhookQueue');
+    expect(w.healthy).toBe(false);
+    expect(w.error).toContain('send');
+  });
+
+  it('falls back to String(err) when a thrown value has no .message', async () => {
+    // Tests the `err?.message || String(err)` branch in the timed() helper —
+    // the KV-rejection test elsewhere covers err.message; this covers the
+    // fallback for non-Error throws.
+    const kv = {
+      get: vi.fn().mockImplementation(() => { throw 'kv string error'; }),
+    };
+    const ctx = makeCtx({ url: 'https://cloudcdn.pro/api/health?deep=1', kv });
+    const res = await onRequestGet(ctx);
+    const json = await res.json();
+    const kvCheck = json.checks.find((c) => c.name === 'kv');
+    expect(kvCheck.healthy).toBe(false);
+    expect(kvCheck.error).toBe('kv string error');
+  });
+
   it('reports latencyMs for probes that hit I/O', async () => {
     const ctx = makeCtx({ url: 'https://cloudcdn.pro/api/health?deep=1' });
     const res = await onRequestGet(ctx);

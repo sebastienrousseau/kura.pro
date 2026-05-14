@@ -23,10 +23,16 @@
 
 const VERSION = '0.1.0';
 
-const BASE = process.env.CLOUDCDN_URL || 'https://cloudcdn.pro';
-const ACCOUNT_KEY = process.env.CLOUDCDN_ACCOUNT_KEY || '';
-const ACCESS_KEY = process.env.CLOUDCDN_ACCESS_KEY || '';
-const SIGNED_URL_SECRET = process.env.SIGNED_URL_SECRET || '';
+// Read every config knob on each call so tests can override
+// process.env per-test without having to re-import the module.
+function envConfig() {
+  return {
+    BASE: process.env.CLOUDCDN_URL || 'https://cloudcdn.pro',
+    ACCOUNT_KEY: process.env.CLOUDCDN_ACCOUNT_KEY || '',
+    ACCESS_KEY: process.env.CLOUDCDN_ACCESS_KEY || '',
+    SIGNED_URL_SECRET: process.env.SIGNED_URL_SECRET || '',
+  };
+}
 
 function usage(exitCode = 0) {
   const out = `stratos v${VERSION} — CloudCDN CLI
@@ -95,6 +101,7 @@ function err(msg, code = 1) {
 }
 
 async function jsonReq(path, init = {}) {
+  const { BASE, ACCOUNT_KEY, ACCESS_KEY } = envConfig();
   const url = BASE.replace(/\/$/, '') + path;
   const headers = { Accept: 'application/json', ...(init.headers || {}) };
   if (ACCOUNT_KEY) headers.AccountKey = ACCOUNT_KEY;
@@ -114,6 +121,7 @@ async function cmdHealth(flags) {
 }
 
 async function cmdPurge(positional, flags) {
+  const { ACCOUNT_KEY } = envConfig();
   if (!ACCOUNT_KEY) err('CLOUDCDN_ACCOUNT_KEY (or x-api-key via PURGE_KEY) is required for purge.', 1);
   let payload;
   if (flags.everything) {
@@ -135,6 +143,7 @@ async function cmdPurge(positional, flags) {
 }
 
 async function cmdSigned(positional, flags) {
+  const { BASE, SIGNED_URL_SECRET } = envConfig();
   if (positional.length === 0) err('signed needs a path argument.', 1);
   const path = positional[0];
   const expires = flags.expires;
@@ -193,4 +202,18 @@ async function main() {
   }
 }
 
-main().catch((e) => err(e && e.message ? e.message : String(e), 2));
+// Exports for unit testing. When this module is loaded as a script
+// (not imported), main() runs and the process exits via its handlers;
+// when imported (process.argv[1] !== this file), exports are usable.
+export { parseFlags, cmdHealth, cmdPurge, cmdSigned, cmdAssets, jsonReq, main, VERSION };
+
+// Run main() only when invoked as a script. Compare the resolved
+// filesystem path of this module against process.argv[1]; basename
+// matching is too loose under vitest (which sets argv[1] = 'stratos.mjs'
+// from the test harness, causing a false positive).
+/* v8 ignore start -- script entrypoint; never true under vitest */
+const { fileURLToPath } = await import('node:url');
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch((e) => err(e && e.message ? e.message : String(e), 2));
+}
+/* v8 ignore stop */

@@ -44,6 +44,7 @@ export default defineConfig({
         'functions/api/storage/batch.js',
         'functions/_middleware.js',
         'functions/api/_shared.js',
+        'cdn/en/dist/stratos/stratos.mjs',
       ],
       all: false,
       thresholds: {

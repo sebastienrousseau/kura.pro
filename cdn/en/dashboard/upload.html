@@ -390,7 +390,21 @@
           });
 
           if (data.Commit) {
-            $('#commit-sha').innerHTML = 'Commit: <code>' + data.Commit.slice(0, 12) + '</code> — ' + (data.EdgeNote || '');
+            // Build the commit-line via DOM ops so a server-returned
+            // EdgeNote (or a future field with HTML special chars)
+            // cannot inject markup into the dashboard. Even though
+            // /api/pipeline is the same service, defence-in-depth: any
+            // future bug that lets external strings into the response
+            // shouldn't immediately become a self-XSS.
+            const el = $('#commit-sha');
+            el.textContent = '';
+            el.appendChild(document.createTextNode('Commit: '));
+            const code = document.createElement('code');
+            code.textContent = data.Commit.slice(0, 12);
+            el.appendChild(code);
+            if (data.EdgeNote) {
+              el.appendChild(document.createTextNode(' — ' + data.EdgeNote));
+            }
           }
 
           resultEl.classList.add('visible');

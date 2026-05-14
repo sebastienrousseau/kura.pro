@@ -16,40 +16,61 @@
 (() => {
   const CDN = 'https://cloudcdn.pro';
 
-  // Example packages — extend with real project data.
   const PACKAGES = [
     {
-      name: 'Euxis CLI',
-      desc: 'Cross-platform cloud deployment toolkit',
-      version: '1.2.0',
+      // Stratos — the official CloudCDN command-line client. Manages
+      // zones, signed URLs, edge cache invalidation, and asset uploads
+      // from any shell.
+      name: 'Stratos',
+      desc: 'Official CloudCDN CLI — zones, purge, upload, signed URLs',
+      version: '0.1.0',
       files: {
-        macos_arm64: { file: 'euxis-1.2.0-darwin-arm64.tar.gz', size: '12.4 MB', sha256: 'a1b2c3d4e5f6...' },
-        macos_x64:   { file: 'euxis-1.2.0-darwin-x64.tar.gz',   size: '13.1 MB', sha256: 'f6e5d4c3b2a1...' },
-        linux_x64:   { file: 'euxis-1.2.0-linux-x64.tar.gz',    size: '11.8 MB', sha256: 'b2c3d4e5f6a1...' },
-        linux_arm64: { file: 'euxis-1.2.0-linux-arm64.tar.gz',  size: '11.2 MB', sha256: 'c3d4e5f6a1b2...' },
-        windows_x64: { file: 'euxis-1.2.0-windows-x64.zip',     size: '14.0 MB', sha256: 'd4e5f6a1b2c3...' },
+        macos_arm64: { file: 'stratos-0.1.0-darwin-arm64.tar.gz', size: 'TBD', sha256: 'pending first release' },
+        macos_x64:   { file: 'stratos-0.1.0-darwin-x64.tar.gz',   size: 'TBD', sha256: 'pending first release' },
+        linux_x64:   { file: 'stratos-0.1.0-linux-x64.tar.gz',    size: 'TBD', sha256: 'pending first release' },
+        linux_arm64: { file: 'stratos-0.1.0-linux-arm64.tar.gz',  size: 'TBD', sha256: 'pending first release' },
+        windows_x64: { file: 'stratos-0.1.0-windows-x64.zip',     size: 'TBD', sha256: 'pending first release' },
       },
       install: {
-        macos:   `curl -sL ${CDN}/dist/euxis/install.sh | bash`,
-        linux:   `curl -sL ${CDN}/dist/euxis/install.sh | bash`,
-        windows: `irm ${CDN}/dist/euxis/install.ps1 | iex`,
+        macos:   `curl -sL ${CDN}/dist/stratos/install.sh | bash`,
+        linux:   `curl -sL ${CDN}/dist/stratos/install.sh | bash`,
+        windows: `irm ${CDN}/dist/stratos/install.ps1 | iex`,
       },
     },
     {
-      name: 'Shokunin SSG',
-      desc: 'Static site generator built in Rust',
-      version: '0.9.0',
+      // static-site-generator — secure-by-default Rust SSG from
+      // sebastienrousseau/static-site-generator. Hosted here so the
+      // CloudCDN dashboard can offer one-click installs for the SSG
+      // it pairs with.
+      name: 'static-site-generator',
+      desc: 'Secure-by-default Rust SSG: WCAG 2.1 AA, CSP/SRI hardening, local LLM content pipeline, 28-locale i18n',
+      version: '0.0.39',
       files: {
-        macos_arm64: { file: 'shokunin-0.9.0-darwin-arm64.tar.gz', size: '8.2 MB', sha256: 'e5f6a1b2c3d4...' },
-        macos_x64:   { file: 'shokunin-0.9.0-darwin-x64.tar.gz',   size: '8.7 MB', sha256: 'a1b2c3d4e5f6...' },
-        linux_x64:   { file: 'shokunin-0.9.0-linux-x64.tar.gz',    size: '7.9 MB', sha256: 'f6e5d4c3b2a1...' },
-        linux_arm64: { file: 'shokunin-0.9.0-linux-arm64.tar.gz',  size: '7.4 MB', sha256: 'b2c3d4e5f6a1...' },
-        windows_x64: { file: 'shokunin-0.9.0-windows-x64.zip',     size: '9.1 MB', sha256: 'c3d4e5f6a1b2...' },
+        macos_arm64: {
+          file: 'ssg-v0.0.39-aarch64-apple-darwin.tar.gz',
+          size: '5.4 MB',
+          sha256: '6e5ce2ce056543909884dddff0d2b3e21a4ef47705c7c2a0212b534b091c8db8',
+        },
+        macos_x64: {
+          file: 'ssg-v0.0.39-x86_64-apple-darwin.tar.gz',
+          size: '5.8 MB',
+          sha256: '8a0995088c59b5ca930b44d369f9de101cc1d95c86ffecdf00df3d72d11fea70',
+        },
+        linux_x64: {
+          file: 'ssg-v0.0.39-x86_64-unknown-linux-gnu.tar.gz',
+          size: '6.1 MB',
+          sha256: '54a77f53061999f43b1093c317c10d178ff39dfbba01dc9aa011d235c7c43b25',
+        },
+        windows_x64: {
+          file: 'ssg-v0.0.39-x86_64-pc-windows-msvc.zip',
+          size: '5.7 MB',
+          sha256: '6d251b60f20b2e01bc9f91739c185d0828a0eb5f63275a01bb3843abb3aaadcf',
+        },
       },
       install: {
-        macos:   `curl -sL ${CDN}/dist/shokunin/install.sh | bash`,
-        linux:   `curl -sL ${CDN}/dist/shokunin/install.sh | bash`,
-        windows: `irm ${CDN}/dist/shokunin/install.ps1 | iex`,
+        macos:   `curl -sL https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.sh | bash`,
+        linux:   `curl -sL https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.sh | bash`,
+        windows: `irm https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.ps1 | iex`,
       },
     },
   ];

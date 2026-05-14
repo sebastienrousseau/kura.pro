@@ -50,34 +50,15 @@
   <meta name="twitter:description" content="Entrega de activos estáticos de alto rendimiento, impulsada por la red edge global de Cloudflare. Latencia inferior a 100 ms en más de 300 PoPs.">
 
   <link rel="icon" href="/favicon.ico">
+  <script src="/shared/theme-boot.js"></script>
+  <link rel="stylesheet" href="/shared/vendor/skeletonic/skeletonic.min.css">
   <link rel="stylesheet" href="/shared/site-nav.css">
+  <link rel="stylesheet" href="/shared/theme.css">
   <script defer src="/shared/site-nav.js"></script>
+  <script defer src="/shared/theme-toggle.js"></script>
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg: #08090d;
-      --surface: #0f1117;
-      --surface-2: #1a1d27;
-      --border: rgba(99,102,241,0.15);
-      --border-subtle: rgba(255,255,255,0.06);
-      --text: #e2e4ea;
-      --text-muted: #8b8fa3;
-      --text-dim: #5b5f73;
-      --accent: #6366f1;
-      --accent-hover: #818cf8;
-      --accent-glow: rgba(99,102,241,0.4);
-      --accent-soft: rgba(99,102,241,0.1);
-      --accent-text: #a5b4fc;
-      --green: #4ade80;
-      --green-soft: rgba(34,197,94,0.1);
-      --green-border: rgba(34,197,94,0.2);
-      --radius: 0.75rem;
-      --radius-lg: 1rem;
-      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
-    }
 
     body {
       font-family: var(--font);
@@ -145,7 +126,7 @@
       font-size: 2.5rem;
       font-weight: 700;
       letter-spacing: -0.03em;
-      color: #fff;
+      color: var(--heading);
       margin-bottom: 0.5rem;
     }
     h1 span {
@@ -173,7 +154,7 @@
     .stat-value {
       font-size: 1.75rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--heading);
       font-variant-numeric: tabular-nums;
     }
     .stat-label {
@@ -211,11 +192,11 @@
     /* Language switcher (locale dropdown) */
     .lang-switcher { position: relative; display: inline-block; }
     .lang-switcher .lang-toggle {
-      color: #9ca0b5;
+      color: var(--text-muted);
       font-size: 0.75rem;
       font-weight: 500;
       padding: 0.5rem 0.75rem;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--border-subtle);
       border-radius: 6rem;
       background: transparent;
       cursor: pointer;
@@ -225,18 +206,18 @@
       min-height: 2.5rem;
       transition: border-color 0.15s, color 0.15s;
     }
-    .lang-switcher .lang-toggle:hover { border-color: #6366f1; color: #e2e4ea; }
-    .lang-switcher .lang-toggle:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+    .lang-switcher .lang-toggle:hover { border-color: var(--accent); color: var(--text); }
+    .lang-switcher .lang-toggle:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
     .lang-menu {
       display: none;
       position: absolute;
       inset-inline-end: 0;
       top: 100%;
       margin-top: 0.5rem;
-      background: #0f1117;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
       border-radius: 0.5rem;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+      box-shadow: var(--shadow-md);
       padding: 0.5rem;
       z-index: 1001;
       max-width: 90vw;
@@ -257,14 +238,14 @@
       display: block;
       padding: 0.5rem 0.75rem;
       font-size: 0.8125rem;
-      color: #9ca0b5;
+      color: var(--text-muted);
       text-decoration: none;
       border-radius: 0.375rem;
       white-space: nowrap;
     }
-    .lang-menu-grid a:hover { background: rgba(255, 255, 255, 0.05); color: #e2e4ea; }
-    .lang-menu-grid a:focus-visible { outline: 2px solid #a5b4fc; outline-offset: -2px; }
-    .lang-menu-grid a.active { color: #6366f1; font-weight: 600; }
+    .lang-menu-grid a:hover { background: var(--hover-soft); color: var(--text); }
+    .lang-menu-grid a:focus-visible { outline: 2px solid var(--accent-text); outline-offset: -2px; }
+    .lang-menu-grid a.active { color: var(--accent); font-weight: 600; }
 
     /* Keyboard shortcut hint */
     .kbd-hint {
@@ -331,10 +312,10 @@
       border-radius: var(--radius-lg);
       overflow: hidden;
       border: 1px solid var(--border);
-      background: rgba(15,17,23,0.92);
+      background: color-mix(in oklab, var(--surface) 92%, transparent);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 8px 48px rgba(0,0,0,0.5);
+      box-shadow: var(--shadow-lg);
 
       /* Animation: closed by default */
       transform: translateY(12px) scale(0.96);
@@ -396,7 +377,7 @@
     .chat-header-info h3 {
       font-size: 0.875rem;
       font-weight: 600;
-      color: #fff;
+      color: var(--heading);
       line-height: 1.2;
     }
     .chat-header-info p {
@@ -421,7 +402,7 @@
       justify-content: center;
       transition: color 0.15s, background 0.15s;
     }
-    .chat-header-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+    .chat-header-btn:hover { color: var(--text); background: var(--hover-soft-2); }
     .chat-header-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
     /* Quick replies */
@@ -463,7 +444,7 @@
     }
     .chat-messages::-webkit-scrollbar { width: 4px; }
     .chat-messages::-webkit-scrollbar-track { background: transparent; }
-    .chat-messages::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 2px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 2px; }
 
     /* Messages */
     .msg {
@@ -495,14 +476,14 @@
 
     /* Markdown in AI messages */
     .msg-ai code {
-      background: rgba(0,0,0,0.3);
+      background: var(--code-bg);
       padding: 1px 5px;
       border-radius: 4px;
       font-size: 0.75rem;
       font-family: var(--font-mono);
     }
     .msg-ai pre {
-      background: rgba(0,0,0,0.4);
+      background: var(--code-block-bg);
       padding: 0.5rem 0.625rem;
       border-radius: 6px;
       overflow-x: auto;
@@ -540,7 +521,7 @@
       padding: 0.25rem 0.5rem;
       text-align: left;
     }
-    .msg-ai th { background: rgba(0,0,0,0.2); font-weight: 600; }
+    .msg-ai th { background: var(--code-bg); font-weight: 600; }
 
     /* Copy button on code blocks */
     .code-wrapper {
@@ -550,7 +531,7 @@
       position: absolute;
       top: 4px;
       right: 4px;
-      background: rgba(255,255,255,0.08);
+      background: var(--hover-soft-2);
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
       color: var(--text-dim);
@@ -621,7 +602,7 @@
     .feedback-btn:hover {
       color: var(--text);
       border-color: var(--border-subtle);
-      background: rgba(255,255,255,0.04);
+      background: var(--hover-soft);
     }
     .feedback-btn.selected {
       color: var(--accent-text);
@@ -722,14 +703,14 @@
       display: flex;
       gap: 0.5rem;
       padding: 0.625rem 0.875rem;
-      border-top: 1px solid rgba(99,102,241,0.1);
-      background: rgba(15,17,23,0.6);
+      border-top: 1px solid var(--accent-soft);
+      background: color-mix(in oklab, var(--surface) 60%, transparent);
       flex-shrink: 0;
     }
     .chat-input-area input {
       flex: 1;
-      background: rgba(26,29,39,0.8);
-      border: 1px solid #2a2d3a;
+      background: color-mix(in oklab, var(--surface-2) 80%, transparent);
+      border: 1px solid var(--border-subtle);
       border-radius: 0.5rem;
       padding: 0.5rem 0.75rem;
       color: var(--text);
@@ -763,7 +744,7 @@
       text-align: center;
       font-size: 0.5625rem;
       color: var(--text-dim);
-      border-top: 1px solid rgba(255,255,255,0.03);
+      border-top: 1px solid var(--border-subtle);
       flex-shrink: 0;
     }
 
@@ -799,6 +780,15 @@
         </ul>
       </nav>
       <div class="nav-right">
+        <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="false" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
         <div class="lang-switcher">
           <button type="button" aria-label="Change language" class="lang-toggle" aria-expanded="false">
             🌐 EN

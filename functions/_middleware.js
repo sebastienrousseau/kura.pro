@@ -110,6 +110,20 @@ const SECURITY_HEADERS = {
   // a CDN). Without this, fetch() with credentials: 'include' from other
   // origins would fail under post-Spectre default policies.
   "Cross-Origin-Resource-Policy": "cross-origin",
+  // Minimal Content-Security-Policy — adds defense-in-depth without
+  // touching inline-script support (the dashboard has several legit
+  // inline <script> blocks that a strict script-src would break).
+  //   - base-uri 'self'       — block <base href="https://attacker"> injection
+  //   - form-action 'self'    — keep form posts same-origin (only the
+  //                             /dashboard/login form exists today, same origin)
+  //   - frame-ancestors 'none' — modern replacement for X-Frame-Options:
+  //                             DENY; both stay for layered coverage
+  //   - object-src 'none'     — block <object>/<embed>/legacy Flash
+  //   - upgrade-insecure-requests — auto-upgrade any http: subresources
+  //                             accidentally introduced (Markdown link
+  //                             URLs from AI responses, etc.)
+  "Content-Security-Policy":
+    "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests",
 };
 
 function applyResponseEnvelope(response, trace) {

@@ -18,18 +18,29 @@
 
   const PACKAGES = [
     {
-      // Stratos — the official CloudCDN command-line client. Manages
-      // zones, signed URLs, edge cache invalidation, and asset uploads
-      // from any shell.
+      // Stratos v0.1.0 — official CloudCDN CLI. Distributed as a single
+      // Node script (cross-platform; runs anywhere with Node ≥ 18) plus
+      // one-line installers per OS. The installers download, verify the
+      // SHA-256, and drop a `stratos` shim on PATH.
       name: 'Stratos',
-      desc: 'Official CloudCDN CLI — zones, purge, upload, signed URLs',
+      desc: 'Official CloudCDN CLI — health, purge, signed URLs, assets, more',
       version: '0.1.0',
       files: {
-        macos_arm64: { file: 'stratos-0.1.0-darwin-arm64.tar.gz', size: 'TBD', sha256: 'pending first release' },
-        macos_x64:   { file: 'stratos-0.1.0-darwin-x64.tar.gz',   size: 'TBD', sha256: 'pending first release' },
-        linux_x64:   { file: 'stratos-0.1.0-linux-x64.tar.gz',    size: 'TBD', sha256: 'pending first release' },
-        linux_arm64: { file: 'stratos-0.1.0-linux-arm64.tar.gz',  size: 'TBD', sha256: 'pending first release' },
-        windows_x64: { file: 'stratos-0.1.0-windows-x64.zip',     size: 'TBD', sha256: 'pending first release' },
+        node: {
+          file: 'stratos.mjs',
+          size: '6.9 KB',
+          sha256: '98306c394345fc18b8610c0113e6ef94f071ceba47de0f07eb45a9204effaf27',
+        },
+        installer_unix: {
+          file: 'install.sh',
+          size: '3.0 KB',
+          sha256: '456c1e6e0b13bef7dfffb90292e266bf1f2fdce6f74cbad4d4f1ef13da16c780',
+        },
+        installer_windows: {
+          file: 'install.ps1',
+          size: '2.7 KB',
+          sha256: '7afefc35212224a148d5039f93abe551c218897a67d357c4fbd9c6369ed95dd6',
+        },
       },
       install: {
         macos:   `curl -sL ${CDN}/dist/stratos/install.sh | bash`,

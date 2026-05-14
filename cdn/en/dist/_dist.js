@@ -25,21 +25,26 @@
       name: 'Stratos',
       desc: 'Official CloudCDN CLI — health, purge, signed URLs, assets, more',
       version: '0.1.0',
+      // SHAs are computed against the *delivered* bytes — Cloudflare
+      // Pages appends a trailing newline to text files, so a `shasum`
+      // of the source file in git will not match. Users verifying
+      // integrity should hash what `curl` returned. Sizes are the
+      // delivered byte counts.
       files: {
         node: {
           file: 'stratos.mjs',
           size: '6.9 KB',
-          sha256: '98306c394345fc18b8610c0113e6ef94f071ceba47de0f07eb45a9204effaf27',
+          sha256: '85aeca2967183e827ffb1e17c53f132bc14b8cd3c8c0a28532059fb1a6a7114e',
         },
         installer_unix: {
           file: 'install.sh',
           size: '3.0 KB',
-          sha256: '456c1e6e0b13bef7dfffb90292e266bf1f2fdce6f74cbad4d4f1ef13da16c780',
+          sha256: '14b58b4b3344e89af0a71c4559b916cf83fe40597eb7755d4befe129926fd3fa',
         },
         installer_windows: {
           file: 'install.ps1',
           size: '2.7 KB',
-          sha256: '7afefc35212224a148d5039f93abe551c218897a67d357c4fbd9c6369ed95dd6',
+          sha256: '1fe75b519992934e0184f0af48d8c3b70c8f2cf35f69255adfd3454d82f79e6f',
         },
       },
       install: {

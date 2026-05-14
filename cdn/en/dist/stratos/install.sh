@@ -17,9 +17,11 @@ set -euo pipefail
 
 CDN_BASE="${CLOUDCDN_URL:-https://cloudcdn.pro}"
 SOURCE="$CDN_BASE/dist/stratos/stratos.mjs"
-# Expected SHA-256 of stratos.mjs. Bumped on each release; the verify
-# step below refuses to install if the download doesn't match.
-EXPECTED_SHA="98306c394345fc18b8610c0113e6ef94f071ceba47de0f07eb45a9204effaf27"
+# Expected SHA-256 of stratos.mjs as served by https://cloudcdn.pro/dist/
+# stratos/stratos.mjs. Cloudflare Pages appends a trailing newline on
+# delivery, so this hash is taken from the *delivered* bytes, not the
+# source file in git. Bumped on each release.
+EXPECTED_SHA="85aeca2967183e827ffb1e17c53f132bc14b8cd3c8c0a28532059fb1a6a7114e"
 VERSION="0.1.0"
 
 # Pick an install prefix. Honour $STRATOS_PREFIX first; otherwise prefer

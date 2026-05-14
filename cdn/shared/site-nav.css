@@ -56,6 +56,7 @@
   padding: 0 1.5rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 3.75rem;
   gap: 1rem;
   position: relative;
@@ -89,13 +90,26 @@
 }
 .site-nav .nav-brand-text .accent { color: #6366f1; }
 
-/* Center links (desktop) */
+/* The <nav> element is the middle flex child of .nav-inner. Giving it
+   flex:1 lets it occupy all remaining horizontal space between the brand
+   and the right-side CTA, and the inner <ul class="nav-center"> centres
+   the links inside that space. Net result matches apple.com's
+   globalnav-content alignment: brand pinned left, links truly centred
+   between brand and right-side actions, CTA pinned right. The previous
+   `margin: 0 auto` trick only centred the links roughly because brand
+   and CTA have different widths. */
+.site-nav nav[aria-label="Main navigation"] {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
 .site-nav .nav-center {
   display: flex;
   align-items: center;
   gap: 0.125rem;
   list-style: none;
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
 }
 .site-nav .nav-center > li { margin: 0; padding: 0; }

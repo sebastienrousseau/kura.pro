@@ -139,6 +139,36 @@ describe('Middleware: onRequest', () => {
       expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/dashboard/');
     });
 
+    it('301s /cdn/en/dashboard (no slash) → /dashboard/ directly (one hop, not two)', async () => {
+      const ctx = makeContext('/cdn/en/dashboard');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      // Goes straight to /dashboard/ — skipping the intermediate /dashboard
+      // step that would otherwise add an extra 301 to add the trailing slash.
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/dashboard/');
+    });
+
+    it('301s /cdn/en/dist (no slash) → /dist/ directly', async () => {
+      const ctx = makeContext('/cdn/en/dist');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/dist/');
+    });
+
+    it('301s /cdn/en/dist/ → /dist/', async () => {
+      const ctx = makeContext('/cdn/en/dist/');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/dist/');
+    });
+
+    it('301s /cdn/en/<arbitrary> → /<arbitrary> (fallthrough branch)', async () => {
+      const ctx = makeContext('/cdn/en/foo/bar.svg');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/foo/bar.svg');
+    });
+
     it('301s /cdn/fr/ → /fr/ (preserves non-EN locale prefix)', async () => {
       const ctx = makeContext('/cdn/fr/');
       const res = await onRequest(ctx);

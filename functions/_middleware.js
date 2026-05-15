@@ -307,10 +307,17 @@ async function routeRequest(context) {
     if (LOCALES.has(lang)) {
       const tail = slash === -1 ? "" : rest.slice(slash);
       // EN drops the /en/ prefix; other locales keep their /{lang}/ prefix.
+      // Where the canonical URL has a specific trailing-slash convention,
+      // we emit it directly to save the browser a second hop:
+      //   /api-reference  — no slash (per the route handler above)
+      //   /dashboard/, /dist/ — slash (those are Functions-middleware roots
+      //     with a /dashboard|/dist → /…/ 301 of their own)
       let target;
       if (lang === "en") {
         if (tail === "" || tail === "/") target = "/";
         else if (tail === "/api-reference/" || tail === "/api-reference") target = "/api-reference";
+        else if (tail === "/dashboard" || tail === "/dashboard/") target = "/dashboard/";
+        else if (tail === "/dist" || tail === "/dist/") target = "/dist/";
         else target = tail;
       } else {
         target = tail === "" ? "/" + lang + "/" : "/" + lang + tail;

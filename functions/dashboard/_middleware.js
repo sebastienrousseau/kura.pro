@@ -17,33 +17,48 @@ const LOGIN_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CloudCDN — Login</title>
+  <meta name="theme-color" content="#08090d">
+  <script src="/shared/theme-boot.js"></script>
+  <link rel="stylesheet" href="/shared/theme.css">
+  <script defer src="/shared/theme-toggle.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #08090d; color: #e2e4ea; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .card { background: #0f1117; border: 1px solid #2a2d3a; border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 380px; }
-    h1 { font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
-    h1 span { color: #6366f1; }
-    p { font-size: 0.8125rem; color: #8b8fa3; margin-bottom: 1.5rem; }
-    label { display: block; font-size: 0.75rem; color: #5b5f73; margin-bottom: 0.375rem; }
-    input { width: 100%; background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 0.5rem; padding: 0.625rem 0.75rem; color: #e2e4ea; font-size: 0.875rem; outline: none; transition: border-color 0.15s; }
-    input:focus { border-color: #6366f1; }
-    button { width: 100%; background: #6366f1; border: none; border-radius: 0.5rem; padding: 0.625rem; color: #fff; font-size: 0.875rem; font-weight: 500; cursor: pointer; margin-top: 1rem; transition: background 0.15s; }
-    button:hover { background: #818cf8; }
-    .error { color: #ef4444; font-size: 0.75rem; margin-top: 0.75rem; display: none; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: var(--surface); border: 1px solid var(--border-subtle); border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 380px; box-shadow: var(--shadow-lg); }
+    h1 { font-size: 1.25rem; font-weight: 700; color: var(--heading); margin-bottom: 0.25rem; }
+    h1 span { color: var(--accent-text); }
+    p { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.375rem; }
+    input { width: 100%; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 0.5rem; padding: 0.625rem 0.75rem; color: var(--text); font-size: 0.875rem; outline: none; transition: border-color 0.15s; }
+    input:focus { border-color: var(--accent); }
+    button { width: 100%; background: #4f46e5; border: none; border-radius: 0.5rem; padding: 0.625rem; color: #fff; font-size: 0.875rem; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: background 0.15s; }
+    button:hover { background: var(--accent); }
+    .error { color: light-dark(#dc2626, #ef4444); font-size: 0.75rem; margin-top: 0.75rem; display: none; }
     .error.show { display: block; }
+    .or-divider { text-align: center; margin-top: 1rem; font-size: 0.75rem; color: var(--text-dim); }
+    .passkey-btn { width: 100%; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 0.5rem; padding: 0.625rem; color: var(--text); font-size: 0.875rem; cursor: pointer; margin-top: 0.5rem; transition: border-color 0.15s; }
+    .passkey-btn:hover { border-color: var(--accent); }
+    .theme-toggle { position: fixed; top: 1rem; inset-inline-end: 1rem; }
   </style>
 </head>
 <body>
+  <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="false" title="Toggle theme">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+    </svg>
+  </button>
   <form class="card" method="POST" action="/dashboard/login">
     <h1>Cloud<span>CDN</span></h1>
     <p>Sign in to the asset dashboard</p>
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required autofocus placeholder="Enter dashboard password">
     <button type="submit">Sign in</button>
-    <div style="text-align:center;margin-top:1rem;">
-      <span style="font-size:0.75rem;color:#5b5f73;">or</span>
-    </div>
-    <button type="button" id="passkey-btn" style="width:100%;background:#1a1d27;border:1px solid #2a2d3a;border-radius:0.5rem;padding:0.625rem;color:#e2e4ea;font-size:0.875rem;cursor:pointer;margin-top:0.5rem;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#2a2d3a'" onclick="loginWithPasskey()">Sign in with Passkey</button>
+    <div class="or-divider">or</div>
+    <button type="button" id="passkey-btn" class="passkey-btn">Sign in with Passkey</button>
     <p class="error ERRCLASS">Invalid password. Please try again.</p>
   </form>
   <script src="/dashboard/_login.js"></script>
@@ -56,36 +71,50 @@ const SETUP_PASSKEY_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CloudCDN — Set Up Passkey</title>
+  <meta name="theme-color" content="#08090d">
+  <script src="/shared/theme-boot.js"></script>
+  <link rel="stylesheet" href="/shared/theme.css">
+  <script defer src="/shared/theme-toggle.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #08090d; color: #e2e4ea; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .card { background: #0f1117; border: 1px solid #2a2d3a; border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 420px; }
-    h1 { font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
-    h1 span { color: #6366f1; }
-    p { font-size: 0.8125rem; color: #8b8fa3; margin-bottom: 1.5rem; line-height: 1.6; }
-    .icon { width: 48px; height: 48px; margin: 0 auto 1.25rem; display: block; opacity: 0.9; }
-    label { display: block; font-size: 0.75rem; color: #5b5f73; margin-bottom: 0.375rem; }
-    input { width: 100%; background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 0.5rem; padding: 0.625rem 0.75rem; color: #e2e4ea; font-size: 0.875rem; outline: none; transition: border-color 0.15s; margin-bottom: 1rem; }
-    input:focus { border-color: #6366f1; }
-    .btn-primary { width: 100%; background: #6366f1; border: none; border-radius: 0.5rem; padding: 0.75rem; color: #fff; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-    .btn-primary:hover { background: #818cf8; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: var(--surface); border: 1px solid var(--border-subtle); border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); }
+    h1 { font-size: 1.25rem; font-weight: 700; color: var(--heading); margin-bottom: 0.25rem; }
+    h1 span { color: var(--accent-text); }
+    p { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
+    .icon { width: 48px; height: 48px; margin: 0 auto 1.25rem; display: block; opacity: 0.9; color: var(--accent-text); }
+    label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.375rem; }
+    input { width: 100%; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 0.5rem; padding: 0.625rem 0.75rem; color: var(--text); font-size: 0.875rem; outline: none; transition: border-color 0.15s; margin-bottom: 1rem; }
+    input:focus { border-color: var(--accent); }
+    .btn-primary { width: 100%; background: #4f46e5; border: none; border-radius: 0.5rem; padding: 0.75rem; color: #fff; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-primary:hover { background: var(--accent); }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-skip { width: 100%; background: transparent; border: 1px solid #2a2d3a; border-radius: 0.5rem; padding: 0.625rem; color: #8b8fa3; font-size: 0.8125rem; cursor: pointer; margin-top: 0.75rem; transition: border-color 0.15s, color 0.15s; text-decoration: none; display: block; text-align: center; }
-    .btn-skip:hover { border-color: #5b5f73; color: #e2e4ea; }
+    .btn-skip { width: 100%; background: transparent; border: 1px solid var(--border-subtle); border-radius: 0.5rem; padding: 0.625rem; color: var(--text-muted); font-size: 0.8125rem; cursor: pointer; margin-top: 0.75rem; transition: border-color 0.15s, color 0.15s; text-decoration: none; display: block; text-align: center; }
+    .btn-skip:hover { border-color: var(--accent); color: var(--text); }
     .status { font-size: 0.75rem; margin-top: 1rem; text-align: center; min-height: 1.25rem; }
-    .status.success { color: #4ade80; }
-    .status.error { color: #ef4444; }
+    .status.success { color: var(--green); }
+    .status.error { color: light-dark(#dc2626, #ef4444); }
     .passkey-list { margin-top: 1rem; }
-    .passkey-item { display: flex; justify-content: space-between; align-items: center; background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 0.5rem; padding: 0.625rem 0.75rem; margin-bottom: 0.5rem; font-size: 0.8125rem; }
-    .passkey-item .name { color: #e2e4ea; font-weight: 500; }
-    .passkey-item .date { color: #5b5f73; font-size: 0.6875rem; }
-    .check { color: #4ade80; font-size: 1.25rem; display: none; text-align: center; margin-bottom: 1rem; }
+    .passkey-item { display: flex; justify-content: space-between; align-items: center; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 0.5rem; padding: 0.625rem 0.75rem; margin-bottom: 0.5rem; font-size: 0.8125rem; }
+    .passkey-item .name { color: var(--text); font-weight: 500; }
+    .passkey-item .date { color: var(--text-dim); font-size: 0.6875rem; }
+    .check { color: var(--green); font-size: 1.25rem; display: none; text-align: center; margin-bottom: 1rem; }
     .check.show { display: block; }
+    .theme-toggle { position: fixed; top: 1rem; inset-inline-end: 1rem; }
   </style>
 </head>
 <body>
+  <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="false" title="Toggle theme">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+    </svg>
+  </button>
   <div class="card">
-    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <rect x="2" y="6" width="20" height="12" rx="2"/>
       <circle cx="12" cy="12" r="2"/>
       <path d="M6 12h2M16 12h2"/>
@@ -98,7 +127,7 @@ const SETUP_PASSKEY_HTML = `<!DOCTYPE html>
     <label for="passkey-name">Passkey Name</label>
     <input type="text" id="passkey-name" placeholder="e.g., MacBook Pro, YubiKey" value="">
 
-    <button class="btn-primary" id="register-btn" onclick="registerPasskey()">Register Passkey</button>
+    <button class="btn-primary" id="register-btn">Register Passkey</button>
     <p class="status" id="status"></p>
 
     <div class="check" id="success-check">&#10003; Passkey registered</div>

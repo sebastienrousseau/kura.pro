@@ -32,13 +32,27 @@ export const options = {
   },
 };
 
-// Asset paths to test (mix of formats and sizes)
+// Asset paths to test. All confirmed live as of the F1/F3 fix —
+// project paths follow `/<project>/v1/{logos,banners}/<name>.{svg,png}`.
+// Cache-Tag header is intentionally NOT asserted: Cloudflare strips it
+// from responses delivered to clients (it's an internal tag for purge,
+// see https://developers.cloudflare.com/cache/how-to/use-cache-tags/).
 const ASSETS = [
-  '/bankingonai/images/banners/banner-bankingonai.webp',
-  '/shared/images/logos/cmn.svg',
   '/cloudcdn/v1/logos/cloudcdn.svg',
-  '/shokunin/images/banners/banner-shokunin.avif',
-  '/sebastienrousseau/images/banners/banner-sebastienrousseau.png',
+  '/akande/v1/logos/akande.svg',
+  '/akande/v1/banners/banner-akande.svg',
+  '/audioanalyser/v1/banners/banner-audioanalyser.png',
+  '/bankingonai/v1/logos/bankingonai.svg',
+];
+
+// /api/auto expects an EXTENSIONLESS path (it appends each format from
+// the negotiation chain). Use the same project bases as ASSETS minus
+// the trailing extension.
+const AUTO_PATHS = [
+  '/cloudcdn/v1/logos/cloudcdn',
+  '/akande/v1/logos/akande',
+  '/akande/v1/banners/banner-akande',
+  '/bankingonai/v1/logos/bankingonai',
 ];
 
 const FORMATS = ['webp', 'avif', 'png'];
@@ -52,7 +66,6 @@ export default function () {
     const res = http.get(`${BASE}${asset}`);
     check(res, {
       'asset 200': (r) => r.status === 200,
-      'has cache-tag': (r) => r.headers['Cache-Tag'] !== undefined,
       'immutable cache': (r) => (r.headers['Cache-Control'] || '').includes('immutable'),
     });
     ttfb.add(res.timings.waiting);
@@ -64,11 +77,12 @@ export default function () {
     const accept = format === 'avif' ? 'image/avif,image/webp,*/*'
                  : format === 'webp' ? 'image/webp,*/*'
                  : '*/*';
-    const res = http.get(`${BASE}/api/auto?path=/cloudcdn/v1/logos/logo`, {
+    const autoPath = AUTO_PATHS[Math.floor(Math.random() * AUTO_PATHS.length)];
+    const res = http.get(`${BASE}/api/auto?path=${encodeURIComponent(autoPath)}`, {
       headers: { Accept: accept },
     });
     check(res, {
-      'auto 200 or 404': (r) => r.status === 200 || r.status === 404,
+      'auto 200': (r) => r.status === 200,
       'has vary accept': (r) => (r.headers['Vary'] || '').includes('Accept'),
     });
     ttfb.add(res.timings.waiting);

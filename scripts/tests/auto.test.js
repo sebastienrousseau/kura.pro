@@ -15,15 +15,28 @@ function makeContext(queryString, accept = '*/*') {
         },
       },
     },
+    // The handler now calls env.ASSETS.fetch instead of plain fetch (a
+    // workers-chain subrequest from a Function bypasses the middleware
+    // that does /clients/* rewriting; env.ASSETS goes straight to the
+    // deploy at the canonical path). The getter keeps the legacy test
+    // pattern — assigning to globalThis.fetch in each test — working
+    // without rewriting 70+ call sites.
+    env: {
+      ASSETS: {
+        get fetch() { return globalThis.fetch; },
+      },
+    },
   };
 }
 
 /**
  * Helper: create a mock fetch that returns 200 for URLs matching any of the
- * given extensions, and 404 for everything else.
+ * given extensions, and 404 for everything else. Accepts either a URL
+ * string or a Request — env.ASSETS.fetch passes a Request.
  */
 function mockFetchForFormats(okExtensions) {
-  return vi.fn(async (url) => {
+  return vi.fn(async (input) => {
+    const url = typeof input === 'string' ? input : input.url;
     const matchedExt = okExtensions.find((ext) => url.endsWith(`.${ext}`));
     if (matchedExt) {
       return new Response('imgdata', {
@@ -454,6 +467,38 @@ describe('GET /api/auto', () => {
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
     expect(res.headers.get('Access-Control-Allow-Methods')).toContain('GET');
     expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
+  });
+
+  // ── resolveAssetPath: /stocks/ and /shared/ branches ──
+  // Pages middleware skips workers-chain rewriting on subrequests, so
+  // /api/auto replicates the routing internally. Exercise both pillars.
+
+  it('preserves /stocks/ paths (stocks pillar — direct from deploy root)', async () => {
+    globalThis.fetch = mockFetchForFormats(['png']);
+    try {
+      const res = await onRequestGet(makeContext('?path=/stocks/sample/img', '*/*'));
+      expect(res.status).toBe(200);
+      const pngProbe = globalThis.fetch.mock.calls.find((c) => c[0].endsWith('.png'))[0];
+      expect(pngProbe).toContain('/stocks/sample/img.png');
+      // Every probe should preserve /stocks/, never wrap it in /clients/.
+      for (const [u] of globalThis.fetch.mock.calls) {
+        expect(u).not.toContain('/clients/');
+      }
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('rewrites /shared/ paths to /cdn/shared/ (shared assets pillar)', async () => {
+    globalThis.fetch = mockFetchForFormats(['svg']);
+    try {
+      const res = await onRequestGet(makeContext('?path=/shared/icons/logo', '*/*'));
+      expect(res.status).toBe(200);
+      const probed = globalThis.fetch.mock.calls.find((c) => c[0].endsWith('.svg'))[0];
+      expect(probed).toContain('/cdn/shared/icons/logo.svg');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   describe('network-aware format selection', () => {

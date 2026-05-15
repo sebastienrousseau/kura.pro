@@ -81,6 +81,28 @@ function isLowBandwidth(request) {
   return false;
 }
 
+/**
+ * Map a user-facing path to the deploy-internal asset URL.
+ *
+ * Subrequests issued by a Pages Function bypass the middleware chain, so
+ * the path rewrites that work on first-hop requests (e.g. /foo/bar.svg →
+ * /clients/foo/bar.svg) do NOT apply when this handler calls fetch on
+ * its own. We replicate the routing here against the canonical paths:
+ *
+ *   /stocks/<path>   → /stocks/<path>   (stocks pillar — direct)
+ *   /shared/<path>   → /cdn/shared/<path>
+ *   anything else    → /clients/<path>  (clients pillar — default)
+ *
+ * Geo (/global/*) is intentionally not handled — /api/auto doesn't
+ * expose geo paths today, and adding it would require Cloudflare cf.continent
+ * resolution that doesn't belong in this hot path.
+ */
+function resolveAssetPath(userPath) {
+  if (userPath.startsWith('/stocks/')) return userPath;
+  if (userPath.startsWith('/shared/')) return '/cdn' + userPath;
+  return '/clients' + userPath;
+}
+
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
 
@@ -119,12 +141,18 @@ export async function onRequestGet(context) {
   }
 
   // Try each format in the fallback chain starting from preferred
+  const basePath = resolveAssetPath(path);
   for (let i = 0; i < chain.length; i++) {
     const { ext, mime } = chain[i];
-    const assetUrl = new URL(`${path}.${ext}`, url.origin).toString();
+    const assetUrl = new URL(`${basePath}.${ext}`, url.origin).toString();
 
     try {
-      const response = await fetch(assetUrl);
+      // env.ASSETS.fetch hits the static asset binding directly and skips
+      // the workers chain — exactly the right shape for a subrequest that
+      // wants the deployed file by its canonical path. Tests that hand-roll
+      // a ctx without env still work via the global fetch fallback.
+      const fetcher = context.env?.ASSETS?.fetch ?? fetch;
+      const response = await fetcher(assetUrl);
 
       if (response.ok) {
         const headers = new Headers(response.headers);

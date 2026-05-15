@@ -293,6 +293,33 @@ async function routeRequest(context) {
   }
 
   // ── 3. CDN pillar ──
+  // Leaked internal /cdn/<locale>/... paths → 301 to the canonical clean
+  // URL. Pages serves these because they exist in the deploy, but
+  // they're meant to be the middleware's INTERNAL rewrite target, not
+  // user-facing. When they leak (old bookmarks, copy-pasted preview
+  // URLs, the previous index.html → directory 308 dance), users land on
+  // pages with the strict default CSP — Scalar gets blocked, the
+  // theme toggle still works but the canonical URL is wrong.
+  if (path.length > 4 && path.startsWith("/cdn/")) {
+    const rest = path.slice(4); // includes leading "/", e.g. "/en/api-reference/"
+    const slash = rest.indexOf("/", 1);
+    const lang = slash === -1 ? rest.slice(1) : rest.slice(1, slash);
+    if (LOCALES.has(lang)) {
+      const tail = slash === -1 ? "" : rest.slice(slash);
+      // EN drops the /en/ prefix; other locales keep their /{lang}/ prefix.
+      let target;
+      if (lang === "en") {
+        if (tail === "" || tail === "/") target = "/";
+        else if (tail === "/api-reference/" || tail === "/api-reference") target = "/api-reference";
+        else target = tail;
+      } else {
+        target = tail === "" ? "/" + lang + "/" : "/" + lang + tail;
+      }
+      const query = qmark === -1 ? "" : rawUrl.slice(qmark);
+      return Response.redirect(rawUrl.slice(0, pathStart) + target + query, 301);
+    }
+  }
+
   // Root → English homepage
   if (path === "/" || path === "/index.html") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/index.html");

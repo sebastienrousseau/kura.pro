@@ -54,6 +54,23 @@ describe('Dist Auth Middleware', () => {
     expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
   });
 
+  it('rewrites /dist/ to /cdn/en/dist/ — directory, not /index.html', async () => {
+    // Asking env.ASSETS for /cdn/en/dist/index.html triggers a 308 →
+    // /cdn/en/dist/ that loops back through the public middleware's
+    // /cdn/<locale>/... canonicalisation. Same trap fixed for the
+    // dashboard auth path in PR #36; this is the dist sibling.
+    const secret = 'test-secret-123';
+    const futureExpiry = String(Math.floor(Date.now() / 1000) + 3600);
+    const sig = await hmacSign(secret, futureExpiry);
+    const cookie = `cdn_session=${futureExpiry}.${sig}`;
+
+    const ctx = makeCtx({ secret, cookie });
+    await onRequest(ctx);
+    const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
+    expect(fetchedUrl).toContain('/cdn/en/dist/');
+    expect(fetchedUrl).not.toContain('/index.html');
+  });
+
   it('expired session redirects to login', async () => {
     const secret = 'test-secret-123';
     const pastExpiry = String(Math.floor(Date.now() / 1000) - 3600);

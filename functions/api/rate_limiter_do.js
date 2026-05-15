@@ -7,18 +7,30 @@
  * actor invocation, so two concurrent requests cannot both observe `count <
  * limit` and proceed past the cap.
  *
- * Wire-up (production):
- *   1. Add to wrangler.toml:
+ * Wire-up — this is the part that bit us in May 2026:
+ *
+ * Cloudflare Pages **cannot** host a Durable Object class. Pages Functions
+ * can only *bind* to a DO that's already provisioned by a separate Workers
+ * project; `[[migrations]]` in a Pages `wrangler.toml` is a no-op because
+ * the Pages git-integration deploy ignores it. So this file is a reference
+ * implementation, not a live class. Activation requires:
+ *
+ *   1. Stand up a separate Worker (e.g. `cloudcdn-rate-limiter`) whose
+ *      module entry exports this class. Its own `wrangler.toml` carries
+ *      the `[[durable_objects.bindings]]` and `[[migrations]] new_classes`
+ *      stanzas. `wrangler deploy` it once to provision the DO namespace.
+ *
+ *   2. Bind it into this Pages project by adding to *this* repo's
+ *      `wrangler.toml`:
  *        [[durable_objects.bindings]]
- *        name       = "RATE_LIMITER"
- *        class_name = "RateLimiterDO"
+ *        name        = "RATE_LIMITER"
+ *        class_name  = "RateLimiterDO"
+ *        script_name = "cloudcdn-rate-limiter"   # the Worker from step 1
  *
- *        [[migrations]]
- *        tag        = "v1"
- *        new_classes = ["RateLimiterDO"]
- *
- *   2. Deploy. `_shared.js#checkRateLimit` will detect `env.RATE_LIMITER`
- *      and use this DO automatically; otherwise it falls back to KV.
+ *   3. No code change required on the Pages side. `checkRateLimit` in
+ *      `_shared.js` already auto-detects `env.RATE_LIMITER` and routes
+ *      through this DO when present; otherwise it falls back to the
+ *      (fail-open since PRs #42, #43) KV path.
  *
  * The HTTP surface is internal — the DO only ever receives requests from
  * `checkRateLimit` and uses the URL path as the dispatch.

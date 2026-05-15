@@ -6,25 +6,21 @@
  * Cloudflare Pages itself does not run queue consumers — they must be
  * deployed as a separate Worker that binds the same queue.
  *
- * Operator setup (one-time):
+ * Operator setup (one-time) — the scaffolded consumer Worker is at
+ * workers/webhook-consumer/ in this repo. To activate:
  *
- *   1. Create the queue:
+ *   1. Create the queues:
  *        npx wrangler queues create cloudcdn-webhooks
- *      Then uncomment the matching producer stanza in wrangler.toml.
+ *        npx wrangler queues create cloudcdn-webhooks-dlq
  *
- *   2. Deploy this file as a Worker with the consumer binding:
- *        # workers/webhook-consumer/wrangler.toml
- *        name = "cloudcdn-webhook-consumer"
- *        main = "src/index.js"
+ *   2. Deploy the consumer Worker:
+ *        cd workers/webhook-consumer && npx wrangler deploy
+ *      The Worker re-exports `webhookQueueHandler` from this file as
+ *      `export default { queue: webhookQueueHandler }`.
  *
- *        [[queues.consumers]]
- *        queue                = "cloudcdn-webhooks"
- *        max_batch_size       = 10
- *        max_batch_timeout    = 5
- *        max_retries          = 5
- *        dead_letter_queue    = "cloudcdn-webhooks-dlq"
- *
- *      and `import { webhookQueueHandler } from './webhook_consumer.js';`
+ *   3. Uncomment the `[[queues.producers]]` stanza in the repo-root
+ *      wrangler.toml so Pages binds `env.WEBHOOK_QUEUE`. dispatchWebhook
+ *      in webhooks.js auto-detects the binding and starts enqueueing.
  *
  * Retry semantics:
  *   - Each message carries `attempt`. On delivery failure we re-send the

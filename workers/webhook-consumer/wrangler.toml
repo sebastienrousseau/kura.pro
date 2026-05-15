@@ -1,0 +1,28 @@
+name = "cloudcdn-webhook-consumer"
+main = "src/index.js"
+
+# Match the Pages project's date so behaviour is consistent across the
+# producer (Pages) and consumer (this Worker).
+compatibility_date = "2026-04-01"
+
+# Cloudflare Queues consumer binding. The Pages project produces messages
+# to the same queue name via its `[[queues.producers]]` stanza (see
+# repo-root wrangler.toml).
+#
+# Batch settings tuned for low-latency webhook fan-out:
+#   - max_batch_size:    10 — keep each batch small so a single slow receiver
+#                             doesn't stall many concurrent deliveries.
+#   - max_batch_timeout:  5s — flush within 5 seconds even on a quiet hour.
+#   - max_retries:        5 — Cloudflare-side retry count; the consumer's own
+#                             exponential backoff (1s/5s/25s/125s) handles
+#                             receiver-side flakiness. After 5 Cloudflare-
+#                             tracked failures the message goes to the DLQ.
+#   - dead_letter_queue: `cloudcdn-webhooks-dlq`. Provisioned alongside the
+#                        main queue; messages that exhaust retries land here
+#                        for offline inspection.
+[[queues.consumers]]
+queue                = "cloudcdn-webhooks"
+max_batch_size       = 10
+max_batch_timeout    = 5
+max_retries          = 5
+dead_letter_queue    = "cloudcdn-webhooks-dlq"

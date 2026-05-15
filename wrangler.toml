@@ -88,12 +88,24 @@ script_name = "cloudcdn-rate-limiter"
 # dispatchWebhook() in functions/api/webhooks.js auto-detects this binding
 # and falls back to direct fire-and-forget when absent.
 #
-# Operator setup:
-#   1. `npx wrangler queues create cloudcdn-webhooks`
-#      `npx wrangler queues create cloudcdn-webhooks-dlq` (optional DLQ)
-#   2. Uncomment the producer stanza below.
-#   3. Deploy the consumer Worker (see functions/api/webhook_consumer.js
-#      for the canonical handler; Pages does not run queue consumers).
+# The standalone consumer Worker that processes the queue lives at
+# workers/webhook-consumer/ (Pages cannot run queue consumers — only
+# Workers can).
+#
+# Activation:
+#   1. Create the queues (Workers Paid plan; free-tier eligible up to 1M
+#      ops/month):
+#        npx wrangler queues create cloudcdn-webhooks
+#        npx wrangler queues create cloudcdn-webhooks-dlq
+#   2. Deploy the consumer:
+#        cd workers/webhook-consumer && npx wrangler deploy
+#   3. Uncomment the producer stanza below and push. After the Pages
+#      redeploy, dispatchWebhook() switches from fire-and-forget to
+#      enqueue automatically; checkRateLimit-style auto-detection means
+#      no application-code change is needed.
+#
+# Rollback: re-comment the stanza. The consumer Worker can stay deployed
+# (idle queues cost nothing).
 #
 # [[queues.producers]]
 # binding    = "WEBHOOK_QUEUE"

@@ -1,0 +1,12 @@
+{
+  "name": "cloudcdn-webhook-consumer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone Worker that consumes the cloudcdn-webhooks queue produced by the cloudcdn-pro Pages project.",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "dev": "wrangler dev"
+  }
+}

@@ -69,11 +69,12 @@ describe('Middleware: onRequest', () => {
 
   // --- CDN pillar rewrites ---
   describe('cdn pillar rewrites', () => {
-    it('rewrites / to /cdn/en/index.html', async () => {
+    it('rewrites / to /cdn/en/ (directory, not /index.html)', async () => {
       const ctx = makeContext('/');
       await onRequest(ctx);
       const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
-      expect(fetchedUrl).toContain('/cdn/en/index.html');
+      expect(fetchedUrl).toContain('/cdn/en/');
+      expect(fetchedUrl).not.toContain('/index.html');
     });
 
     it('passes /dashboard/ through to Functions middleware (context.next)', async () => {
@@ -225,11 +226,12 @@ describe('Middleware: onRequest', () => {
 
   // --- CDN pillar rewrites (extended) ---
   describe('cdn pillar rewrites (extended)', () => {
-    it('rewrites /index.html to /cdn/en/index.html', async () => {
+    it('rewrites /index.html to /cdn/en/ (directory)', async () => {
       const ctx = makeContext('/index.html');
       await onRequest(ctx);
       const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
-      expect(fetchedUrl).toContain('/cdn/en/index.html');
+      expect(fetchedUrl).toContain('/cdn/en/');
+      expect(fetchedUrl).not.toContain('/index.html');
     });
 
     it('rewrites /404.html to /cdn/404.html', async () => {
@@ -666,7 +668,7 @@ describe('Middleware: onRequest', () => {
       expect(res).toBeInstanceOf(Response);
     });
 
-    it('locale homepage with trailing slash routes to /cdn/<lang>/index.html', async () => {
+    it('locale homepage with trailing slash routes to /cdn/<lang>/ (directory)', async () => {
       // Covers the `path.indexOf('/', 1) > -1 && rest === '/'` branch
       // in the locale-homepage match.
       const ctx = makeContext('/fr/');
@@ -675,7 +677,8 @@ describe('Middleware: onRequest', () => {
       expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
       const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0];
       const target = typeof fetchedUrl === 'string' ? fetchedUrl : fetchedUrl.url;
-      expect(target).toContain('/cdn/fr/index.html');
+      expect(target).toContain('/cdn/fr/');
+      expect(target).not.toContain('/index.html');
     });
 
     it('locale-prefixed /api-reference returns locale version when it exists (no fallback)', async () => {

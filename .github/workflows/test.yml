@@ -8,14 +8,20 @@ on:
       - 'functions/**'
       - 'vitest.config.js'
       - 'cdn/dashboard/**'
+      - 'cdn/en/**'
+      - 'cdn/shared/**'
       - 'package.json'
+      - '.github/workflows/test.yml'
   pull_request:
     paths:
       - 'scripts/**'
       - 'functions/**'
       - 'vitest.config.js'
       - 'cdn/dashboard/**'
+      - 'cdn/en/**'
+      - 'cdn/shared/**'
       - 'package.json'
+      - '.github/workflows/test.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

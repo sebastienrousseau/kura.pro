@@ -169,6 +169,13 @@ describe('Middleware: onRequest', () => {
       expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/foo/bar.svg');
     });
 
+    it('serves the 301 with Cache-Control: no-store so browsers do not cache stale targets', async () => {
+      const ctx = makeContext('/cdn/en/api-reference/');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Cache-Control')).toBe('no-store');
+    });
+
     it('301s /cdn/fr/ → /fr/ (preserves non-EN locale prefix)', async () => {
       const ctx = makeContext('/cdn/fr/');
       const res = await onRequest(ctx);

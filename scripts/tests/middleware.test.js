@@ -97,6 +97,88 @@ describe('Middleware: onRequest', () => {
     });
   });
 
+  // --- /cdn/* canonical redirects ---
+  // The /cdn/<locale>/... paths are the deploy-physical layout the
+  // middleware rewrites INTO. When they leak as user-facing URLs (old
+  // bookmarks, copy-pasted previews), they bypass per-route CSP
+  // overrides and serve the strict default. Redirect to clean URLs.
+  describe('/cdn/<locale>/... canonical redirects', () => {
+    it('301s /cdn/en/api-reference/ → /api-reference', async () => {
+      const ctx = makeContext('/cdn/en/api-reference/');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/api-reference');
+    });
+
+    it('301s /cdn/en/api-reference (no slash) → /api-reference', async () => {
+      const ctx = makeContext('/cdn/en/api-reference');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/api-reference');
+    });
+
+    it('301s /cdn/en/ → /', async () => {
+      const ctx = makeContext('/cdn/en/');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/');
+    });
+
+    it('301s /cdn/en (no slash) → /', async () => {
+      const ctx = makeContext('/cdn/en');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/');
+    });
+
+    it('301s /cdn/en/dashboard/ → /dashboard/', async () => {
+      const ctx = makeContext('/cdn/en/dashboard/');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/dashboard/');
+    });
+
+    it('301s /cdn/fr/ → /fr/ (preserves non-EN locale prefix)', async () => {
+      const ctx = makeContext('/cdn/fr/');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/fr/');
+    });
+
+    it('301s /cdn/fr (no slash) → /fr/', async () => {
+      const ctx = makeContext('/cdn/fr');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/fr/');
+    });
+
+    it('301s /cdn/fr/api-reference/ → /fr/api-reference/', async () => {
+      const ctx = makeContext('/cdn/fr/api-reference/');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/fr/api-reference/');
+    });
+
+    it('preserves query string on redirect', async () => {
+      const ctx = makeContext('/cdn/en/api-reference/?foo=bar&baz=1');
+      const res = await onRequest(ctx);
+      expect(res.status).toBe(301);
+      expect(res.headers.get('Location')).toBe('https://cloudcdn.pro/api-reference?foo=bar&baz=1');
+    });
+
+    it('does NOT redirect /cdn/<not-a-locale>/... (falls through to clients pillar)', async () => {
+      const ctx = makeContext('/cdn/banana/file.svg');
+      const res = await onRequest(ctx);
+      expect(res.status).not.toBe(301);
+    });
+
+    it('does NOT redirect short /cdn paths', async () => {
+      const ctx = makeContext('/cdn/');
+      const res = await onRequest(ctx);
+      expect(res.status).not.toBe(301);
+    });
+  });
+
   // --- Stocks pillar ---
   describe('stocks pillar', () => {
     it('serves /stocks/ directly without rewrite', async () => {

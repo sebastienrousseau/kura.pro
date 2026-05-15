@@ -28,7 +28,7 @@
  */
 
 import {
-  checkRateLimit, errorResponse, log,
+  checkRateLimit, errorResponse, log, rateLimitHeaders,
   hashString, buildCacheKey, cacheGet, cacheSet,
 } from './_shared.js';
 
@@ -93,7 +93,7 @@ export async function onRequestGet(context) {
   const cached = await cacheGet(cacheKey);
   if (cached?.hash) {
     return new Response(JSON.stringify({ ...cached, source: 'cached' }), {
-      headers: { ...CORS_HEADERS, 'Cache-Control': 'public, max-age=86400' },
+      headers: { ...CORS_HEADERS, ...rateLimitHeaders(rl), 'Cache-Control': 'public, max-age=86400' },
     });
   }
 
@@ -132,7 +132,7 @@ export async function onRequestGet(context) {
   await cacheSet(cacheKey, payload, CACHE_TTL_SEC);
 
   return new Response(JSON.stringify({ ...payload, source: 'fresh' }), {
-    headers: { ...CORS_HEADERS, 'Cache-Control': 'public, max-age=86400' },
+    headers: { ...CORS_HEADERS, ...rateLimitHeaders(rl), 'Cache-Control': 'public, max-age=86400' },
   });
 }
 

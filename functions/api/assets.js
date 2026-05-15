@@ -9,7 +9,7 @@
  *   - Constant memory via generator-based item yielding
  */
 
-import { getManifest, authenticateAccess, streamJsonArray, extractParams, checkRateLimit, errorResponse, CORS_JSON } from './_shared.js';
+import { getManifest, authenticateAccess, streamJsonArray, extractParams, checkRateLimit, errorResponse, rateLimitHeaders, CORS_JSON } from './_shared.js';
 import { authorizeWithScope } from './tokens.js';
 
 const CORS = {
@@ -84,6 +84,7 @@ export async function onRequestGet(context) {
     },
     arrayKey: 'Data',
     items: pageItems,
+    headers: rateLimitHeaders(rl),
   });
 }
 

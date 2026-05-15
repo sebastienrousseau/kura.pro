@@ -390,6 +390,30 @@ async function checkRateLimitKv(kv, key, limit, windowSeconds) {
   }
 }
 
+/**
+ * Build the standard X-RateLimit-* response headers for a checkRateLimit
+ * result. Returns an empty object when the result lacks limit/remaining
+ * (e.g. the no-binding `{ allowed: true }` shortcut) so callers can spread
+ * unconditionally:
+ *
+ *   const rl = await checkRateLimit(env, key, limit, window);
+ *   return new Response(body, { headers: { ...CORS, ...rateLimitHeaders(rl) } });
+ *
+ * Surfaces remaining budget to clients on every successful call — without
+ * it they only learn their budget by tripping a 429.
+ */
+export function rateLimitHeaders(rl) {
+  if (!rl || typeof rl.limit !== 'number' || typeof rl.remaining !== 'number') {
+    return {};
+  }
+  const out = {
+    'X-RateLimit-Limit': String(rl.limit),
+    'X-RateLimit-Remaining': String(Math.max(rl.remaining, 0)),
+  };
+  if (typeof rl.resetAt === 'number') out['X-RateLimit-Reset'] = String(rl.resetAt);
+  return out;
+}
+
 // ── Workers AI quota guard ──
 // Workers AI free tier ≈ 10k neurons/day. When exhausted, calls throw 429-style
 // errors. We track usage in KV per UTC day and trip a short-lived circuit

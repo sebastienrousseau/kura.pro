@@ -22,7 +22,7 @@
  * the client gets a single drop-in string.
  */
 
-import { checkRateLimit, errorResponse, log } from './_shared.js';
+import { checkRateLimit, errorResponse, log, rateLimitHeaders } from './_shared.js';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -109,6 +109,7 @@ export async function onRequestGet(context) {
   }), {
     headers: {
       ...CORS_HEADERS,
+      ...rateLimitHeaders(rl),
       // The placeholder is deterministic per (url, size, blur), so cache it
       // for a day. Vary is unnecessary — no Accept negotiation.
       'Cache-Control': 'public, max-age=86400',

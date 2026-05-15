@@ -374,10 +374,20 @@ export async function queryAuditLog(env, { days = 7, action = null, limit = 500 
 
 async function checkRateLimitKv(kv, key, limit, windowSeconds) {
   if (!kv) return { allowed: true };
-  const count = parseInt(await kv.get(key) || '0', 10);
-  if (count >= limit) return { allowed: false, limit, remaining: 0 };
-  await kv.put(key, String(count + 1), { expirationTtl: windowSeconds });
-  return { allowed: true, limit, remaining: limit - count - 1 };
+  // KV failures (most commonly: free-tier daily put-quota exhaustion) must
+  // not 5xx user requests. Fail open — the worst case is a brief lapse in
+  // rate-limit enforcement, which is strictly preferable to a hard outage.
+  // The Durable Object limiter (RATE_LIMITER binding) avoids this class of
+  // failure entirely; activate it in wrangler.toml when quota becomes a
+  // real concern.
+  try {
+    const count = parseInt(await kv.get(key) || '0', 10);
+    if (count >= limit) return { allowed: false, limit, remaining: 0 };
+    await kv.put(key, String(count + 1), { expirationTtl: windowSeconds });
+    return { allowed: true, limit, remaining: limit - count - 1 };
+  } catch {
+    return { allowed: true };
+  }
 }
 
 // ── Workers AI quota guard ──

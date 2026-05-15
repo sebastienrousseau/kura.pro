@@ -63,6 +63,33 @@ export function registerDeliveryTools(server) {
   );
 
   server.tool(
+    'signed_url_generate',
+    'Mint a time-limited HMAC-signed URL for a protected asset. Returns `{ url, expiresAt }` where `url` is ready to share; the signature is verified at the edge with constant-time HMAC-SHA256. Use for paywalled downloads, expiring sharable links, or any asset you want gated without baking auth into every request.',
+    {
+      path:        z.string().min(1).max(1024).describe('Relative asset path (e.g. "/clients/acme/private/report.pdf")'),
+      expires_in:  z.number().int().min(60).max(60 * 60 * 24 * 30).default(3600).optional()
+                     .describe('TTL in seconds. Default 3600 (1 hour); max 30 days.'),
+    },
+    async ({ path, expires_in = 3600 }) => {
+      const expires = Math.floor(Date.now() / 1000) + expires_in;
+      const res = await api.post('/api/signed', { path, expires }, { auth: 'account' });
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'stream_playlist',
+    'Build the HLS playlist URL for an adaptive-bitrate video. Returns `{ playlist_url }` ready for an HLS-compatible player. The edge serves an `.m3u8` index plus byte-range segments; bandwidth-adaptive selection happens client-side.',
+    {
+      asset_id: z.string().min(1).describe('Video asset ID or relative path (e.g. "/stocks/promo/launch.mp4")'),
+    },
+    async ({ asset_id }) => {
+      const res = await api.get('/api/stream', { params: { id: asset_id } });
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
+
+  server.tool(
     'pipeline_ingest',
     'Scaffold a full zone from a single SVG upload. Creates logos, icons, favicon, and directory structure in a single atomic commit.',
     {

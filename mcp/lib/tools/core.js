@@ -3,6 +3,16 @@ import * as api from '../api-client.js';
 
 export function registerCoreTools(server) {
   server.tool(
+    'statistics_summary',
+    'Control-plane statistics: total zones, total files, total storage size, aggregate request volume, last sync timestamp. The control-plane counterpart to `insights_summary` (which is observability data); this answers "what does the account look like right now".',
+    {},
+    async () => {
+      const res = await api.get('/api/core/statistics', { auth: 'account' });
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
+
+  server.tool(
     'zone_list',
     'List all CDN zones (tenant namespaces) with file counts, storage usage, and categories.',
     {},

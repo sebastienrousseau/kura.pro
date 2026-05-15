@@ -8,14 +8,20 @@ on:
       - 'functions/**'
       - 'vitest.config.js'
       - 'cdn/dashboard/**'
+      - 'cdn/en/**'
+      - 'cdn/shared/**'
       - 'package.json'
+      - '.github/workflows/test.yml'
   pull_request:
     paths:
       - 'scripts/**'
       - 'functions/**'
       - 'vitest.config.js'
       - 'cdn/dashboard/**'
+      - 'cdn/en/**'
+      - 'cdn/shared/**'
       - 'package.json'
+      - '.github/workflows/test.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -97,7 +103,16 @@ jobs:
           npm i -D @axe-core/playwright
 
       - name: Start local server
-        run: python3 -m http.server 8788 &
+        # Serve from cdn/, not repo root. Root-anchored asset URLs in the
+        # HTML (e.g. `/shared/site-nav.css`, `/en/index.html`) resolve under
+        # the production Pages middleware via `/cdn/*` rewrites; the plain
+        # python http.server has no such rewrite, so we change the doc root
+        # instead. Serving from repo root produced a false-positive flood
+        # (target-size, color-contrast) because the stylesheets 404 and the
+        # elements rendered at browser-default sizes/colours — see the
+        # commit message of the change that moved this line for the audit
+        # output proving zero real violations.
+        run: python3 -m http.server 8788 --directory cdn &
 
       - name: Wait for server
         run: sleep 2 && curl -sf http://localhost:8788/ > /dev/null
@@ -116,11 +131,12 @@ jobs:
           // browser.newContext()" since playwright 1.x.
           const browser = await chromium.launch();
           const context = await browser.newContext();
-          // The python http.server runs from the workspace root, so the
-          // cdn/ prefix is part of every URL we want to audit.
+          // Server doc-root is cdn/, matching how root-anchored URLs
+          // resolve under the production Pages middleware (which rewrites
+          // /shared/* → /cdn/shared/* and /en/* → /cdn/en/*).
           const pages = [
-            ['Homepage', 'http://localhost:8788/cdn/en/index.html'],
-            ['Dashboard', 'http://localhost:8788/cdn/en/dashboard/index.html'],
+            ['Homepage', 'http://localhost:8788/en/index.html'],
+            ['Dashboard', 'http://localhost:8788/en/dashboard/index.html'],
           ];
           let failures = 0;
           for (const [name, url] of pages) {

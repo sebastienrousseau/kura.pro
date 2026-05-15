@@ -4,11 +4,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 const BRIDGE = '../../cdn/shared/scalar-theme.js';
 
 function installConfigScript(rawConfigJson) {
-  document.body.innerHTML = `
-    <script id="api-reference" data-url="openapi.json"
-            data-configuration='${rawConfigJson}'></script>
-  `;
-  return document.getElementById('api-reference');
+  // Build the node imperatively rather than via innerHTML interpolation.
+  // The previous template-literal form required the caller to escape any
+  // single quotes in the config payload before passing it in (and
+  // CodeQL js/incomplete-sanitization flagged the ad-hoc escape as
+  // incomplete because it didn't handle backslashes — see PR #60-ish).
+  // setAttribute handles encoding correctly for arbitrary input, so the
+  // caller no longer has to think about it.
+  document.body.innerHTML = '';
+  const tag = document.createElement('script');
+  tag.id = 'api-reference';
+  tag.setAttribute('data-url', 'openapi.json');
+  tag.setAttribute('data-configuration', rawConfigJson);
+  document.body.appendChild(tag);
+  return tag;
 }
 
 describe('scalar-theme.js', () => {
@@ -64,8 +73,7 @@ describe('scalar-theme.js', () => {
 
   it('swallows malformed JSON in data-configuration', async () => {
     document.documentElement.setAttribute('data-theme', 'light');
-    const broken = '{not: valid json,';
-    const tag = installConfigScript(broken.replace(/'/g, "\\'"));
+    const tag = installConfigScript('{not: valid json,');
     await import(BRIDGE);
     // Should not throw; attribute stays whatever the page had (Scalar
     // will surface the parse error itself).

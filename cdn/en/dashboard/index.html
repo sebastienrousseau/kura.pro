@@ -1,16 +1,21 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CloudCDN — Asset Manager</title>
   <meta name="description" content="Browse and manage static assets on the CloudCDN">
+  <meta name="theme-color" content="#08090d">
   <link rel="icon" href="/favicon.ico">
   <link rel="preload" href="/manifest.json" as="fetch" crossorigin="anonymous">
+  <script src="/shared/theme-boot.js"></script>
+  <link rel="stylesheet" href="/shared/vendor/skeletonic/skeletonic.min.css">
   <link rel="stylesheet" href="/shared/site-nav.css">
-  <script defer src="/shared/site-nav.js"></script>
+  <link rel="stylesheet" href="/shared/theme.css">
   <link rel="stylesheet" href="tailwind.css">
   <link rel="stylesheet" href="styles.css">
+  <script defer src="/shared/site-nav.js"></script>
+  <script defer src="/shared/theme-toggle.js"></script>
 </head>
 <body class="bg-surface text-gray-200 min-h-screen flex flex-col">
 
@@ -31,6 +36,15 @@
         </ul>
       </nav>
       <div class="nav-right">
+        <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="false" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
         <a href="/dashboard/logout" class="nav-cta">Logout</a>
       </div>
       <button

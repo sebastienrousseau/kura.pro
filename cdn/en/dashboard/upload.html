@@ -4,59 +4,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CloudCDN — Upload Pipeline</title>
+  <meta name="theme-color" content="#08090d">
   <link rel="icon" href="/favicon.ico">
+  <script src="/shared/theme-boot.js"></script>
+  <link rel="stylesheet" href="/shared/vendor/skeletonic/skeletonic.min.css">
   <link rel="stylesheet" href="/shared/site-nav.css">
+  <link rel="stylesheet" href="/shared/theme.css">
   <script defer src="/shared/site-nav.js"></script>
+  <script defer src="/shared/theme-toggle.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #08090d;
-      --card: #1a1d27;
-      --border: #2a2d3a;
-      --accent: #6366f1;
-      --accent-hover: #818cf8;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --success: #34d399;
-      --error: #f87171;
+      /* Upload-specific aliases that map onto theme.css tokens, so this
+         page picks up light/dark mode without duplicating the palette. */
+      --card: var(--surface-2);
+      --muted: var(--text-muted);
+      --success: var(--green);
+      --error: light-dark(#dc2626, #f87171);
       --radius: 10px;
     }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-height: 100vh; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
 
     /* Header */
-    .header { position: sticky; top: 0; z-index: 50; background: rgba(8,9,13,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .header { position: sticky; top: 0; z-index: 50; background: color-mix(in oklab, var(--bg) 95%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
     .header-inner { max-width: 720px; margin: 0 auto; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
     .header a { color: var(--muted); text-decoration: none; transition: color .2s; }
-    .header a:hover { color: #fff; }
-    .header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+    .header a:hover { color: var(--heading); }
+    .header h1 { font-size: 18px; font-weight: 700; color: var(--heading); }
     .header h1 span { color: var(--accent); }
     .back-link { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-left: auto; }
     .back-link svg { width: 16px; height: 16px; }
+
+    /* Subheader (breadcrumb) */
+    .subheader { background: var(--surface); border-bottom: 1px solid var(--border-subtle); padding: 0.75rem 1.5rem; }
+    .subheader-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; }
+    .subheader-back { color: var(--text-muted); text-decoration: none; font-size: 0.8125rem; display: inline-flex; align-items: center; gap: 0.375rem; }
+    .subheader-back:hover { color: var(--text); }
+    .subheader-sep { color: var(--text-dim); }
+    .subheader-title { color: var(--text); font-size: 0.8125rem; font-weight: 500; }
 
     /* Main */
     .main { max-width: 720px; margin: 0 auto; padding: 32px 20px; }
 
     /* Card */
     .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
-    .card h2 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 16px; }
+    .card h2 { font-size: 16px; font-weight: 600; color: var(--heading); margin-bottom: 16px; }
 
     /* Mode Toggle */
     .mode-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
     .mode-btn { flex: 1; padding: 12px 16px; background: var(--bg); border: 2px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 13px; cursor: pointer; transition: all .2s; text-align: left; }
     .mode-btn:hover { border-color: var(--accent); }
-    .mode-btn.active { border-color: var(--accent); color: #fff; background: rgba(99,102,241,.08); }
+    .mode-btn.active { border-color: var(--accent); color: var(--heading); background: var(--accent-soft); }
     .mode-btn strong { display: block; font-size: 14px; margin-bottom: 4px; }
 
     /* Form */
     label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
-    input[type="text"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; transition: border-color .2s; }
+    input[type="text"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--heading); font-size: 14px; outline: none; transition: border-color .2s; }
     input[type="text"]:focus { border-color: var(--accent); }
     .slug-preview { font-size: 12px; color: var(--accent); margin-top: 4px; min-height: 18px; font-family: monospace; }
     .field { margin-bottom: 16px; }
 
     /* Drop Zone */
     .dropzone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: all .2s; position: relative; }
-    .dropzone:hover, .dropzone.dragover { border-color: var(--accent); background: rgba(99,102,241,.04); }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--accent); background: var(--accent-soft); }
     .dropzone.has-file { border-color: var(--success); border-style: solid; }
     .dropzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
     .dropzone-icon { width: 48px; height: 48px; margin: 0 auto 12px; color: var(--muted); }
@@ -73,7 +83,7 @@
     .option { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; }
     .option input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
 
-    /* Submit */
+    /* Submit (stays white on accent — text on coloured surface). */
     .submit-btn { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; }
     .submit-btn:hover:not(:disabled) { background: var(--accent-hover); }
     .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
@@ -120,6 +130,15 @@
         </ul>
       </nav>
       <div class="nav-right">
+        <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="false" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
         <a href="/dashboard/logout" class="nav-cta">Logout</a>
       </div>
       <button
@@ -137,14 +156,14 @@
     </div>
   </header>
 
-  <div class="subheader" style="background:#0f1117; border-bottom:1px solid rgba(255,255,255,0.06); padding:0.75rem 1.5rem;">
-    <div style="max-width:1200px; margin:0 auto; display:flex; align-items:center; gap:1rem;">
-      <a href="/dashboard/" style="color:#8b8fa3; text-decoration:none; font-size:0.8125rem; display:inline-flex; align-items:center; gap:0.375rem;">
+  <div class="subheader">
+    <div class="subheader-inner">
+      <a href="/dashboard/" class="subheader-back">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         Back to Dashboard
       </a>
-      <span style="color:#5b5f73;">/</span>
-      <span style="color:#e2e4ea; font-size:0.8125rem; font-weight:500;">Upload Pipeline</span>
+      <span class="subheader-sep">/</span>
+      <span class="subheader-title">Upload Pipeline</span>
     </div>
   </div>
 

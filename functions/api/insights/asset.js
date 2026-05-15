@@ -14,7 +14,7 @@
  * Returns a daily breakdown for one path so dashboards can answer
  * "how is THIS asset performing", not just rolled-up totals.
  */
-import { authenticateAny, checkRateLimit, errorResponse, CORS_JSON } from '../_shared.js';
+import { authenticateAny, checkRateLimit, errorResponse, rateLimitHeaders, CORS_JSON } from '../_shared.js';
 
 function utcDateNDaysAgo(n) {
   const d = new Date();
@@ -116,7 +116,7 @@ export async function onRequestGet(context) {
     Errors: errorTotals,
     Daily: daily,
     DateFetched: new Date().toISOString(),
-  }), { headers: CORS_JSON });
+  }), { headers: { ...CORS_JSON, ...rateLimitHeaders(rl) } });
 }
 
 export async function onRequestOptions() {

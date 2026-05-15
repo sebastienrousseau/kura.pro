@@ -9,7 +9,7 @@
  * Auth: AccountKey header (env.ACCOUNT_KEY).
  */
 
-import { checkRateLimit, errorResponse } from '../_shared.js';
+import { checkRateLimit, errorResponse, rateLimitHeaders } from '../_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -118,7 +118,7 @@ export async function onRequestGet(context) {
     Daily: daily.reverse(),
     TopAssets: topAssets.map(([path, count]) => ({ Path: path, Requests: count })),
     GeoDistribution: geoSorted.map(([country, count]) => ({ CountryCode: country, Requests: count })),
-  }, null, 2), { headers: CORS });
+  }, null, 2), { headers: { ...CORS, ...rateLimitHeaders(rl) } });
 }
 
 export async function onRequestOptions() {

@@ -141,6 +141,11 @@ export async function onRequestGet(context) {
   // put-quota exhaustion) must not 5xx the caller — fail open and serve the
   // request rather than leaking an unhandled exception. See the same pattern
   // in _shared.js#checkRateLimitKv.
+  //
+  // rlHeaders is populated on successful counter increments and stays empty
+  // on the fail-open path; the success response below merges it in so
+  // clients can read remaining budget without tripping a 429.
+  let rlHeaders = {};
   if (env.RATE_KV) {
     try {
       const ip = request.headers.get("cf-connecting-ip") || "unknown";
@@ -149,6 +154,10 @@ export async function onRequestGet(context) {
         return legacyErrorJson(429, "Rate limit exceeded", { limit: 100, retryAfter: 60 });
       }
       await env.RATE_KV.put(`rl:analytics:${ip}`, String(count + 1), { expirationTtl: 60 });
+      rlHeaders = {
+        "X-RateLimit-Limit": "100",
+        "X-RateLimit-Remaining": String(Math.max(100 - count - 1, 0)),
+      };
     } catch { /* fail open */ }
   }
 
@@ -200,7 +209,7 @@ export async function onRequestGet(context) {
   }
 
   return new Response(JSON.stringify({ days, data: results }, null, 2), {
-    headers: CORS_HEADERS,
+    headers: { ...CORS_HEADERS, ...rlHeaders },
   });
 }
 

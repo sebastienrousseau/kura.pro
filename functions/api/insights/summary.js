@@ -2,7 +2,7 @@
  * Insights — Summary statistics.
  * GET /api/insights/summary?days=7&zone=akande
  */
-import { authenticateAny, formatBytes, checkRateLimit, errorResponse, CORS_JSON } from '../_shared.js';
+import { authenticateAny, formatBytes, checkRateLimit, errorResponse, rateLimitHeaders, CORS_JSON } from '../_shared.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -73,7 +73,7 @@ export async function onRequestGet(context) {
     CacheHitRate: cacheTotal > 0 ? ((totalCacheHit / cacheTotal) * 100).toFixed(1) + '%' : 'N/A',
     UniqueCountries: Object.keys(allGeo).length,
     DateFetched: new Date().toISOString(),
-  }), { headers: CORS_JSON });
+  }), { headers: { ...CORS_JSON, ...rateLimitHeaders(rl) } });
 }
 
 export async function onRequestOptions() {

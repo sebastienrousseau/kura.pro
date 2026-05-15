@@ -2,7 +2,7 @@
  * Insights — Top requested assets.
  * GET /api/insights/top-assets?days=7&limit=20
  */
-import { authenticateAny, checkRateLimit, errorResponse, CORS_JSON } from '../_shared.js';
+import { authenticateAny, checkRateLimit, errorResponse, rateLimitHeaders, CORS_JSON } from '../_shared.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -40,7 +40,7 @@ export async function onRequestGet(context) {
     Period: { Days: days },
     Assets: sorted.map(([path, count]) => ({ Path: path, Requests: count })),
     DateFetched: new Date().toISOString(),
-  }), { headers: CORS_JSON });
+  }), { headers: { ...CORS_JSON, ...rateLimitHeaders(rl) } });
 }
 
 export async function onRequestOptions() {

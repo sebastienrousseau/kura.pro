@@ -11,6 +11,13 @@
 import { trackRequest } from "./api/analytics.js";
 import { createTrace, recordMetric } from "./api/_shared.js";
 
+// Re-export the Durable Object class so Cloudflare Pages keeps it in the
+// Functions bundle. Without this re-export, the bundler tree-shakes the
+// class (it's referenced only via the `RATE_LIMITER` binding at runtime,
+// never imported by application code) and the deploy fails with a missing
+// class error against the `[[migrations]]` declaration in wrangler.toml.
+export { RateLimiterDO } from "./api/rate_limiter_do.js";
+
 // Pre-compiled extension check — faster than regex for hot path
 const ASSET_EXT = new Set(["webp", "avif", "jxl", "png", "svg", "ico", "mp4"]);
 

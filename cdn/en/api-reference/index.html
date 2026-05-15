@@ -9,8 +9,10 @@
   <link rel="stylesheet" href="/shared/site-nav.css">
   <script defer src="/shared/site-nav.js"></script>
 
-  <!-- Preload spec for instant render -->
-  <link rel="preload" href="openapi.json" as="fetch" crossorigin="anonymous">
+  <!-- Preload spec for instant render. Absolute path because the URL
+       bar lands on `/api-reference` (no trailing slash) and a relative
+       `openapi.json` would resolve to /openapi.json → 404. -->
+  <link rel="preload" href="/api-reference/openapi.json" as="fetch" crossorigin="anonymous">
 
   <style>
     body { margin: 0; background: #08090d; }
@@ -87,17 +89,20 @@
 
   <div class="api-subbar" role="region" aria-label="API client downloads">
     <span class="api-subbar-label">Client libraries:</span>
-    <a href="clients/javascript.js" class="pill" download>JavaScript</a>
-    <a href="clients/typescript.ts" class="pill" download>TypeScript</a>
-    <a href="clients/python.py" class="pill" download>Python</a>
-    <a href="clients/curl.sh" class="pill" download>cURL</a>
-    <a href="openapi.json" class="pill" download="cloudcdn-openapi.json">OpenAPI Spec</a>
+    <!-- Absolute paths because the URL bar lands on /api-reference (no
+         trailing slash), so a relative `clients/foo.js` would resolve
+         to /clients/foo.js — the wrong pillar. -->
+    <a href="/api-reference/clients/javascript.js" class="pill" download>JavaScript</a>
+    <a href="/api-reference/clients/typescript.ts" class="pill" download>TypeScript</a>
+    <a href="/api-reference/clients/python.py" class="pill" download>Python</a>
+    <a href="/api-reference/clients/curl.sh" class="pill" download>cURL</a>
+    <a href="/api-reference/openapi.json" class="pill" download="cloudcdn-openapi.json">OpenAPI Spec</a>
   </div>
 
   <main id="main">
     <script
       id="api-reference"
-      data-url="openapi.json"
+      data-url="/api-reference/openapi.json"
       data-configuration='{
         "theme": "saturn",
         "darkMode": true,

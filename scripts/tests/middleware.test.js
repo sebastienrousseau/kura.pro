@@ -171,11 +171,38 @@ describe('Middleware: onRequest', () => {
       expect(fetchedUrl).toContain('/cdn/sitemap.xml');
     });
 
-    it('rewrites /api-reference to /cdn/en/api-reference/index.html', async () => {
+    it('rewrites /api-reference to /cdn/en/api-reference/ (directory, not index.html)', async () => {
       const ctx = makeContext('/api-reference');
       await onRequest(ctx);
       const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
-      expect(fetchedUrl).toContain('/cdn/en/api-reference/index.html');
+      // Asking env.ASSETS for the directory avoids a 308 → /cdn/en/api-reference/
+      // bounce (which would then land on the strict-default CSP).
+      expect(fetchedUrl).toContain('/cdn/en/api-reference/');
+      expect(fetchedUrl).not.toContain('/index.html');
+    });
+
+    it('stamps the Scalar-permitting CSP on /api-reference responses', async () => {
+      const ctx = makeContext('/api-reference');
+      const res = await onRequest(ctx);
+      const csp = res.headers.get('Content-Security-Policy');
+      // Scalar bundle + its inline runtime injections must be reachable.
+      expect(csp).toContain("script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net");
+      expect(csp).toContain('style-src');
+      expect(csp).toContain('https://cdn.jsdelivr.net');
+      // Other strict defences must remain.
+      expect(csp).toContain("frame-ancestors 'none'");
+      expect(csp).toContain("object-src 'none'");
+      expect(csp).toContain('upgrade-insecure-requests');
+    });
+
+    it('does NOT relax CSP on other rewrites (homepage stays strict)', async () => {
+      const ctx = makeContext('/');
+      const res = await onRequest(ctx);
+      const csp = res.headers.get('Content-Security-Policy');
+      // Strict default: script-src is plain 'self', no jsdelivr / unsafe-inline.
+      expect(csp).toContain("script-src 'self';");
+      expect(csp).not.toContain('https://cdn.jsdelivr.net');
+      expect(csp).not.toContain("script-src 'self' 'unsafe-inline'");
     });
 
     it('rewrites /content/ to /cdn/en/content/', async () => {

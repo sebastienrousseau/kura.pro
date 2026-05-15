@@ -151,6 +151,57 @@ const SECURITY_HEADERS = {
     "object-src 'none'; upgrade-insecure-requests",
 };
 
+// CSP override for /api-reference. The page embeds Scalar's interactive
+// API explorer (`<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference">`),
+// which (a) loads its bundle from jsDelivr and (b) injects inline
+// scripts/styles at runtime for its Vue mount. The page is read-only docs
+// over a public OpenAPI spec — no attacker-controlled content rendered —
+// so we allow:
+//   - script-src ... 'unsafe-inline' cdn.jsdelivr.net  (Scalar bundle + runtime)
+//   - style-src  ... cdn.jsdelivr.net                  (Scalar's CSS bundle)
+//   - font-src   data: cdn.jsdelivr.net                (icon fonts)
+//   - img-src    data: https:                          (API endpoint icons)
+//   - connect-src cloudcdn.pro                         (Try-it fetches)
+//
+// Everything else (frame-ancestors, object-src, upgrade-insecure-requests,
+// base-uri, form-action) stays as strict as the public page CSP.
+// Scalar's runtime calls api.scalar.com (registry search) and fetches
+// source maps from cdn.jsdelivr.net; fonts come from various https
+// origins (Google Fonts, jsdelivr). font-src/connect-src widened to
+// `https:` so we don't have to track every CDN Scalar might add later —
+// the rest of the strict baseline (frame-ancestors, object-src,
+// upgrade-insecure-requests) still applies.
+const API_REFERENCE_CSP =
+  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
+  "font-src 'self' data: https:; " +
+  "img-src 'self' data: https:; " +
+  "connect-src 'self' https:; " +
+  "worker-src 'self' blob:; " +
+  "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
+  "object-src 'none'; upgrade-insecure-requests";
+
+/**
+ * Stamp the relaxed API-Reference CSP onto a response. Called from the
+ * `/api-reference` rewrite branch *before* the response goes through
+ * applyResponseEnvelope, which only sets CSP when not already present.
+ */
+function withApiReferenceCsp(response) {
+  const headers = new Headers(response.headers);
+  // Headers.set replaces a single named value, but if the upstream
+  // response somehow already carries a CSP (Cloudflare Pages can stamp
+  // one from a matching _headers rule before the worker sees it),
+  // the iterator-based Headers copy can carry two entries. Drop any
+  // pre-existing CSP first so the override is the only one on the wire.
+  headers.delete("Content-Security-Policy");
+  headers.set("Content-Security-Policy", API_REFERENCE_CSP);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 function applyResponseEnvelope(response, trace) {
   // Don't touch redirects or responses with no body — they don't need it
   // and mutating headers on Response.redirect() is awkward.
@@ -263,8 +314,14 @@ async function routeRequest(context) {
   if (path === "/robots.txt" || path === "/sitemap.xml") {
     return rewriteFetch(env, request, rawUrl, pathStart, "/cdn" + path);
   }
-  if (path === "/api-reference") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/api-reference/index.html");
+  if (path === "/api-reference" || path === "/api-reference/") {
+    // Use the directory path (not /index.html) so env.ASSETS serves the
+    // index directly instead of 308-redirecting to add a trailing slash.
+    // Both / and no-/ forms get the same override so Scalar boots either
+    // way (and the LOCALIZED_PREFIXES rule below catches deeper paths
+    // like /api-reference/openapi.json or /api-reference/clients/*).
+    const res = await rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/api-reference/");
+    return withApiReferenceCsp(res);
   }
   // Bare paths without trailing slash — redirect so they hit the Functions middleware
   if (path === "/dist" || path === "/dashboard") {

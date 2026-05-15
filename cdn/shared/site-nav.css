@@ -102,7 +102,10 @@
   font-size: 0.9375rem;
   letter-spacing: -0.01em;
 }
-.site-nav .nav-brand-text .accent { color: var(--accent); }
+/* --accent-text has a WCAG-AA passing contrast against both bg tones;
+   --accent itself is the brand fill colour and sits just under 4.5:1 on
+   our standard backgrounds when used as text. */
+.site-nav .nav-brand-text .accent { color: var(--accent-text); }
 
 /* The <nav> element is the middle flex child of .nav-inner. Giving it
    flex:1 lets it occupy all remaining horizontal space between the brand
@@ -163,7 +166,11 @@
   flex-shrink: 0;
 }
 .site-nav .nav-cta {
-  background: var(--accent);
+  /* The brand --accent (#6366f1) hits 4.46:1 against white — just under
+     WCAG-AA 4.5:1 for normal text. Use a slightly darker indigo for the
+     CTA fill (same hue family, passes contrast). Hover restores the
+     brand fill for affordance. */
+  background: #4f46e5;
   color: #fff !important;
   border-radius: 6rem;
   padding: 0.5rem 1.125rem;
@@ -176,7 +183,7 @@
   align-items: center;
 }
 .site-nav .nav-cta:hover {
-  background: var(--accent-hover);
+  background: var(--accent);
 }
 .site-nav .nav-cta:focus-visible {
   outline: 2px solid var(--accent-text);

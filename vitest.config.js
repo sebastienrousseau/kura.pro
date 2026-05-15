@@ -47,6 +47,7 @@ export default defineConfig({
         'cdn/en/dist/stratos/stratos.mjs',
         'cdn/shared/theme-boot.js',
         'cdn/shared/theme-toggle.js',
+        'cdn/shared/scalar-theme.js',
         'scripts/build-skeletonic.mjs',
       ],
       all: false,

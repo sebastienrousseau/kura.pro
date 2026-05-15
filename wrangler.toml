@@ -40,36 +40,29 @@ id = "e5688bf85dff4b16988c4a3853bb7171"
 # when it's absent. The KV path is sufficient for current traffic; the DO is
 # the upgrade for when atomic bursts or KV daily-put quota become real.
 #
-# ── IMPORTANT: Pages cannot host the DO class itself ──
+# ── Activation (Pages cannot host the DO class itself) ──
 #
-# This is a Pages project. Cloudflare Pages Functions can only *bind* to a
-# Durable Object that lives in a separate, standalone Workers project — the
-# `[[migrations]]` directive that provisions a DO namespace is Workers-only
-# and Pages git-integration deploys ignore it. The `RateLimiterDO` class in
-# functions/api/rate_limiter_do.js is currently kept here as a reference
-# implementation; activation requires:
+# Cloudflare Pages Functions can only *bind* to a Durable Object that lives
+# in a standalone Workers project — `[[migrations]]` is Workers-only and the
+# Pages git-integration deploy silently ignores it. The standalone Worker is
+# scaffolded at workers/rate-limiter/ in this repo:
 #
-#   1. Create a new standalone Worker (e.g. `cloudcdn-rate-limiter`) whose
-#      entry exports `RateLimiterDO` and whose own wrangler.toml contains:
-#        [[durable_objects.bindings]]
-#        name        = "RATE_LIMITER"
-#        class_name  = "RateLimiterDO"
-#        [[migrations]]
-#        tag         = "v1"
-#        new_classes = ["RateLimiterDO"]
-#      Then `wrangler deploy` it once. That run provisions the DO namespace.
+#   1. cd workers/rate-limiter && npx wrangler deploy
+#      (one-time — provisions the DO namespace via the `v1` migration)
 #
-#   2. Bind that Worker's DO from this Pages project by adding the stanza
-#      below with `script_name` pointing at the Worker — Pages reads this on
-#      every deploy:
-#        [[durable_objects.bindings]]
-#        name        = "RATE_LIMITER"
-#        class_name  = "RateLimiterDO"
-#        script_name = "cloudcdn-rate-limiter"
+#   2. Uncomment the stanza below. The `script_name` is what makes the
+#      binding cross-script — without it, Pages would look for the class
+#      in its own Functions bundle, which (per the lesson from #44) won't
+#      work.
 #
-#   3. No code change needed on the Pages side — checkRateLimit() picks up
-#      the binding automatically. Roll back is symmetric: remove the
-#      [[durable_objects.bindings]] stanza here and traffic returns to KV.
+#   3. Commit + push. checkRateLimit() in functions/api/_shared.js picks
+#      up `env.RATE_LIMITER` automatically and switches over with zero
+#      code changes; rollback is symmetric (re-comment the stanza).
+#
+# [[durable_objects.bindings]]
+# name        = "RATE_LIMITER"
+# class_name  = "RateLimiterDO"
+# script_name = "cloudcdn-rate-limiter"
 
 # Workers Analytics Engine — high-cardinality, low-cost per-request metrics
 # (request count, latency, status, AI neuron spend, cache hit rate). When the

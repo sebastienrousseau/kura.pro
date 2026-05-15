@@ -89,11 +89,14 @@
 
   <div class="api-subbar" role="region" aria-label="API client downloads">
     <span class="api-subbar-label">Client libraries:</span>
-    <a href="clients/javascript.js" class="pill" download>JavaScript</a>
-    <a href="clients/typescript.ts" class="pill" download>TypeScript</a>
-    <a href="clients/python.py" class="pill" download>Python</a>
-    <a href="clients/curl.sh" class="pill" download>cURL</a>
-    <a href="openapi.json" class="pill" download="cloudcdn-openapi.json">OpenAPI Spec</a>
+    <!-- Absolute paths because the URL bar lands on /api-reference (no
+         trailing slash), so a relative `clients/foo.js` would resolve
+         to /clients/foo.js — the wrong pillar. -->
+    <a href="/api-reference/clients/javascript.js" class="pill" download>JavaScript</a>
+    <a href="/api-reference/clients/typescript.ts" class="pill" download>TypeScript</a>
+    <a href="/api-reference/clients/python.py" class="pill" download>Python</a>
+    <a href="/api-reference/clients/curl.sh" class="pill" download>cURL</a>
+    <a href="/api-reference/openapi.json" class="pill" download="cloudcdn-openapi.json">OpenAPI Spec</a>
   </div>
 
   <main id="main">

@@ -17,7 +17,7 @@ const CORS = {
 
 function authenticate(request, env) {
   const key = request.headers.get('AccountKey');
-  if (!env.ACCOUNT_KEY) return true;
+  if (!env.ACCOUNT_KEY) return env.STRICT_AUTH !== '1' && env.STRICT_AUTH !== 'true';
   return key === env.ACCOUNT_KEY;
 }
 

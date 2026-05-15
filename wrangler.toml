@@ -1,6 +1,22 @@
 name = "cloudcdn-pro"
 pages_build_output_dir = "."
 
+# Vars baked into the deploy. Distinct from `wrangler pages secret put`
+# (which stores actual secrets in Cloudflare's encrypted store).
+#
+# STRICT_AUTH=1 turns on fail-closed authentication. With it set, any
+# /api/* request that lands without the required key (ACCOUNT_KEY,
+# STORAGE_KEY, DASHBOARD_PASSWORD) returns 401 — even if those secrets
+# happen to be unset in the environment. Without STRICT_AUTH the
+# helpers fail OPEN when no key is configured, which is convenient for
+# local `wrangler pages dev` but unacceptable in production.
+#
+# Local dev: leave STRICT_AUTH unset to skip the gate.
+# Production: this toggle alone gives a hard backstop if a secret is
+# ever accidentally cleared from the Pages dashboard.
+[vars]
+STRICT_AUTH = "1"
+
 # Smart Placement co-locates the worker with the data it talks to most
 # (KV reads, AI calls). Reduces tail latency on cold PoPs by 30-50ms.
 [placement]

@@ -76,7 +76,9 @@ Three distinct keys with deliberately disjoint scopes:
 | **AccessKey** | `AccessKey: sk_live_…` | Data plane — Storage CRUD, Assets read, Insights read | Day-to-day asset operations without admin power |
 | **PurgeKey** | `x-api-key: pk_live_…` | Cache invalidation only | Limits blast radius if leaked — purging is reversible (re-cache), domain mutation is not |
 
-All three are validated via **constant-time HMAC** (XOR-based comparison) — timing attacks against the secret are mitigated regardless of where the comparison sits in the request pipeline. Authentication is **fail-closed**: when a required secret is unset in the environment, the endpoint returns 401, never 200.
+All three are validated via **constant-time HMAC** (XOR-based comparison) — timing attacks against the secret are mitigated regardless of where the comparison sits in the request pipeline.
+
+Authentication is **fail-closed in production**. The deployment bakes `STRICT_AUTH=1` into `wrangler.toml`'s `[vars]` block, which flips a guard inside every auth helper: when a required secret (`ACCOUNT_KEY`, `STORAGE_KEY`, `DASHBOARD_PASSWORD`) is unset, the endpoint returns 401 instead of allowing the request through. Without `STRICT_AUTH` the helpers fail-open when no key is configured — the dev-mode convenience that local `wrangler pages dev` and the test suite rely on. The `STRICT_AUTH=1` baked into deploy is a defence-in-depth backstop: even if a secret is accidentally cleared in the Pages dashboard, the request still fails closed.
 
 **Scoped API tokens** (`/api/tokens`) extend the AccessKey/AccountKey model with per-scope minting. Tokens are SHA-256 hashed at rest; the plaintext is returned **once** in the create response. Token lookups are O(1) — the request header carries the full token, we compare its SHA-256 against the stored hash. Eight-character prefixes are kept in the list-output for human identification (`sk_token_abcd1234…`).
 

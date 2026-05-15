@@ -65,15 +65,24 @@ class_name  = "RateLimiterDO"
 script_name = "cloudcdn-rate-limiter"
 
 # Workers Analytics Engine — high-cardinality, low-cost per-request metrics
-# (request count, latency, status, AI neuron spend, cache hit rate).
-# recordMetric() in _shared.js dispatches when the binding is present and is
-# a no-op when it's absent, so local dev and tests need no changes.
+# (request count, latency, status, AI neuron spend, cache hit rate). When the
+# binding is bound, recordMetric() in _shared.js will dispatch; when it's
+# absent the call is a no-op so local dev and tests need no changes.
 #
-# The dataset itself is provisioned automatically on first deploy — no
-# migration step. Query with the WAE SQL API; see docs/observability.md.
-[[analytics_engine_datasets]]
-binding = "METRICS"
-dataset = "cloudcdn_metrics"
+# To activate:
+#   1. Enable Workers Analytics Engine on the account first — it's an
+#      account-level opt-in, NOT per-project. Visit
+#      https://dash.cloudflare.com/<account-id>/workers/analytics-engine
+#      and click "Enable". Without this, the deploy fails with
+#      `You need to enable Analytics Engine` (lesson from PR #51, which
+#      was reverted in #52).
+#   2. Uncomment the binding below. The dataset is provisioned on the
+#      next deploy — no migration step.
+#   3. Query with the WAE SQL API; see docs/observability.md.
+#
+# [[analytics_engine_datasets]]
+# binding = "METRICS"
+# dataset = "cloudcdn_metrics"
 
 # Cloudflare Queues — webhook delivery with retries + DLQ.
 # dispatchWebhook() in functions/api/webhooks.js auto-detects this binding

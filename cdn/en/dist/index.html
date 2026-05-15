@@ -5,23 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CloudCDN — Software Distribution</title>
   <meta name="description" content="Download CLI tools and binaries distributed via CloudCDN's global edge network.">
+  <meta name="theme-color" content="#08090d">
   <link rel="icon" href="/favicon.ico">
+  <script src="/shared/theme-boot.js"></script>
+  <link rel="stylesheet" href="/shared/vendor/skeletonic/skeletonic.min.css">
   <link rel="stylesheet" href="/shared/site-nav.css">
+  <link rel="stylesheet" href="/shared/theme.css">
   <script defer src="/shared/site-nav.js"></script>
+  <script defer src="/shared/theme-toggle.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg: #08090d; --surface: #0f1117; --surface-2: #1a1d27;
-      --border: #2a2d3a; --text: #e2e4ea; --text-muted: #8b8fa3; --text-dim: #5b5f73;
-      --accent: #6366f1; --accent-hover: #818cf8; --accent-text: #a5b4fc;
-      --green: #4ade80; --green-soft: rgba(34,197,94,0.1); --green-border: rgba(34,197,94,0.2);
-      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      /* dist page-specific aliases — palette lives in theme.css */
+      --mono: var(--font-mono);
     }
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
 
     .container { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
-    h2 { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.5rem; font-weight: 700; color: var(--heading); margin-bottom: 0.5rem; }
     .subtitle { color: var(--text-muted); margin-bottom: 2rem; }
 
     /* OS Detection Banner */
@@ -37,7 +38,7 @@
     }
     .os-icon { font-size: 2rem; }
     .os-banner .detected { font-size: 0.875rem; color: var(--text-muted); }
-    .os-banner .detected strong { color: #fff; }
+    .os-banner .detected strong { color: var(--heading); }
 
     /* Package cards */
     .packages { display: grid; gap: 1rem; }
@@ -51,7 +52,7 @@
     .pkg:hover { border-color: var(--accent); }
     .pkg.recommended { border-color: var(--green-border); background: linear-gradient(135deg, var(--surface), var(--green-soft)); }
     .pkg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-    .pkg-name { font-weight: 600; color: #fff; }
+    .pkg-name { font-weight: 600; color: var(--heading); }
     .pkg-badge {
       font-size: 0.6875rem;
       padding: 2px 8px;
@@ -64,7 +65,7 @@
 
     /* Install command */
     .install-cmd {
-      background: rgba(0,0,0,0.4);
+      background: var(--code-block-bg);
       border: 1px solid var(--border);
       border-radius: 0.5rem;
       padding: 0.75rem 1rem;
@@ -112,7 +113,7 @@
       margin-top: 0.75rem;
     }
     .file-item {
-      background: rgba(0,0,0,0.2);
+      background: var(--code-bg);
       border: 1px solid var(--border);
       border-radius: 0.5rem;
       padding: 0.5rem 0.75rem;
@@ -158,6 +159,15 @@
         </ul>
       </nav>
       <div class="nav-right">
+        <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="false" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
         <a href="/dashboard/login" id="auth-link" class="nav-cta" data-logout-label="Logout">Login</a>
       </div>
       <button

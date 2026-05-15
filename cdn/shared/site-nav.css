@@ -13,6 +13,8 @@
  *   • Mobile-first: hamburger menu on narrow viewports with full-width
  *     dropdown, focus trap, escape-to-close
  *   • RTL support via logical properties (inline-start/end)
+ *   • Theme-aware via shared theme.css tokens. light-dark() resolves
+ *     against the [data-theme] attribute set by theme-boot.js.
  *   • No external framework required — drop-in <link> + <script>
  */
 
@@ -34,18 +36,18 @@
   inset-inline-start: -10000px;
   top: 0;
   z-index: 1100;
-  background: #6366f1;
+  background: var(--accent);
   color: #fff;
   padding: 0.75rem 1.25rem;
   border-radius: 0 0 0.5rem 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font);
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
 }
 .skip-link:focus {
   inset-inline-start: 0;
-  outline: 2px solid #a5b4fc;
+  outline: 2px solid var(--accent-text);
   outline-offset: 2px;
 }
 
@@ -53,12 +55,12 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(8, 9, 13, 0.92);
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-subtle);
   width: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -85,7 +87,7 @@
   padding-inline-end: 0.25rem;
 }
 .site-nav .nav-brand:focus-visible {
-  outline: 2px solid #a5b4fc;
+  outline: 2px solid var(--accent-text);
   outline-offset: 4px;
   border-radius: 0.25rem;
 }
@@ -95,12 +97,12 @@
   display: block;
 }
 .site-nav .nav-brand-text {
-  color: #fff;
+  color: var(--heading);
   font-weight: 700;
   font-size: 0.9375rem;
   letter-spacing: -0.01em;
 }
-.site-nav .nav-brand-text .accent { color: #6366f1; }
+.site-nav .nav-brand-text .accent { color: var(--accent); }
 
 /* The <nav> element is the middle flex child of .nav-inner. Giving it
    flex:1 lets it occupy all remaining horizontal space between the brand
@@ -128,7 +130,7 @@
 .site-nav .nav-center a {
   display: inline-flex;
   align-items: center;
-  color: #9ca0b5;
+  color: var(--text-muted);
   font-size: 0.8125rem;
   font-weight: 500;
   text-decoration: none;
@@ -139,18 +141,18 @@
   transition: color 0.15s, background 0.15s;
 }
 .site-nav .nav-center a:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--heading);
+  background: var(--hover-soft);
 }
 .site-nav .nav-center a:focus-visible {
-  outline: 2px solid #a5b4fc;
+  outline: 2px solid var(--accent-text);
   outline-offset: 2px;
-  color: #fff;
+  color: var(--heading);
 }
 .site-nav .nav-center a[aria-current="page"] {
-  color: #fff;
-  background: rgba(99, 102, 241, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.3);
+  color: var(--heading);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 
 /* Right side — CTA button */
@@ -161,7 +163,7 @@
   flex-shrink: 0;
 }
 .site-nav .nav-cta {
-  background: #6366f1;
+  background: var(--accent);
   color: #fff !important;
   border-radius: 6rem;
   padding: 0.5rem 1.125rem;
@@ -174,10 +176,10 @@
   align-items: center;
 }
 .site-nav .nav-cta:hover {
-  background: #818cf8;
+  background: var(--accent-hover);
 }
 .site-nav .nav-cta:focus-visible {
-  outline: 2px solid #a5b4fc;
+  outline: 2px solid var(--accent-text);
   outline-offset: 3px;
 }
 .site-nav .nav-cta:active { transform: translateY(1px); }
@@ -186,8 +188,8 @@
 .site-nav .nav-hamburger {
   display: none;
   background: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e2e4ea;
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
   padding: 0.5rem;
   cursor: pointer;
   margin-inline-start: auto;
@@ -199,11 +201,11 @@
   transition: background 0.15s, border-color 0.15s;
 }
 .site-nav .nav-hamburger:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--hover-soft);
+  border-color: var(--border);
 }
 .site-nav .nav-hamburger:focus-visible {
-  outline: 2px solid #a5b4fc;
+  outline: 2px solid var(--accent-text);
   outline-offset: 2px;
 }
 .site-nav .nav-hamburger svg {
@@ -225,12 +227,12 @@
     position: absolute;
     top: 100%;
     inset-inline: 0;
-    background: #0f1117;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-subtle);
     padding: 0.5rem;
     gap: 0.25rem;
     margin: 0;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-md);
   }
   .site-nav.open .nav-center a {
     width: 100%;
@@ -244,9 +246,9 @@
     position: absolute;
     top: calc(100% + 17rem);
     inset-inline: 0;
-    background: #0f1117;
+    background: var(--surface);
     padding: 0 1rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--border-subtle);
   }
   .site-nav.open .nav-right .nav-cta {
     width: 100%;
@@ -268,9 +270,9 @@
 /* High contrast — thicker borders */
 @media (prefers-contrast: more) {
   .site-nav {
-    border-bottom-color: rgba(255, 255, 255, 0.25);
+    border-bottom-color: var(--border);
   }
   .site-nav .nav-center a[aria-current="page"] {
-    box-shadow: inset 0 0 0 2px #a5b4fc;
+    box-shadow: inset 0 0 0 2px var(--accent-text);
   }
 }

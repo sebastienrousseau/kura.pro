@@ -45,8 +45,73 @@
   --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
 }
 
-[data-theme="light"] { color-scheme: light; }
-[data-theme="dark"]  { color-scheme: dark;  }
+/*
+ * Explicit [data-theme] overrides. We re-declare every token so the
+ * value is *absolute* and does not depend on color-scheme inheritance
+ * — third-party embeds (e.g. Scalar's API reference) override
+ * `color-scheme` on their root element, which would otherwise flip
+ * `light-dark()` for everything nested under them. Setting the tokens
+ * directly here insulates our nav / subbar / shared chrome.
+ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:            #f7f8fb;
+  --surface:       #ffffff;
+  --surface-2:     #f0f2f7;
+  --border:        rgba(99,102,241,0.18);
+  --border-subtle: rgba(0,0,0,0.08);
+
+  --text:       #1a1d27;
+  --text-muted: #5b5f73;
+  --text-dim:   #8b8fa3;
+  --heading:    #0a0c12;
+
+  --accent-hover: #4f46e5;
+  --accent-soft:  rgba(99,102,241,0.08);
+  --accent-text:  #4338ca;
+
+  --green:        #16a34a;
+  --green-soft:   rgba(22,163,74,0.10);
+  --green-border: rgba(22,163,74,0.30);
+
+  --hover-soft:    rgba(0,0,0,0.04);
+  --hover-soft-2:  rgba(0,0,0,0.06);
+  --code-bg:       rgba(0,0,0,0.05);
+  --code-block-bg: rgba(0,0,0,0.06);
+  --shadow-lg:     0 8px 48px rgba(0,0,0,0.10);
+  --shadow-md:     0 16px 48px rgba(0,0,0,0.10);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:            #08090d;
+  --surface:       #0f1117;
+  --surface-2:     #1a1d27;
+  --border:        rgba(99,102,241,0.15);
+  --border-subtle: rgba(255,255,255,0.06);
+
+  --text:       #e2e4ea;
+  --text-muted: #8b8fa3;
+  --text-dim:   #5b5f73;
+  --heading:    #ffffff;
+
+  --accent-hover: #818cf8;
+  --accent-soft:  rgba(99,102,241,0.10);
+  --accent-text:  #a5b4fc;
+
+  --green:        #4ade80;
+  --green-soft:   rgba(34,197,94,0.10);
+  --green-border: rgba(34,197,94,0.20);
+
+  --hover-soft:    rgba(255,255,255,0.04);
+  --hover-soft-2:  rgba(255,255,255,0.06);
+  --code-bg:       rgba(0,0,0,0.30);
+  --code-block-bg: rgba(0,0,0,0.40);
+  --shadow-lg:     0 8px 48px rgba(0,0,0,0.50);
+  --shadow-md:     0 16px 48px rgba(0,0,0,0.50);
+}
 
 /* Theme toggle button — minimal, fits the existing nav pattern */
 .theme-toggle {

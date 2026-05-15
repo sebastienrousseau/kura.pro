@@ -45,6 +45,9 @@ export default defineConfig({
         'functions/_middleware.js',
         'functions/api/_shared.js',
         'cdn/en/dist/stratos/stratos.mjs',
+        'cdn/shared/theme-boot.js',
+        'cdn/shared/theme-toggle.js',
+        'scripts/build-skeletonic.mjs',
       ],
       all: false,
       thresholds: {

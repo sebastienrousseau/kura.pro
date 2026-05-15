@@ -196,6 +196,26 @@ describe('Dashboard Auth Middleware', () => {
       expect(ctx.env.ASSETS.fetch).toHaveBeenCalled();
       expect(res.status).toBe(200);
     });
+
+    it('rewrites /dashboard/ to /cdn/en/dashboard/ — directory, not /index.html', async () => {
+      // Asking env.ASSETS for /cdn/en/dashboard/index.html triggers a
+      // 308 → /cdn/en/dashboard/ that loops back through the public
+      // middleware's /cdn/<locale>/... canonicalisation. Keep the
+      // trailing slash so the asset binding serves the index directly.
+      const secret = 'secret123';
+      const futureExpiry = Math.floor(Date.now() / 1000) + 3600;
+      const cookie = await makeSessionCookie(secret, futureExpiry);
+
+      const ctx = makeContext({
+        pathname: '/dashboard/',
+        cookie,
+        env: { DASHBOARD_PASSWORD: secret },
+      });
+      await onRequest(ctx);
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
+      expect(fetchedUrl).toContain('/cdn/en/dashboard/');
+      expect(fetchedUrl).not.toContain('/index.html');
+    });
   });
 
   describe('session cookie — expired', () => {

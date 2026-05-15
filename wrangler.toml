@@ -79,28 +79,20 @@ binding = "METRICS"
 dataset = "cloudcdn_metrics"
 
 # Cloudflare Queues — webhook delivery with retries + DLQ.
-# dispatchWebhook() in functions/api/webhooks.js auto-detects this binding
-# and falls back to direct fire-and-forget when absent.
 #
-# The standalone consumer Worker that processes the queue lives at
-# workers/webhook-consumer/ (Pages cannot run queue consumers — only
-# Workers can).
+# The producer binding below makes env.WEBHOOK_QUEUE available to the
+# Pages worker. dispatchWebhook() in functions/api/webhooks.js auto-
+# detects the binding and switches from fire-and-forget to enqueue.
 #
-# Activation:
-#   1. Create the queues (Workers Paid plan; free-tier eligible up to 1M
-#      ops/month):
-#        npx wrangler queues create cloudcdn-webhooks
-#        npx wrangler queues create cloudcdn-webhooks-dlq
-#   2. Deploy the consumer:
-#        cd workers/webhook-consumer && npx wrangler deploy
-#   3. Uncomment the producer stanza below and push. After the Pages
-#      redeploy, dispatchWebhook() switches from fire-and-forget to
-#      enqueue automatically; checkRateLimit-style auto-detection means
-#      no application-code change is needed.
+# The standalone consumer that drains the queue is `cloudcdn-webhook-
+# consumer`, deployed from workers/webhook-consumer/ (Pages cannot run
+# queue consumers — only Workers can). Both queues were provisioned in
+# May 2026: `cloudcdn-webhooks` for the producer + main consumer path,
+# `cloudcdn-webhooks-dlq` for messages that exhaust retries.
 #
-# Rollback: re-comment the stanza. The consumer Worker can stay deployed
-# (idle queues cost nothing).
-#
-# [[queues.producers]]
-# binding    = "WEBHOOK_QUEUE"
-# queue      = "cloudcdn-webhooks"
+# Rollback: re-comment the stanza. dispatchWebhook() reverts to its
+# inline fire-and-forget path; the consumer Worker stays deployed and
+# the queues stay provisioned (idle queues cost nothing).
+[[queues.producers]]
+binding    = "WEBHOOK_QUEUE"
+queue      = "cloudcdn-webhooks"

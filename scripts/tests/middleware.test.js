@@ -178,6 +178,30 @@ describe('Middleware: onRequest', () => {
       expect(fetchedUrl).toContain('/cdn/en/api-reference/index.html');
     });
 
+    it('stamps the Scalar-permitting CSP on /api-reference responses', async () => {
+      const ctx = makeContext('/api-reference');
+      const res = await onRequest(ctx);
+      const csp = res.headers.get('Content-Security-Policy');
+      // Scalar bundle + its inline runtime injections must be reachable.
+      expect(csp).toContain("script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net");
+      expect(csp).toContain('style-src');
+      expect(csp).toContain('https://cdn.jsdelivr.net');
+      // Other strict defences must remain.
+      expect(csp).toContain("frame-ancestors 'none'");
+      expect(csp).toContain("object-src 'none'");
+      expect(csp).toContain('upgrade-insecure-requests');
+    });
+
+    it('does NOT relax CSP on other rewrites (homepage stays strict)', async () => {
+      const ctx = makeContext('/');
+      const res = await onRequest(ctx);
+      const csp = res.headers.get('Content-Security-Policy');
+      // Strict default: script-src is plain 'self', no jsdelivr / unsafe-inline.
+      expect(csp).toContain("script-src 'self';");
+      expect(csp).not.toContain('https://cdn.jsdelivr.net');
+      expect(csp).not.toContain("script-src 'self' 'unsafe-inline'");
+    });
+
     it('rewrites /content/ to /cdn/en/content/', async () => {
       const ctx = makeContext('/content/docs/guide.html');
       await onRequest(ctx);

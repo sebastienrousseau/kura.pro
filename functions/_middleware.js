@@ -151,6 +151,45 @@ const SECURITY_HEADERS = {
     "object-src 'none'; upgrade-insecure-requests",
 };
 
+// CSP override for /api-reference. The page embeds Scalar's interactive
+// API explorer (`<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference">`),
+// which (a) loads its bundle from jsDelivr and (b) injects inline
+// scripts/styles at runtime for its Vue mount. The page is read-only docs
+// over a public OpenAPI spec — no attacker-controlled content rendered —
+// so we allow:
+//   - script-src ... 'unsafe-inline' cdn.jsdelivr.net  (Scalar bundle + runtime)
+//   - style-src  ... cdn.jsdelivr.net                  (Scalar's CSS bundle)
+//   - font-src   data: cdn.jsdelivr.net                (icon fonts)
+//   - img-src    data: https:                          (API endpoint icons)
+//   - connect-src cloudcdn.pro                         (Try-it fetches)
+//
+// Everything else (frame-ancestors, object-src, upgrade-insecure-requests,
+// base-uri, form-action) stays as strict as the public page CSP.
+const API_REFERENCE_CSP =
+  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+  "font-src 'self' data: https://cdn.jsdelivr.net; " +
+  "img-src 'self' data: https:; " +
+  "connect-src 'self' https://cloudcdn.pro; " +
+  "worker-src 'self' blob:; " +
+  "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
+  "object-src 'none'; upgrade-insecure-requests";
+
+/**
+ * Stamp the relaxed API-Reference CSP onto a response. Called from the
+ * `/api-reference` rewrite branch *before* the response goes through
+ * applyResponseEnvelope, which only sets CSP when not already present.
+ */
+function withApiReferenceCsp(response) {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Security-Policy", API_REFERENCE_CSP);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 function applyResponseEnvelope(response, trace) {
   // Don't touch redirects or responses with no body — they don't need it
   // and mutating headers on Response.redirect() is awkward.
@@ -264,7 +303,8 @@ async function routeRequest(context) {
     return rewriteFetch(env, request, rawUrl, pathStart, "/cdn" + path);
   }
   if (path === "/api-reference") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/api-reference/index.html");
+    const res = await rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/api-reference/index.html");
+    return withApiReferenceCsp(res);
   }
   // Bare paths without trailing slash — redirect so they hit the Functions middleware
   if (path === "/dist" || path === "/dashboard") {

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "CloudCDN API",
-    "description": "# CloudCDN API\n\nEnterprise-grade asset delivery on Cloudflare's global edge network. 300+ PoPs, sub-100ms TTFB, 1,400+ assets across 54 tenant zones.\n\n## Quickstart\n\n```bash\n# List all assets\ncurl -H 'AccessKey: YOUR_KEY' https://cloudcdn.pro/api/assets\n\n# Upload a file\ncurl -X PUT -H 'AccessKey: YOUR_KEY' \\\n  -T logo.svg \\\n  https://cloudcdn.pro/api/storage/clients/myproject/v1/logos/logo.svg\n\n# Transform an image\ncurl 'https://cloudcdn.pro/api/transform?url=/myproject/v1/logos/logo.svg&w=400&format=webp'\n```\n\n## Authentication\n\nCloudCDN uses two separate API keys to isolate data-plane and control-plane access:\n\n| Key | Header | Scope |\n|-----|--------|-------|\n| **AccessKey** | `AccessKey` | Storage, Assets \u2014 upload, download, browse |\n| **AccountKey** | `AccountKey` | Core, Insights \u2014 zones, domains, rules, analytics |\n\nPass the key in the request header:\n\n```bash\ncurl -H 'AccessKey: sk_live_abc123' https://cloudcdn.pro/api/assets\n```\n\nPublic endpoints (Transform, Auto-format, Search, Chat) require no authentication.\n\n## Base URL\n\n| Environment | URL |\n|-------------|-----|\n| Production | `https://cloudcdn.pro` |\n| Local Dev | `http://localhost:8788` |\n\n## Client Libraries\n\nPre-built client libraries for every endpoint. Copy-paste ready.\n\n### JavaScript (ES Module)\n\n```javascript\nimport { listAssets, storageUpload, transformImage } from './clients/javascript.js';\n\n// List all SVG assets\nconst result = await listAssets({ format: 'svg', per_page: 50 });\nconsole.log(result.Data);\n\n// Upload a file\nawait storageUpload('clients/myproject/v1/logos/logo.svg', fileBuffer);\n\n// Transform on the fly\nconst img = await transformImage({ url: '/myproject/v1/logos/logo.svg', w: 400, format: 'webp' });\n```\n\n[Download javascript.js](/api-reference/clients/javascript.js)\n\n### TypeScript\n\n```typescript\nimport { listAssets, type ListAssetsParams } from './clients/typescript';\n\nconst params: ListAssetsParams = { project: 'akande', format: 'svg' };\nconst result = await listAssets(params);\n```\n\n[Download typescript.ts](/api-reference/clients/typescript.ts)\n\n### Python\n\n```python\nfrom clients.python import list_assets, storage_upload\n\nassets = list_assets(project='akande', format='svg')\nfor asset in assets['Data']:\n    print(asset['Path'])\n```\n\n[Download python.py](/api-reference/clients/python.py)\n\n### cURL\n\n```bash\n# List all SVG assets\ncurl -s -H 'AccessKey: sk_live_abc123' \\\n  'https://cloudcdn.pro/api/assets?format=svg&per_page=50'\n\n# Upload a file\ncurl -X PUT -H 'AccessKey: sk_live_abc123' \\\n  -H 'Content-Type: image/svg+xml' \\\n  -T ./logo.svg \\\n  'https://cloudcdn.pro/api/storage/clients/myproject/v1/logos/logo.svg'\n\n# Transform an image (public \u2014 no key needed)\ncurl -o thumbnail.webp \\\n  'https://cloudcdn.pro/api/transform?url=/myproject/v1/logos/logo.svg&w=400&format=webp'\n\n# Create a zone\ncurl -X POST -H 'AccountKey: ak_live_xyz789' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"Name\": \"newclient\"}' \\\n  'https://cloudcdn.pro/api/core/zones'\n\n# Purge cache by tag\ncurl -X POST -H 'x-api-key: pk_live_purge' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"tags\": [\"project-akande\"]}' \\\n  'https://cloudcdn.pro/api/purge'\n```\n\n### Shell Helper\n\nSource the shell client for reusable functions:\n\n```bash\nsource clients/curl.sh\nexport CLOUDCDN_ACCESS_KEY='sk_live_abc123'\nlistAssets   # calls GET /api/assets\n```\n\n[Download curl.sh](/api-reference/clients/curl.sh)\n\n## Rate Limits\n\n| Endpoint | Limit |\n|----------|-------|\n| Image Transform | 50,000/month |\n| Cache Purge | 100/day |\n| Chat Concierge | 1,000/month |\n| Storage Upload | No hard limit (GitHub API rate applies) |\n| Asset Catalog | No limit (manifest cached 30s) |\n\n## API Planes\n\n| Plane | Prefix | Purpose |\n|-------|--------|---------|\n| **Storage** | `/api/storage/` | File upload, download, delete, batch |\n| **Core** | `/api/core/` | Zones, domains, rules, statistics |\n| **Assets** | `/api/assets` | Read-only catalog, metadata |\n| **Insights** | `/api/insights/` | Analytics, top assets, geo, errors |\n| **Delivery** | `/api/transform`, `/api/auto`, `/api/signed`, `/api/stream`, `/api/purge` | Edge transforms, format negotiation, signed URLs, HLS, cache |\n| **AI** | `/api/search`, `/api/chat` | Semantic search, RAG concierge |",
+    "description": "# CloudCDN API\n\nEnterprise-grade asset delivery on Cloudflare's global edge network. 300+ PoPs, sub-100ms TTFB, 1,400+ assets across 54 tenant zones.\n\n## Quickstart\n\n```bash\n# List all assets\ncurl -H 'AccessKey: YOUR_KEY' https://cloudcdn.pro/api/assets\n\n# Upload a file\ncurl -X PUT -H 'AccessKey: YOUR_KEY' \\\n  -T logo.svg \\\n  https://cloudcdn.pro/api/storage/clients/myproject/v1/logos/logo.svg\n\n# Transform an image\ncurl 'https://cloudcdn.pro/api/transform?url=/myproject/v1/logos/logo.svg&w=400&format=webp'\n```\n\n## Authentication\n\nCloudCDN uses two separate API keys to isolate data-plane and control-plane access:\n\n| Key | Header | Scope |\n|-----|--------|-------|\n| **AccessKey** | `AccessKey` | Storage, Assets — upload, download, browse |\n| **AccountKey** | `AccountKey` | Core, Insights — zones, domains, rules, analytics |\n\nPass the key in the request header:\n\n```bash\ncurl -H 'AccessKey: sk_live_abc123' https://cloudcdn.pro/api/assets\n```\n\nPublic endpoints (Transform, Auto-format, Search, Chat) require no authentication.\n\n## Base URL\n\n| Environment | URL |\n|-------------|-----|\n| Production | `https://cloudcdn.pro` |\n| Local Dev | `http://localhost:8788` |\n\n## Client Libraries\n\nPre-built client libraries for every endpoint. Copy-paste ready.\n\n### JavaScript (ES Module)\n\n```javascript\nimport { listAssets, storageUpload, transformImage } from './clients/javascript.js';\n\n// List all SVG assets\nconst result = await listAssets({ format: 'svg', per_page: 50 });\nconsole.log(result.Data);\n\n// Upload a file\nawait storageUpload('clients/myproject/v1/logos/logo.svg', fileBuffer);\n\n// Transform on the fly\nconst img = await transformImage({ url: '/myproject/v1/logos/logo.svg', w: 400, format: 'webp' });\n```\n\n[Download javascript.js](/api-reference/clients/javascript.js)\n\n### TypeScript\n\n```typescript\nimport { listAssets, type ListAssetsParams } from './clients/typescript';\n\nconst params: ListAssetsParams = { project: 'akande', format: 'svg' };\nconst result = await listAssets(params);\n```\n\n[Download typescript.ts](/api-reference/clients/typescript.ts)\n\n### Python\n\n```python\nfrom clients.python import list_assets, storage_upload\n\nassets = list_assets(project='akande', format='svg')\nfor asset in assets['Data']:\n    print(asset['Path'])\n```\n\n[Download python.py](/api-reference/clients/python.py)\n\n### cURL\n\n```bash\n# List all SVG assets\ncurl -s -H 'AccessKey: sk_live_abc123' \\\n  'https://cloudcdn.pro/api/assets?format=svg&per_page=50'\n\n# Upload a file\ncurl -X PUT -H 'AccessKey: sk_live_abc123' \\\n  -H 'Content-Type: image/svg+xml' \\\n  -T ./logo.svg \\\n  'https://cloudcdn.pro/api/storage/clients/myproject/v1/logos/logo.svg'\n\n# Transform an image (public — no key needed)\ncurl -o thumbnail.webp \\\n  'https://cloudcdn.pro/api/transform?url=/myproject/v1/logos/logo.svg&w=400&format=webp'\n\n# Create a zone\ncurl -X POST -H 'AccountKey: ak_live_xyz789' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"Name\": \"newclient\"}' \\\n  'https://cloudcdn.pro/api/core/zones'\n\n# Purge cache by tag\ncurl -X POST -H 'x-api-key: pk_live_purge' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"tags\": [\"project-akande\"]}' \\\n  'https://cloudcdn.pro/api/purge'\n```\n\n### Shell Helper\n\nSource the shell client for reusable functions:\n\n```bash\nsource clients/curl.sh\nexport CLOUDCDN_ACCESS_KEY='sk_live_abc123'\nlistAssets   # calls GET /api/assets\n```\n\n[Download curl.sh](/api-reference/clients/curl.sh)\n\n## Rate Limits\n\n| Endpoint | Limit |\n|----------|-------|\n| Image Transform | 50,000/month |\n| Cache Purge | 100/day |\n| Chat Concierge | 1,000/month |\n| Storage Upload | No hard limit (GitHub API rate applies) |\n| Asset Catalog | No limit (manifest cached 30s) |\n\n## API Planes\n\n| Plane | Prefix | Purpose |\n|-------|--------|---------|\n| **Storage** | `/api/storage/` | File upload, download, delete, batch |\n| **Core** | `/api/core/` | Zones, domains, rules, statistics |\n| **Assets** | `/api/assets` | Read-only catalog, metadata |\n| **Insights** | `/api/insights/` | Analytics, top assets, geo, errors |\n| **Delivery** | `/api/transform`, `/api/auto`, `/api/signed`, `/api/stream`, `/api/purge` | Edge transforms, format negotiation, signed URLs, HLS, cache |\n| **AI** | `/api/search`, `/api/chat` | Semantic search, RAG concierge |",
     "version": "2026-04-01",
     "contact": {
       "email": "support@cloudcdn.pro"
@@ -30,27 +30,39 @@
   "tags": [
     {
       "name": "Storage",
-      "description": "## Storage API\n\nUpload, download, and manage files across your CDN. The Storage API is the write layer \u2014 every file mutation flows through here.\n\n### How it works\n\n1. **Upload** a file with `PUT /api/storage/{path}` \u2014 committed to the repository via the GitHub Git API\n2. **The CI/CD pipeline** deploys it to 300+ edge locations (~60-90 seconds)\n3. **Download** it instantly via `GET /api/storage/{path}` or the public CDN URL\n\n### Quick start\n\n```bash\n# Upload an SVG logo\ncurl -X PUT -H \"AccessKey: YOUR_KEY\" \\\n  -H \"Content-Type: image/svg+xml\" \\\n  -T ./logo.svg \\\n  https://cloudcdn.pro/api/storage/clients/myproject/v1/logos/logo.svg\n\n# List a directory\ncurl -H \"AccessKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/storage/clients/myproject/v1/logos/\n\n# Batch upload (single atomic commit)\ncurl -X POST -H \"AccessKey: YOUR_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{ \"files\": [{ \"path\": \"clients/myproject/v1/logos/logo.svg\", \"content\": \"PHN2Zy4uLg==\", \"encoding\": \"base64\" }] }' \\\n  https://cloudcdn.pro/api/storage/batch\n```\n\n### Authentication\n\nAll Storage endpoints require an **AccessKey** header. This key grants read/write access to files but cannot modify zones or edge configuration.\n\n### Limits\n\n| Limit | Value |\n|-------|-------|\n| Max file size | 25 MB |\n| Max batch size | 50 files |\n| Checksum verification | SHA-256 (optional) |\n| Edge sync | ~60-90 seconds after commit |"
+      "description": "## Storage API\n\nUpload, download, and manage files across your CDN. The Storage API is the write layer — every file mutation flows through here.\n\n### How it works\n\n1. **Upload** a file with `PUT /api/storage/{path}` — committed to the repository via the GitHub Git API\n2. **The CI/CD pipeline** deploys it to 300+ edge locations (~60-90 seconds)\n3. **Download** it instantly via `GET /api/storage/{path}` or the public CDN URL\n\n### Quick start\n\n```bash\n# Upload an SVG logo\ncurl -X PUT -H \"AccessKey: YOUR_KEY\" \\\n  -H \"Content-Type: image/svg+xml\" \\\n  -T ./logo.svg \\\n  https://cloudcdn.pro/api/storage/clients/myproject/v1/logos/logo.svg\n\n# List a directory\ncurl -H \"AccessKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/storage/clients/myproject/v1/logos/\n\n# Batch upload (single atomic commit)\ncurl -X POST -H \"AccessKey: YOUR_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{ \"files\": [{ \"path\": \"clients/myproject/v1/logos/logo.svg\", \"content\": \"PHN2Zy4uLg==\", \"encoding\": \"base64\" }] }' \\\n  https://cloudcdn.pro/api/storage/batch\n```\n\n### Authentication\n\nAll Storage endpoints require an **AccessKey** header. This key grants read/write access to files but cannot modify zones or edge configuration.\n\n### Limits\n\n| Limit | Value |\n|-------|-------|\n| Max file size | 25 MB |\n| Max batch size | 50 files |\n| Checksum verification | SHA-256 (optional) |\n| Edge sync | ~60-90 seconds after commit |"
     },
     {
       "name": "Assets",
-      "description": "## Assets API\n\nBrowse and search your entire asset catalog. The Assets API is the read-only layer \u2014 it queries the auto-generated manifest for instant, filterable access to every file on your CDN.\n\n### How it works\n\nEvery time a file changes, the manifest regenerates automatically. The Assets API reads this manifest (cached 30 seconds at the edge) and provides:\n\n- **Paginated listing** \u2014 filter by project, category, format\n- **Full-text search** \u2014 across filenames and paths\n- **Per-asset metadata** \u2014 size, content type, CDN URL, available formats\n\n### Quick start\n\n```bash\n# List all SVG assets sorted by size\ncurl -H \"AccessKey: YOUR_KEY\" \\\n  'https://cloudcdn.pro/api/assets?format=svg&sort=size&order=desc'\n\n# Search for banking logos\ncurl -H \"AccessKey: YOUR_KEY\" \\\n  'https://cloudcdn.pro/api/assets?q=banking+logo'\n\n# Get metadata for a specific asset\ncurl -H \"AccessKey: YOUR_KEY\" \\\n  'https://cloudcdn.pro/api/assets/metadata?path=akande/v1/logos/akande.svg'\n```\n\n### Pagination\n\nResults paginate with `page` and `per_page` (max 200). The response includes `Pagination.TotalItems`, `Pagination.TotalPages`, and the current page."
+      "description": "## Assets API\n\nBrowse and search your entire asset catalog. The Assets API is the read-only layer — it queries the auto-generated manifest for instant, filterable access to every file on your CDN.\n\n### How it works\n\nEvery time a file changes, the manifest regenerates automatically. The Assets API reads this manifest (cached 30 seconds at the edge) and provides:\n\n- **Paginated listing** — filter by project, category, format\n- **Full-text search** — across filenames and paths\n- **Per-asset metadata** — size, content type, CDN URL, available formats\n\n### Quick start\n\n```bash\n# List all SVG assets sorted by size\ncurl -H \"AccessKey: YOUR_KEY\" \\\n  'https://cloudcdn.pro/api/assets?format=svg&sort=size&order=desc'\n\n# Search for banking logos\ncurl -H \"AccessKey: YOUR_KEY\" \\\n  'https://cloudcdn.pro/api/assets?q=banking+logo'\n\n# Get metadata for a specific asset\ncurl -H \"AccessKey: YOUR_KEY\" \\\n  'https://cloudcdn.pro/api/assets/metadata?path=akande/v1/logos/akande.svg'\n```\n\n### Pagination\n\nResults paginate with `page` and `per_page` (max 200). The response includes `Pagination.TotalItems`, `Pagination.TotalPages`, and the current page."
     },
     {
       "name": "Core",
-      "description": "## Core API\n\nManage your CDN infrastructure \u2014 zones, domains, edge rules, and statistics. The Core API is the control plane for platform administrators.\n\n### Zones\n\nA **zone** is a tenant namespace (e.g., `akande`, `bankingonai`). Each zone maps to a directory with a standardized structure:\n\n```\nclients/{zone}/v1/\n  banners/    \u2014 Hero images and promotional banners\n  github/     \u2014 Social card images for GitHub\n  icons/      \u2014 PWA icons (180, 192, 512)\n  logos/       \u2014 Brand logos (SVG source)\n  titles/      \u2014 Title card images\n```\n\n### Quick start\n\n```bash\n# Create a new zone\ncurl -X POST -H \"AccountKey: YOUR_KEY\" \\\n  -d '{ \"Name\": \"newclient\" }' \\\n  https://cloudcdn.pro/api/core/zones\n\n# Add a custom domain\ncurl -X POST -H \"AccountKey: YOUR_KEY\" \\\n  -d '{ \"Hostname\": \"cdn.newclient.com\" }' \\\n  https://cloudcdn.pro/api/core/zones/newclient/domains\n\n# Update edge caching rules\ncurl -X POST -H \"AccountKey: YOUR_KEY\" \\\n  -d '{ \"File\": \"_headers\", \"Content\": \"/*.webp\\n  Cache-Control: public, max-age=86400\" }' \\\n  https://cloudcdn.pro/api/core/rules\n```\n\n### Authentication\n\nAll Core endpoints require an **AccountKey** header. This is the admin key \u2014 it can create/delete zones, manage domains, and modify edge rules. Never share it with CI/CD bots.\n\n### Reserved zone names\n\nThese names cannot be used: `stocks`, `shared`, `website`, `functions`, `api`, `dashboard`, `dist`, `content`, `global`, `clients`."
+      "description": "## Core API\n\nManage your CDN infrastructure — zones, domains, edge rules, and statistics. The Core API is the control plane for platform administrators.\n\n### Zones\n\nA **zone** is a tenant namespace (e.g., `akande`, `bankingonai`). Each zone maps to a directory with a standardized structure:\n\n```\nclients/{zone}/v1/\n  banners/    — Hero images and promotional banners\n  github/     — Social card images for GitHub\n  icons/      — PWA icons (180, 192, 512)\n  logos/       — Brand logos (SVG source)\n  titles/      — Title card images\n```\n\n### Quick start\n\n```bash\n# Create a new zone\ncurl -X POST -H \"AccountKey: YOUR_KEY\" \\\n  -d '{ \"Name\": \"newclient\" }' \\\n  https://cloudcdn.pro/api/core/zones\n\n# Add a custom domain\ncurl -X POST -H \"AccountKey: YOUR_KEY\" \\\n  -d '{ \"Hostname\": \"cdn.newclient.com\" }' \\\n  https://cloudcdn.pro/api/core/zones/newclient/domains\n\n# Update edge caching rules\ncurl -X POST -H \"AccountKey: YOUR_KEY\" \\\n  -d '{ \"File\": \"_headers\", \"Content\": \"/*.webp\\n  Cache-Control: public, max-age=86400\" }' \\\n  https://cloudcdn.pro/api/core/rules\n```\n\n### Authentication\n\nAll Core endpoints require an **AccountKey** header. This is the admin key — it can create/delete zones, manage domains, and modify edge rules. Never share it with CI/CD bots.\n\n### Reserved zone names\n\nThese names cannot be used: `stocks`, `shared`, `website`, `functions`, `api`, `dashboard`, `dist`, `content`, `global`, `clients`."
     },
     {
       "name": "Insights",
-      "description": "## Insights API\n\nMonitor your CDN performance in real time. The Insights API provides analytics data collected by the edge middleware on every asset request.\n\n### What is tracked\n\n| Metric | Description |\n|--------|-------------|\n| **Requests** | Total hits per day |\n| **Bandwidth** | Estimated bytes served |\n| **Cache ratio** | Edge hits vs origin misses |\n| **Geography** | Requests by country code |\n| **Top assets** | Most requested files |\n| **Errors** | 4xx/5xx breakdown with paths |\n\n### Quick start\n\n```bash\n# 7-day summary\ncurl -H \"AccountKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/insights/summary?days=7\n\n# Top 20 assets this month\ncurl -H \"AccountKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/insights/top-assets?days=30&limit=20\n\n# Geographic distribution\ncurl -H \"AccountKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/insights/geography?days=7\n\n# Error tracking\ncurl -H \"AccountKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/insights/errors?days=7\n```\n\n### Per-zone filtering\n\nAdd `?zone=akande` to any endpoint to filter analytics for a specific tenant.\n\n### Authentication\n\nInsights accept either **AccountKey** or **AccessKey** \u2014 read-only and safe for dashboards."
+      "description": "## Insights API\n\nMonitor your CDN performance in real time. The Insights API provides analytics data collected by the edge middleware on every asset request.\n\n### What is tracked\n\n| Metric | Description |\n|--------|-------------|\n| **Requests** | Total hits per day |\n| **Bandwidth** | Estimated bytes served |\n| **Cache ratio** | Edge hits vs origin misses |\n| **Geography** | Requests by country code |\n| **Top assets** | Most requested files |\n| **Errors** | 4xx/5xx breakdown with paths |\n\n### Quick start\n\n```bash\n# 7-day summary\ncurl -H \"AccountKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/insights/summary?days=7\n\n# Top 20 assets this month\ncurl -H \"AccountKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/insights/top-assets?days=30&limit=20\n\n# Geographic distribution\ncurl -H \"AccountKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/insights/geography?days=7\n\n# Error tracking\ncurl -H \"AccountKey: YOUR_KEY\" \\\n  https://cloudcdn.pro/api/insights/errors?days=7\n```\n\n### Per-zone filtering\n\nAdd `?zone=akande` to any endpoint to filter analytics for a specific tenant.\n\n### Authentication\n\nInsights accept either **AccountKey** or **AccessKey** — read-only and safe for dashboards."
     },
     {
       "name": "Delivery",
-      "description": "## Delivery API\n\nTransform, optimize, and deliver assets at the edge. These endpoints run on Cloudflare's global network \u2014 results are cached at 300+ locations worldwide.\n\n### Image Transformation\n\nResize, convert, blur, and sharpen any image on the fly:\n\n```\nhttps://cloudcdn.pro/api/transform?url=/akande/v1/logos/akande.svg&w=400&format=webp&q=85\n```\n\n| Parameter | Range | Description |\n|-----------|-------|-------------|\n| `w` | 1\u20138192 | Width in pixels |\n| `h` | 1\u20138192 | Height in pixels |\n| `fit` | cover, contain, fill | Resize behavior |\n| `format` | webp, avif, png, jpeg, auto | Output format |\n| `q` | 1\u2013100 | Quality (lower = smaller file) |\n| `blur` | 1\u2013250 | Gaussian blur radius |\n| `sharpen` | 1\u201310 | Sharpening amount |\n| `gravity` | center, face, auto | Crop focus point |\n\n### Automatic Format Negotiation\n\nRequest any image without a format \u2014 the edge reads the browser's `Accept` header and serves the optimal format (AVIF > WebP > PNG):\n\n```\nhttps://cloudcdn.pro/api/auto?path=/akande/v1/logos/akande\n```\n\n### Signed URLs\n\nProtect premium assets with time-limited, HMAC-signed URLs that expire automatically.\n\n### Video Streaming (HLS)\n\nAdaptive bitrate video via HTTP Live Streaming playlists.\n\n### Cache Purge\n\nInstantly invalidate assets by URL, surrogate tag, or purge everything.\n\n### No authentication required\n\nAll Delivery endpoints are public \u2014 they are the URLs your end users hit directly. Rate limits prevent abuse (50,000 transforms/month, 100 purges/day)."
+      "description": "## Delivery API\n\nTransform, optimize, and deliver assets at the edge. These endpoints run on Cloudflare's global network — results are cached at 300+ locations worldwide.\n\n### Image Transformation\n\nResize, convert, blur, and sharpen any image on the fly:\n\n```\nhttps://cloudcdn.pro/api/transform?url=/akande/v1/logos/akande.svg&w=400&format=webp&q=85\n```\n\n| Parameter | Range | Description |\n|-----------|-------|-------------|\n| `w` | 1–8192 | Width in pixels |\n| `h` | 1–8192 | Height in pixels |\n| `fit` | cover, contain, fill | Resize behavior |\n| `format` | webp, avif, png, jpeg, auto | Output format |\n| `q` | 1–100 | Quality (lower = smaller file) |\n| `blur` | 1–250 | Gaussian blur radius |\n| `sharpen` | 1–10 | Sharpening amount |\n| `gravity` | center, face, auto | Crop focus point |\n\n### Automatic Format Negotiation\n\nRequest any image without a format — the edge reads the browser's `Accept` header and serves the optimal format (AVIF > WebP > PNG):\n\n```\nhttps://cloudcdn.pro/api/auto?path=/akande/v1/logos/akande\n```\n\n### Signed URLs\n\nProtect premium assets with time-limited, HMAC-signed URLs that expire automatically.\n\n### Video Streaming (HLS)\n\nAdaptive bitrate video via HTTP Live Streaming playlists.\n\n### Cache Purge\n\nInstantly invalidate assets by URL, surrogate tag, or purge everything.\n\n### No authentication required\n\nAll Delivery endpoints are public — they are the URLs your end users hit directly. Rate limits prevent abuse (50,000 transforms/month, 100 purges/day)."
     },
     {
       "name": "AI",
-      "description": "## AI Services\n\nSearch and explore your asset catalog using natural language. Powered by Cloudflare Workers AI and Vectorize.\n\n### Semantic Search\n\nFind assets by description, not filename:\n\n```bash\n# Find dark banking backgrounds\ncurl 'https://cloudcdn.pro/api/search?q=dark+blue+banking+background'\n\n# Find minimalist logos\ncurl 'https://cloudcdn.pro/api/search?q=minimalist+logo+svg'\n```\n\nThe engine uses a hybrid approach: vector similarity (Vectorize embeddings) with fuzzy text fallback. Results are scored and ranked by relevance.\n\n### AI Concierge\n\nAn intelligent chat assistant that knows your entire CDN \u2014 pricing, setup, performance, compliance, and troubleshooting. Powered by RAG over the knowledge base.\n\n```bash\ncurl -X POST -H \"Content-Type: application/json\" \\\n  -d '{ \"message\": \"How do I set up custom domains?\", \"history\": [] }' \\\n  https://cloudcdn.pro/api/chat\n```\n\n### No authentication required\n\nAI endpoints are public. Rate limits: 1,000 chat queries/month, 100 search requests/minute."
+      "description": "## AI Services\n\nSearch and explore your asset catalog using natural language. Powered by Cloudflare Workers AI and Vectorize.\n\n### Semantic Search\n\nFind assets by description, not filename:\n\n```bash\n# Find dark banking backgrounds\ncurl 'https://cloudcdn.pro/api/search?q=dark+blue+banking+background'\n\n# Find minimalist logos\ncurl 'https://cloudcdn.pro/api/search?q=minimalist+logo+svg'\n```\n\nThe engine uses a hybrid approach: vector similarity (Vectorize embeddings) with fuzzy text fallback. Results are scored and ranked by relevance.\n\n### AI Concierge\n\nAn intelligent chat assistant that knows your entire CDN — pricing, setup, performance, compliance, and troubleshooting. Powered by RAG over the knowledge base.\n\n```bash\ncurl -X POST -H \"Content-Type: application/json\" \\\n  -d '{ \"message\": \"How do I set up custom domains?\", \"history\": [] }' \\\n  https://cloudcdn.pro/api/chat\n```\n\n### No authentication required\n\nAI endpoints are public. Rate limits: 1,000 chat queries/month, 100 search requests/minute."
+    },
+    {
+      "name": "Operations",
+      "description": "Runtime telemetry and dispatch log inspection."
+    },
+    {
+      "name": "Auth",
+      "description": "WebAuthn passkey enrollment, authentication, and scoped API token management."
+    },
+    {
+      "name": "Webhooks",
+      "description": "Webhook registration, listing, and revocation."
     }
   ],
   "x-tagGroups": [
@@ -73,6 +85,14 @@
       "tags": [
         "Delivery",
         "AI"
+      ]
+    },
+    {
+      "name": "Operations Plane",
+      "tags": [
+        "Auth",
+        "Webhooks",
+        "Operations"
       ]
     }
   ],
@@ -107,6 +127,12 @@
         "scheme": "bearer",
         "bearerFormat": "cdnsk_...",
         "description": "Scoped Bearer token issued via POST /api/tokens. Required scopes depend on endpoint."
+      },
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "cdn_session",
+        "description": "HMAC-signed session cookie issued by `/api/passkeys/auth/complete` or `POST /dashboard/login`."
       }
     },
     "schemas": {
@@ -204,7 +230,7 @@
           },
           "Message": {
             "type": "string",
-            "description": "Same human-readable text as `error` \u2014 Microsoft-Guidelines-style alias kept for envelope consistency with other API responses.",
+            "description": "Same human-readable text as `error` — Microsoft-Guidelines-style alias kept for envelope consistency with other API responses.",
             "example": "Missing required parameter: url"
           },
           "requestId": {
@@ -1724,7 +1750,7 @@
           },
           "alt": {
             "type": "string",
-            "description": "Accessibility-quality description, \u2264160 chars."
+            "description": "Accessibility-quality description, ≤160 chars."
           },
           "model": {
             "type": "string",
@@ -1943,7 +1969,7 @@
             "additionalProperties": {
               "type": "integer"
             },
-            "description": "Map of HTTP status code \u2192 count over the window."
+            "description": "Map of HTTP status code → count over the window."
           },
           "Daily": {
             "type": "array",
@@ -2129,6 +2155,28 @@
                   "description": "Failure reason when healthy=false."
                 }
               }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Request validation failed.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
             }
           }
         }
@@ -2320,7 +2368,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2348,7 +2396,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2362,7 +2410,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2506,7 +2554,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2520,7 +2568,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2657,7 +2705,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2824,7 +2872,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2838,7 +2886,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2866,7 +2914,7 @@
             }
           },
           "502": {
-            "description": "Bad Gateway \u2014 upstream service (GitHub/Cloudflare API) returned an error.",
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2983,7 +3031,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2997,7 +3045,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3094,7 +3142,7 @@
             "description": "File not found"
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3108,7 +3156,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3227,7 +3275,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3241,7 +3289,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3269,7 +3317,7 @@
             }
           },
           "502": {
-            "description": "Bad Gateway \u2014 upstream service (GitHub/Cloudflare API) returned an error.",
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3332,7 +3380,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3360,7 +3408,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3374,7 +3422,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3486,7 +3534,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3500,7 +3548,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3528,7 +3576,7 @@
             }
           },
           "502": {
-            "description": "Bad Gateway \u2014 upstream service (GitHub/Cloudflare API) returned an error.",
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3678,7 +3726,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3692,7 +3740,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3792,7 +3840,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3806,7 +3854,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3834,7 +3882,7 @@
             }
           },
           "502": {
-            "description": "Bad Gateway \u2014 upstream service (GitHub/Cloudflare API) returned an error.",
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3937,7 +3985,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3951,7 +3999,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3979,7 +4027,7 @@
             }
           },
           "502": {
-            "description": "Bad Gateway \u2014 upstream service (GitHub/Cloudflare API) returned an error.",
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4082,7 +4130,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4110,7 +4158,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4124,7 +4172,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4188,7 +4236,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4216,7 +4264,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4230,7 +4278,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4320,7 +4368,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4334,7 +4382,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4441,7 +4489,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4469,7 +4517,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4483,7 +4531,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4583,7 +4631,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4611,7 +4659,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4625,7 +4673,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4717,7 +4765,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4745,7 +4793,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4759,7 +4807,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4853,7 +4901,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4881,7 +4929,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4895,7 +4943,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5219,7 +5267,7 @@
                 "schema": {
                   "type": "string"
                 },
-                "description": "Negotiated MIME type \u2014 one of image/jxl, image/avif, image/avif-sequence, image/heic, image/heif, image/webp, image/png, image/apng, image/gif, image/svg+xml."
+                "description": "Negotiated MIME type — one of image/jxl, image/avif, image/avif-sequence, image/heic, image/heif, image/webp, image/png, image/apng, image/gif, image/svg+xml."
               }
             },
             "content": {
@@ -5258,7 +5306,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5272,7 +5320,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5368,7 +5416,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5382,7 +5430,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5466,7 +5514,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5493,7 +5541,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5630,7 +5678,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5644,7 +5692,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5895,7 +5943,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters or malformed input.",
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5922,7 +5970,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5936,7 +5984,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6009,7 +6057,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6023,7 +6071,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6037,7 +6085,7 @@
             }
           },
           "502": {
-            "description": "Bad Gateway \u2014 upstream service (GitHub/Cloudflare API) returned an error.",
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6126,7 +6174,7 @@
             }
           },
           "429": {
-            "description": "Rate Limited \u2014 too many requests. Retry after the cooldown period.",
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6265,7 +6313,7 @@
             }
           },
           "502": {
-            "description": "Bad Gateway \u2014 upstream service (GitHub/Cloudflare API) returned an error.",
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6383,6 +6431,20 @@
               }
             }
           },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
           "502": {
             "description": "Vision model returned no usable text",
             "content": {
@@ -6410,27 +6472,13 @@
                 }
               }
             }
-          },
-          "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 500,
-                  "Message": "Internal server error"
-                }
-              }
-            }
           }
         }
       },
       "post": {
         "operationId": "altTextPost",
         "summary": "Generate alt text (POST)",
-        "description": "Same as GET but accepts the asset URL in a JSON body \u2014 useful for clients that prefer POST semantics for AI calls.",
+        "description": "Same as GET but accepts the asset URL in a JSON body — useful for clients that prefer POST semantics for AI calls.",
         "tags": [
           "AI"
         ],
@@ -6536,6 +6584,20 @@
               }
             }
           },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
           "502": {
             "description": "Empty AI response",
             "content": {
@@ -6560,20 +6622,6 @@
                 "example": {
                   "HttpCode": 503,
                   "Message": "Service temporarily unavailable"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 500,
-                  "Message": "Internal server error"
                 }
               }
             }
@@ -6682,6 +6730,20 @@
               }
             }
           },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
           "503": {
             "description": "AI unavailable",
             "content": {
@@ -6692,20 +6754,6 @@
                 "example": {
                   "HttpCode": 503,
                   "Message": "Service temporarily unavailable"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 500,
-                  "Message": "Internal server error"
                 }
               }
             }
@@ -6819,22 +6867,8 @@
               }
             }
           },
-          "503": {
-            "description": "AI unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 503,
-                  "Message": "Service temporarily unavailable"
-                }
-              }
-            }
-          },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6857,6 +6891,20 @@
                 "example": {
                   "HttpCode": 502,
                   "Message": "Smart-crop model returned no usable gravity"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "AI unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 503,
+                  "Message": "Service temporarily unavailable"
                 }
               }
             }
@@ -6965,6 +7013,20 @@
               }
             }
           },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
           "503": {
             "description": "AI unavailable",
             "content": {
@@ -6975,20 +7037,6 @@
                 "example": {
                   "HttpCode": 503,
                   "Message": "Service temporarily unavailable"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 500,
-                  "Message": "Internal server error"
                 }
               }
             }
@@ -7102,22 +7150,8 @@
               }
             }
           },
-          "503": {
-            "description": "AI unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 503,
-                  "Message": "Service temporarily unavailable"
-                }
-              }
-            }
-          },
           "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
+            "description": "Internal Server Error — unexpected failure at the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7143,6 +7177,20 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "AI unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 503,
+                  "Message": "Service temporarily unavailable"
+                }
+              }
+            }
           }
         }
       }
@@ -7151,7 +7199,7 @@
       "get": {
         "operationId": "lqip",
         "summary": "Low-quality image placeholder",
-        "description": "Generate a base64 data URI for a tiny blurred WebP placeholder. Use as `<img src>` or CSS `background-image` while the full asset loads. Result is deterministic per (url, size, blur) and cached for 24 hours. No Workers AI cost \u2014 uses Cloudflare Image Resizing directly.",
+        "description": "Generate a base64 data URI for a tiny blurred WebP placeholder. Use as `<img src>` or CSS `background-image` while the full asset loads. Result is deterministic per (url, size, blur) and cached for 24 hours. No Workers AI cost — uses Cloudflare Image Resizing directly.",
         "tags": [
           "Delivery"
         ],
@@ -7247,6 +7295,20 @@
               }
             }
           },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
           "502": {
             "description": "Origin unreachable",
             "content": {
@@ -7257,20 +7319,6 @@
                 "example": {
                   "HttpCode": 502,
                   "Message": "Upstream returned empty response"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 500,
-                  "Message": "Internal server error"
                 }
               }
             }
@@ -7365,6 +7413,20 @@
               }
             }
           },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
           "502": {
             "description": "Origin unreachable",
             "content": {
@@ -7378,20 +7440,6 @@
                 }
               }
             }
-          },
-          "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 500,
-                  "Message": "Internal server error"
-                }
-              }
-            }
           }
         }
       }
@@ -7400,7 +7448,7 @@
       "get": {
         "operationId": "insightsAsset",
         "summary": "Per-asset analytics",
-        "description": "Return daily request counts and error roll-ups for a single asset path. Useful for dashboards that need 'how is THIS asset performing' \u2014 rolled-up totals come from the existing `/api/insights/summary`. Path matching tolerates leading-slash differences.",
+        "description": "Return daily request counts and error roll-ups for a single asset path. Useful for dashboards that need 'how is THIS asset performing' — rolled-up totals come from the existing `/api/insights/summary`. Path matching tolerates leading-slash differences.",
         "tags": [
           "Insights"
         ],
@@ -7494,6 +7542,20 @@
               }
             }
           },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
           "503": {
             "description": "Analytics KV unavailable",
             "content": {
@@ -7504,20 +7566,6 @@
                 "example": {
                   "HttpCode": 503,
                   "Message": "Service temporarily unavailable"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 500,
-                  "Message": "Internal server error"
                 }
               }
             }
@@ -7583,48 +7631,6 @@
               }
             }
           },
-          "401": {
-            "description": "AccountKey required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 401,
-                  "Message": "Unauthorized"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Audit KV unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 503,
-                  "Message": "Service temporarily unavailable"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error \u2014 unexpected failure at the edge.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "HttpCode": 500,
-                  "Message": "Internal server error"
-                }
-              }
-            }
-          },
           "400": {
             "description": "Bad Request - invalid filters (days/action/limit).",
             "content": {
@@ -7639,6 +7645,20 @@
               }
             }
           },
+          "401": {
+            "description": "AccountKey required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 401,
+                  "Message": "Unauthorized"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate Limited - too many requests.",
             "content": {
@@ -7649,6 +7669,34 @@
                 "example": {
                   "HttpCode": 429,
                   "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Audit KV unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 503,
+                  "Message": "Service temporarily unavailable"
                 }
               }
             }
@@ -7731,7 +7779,7 @@
             }
           },
           "400": {
-            "description": "Bad Request \u2014 invalid parameters.",
+            "description": "Bad Request — invalid parameters.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7813,7 +7861,7 @@
       "get": {
         "operationId": "backgroundRemoveGet",
         "summary": "Remove image background (not yet implemented)",
-        "description": "Isolate the subject of an image on a transparent alpha layer. **This endpoint is documented but not yet implemented** \u2014 calls return HTTP 501. Cloudflare Workers AI does not currently include a segmentation/matting model (U^2-Net or rembg-class), so we cannot produce a pixel-accurate alpha mask at the edge.\n\nThe route, request shape, and response envelope are fixed now so clients and agents can integrate ahead of the model landing; when Workers AI adds a segmentation primitive (or we ship one via Workers AI Custom Models), the implementation will swap in without changing this contract.\n\nNearest substitute today: `/api/ai/smart-crop` returns a subject gravity that pairs with `/api/transform?gravity=` for subject-aware framing \u2014 not the same as transparent-background removal, but the right tool for most thumbnail-style use cases.",
+        "description": "Isolate the subject of an image on a transparent alpha layer. **This endpoint is documented but not yet implemented** — calls return HTTP 501. Cloudflare Workers AI does not currently include a segmentation/matting model (U^2-Net or rembg-class), so we cannot produce a pixel-accurate alpha mask at the edge.\n\nThe route, request shape, and response envelope are fixed now so clients and agents can integrate ahead of the model landing; when Workers AI adds a segmentation primitive (or we ship one via Workers AI Custom Models), the implementation will swap in without changing this contract.\n\nNearest substitute today: `/api/ai/smart-crop` returns a subject gravity that pairs with `/api/transform?gravity=` for subject-aware framing — not the same as transparent-background removal, but the right tool for most thumbnail-style use cases.",
         "tags": [
           "AI"
         ],
@@ -7841,31 +7889,6 @@
           }
         ],
         "responses": {
-          "501": {
-            "description": "Not Implemented. Background removal is blocked on a Workers AI segmentation model that does not yet exist in the catalog. The response body includes a `details` entry pointing at the blocking dependency.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "error": {
-                    "code": "NotImplemented",
-                    "message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI.",
-                    "details": [
-                      {
-                        "code": "BlockedByDependency",
-                        "target": "@cf/* segmentation models",
-                        "message": "No matting model in Workers AI catalog yet."
-                      }
-                    ]
-                  },
-                  "HttpCode": 501,
-                  "Message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI."
-                }
-              }
-            }
-          },
           "400": {
             "description": "Bad Request - invalid parameters.",
             "content": {
@@ -7876,6 +7899,20 @@
                 "example": {
                   "HttpCode": 400,
                   "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 401,
+                  "Message": "Unauthorized"
                 }
               }
             }
@@ -7908,16 +7945,27 @@
               }
             }
           },
-          "401": {
-            "description": "Authentication required.",
+          "501": {
+            "description": "Not Implemented. Background removal is blocked on a Workers AI segmentation model that does not yet exist in the catalog. The response body includes a `details` entry pointing at the blocking dependency.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 },
                 "example": {
-                  "HttpCode": 401,
-                  "Message": "Unauthorized"
+                  "error": {
+                    "code": "NotImplemented",
+                    "message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI.",
+                    "details": [
+                      {
+                        "code": "BlockedByDependency",
+                        "target": "@cf/* segmentation models",
+                        "message": "No matting model in Workers AI catalog yet."
+                      }
+                    ]
+                  },
+                  "HttpCode": 501,
+                  "Message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI."
                 }
               }
             }
@@ -7927,7 +7975,7 @@
       "post": {
         "operationId": "backgroundRemovePost",
         "summary": "Remove image background (not yet implemented)",
-        "description": "Isolate the subject of an image on a transparent alpha layer. **This endpoint is documented but not yet implemented** \u2014 calls return HTTP 501. Cloudflare Workers AI does not currently include a segmentation/matting model (U^2-Net or rembg-class), so we cannot produce a pixel-accurate alpha mask at the edge.\n\nThe route, request shape, and response envelope are fixed now so clients and agents can integrate ahead of the model landing; when Workers AI adds a segmentation primitive (or we ship one via Workers AI Custom Models), the implementation will swap in without changing this contract.\n\nNearest substitute today: `/api/ai/smart-crop` returns a subject gravity that pairs with `/api/transform?gravity=` for subject-aware framing \u2014 not the same as transparent-background removal, but the right tool for most thumbnail-style use cases.",
+        "description": "Isolate the subject of an image on a transparent alpha layer. **This endpoint is documented but not yet implemented** — calls return HTTP 501. Cloudflare Workers AI does not currently include a segmentation/matting model (U^2-Net or rembg-class), so we cannot produce a pixel-accurate alpha mask at the edge.\n\nThe route, request shape, and response envelope are fixed now so clients and agents can integrate ahead of the model landing; when Workers AI adds a segmentation primitive (or we ship one via Workers AI Custom Models), the implementation will swap in without changing this contract.\n\nNearest substitute today: `/api/ai/smart-crop` returns a subject gravity that pairs with `/api/transform?gravity=` for subject-aware framing — not the same as transparent-background removal, but the right tool for most thumbnail-style use cases.",
         "tags": [
           "AI"
         ],
@@ -7963,31 +8011,6 @@
           }
         },
         "responses": {
-          "501": {
-            "description": "Not Implemented (same body as GET).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "error": {
-                    "code": "NotImplemented",
-                    "message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI.",
-                    "details": [
-                      {
-                        "code": "BlockedByDependency",
-                        "target": "@cf/* segmentation models",
-                        "message": "No matting model in Workers AI catalog yet."
-                      }
-                    ]
-                  },
-                  "HttpCode": 501,
-                  "Message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI."
-                }
-              }
-            }
-          },
           "400": {
             "description": "Bad Request - invalid parameters.",
             "content": {
@@ -7998,6 +8021,20 @@
                 "example": {
                   "HttpCode": 400,
                   "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 401,
+                  "Message": "Unauthorized"
                 }
               }
             }
@@ -8030,6 +8067,31 @@
               }
             }
           },
+          "501": {
+            "description": "Not Implemented (same body as GET).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "NotImplemented",
+                    "message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI.",
+                    "details": [
+                      {
+                        "code": "BlockedByDependency",
+                        "target": "@cf/* segmentation models",
+                        "message": "No matting model in Workers AI catalog yet."
+                      }
+                    ]
+                  },
+                  "HttpCode": 501,
+                  "Message": "Background removal requires a segmentation model that is not yet available in Cloudflare Workers AI."
+                }
+              }
+            }
+          },
           "502": {
             "description": "Bad Gateway - upstream returned no usable response.",
             "content": {
@@ -8043,17 +8105,1504 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/logs": {
+      "get": {
+        "operationId": "getLogs",
+        "summary": "Stream or fetch operational logs",
+        "description": "Returns the worker request log buffered in KV. Use `?stream=1` for SSE; otherwise a JSON page is returned. Useful for live debugging and post-incident analysis.",
+        "tags": [
+          "Operations"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stream",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "When `true`, returns Server-Sent Events instead of a JSON snapshot."
           },
-          "401": {
-            "description": "Authentication required.",
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            },
+            "description": "Max records to return (JSON mode only)."
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter to records emitted at or after this ISO-8601 timestamp."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON log page (or SSE stream).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "cursor": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "SSE: each line is a JSON log record."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 },
                 "example": {
-                  "HttpCode": 401,
-                  "Message": "Unauthorized"
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "KV binding unavailable."
+          }
+        }
+      }
+    },
+    "/api/pipeline": {
+      "post": {
+        "operationId": "pipelineIngest",
+        "summary": "Scaffold a zone or stock asset from a single SVG",
+        "description": "Single-SVG ingest. Generates the full directory tree (logos, banners, icons, favicon, PWA manifest) and commits it via the GitHub API. Two modes: `client` creates a new tenant zone; `stock` adds to the shared stock pool.",
+        "tags": [
+          "Delivery"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "mode",
+                  "name",
+                  "svg"
+                ],
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "client",
+                      "stock"
+                    ],
+                    "description": "Pipeline mode."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Zone slug (client) or asset slug (stock). lower-kebab-case."
+                  },
+                  "svg": {
+                    "type": "string",
+                    "description": "Base64-encoded SVG payload."
+                  },
+                  "generateIcons": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Emit 180/192/512 PNG icons."
+                  },
+                  "generateBanners": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Emit social-share banners."
+                  }
+                }
+              },
+              "examples": {
+                "client": {
+                  "summary": "Scaffold a new tenant zone",
+                  "value": {
+                    "mode": "client",
+                    "name": "newbrand",
+                    "svg": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIC4uLg=="
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingest committed. Returns the commit SHA and the generated file list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "commit": {
+                      "type": "string",
+                      "description": "Git commit SHA."
+                    },
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "zone": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed — missing required field, invalid mode, malformed SVG, or oversized payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Missing required field: name."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "Zone or asset slug already exists."
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "GitHub API upstream error."
+          }
+        }
+      }
+    },
+    "/api/tokens": {
+      "get": {
+        "operationId": "listTokens",
+        "summary": "List API tokens (redacted)",
+        "description": "Returns all tokens for the account. Full token values are never exposed — only the prefix, scopes, and timestamps.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tokens": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "prefix": {
+                            "type": "string",
+                            "description": "First 8 chars of the token (for identification)."
+                          },
+                          "scopes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "expiresAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "lastUsedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createToken",
+        "summary": "Create a scoped API token",
+        "description": "Mints a new API token with the given scopes. The plaintext token is returned **once** in the response — store it; it cannot be retrieved again. SHA-256 hashed at rest.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "scopes"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Human-readable label."
+                  },
+                  "scopes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "storage:read",
+                        "storage:write",
+                        "assets:read",
+                        "insights:read",
+                        "zones:read",
+                        "zones:write",
+                        "purge:write",
+                        "pipeline:write",
+                        "webhooks:read",
+                        "webhooks:write"
+                      ]
+                    }
+                  },
+                  "expiresAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Token created. The plaintext token is in the response — store it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "The plaintext token. Shown once."
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "scopes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed — missing name, empty or unknown scope, or invalid expiresAt.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "scopes must be a non-empty array of allowed scope strings."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revokeToken",
+        "summary": "Revoke an API token",
+        "description": "Permanently revokes the token by ID. Subsequent requests using this token return 401.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token ID."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Revoked."
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No token with that ID."
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/webhooks": {
+      "get": {
+        "operationId": "listWebhooks",
+        "summary": "List registered webhooks",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "webhooks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "events": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "active": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Returns metadata for every webhook registered against the account: id, target URL, subscribed events, creation timestamp, and active flag."
+      },
+      "post": {
+        "operationId": "registerWebhook",
+        "summary": "Register a webhook",
+        "description": "Subscribes the given URL to one or more event types. Deliveries are signed (HMAC-SHA256) and fan-out via a Cloudflare Queue + DLQ for at-least-once semantics. Failed deliveries are retried with exponential backoff.",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "url",
+                  "events"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "HTTPS endpoint to receive event payloads."
+                  },
+                  "events": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "asset.created",
+                        "asset.deleted",
+                        "asset.updated",
+                        "zone.created",
+                        "zone.deleted",
+                        "purge.completed",
+                        "pipeline.completed"
+                      ]
+                    }
+                  },
+                  "secret": {
+                    "type": "string",
+                    "description": "Optional HMAC signing secret. If omitted, one is generated and returned."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Webhook registered.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "secret": {
+                      "type": "string",
+                      "description": "HMAC signing secret. Returned once."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed — missing URL, non-HTTPS target, or empty/unknown event types.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "url must be an HTTPS URI; at least one event must be subscribed."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteWebhook",
+        "summary": "Delete a webhook",
+        "tags": [
+          "Webhooks"
+        ],
+        "security": [
+          {
+            "AccountKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted."
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No webhook with that ID."
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permanently removes a webhook by ID. Future deliveries for the subscribed events stop immediately."
+      }
+    },
+    "/api/passkeys": {
+      "get": {
+        "operationId": "listPasskeys",
+        "summary": "List registered passkeys",
+        "description": "Returns metadata for every registered passkey for the authenticated user. Credential IDs are exposed; the raw public keys are not.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Passkey list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "passkeys": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "lastUsedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "deviceType": {
+                            "type": "string",
+                            "enum": [
+                              "single_device",
+                              "multi_device"
+                            ],
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revokePasskey",
+        "summary": "Revoke a passkey",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Revoked."
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No passkey with that ID."
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permanently revokes a passkey by ID. The credential is removed from KV; subsequent authentication attempts with it fail."
+      }
+    },
+    "/api/passkeys/register/begin": {
+      "post": {
+        "operationId": "passkeyRegisterBegin",
+        "summary": "Start passkey registration — get a challenge",
+        "description": "Returns a WebAuthn `PublicKeyCredentialCreationOptions` payload. Pass the resulting credential to `/api/passkeys/register/complete`.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registration options.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "WebAuthn PublicKeyCredentialCreationOptions."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/passkeys/register/complete": {
+      "post": {
+        "operationId": "passkeyRegisterComplete",
+        "summary": "Complete passkey registration",
+        "description": "Verifies the WebAuthn attestation, stores the credential, and returns the persisted passkey metadata.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "credential",
+                  "name"
+                ],
+                "properties": {
+                  "credential": {
+                    "type": "object",
+                    "description": "WebAuthn AuthenticatorAttestationResponse."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Human-readable label (e.g. \"MacBook Pro\")."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Passkey registered."
+          },
+          "400": {
+            "description": "Invalid attestation."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/passkeys/auth/begin": {
+      "post": {
+        "operationId": "passkeyAuthBegin",
+        "summary": "Start passkey authentication — get a challenge",
+        "description": "Returns a WebAuthn `PublicKeyCredentialRequestOptions` payload. Public endpoint (no session required).",
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Authentication options.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "WebAuthn PublicKeyCredentialRequestOptions."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request — invalid parameters or malformed input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 400,
+                  "Message": "Invalid request parameters"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/passkeys/auth/complete": {
+      "post": {
+        "operationId": "passkeyAuthComplete",
+        "summary": "Complete passkey authentication",
+        "description": "Verifies the assertion. On success, sets the `cdn_session` cookie (HMAC-signed, HttpOnly, Secure, 7-day TTL).",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "credential"
+                ],
+                "properties": {
+                  "credential": {
+                    "type": "object",
+                    "description": "WebAuthn AuthenticatorAssertionResponse."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated. `Set-Cookie: cdn_session=...` on the response.",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "HMAC-signed session cookie."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid assertion."
+          },
+          "401": {
+            "description": "Assertion verification failed."
+          },
+          "429": {
+            "description": "Rate Limited — too many requests. Retry after the cooldown period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 429,
+                  "Message": "Rate limit exceeded"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — unexpected failure at the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 500,
+                  "Message": "Internal server error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway — upstream service (GitHub/Cloudflare API) returned an error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "HttpCode": 502,
+                  "Message": "Upstream service error"
                 }
               }
             }

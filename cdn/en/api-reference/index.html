@@ -9,8 +9,10 @@
   <link rel="stylesheet" href="/shared/site-nav.css">
   <script defer src="/shared/site-nav.js"></script>
 
-  <!-- Preload spec for instant render -->
-  <link rel="preload" href="openapi.json" as="fetch" crossorigin="anonymous">
+  <!-- Preload spec for instant render. Absolute path because the URL
+       bar lands on `/api-reference` (no trailing slash) and a relative
+       `openapi.json` would resolve to /openapi.json → 404. -->
+  <link rel="preload" href="/api-reference/openapi.json" as="fetch" crossorigin="anonymous">
 
   <style>
     body { margin: 0; background: #08090d; }
@@ -97,7 +99,7 @@
   <main id="main">
     <script
       id="api-reference"
-      data-url="openapi.json"
+      data-url="/api-reference/openapi.json"
       data-configuration='{
         "theme": "saturn",
         "darkMode": true,

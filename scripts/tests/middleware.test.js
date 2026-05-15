@@ -171,11 +171,14 @@ describe('Middleware: onRequest', () => {
       expect(fetchedUrl).toContain('/cdn/sitemap.xml');
     });
 
-    it('rewrites /api-reference to /cdn/en/api-reference/index.html', async () => {
+    it('rewrites /api-reference to /cdn/en/api-reference/ (directory, not index.html)', async () => {
       const ctx = makeContext('/api-reference');
       await onRequest(ctx);
       const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
-      expect(fetchedUrl).toContain('/cdn/en/api-reference/index.html');
+      // Asking env.ASSETS for the directory avoids a 308 → /cdn/en/api-reference/
+      // bounce (which would then land on the strict-default CSP).
+      expect(fetchedUrl).toContain('/cdn/en/api-reference/');
+      expect(fetchedUrl).not.toContain('/index.html');
     });
 
     it('stamps the Scalar-permitting CSP on /api-reference responses', async () => {

@@ -16,6 +16,18 @@
  *   • No external framework required — drop-in <link> + <script>
  */
 
+/* Scoped box-sizing reset. Most of our pages set the universal
+   `*, *::before, *::after { box-sizing: border-box }` reset themselves,
+   but api-reference (and any third-party-heavy page) doesn't —
+   without this the nav-cta's min-height was being interpreted as
+   content-box and stretching to 56px when 40px was intended. */
+.site-nav,
+.site-nav *,
+.site-nav *::before,
+.site-nav *::after {
+  box-sizing: border-box;
+}
+
 /* Skip link — visually hidden until focused (WCAG 2.4.1) */
 .skip-link {
   position: absolute;

@@ -664,6 +664,24 @@ describe('analytics.js gap coverage', () => {
     expect(res.status).toBe(429);
   });
 
+  it('GET fails open and serves the response when RATE_KV.put throws (e.g. daily quota exhausted)', async () => {
+    const kv = {
+      get: vi.fn(async (k) => {
+        if (k.startsWith('rl:analytics:')) return '5';
+        return null;
+      }),
+      put: vi.fn().mockRejectedValue(new Error('KV put() limit exceeded for the day.')),
+    };
+    const ctx = {
+      request: makeRequest('/api/analytics?days=1', {
+        headers: { 'x-api-key': 'k', 'cf-connecting-ip': '203.0.113.2' },
+      }),
+      env: { RATE_KV: kv, ANALYTICS_KEY: 'k' },
+    };
+    const res = await onRequestGet(ctx);
+    expect(res.status).toBe(200);
+  });
+
   it("GET falls back to 'unknown' IP bucket when cf-connecting-ip is missing", async () => {
     const kv = makeKV();
     const ctx = {

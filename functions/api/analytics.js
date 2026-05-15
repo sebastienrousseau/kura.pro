@@ -137,14 +137,19 @@ async function trackError(kv, date, status, path) {
 export async function onRequestGet(context) {
   const { env, request } = context;
 
-  // Rate limit: 100 req/min per IP
+  // Rate limit: 100 req/min per IP. KV failures (typically: free-tier daily
+  // put-quota exhaustion) must not 5xx the caller — fail open and serve the
+  // request rather than leaking an unhandled exception. See the same pattern
+  // in _shared.js#checkRateLimitKv.
   if (env.RATE_KV) {
-    const ip = request.headers.get("cf-connecting-ip") || "unknown";
-    const count = parseInt(await env.RATE_KV.get(`rl:analytics:${ip}`) || "0", 10);
-    if (count >= 100) {
-      return legacyErrorJson(429, "Rate limit exceeded", { limit: 100, retryAfter: 60 });
-    }
-    await env.RATE_KV.put(`rl:analytics:${ip}`, String(count + 1), { expirationTtl: 60 });
+    try {
+      const ip = request.headers.get("cf-connecting-ip") || "unknown";
+      const count = parseInt(await env.RATE_KV.get(`rl:analytics:${ip}`) || "0", 10);
+      if (count >= 100) {
+        return legacyErrorJson(429, "Rate limit exceeded", { limit: 100, retryAfter: 60 });
+      }
+      await env.RATE_KV.put(`rl:analytics:${ip}`, String(count + 1), { expirationTtl: 60 });
+    } catch { /* fail open */ }
   }
 
   // Auth check

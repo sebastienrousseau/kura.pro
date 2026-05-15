@@ -160,4 +160,22 @@ describe('Rate Limiting — checkRateLimit', () => {
     await checkRateLimit(kv, 'rl:test:key', 100, 86400);
     expect(kv.put).toHaveBeenCalledWith('rl:test:key', '1', { expirationTtl: 86400 });
   });
+
+  it('fails open when KV.put throws (e.g. free-tier daily quota exhausted)', async () => {
+    const kv = {
+      get: vi.fn().mockResolvedValue('5'),
+      put: vi.fn().mockRejectedValue(new Error('KV put() limit exceeded for the day.')),
+    };
+    const result = await checkRateLimit(kv, 'rl:test:key', 60, 60);
+    expect(result.allowed).toBe(true);
+  });
+
+  it('fails open when KV.get throws', async () => {
+    const kv = {
+      get: vi.fn().mockRejectedValue(new Error('KV temporarily unavailable')),
+      put: vi.fn().mockResolvedValue(undefined),
+    };
+    const result = await checkRateLimit(kv, 'rl:test:key', 60, 60);
+    expect(result.allowed).toBe(true);
+  });
 });

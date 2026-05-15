@@ -110,7 +110,8 @@ npm ci
 
 ### Stratos CLI
 
-The companion command-line client is **Stratos**, distributed as a
+The companion command-line client is **[Stratos](https://github.com/sebastienrousseau/stratos)**,
+maintained in its own MIT-licensed repository and distributed as a
 single Node ≥ 18 script. One-liner install:
 
 ```bash
@@ -134,7 +135,9 @@ stratos assets --project=akande --format=svg
 
 Configure via environment variables: `CLOUDCDN_URL`,
 `CLOUDCDN_ACCOUNT_KEY`, `CLOUDCDN_ACCESS_KEY`, `SIGNED_URL_SECRET`.
-See [SECRETS.md](./SECRETS.md) for the full reference.
+See [SECRETS.md](./SECRETS.md) for the full reference and the
+[stratos repo](https://github.com/sebastienrousseau/stratos) for
+the complete command and exit-code documentation.
 
 ## First 5 Minutes
 

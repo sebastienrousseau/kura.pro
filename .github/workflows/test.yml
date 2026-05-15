@@ -103,7 +103,9 @@ jobs:
         run: sleep 2 && curl -sf http://localhost:8788/ > /dev/null
 
       - name: Run axe-core accessibility audit
-        continue-on-error: true
+        # Site-wide baseline pass (F6) brought the homepage + dashboard
+        # to zero serious/critical violations in both themes. Re-enabling
+        # this as a blocking gate so regressions surface immediately.
         run: |
           cat > a11y-test.mjs << 'SCRIPT'
           import { chromium } from 'playwright';

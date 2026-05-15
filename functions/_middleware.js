@@ -323,7 +323,21 @@ async function routeRequest(context) {
         target = tail === "" ? "/" + lang + "/" : "/" + lang + tail;
       }
       const query = qmark === -1 ? "" : rawUrl.slice(qmark);
-      return Response.redirect(rawUrl.slice(0, pathStart) + target + query, 301);
+      // 301 with Cache-Control: no-store. The path is permanent (it's a
+      // canonicalisation) BUT we landed in a state where a few production
+      // builds ago this same path served different responses (308 loops,
+      // strict-CSP HTML, etc.). Browsers cache 301s indefinitely by
+      // default, so anyone who hit those earlier states got ERR_TOO_MANY_
+      // REDIRECTS even after the server-side fix shipped. no-store keeps
+      // the redirect itself out of browser caches so future iterations of
+      // this rule can't trap returning users.
+      return new Response(null, {
+        status: 301,
+        headers: {
+          Location: rawUrl.slice(0, pathStart) + target + query,
+          "Cache-Control": "no-store",
+        },
+      });
     }
   }
 

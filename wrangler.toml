@@ -58,11 +58,11 @@ id = "e5688bf85dff4b16988c4a3853bb7171"
 #   3. Commit + push. checkRateLimit() in functions/api/_shared.js picks
 #      up `env.RATE_LIMITER` automatically and switches over with zero
 #      code changes; rollback is symmetric (re-comment the stanza).
-#
-# [[durable_objects.bindings]]
-# name        = "RATE_LIMITER"
-# class_name  = "RateLimiterDO"
-# script_name = "cloudcdn-rate-limiter"
+
+[[durable_objects.bindings]]
+name        = "RATE_LIMITER"
+class_name  = "RateLimiterDO"
+script_name = "cloudcdn-rate-limiter"
 
 # Workers Analytics Engine — high-cardinality, low-cost per-request metrics
 # (request count, latency, status, AI neuron spend, cache hit rate). When the

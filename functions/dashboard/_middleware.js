@@ -296,11 +296,16 @@ async function handleRequest(context) {
         const valid = await hmacVerifyCached(secret, token, sig);
         const expires = parseInt(token, 10);
         if (valid && expires > Date.now() / 1000) {
-          // Rewrite /dashboard/* to /cdn/en/dashboard/* for static asset serving
+          // Rewrite /dashboard/* to /cdn/en/dashboard/* for static asset
+          // serving. Keep the trailing slash for directory paths — do NOT
+          // append index.html. Pages' asset binding 308-redirects explicit
+          // index.html paths to the directory form, and that 308 would
+          // bounce the browser to /cdn/en/dashboard/, where the public
+          // middleware's /cdn/<locale>/... canonicalisation would 301 it
+          // back to /dashboard/, looping for authenticated users. Asking
+          // for the directory makes env.ASSETS serve the index directly.
           const rewrittenUrl = new URL(request.url);
-          let rewritePath = '/cdn/en' + url.pathname;
-          if (rewritePath.endsWith('/')) rewritePath += 'index.html';
-          rewrittenUrl.pathname = rewritePath;
+          rewrittenUrl.pathname = '/cdn/en' + url.pathname;
           return env.ASSETS.fetch(new Request(rewrittenUrl.toString(), request));
         }
       }

@@ -320,19 +320,23 @@ async function routeRequest(context) {
     }
   }
 
-  // Root → English homepage
+  // Root → English homepage. Use the directory path (not /index.html)
+  // so env.ASSETS serves the index directly instead of 308-redirecting
+  // — the new /cdn/<locale>/... → clean-URL redirect above would loop
+  // forever on that 308 (`/` → /cdn/en/index.html → 308 /cdn/en/ → 301 /).
   if (path === "/" || path === "/index.html") {
-    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/index.html");
+    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/");
   }
 
-  // Locale homepages: /fr, /fr/, /fr/index.html → /cdn/fr/index.html
-  // Also handles /en/ explicitly.
+  // Locale homepages: /fr, /fr/, /fr/index.html → /cdn/fr/
+  // Also handles /en/ explicitly. Directory path for the same reason
+  // as the root rewrite above.
   const firstSlash = path.indexOf("/", 1);
   const firstSegment = firstSlash === -1 ? path.slice(1) : path.slice(1, firstSlash);
   if (LOCALES.has(firstSegment)) {
     const rest = firstSlash === -1 ? "" : path.slice(firstSlash);
     if (rest === "" || rest === "/" || rest === "/index.html") {
-      return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/" + firstSegment + "/index.html");
+      return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/" + firstSegment + "/");
     }
   }
   if (path === "/404.html") {

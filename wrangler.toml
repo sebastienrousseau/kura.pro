@@ -34,22 +34,35 @@ binding = "RATE_KV"
 id = "e5688bf85dff4b16988c4a3853bb7171"
 
 # Durable Object rate limiter — atomic increment-if-below counter.
-# checkRateLimit() in functions/api/_shared.js auto-detects this binding and
-# falls back to the (non-atomic) KV path when it's absent, so production keeps
-# running through the migration. To activate atomic limits:
 #
-#   1. Uncomment the two stanzas below.
-#   2. Run `npx wrangler deploy` once so Cloudflare provisions the namespace
-#      from the migration tag.
-#   3. Subsequent deploys will use the DO path automatically.
+# checkRateLimit() in functions/api/_shared.js auto-detects the RATE_LIMITER
+# binding and falls back to the (now fail-open, see PRs #42 / #43) KV path
+# when it's absent. The KV path is sufficient for current traffic; the DO is
+# the upgrade for when atomic bursts or KV daily-put quota become real.
+#
+# ── Activation (Pages cannot host the DO class itself) ──
+#
+# Cloudflare Pages Functions can only *bind* to a Durable Object that lives
+# in a standalone Workers project — `[[migrations]]` is Workers-only and the
+# Pages git-integration deploy silently ignores it. The standalone Worker is
+# scaffolded at workers/rate-limiter/ in this repo:
+#
+#   1. cd workers/rate-limiter && npx wrangler deploy
+#      (one-time — provisions the DO namespace via the `v1` migration)
+#
+#   2. Uncomment the stanza below. The `script_name` is what makes the
+#      binding cross-script — without it, Pages would look for the class
+#      in its own Functions bundle, which (per the lesson from #44) won't
+#      work.
+#
+#   3. Commit + push. checkRateLimit() in functions/api/_shared.js picks
+#      up `env.RATE_LIMITER` automatically and switches over with zero
+#      code changes; rollback is symmetric (re-comment the stanza).
 #
 # [[durable_objects.bindings]]
-# name       = "RATE_LIMITER"
-# class_name = "RateLimiterDO"
-#
-# [[migrations]]
-# tag         = "v1"
-# new_classes = ["RateLimiterDO"]
+# name        = "RATE_LIMITER"
+# class_name  = "RateLimiterDO"
+# script_name = "cloudcdn-rate-limiter"
 
 # Workers Analytics Engine — high-cardinality, low-cost per-request metrics
 # (request count, latency, status, AI neuron spend, cache hit rate). When the

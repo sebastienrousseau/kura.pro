@@ -1,0 +1,12 @@
+{
+  "name": "cloudcdn-rate-limiter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone Worker that hosts the RateLimiterDO Durable Object for the cloudcdn-pro Pages project.",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "dev": "wrangler dev"
+  }
+}

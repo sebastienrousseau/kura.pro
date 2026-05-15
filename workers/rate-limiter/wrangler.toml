@@ -1,0 +1,23 @@
+name = "cloudcdn-rate-limiter"
+main = "src/index.js"
+
+# Match the Pages project's date so behaviour is identical across the
+# cross-script binding.
+compatibility_date = "2026-04-01"
+
+# Declare the Durable Object class hosted by this Worker. The
+# `[[migrations]]` directive is what actually provisions the namespace
+# on Cloudflare's side; without it the class exists in code but no
+# storage backing is allocated.
+#
+# `RATE_LIMITER` is a *self*-binding so this Worker could probe its own
+# DO if needed (currently unused — kept for symmetry and future health
+# checks). The Pages project binds the same class cross-script in the
+# repo-root wrangler.toml using `script_name = "cloudcdn-rate-limiter"`.
+[[durable_objects.bindings]]
+name       = "RATE_LIMITER"
+class_name = "RateLimiterDO"
+
+[[migrations]]
+tag         = "v1"
+new_classes = ["RateLimiterDO"]

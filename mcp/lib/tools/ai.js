@@ -96,6 +96,18 @@ export function registerAiTools(server) {
   );
 
   server.tool(
+    'chat_ask',
+    'Ask the CloudCDN AI concierge a natural-language question about the platform — pricing, limits, how to use a specific endpoint, troubleshooting, etc. The concierge is a RAG agent over the `cdn/en/content/` knowledge base. Returns `{ answer, sources: string[], confidence: "high"|"medium"|"low", source: "ai"|"cached"|"curated", degraded: boolean }`. When AI quota is exhausted the curated 30-entry FAQ takes over (`source: "curated"`); the contract is identical so agents need no special branching.',
+    {
+      question: z.string().min(1).max(2000).describe('Free-form question. Be specific — "how do I purge by tag" beats "purge help".'),
+    },
+    async ({ question }) => {
+      const res = await api.post('/api/chat', { messages: [{ role: 'user', content: question }] });
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
+
+  server.tool(
     'remove_background',
     'Remove the background from an image, isolating the subject on a transparent alpha layer. **Not yet implemented** — the endpoint returns HTTP 501 because Cloudflare Workers AI does not currently include a segmentation/matting model (U^2-Net / rembg-class). The route is documented and discoverable so agents and clients can integrate ahead of the model landing; when a model becomes available the implementation will swap in without changing this contract. Use the smart_crop tool today for subject-aware framing as the nearest substitute.',
     { url: URL_PATH },

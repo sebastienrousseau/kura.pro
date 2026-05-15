@@ -1,7 +1,25 @@
 /**
  * CloudCDN MCP Server definition.
  *
- * Registers 20 tools across 6 API planes + 3 read-only resources.
+ * Registers 42 tools across 9 API planes + 6 read-only resources:
+ *
+ *   Storage   (4)  storage_list / upload / delete / batch_upload
+ *   Core      (8)  statistics_summary, zone_(list|get|create|delete),
+ *                  domain_add, rules_(get|update)
+ *   Assets    (3)  assets_list, asset_metadata_get, assets_search
+ *   Insights  (6)  insights_summary / top_assets / geography / errors /
+ *                  asset, audit_logs
+ *   Delivery  (5)  transform_image, cache_purge, signed_url_generate,
+ *                  stream_playlist, pipeline_ingest
+ *   AI        (9)  semantic_search, health_check, generate_alt_text,
+ *                  smart_crop, moderate_image, placeholder_lqip,
+ *                  placeholder_blurhash, chat_ask, remove_background
+ *   Webhooks  (3)  webhook_(list|create|delete)
+ *   Tokens    (3)  token_(list|create|revoke)
+ *   Logs      (1)  logs_query
+ *
+ *   Resources (6)  manifest, zones, rules, health, openapi, insights-today
+ *
  * Each tool maps to a CloudCDN API endpoint via the HTTP client.
  */
 

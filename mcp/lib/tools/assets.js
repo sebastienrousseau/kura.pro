@@ -22,6 +22,18 @@ export function registerAssetsTools(server) {
   );
 
   server.tool(
+    'asset_metadata_get',
+    'Get the full metadata record for a single asset by path: dimensions, format, size, project, category, ETag, content hash, and any AI-derived fields (alt text, smart-crop gravity, dominant colors) cached against it. Use this before a transform or to populate a card UI.',
+    {
+      path: z.string().min(1).max(1024).describe('Relative asset path (e.g. "/akande/v1/logos/akande.svg")'),
+    },
+    async ({ path }) => {
+      const res = await api.get('/api/assets/metadata', { auth: 'access', params: { path } });
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
+
+  server.tool(
     'assets_search',
     'Search for assets by name or path. Returns matching assets with metadata.',
     {

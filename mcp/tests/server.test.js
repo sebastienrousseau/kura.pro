@@ -32,7 +32,8 @@ describe('MCP Server', () => {
     'storage_upload',
     'storage_delete',
     'storage_batch_upload',
-    // Core (7)
+    // Core (8) — includes statistics_summary
+    'statistics_summary',
     'zone_list',
     'zone_get',
     'zone_create',
@@ -40,8 +41,9 @@ describe('MCP Server', () => {
     'domain_add',
     'rules_get',
     'rules_update',
-    // Assets (2)
+    // Assets (3) — includes asset_metadata_get
     'assets_list',
+    'asset_metadata_get',
     'assets_search',
     // Insights (6)
     'insights_summary',
@@ -50,11 +52,13 @@ describe('MCP Server', () => {
     'insights_errors',
     'insights_asset',
     'audit_logs',
-    // Delivery (3)
+    // Delivery (5) — includes signed_url_generate, stream_playlist
     'transform_image',
     'cache_purge',
+    'signed_url_generate',
+    'stream_playlist',
     'pipeline_ingest',
-    // AI (8)
+    // AI (9) — includes chat_ask
     'semantic_search',
     'health_check',
     'generate_alt_text',
@@ -62,12 +66,22 @@ describe('MCP Server', () => {
     'moderate_image',
     'placeholder_lqip',
     'placeholder_blurhash',
+    'chat_ask',
     'remove_background',
+    // Webhooks (3)
+    'webhook_list',
+    'webhook_create',
+    'webhook_delete',
+    // Tokens (3)
+    'token_list',
+    'token_create',
+    'token_revoke',
+    // Operations (1)
+    'logs_query',
   ];
 
   it(`registers ${expectedTools.length} tools`, () => {
-    // McpServer stores tools internally — we verify by checking the tool count
-    expect(expectedTools.length).toBe(30);
+    expect(expectedTools.length).toBe(42);
   });
 
   for (const toolName of expectedTools) {
@@ -79,7 +93,11 @@ describe('MCP Server', () => {
   }
 
   // Verify resources
-  const expectedResources = ['manifest', 'zones', 'rules'];
+  const expectedResources = ['manifest', 'zones', 'rules', 'health', 'openapi', 'insights-today'];
+
+  it(`registers ${expectedResources.length} resources`, () => {
+    expect(expectedResources.length).toBe(6);
+  });
 
   for (const resourceName of expectedResources) {
     it(`registers resource: cloudcdn://${resourceName}`, () => {

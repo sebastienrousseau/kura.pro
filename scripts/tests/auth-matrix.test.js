@@ -158,6 +158,67 @@ describe('Auth Matrix — Dev mode (no keys configured) allows access', () => {
   });
 });
 
+describe('Auth Matrix — STRICT_AUTH=1 fails closed when keys are unset', () => {
+  // Production opts into strict mode by setting STRICT_AUTH=1 in
+  // Cloudflare Pages env vars. With strict mode on, a missing required
+  // key returns 401 instead of allowing through — defence-in-depth
+  // against accidental env-var clears in prod.
+
+  it('zones rejects unauthenticated when STRICT_AUTH=1 and ACCOUNT_KEY is unset', async () => {
+    const h = new Headers();
+    const ctx = {
+      request: { url: 'https://cloudcdn.pro/api/core/zones', method: 'GET', headers: h },
+      env: makeEnv({ ACCOUNT_KEY: undefined, STRICT_AUTH: '1' }),
+      params: {},
+    };
+    const res = await zonesModule.onRequestGet(ctx);
+    expect(res.status).toBe(401);
+  });
+
+  it('storage rejects unauthenticated when STRICT_AUTH=1 and STORAGE_KEY is unset', async () => {
+    const h = new Headers();
+    const ctx = {
+      request: { url: 'https://cloudcdn.pro/api/storage/clients/', method: 'GET', headers: h, arrayBuffer: vi.fn() },
+      params: { path: ['clients', ''] },
+      env: makeEnv({ STORAGE_KEY: undefined, DASHBOARD_SECRET: undefined, DASHBOARD_PASSWORD: undefined, STRICT_AUTH: '1' }),
+    };
+    const res = await storageModule.onRequestGet(ctx);
+    expect(res.status).toBe(401);
+  });
+
+  it('assets rejects unauthenticated when STRICT_AUTH=1 and STORAGE_KEY is unset', async () => {
+    const h = new Headers();
+    const ctx = {
+      request: { url: 'https://cloudcdn.pro/api/assets', headers: h },
+      env: makeEnv({ STORAGE_KEY: undefined, DASHBOARD_SECRET: undefined, DASHBOARD_PASSWORD: undefined, STRICT_AUTH: '1' }),
+    };
+    const res = await assetsModule.onRequestGet(ctx);
+    expect(res.status).toBe(401);
+  });
+
+  it('STRICT_AUTH="true" (string) also activates strict mode', async () => {
+    const h = new Headers();
+    const ctx = {
+      request: { url: 'https://cloudcdn.pro/api/core/zones', method: 'GET', headers: h },
+      env: makeEnv({ ACCOUNT_KEY: undefined, STRICT_AUTH: 'true' }),
+      params: {},
+    };
+    const res = await zonesModule.onRequestGet(ctx);
+    expect(res.status).toBe(401);
+  });
+
+  it('STRICT_AUTH=1 with valid AccountKey still allows access', async () => {
+    const h = new Headers({ AccountKey: 'acct-key-123' });
+    const ctx = {
+      request: { url: 'https://cloudcdn.pro/api/core/zones', method: 'GET', headers: h },
+      env: makeEnv({ ACCOUNT_KEY: 'acct-key-123', STRICT_AUTH: '1' }),
+      params: {},
+    };
+    const res = await zonesModule.onRequestGet(ctx);
+    expect(res.status).toBe(200);
+  });
+});
+
 describe('Auth Matrix — Expired session cookies rejected', () => {
   it('storage rejects expired session cookie', async () => {
     // expired token: timestamp in the past

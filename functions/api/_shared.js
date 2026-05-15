@@ -187,6 +187,22 @@ export async function hmacVerifyCached(secret, data, signature) {
   return timingSafeEqual(hex, signature);
 }
 
+/**
+ * Strict-auth gate. When `env.STRICT_AUTH === '1'`, the helpers below
+ * fail closed when their required secret is unset — used in production
+ * to guarantee that a misconfigured deploy never serves unauthenticated.
+ *
+ * When STRICT_AUTH is unset (local dev, preview), the legacy "no key
+ * configured → allow" behaviour is preserved so tests and `wrangler
+ * pages dev` keep working without exposing live secrets.
+ *
+ * The single STRICT_AUTH env var is the production toggle — set it
+ * once in Cloudflare Pages env vars alongside the actual keys.
+ */
+function strictAuth(env) {
+  return env.STRICT_AUTH === '1' || env.STRICT_AUTH === 'true';
+}
+
 export async function authenticateAccess(request, env) {
   const accessKey = request.headers.get('AccessKey');
   if (accessKey && env.STORAGE_KEY && accessKey === env.STORAGE_KEY) return true;
@@ -208,13 +224,15 @@ export async function authenticateAccess(request, env) {
     }
   }
 
-  if (!env.STORAGE_KEY && !env.DASHBOARD_SECRET && !env.DASHBOARD_PASSWORD) return true;
+  if (!env.STORAGE_KEY && !env.DASHBOARD_SECRET && !env.DASHBOARD_PASSWORD) {
+    return !strictAuth(env);
+  }
   return false;
 }
 
 export function authenticateAccount(request, env) {
   const key = request.headers.get('AccountKey');
-  if (!env.ACCOUNT_KEY) return true;
+  if (!env.ACCOUNT_KEY) return !strictAuth(env);
   return key === env.ACCOUNT_KEY;
 }
 

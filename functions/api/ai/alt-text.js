@@ -32,7 +32,7 @@
 
 import {
   AI_COST, aiBudgetState, aiBudgetCharge, aiBudgetTrip, isAiQuotaError,
-  checkRateLimit, errorResponse, log,
+  checkRateLimit, errorResponse, log, rateLimitHeaders,
   hashString, buildCacheKey, cacheGet, cacheSet,
 } from '../_shared.js';
 import { authorizeWithScope } from '../tokens.js';
@@ -117,7 +117,7 @@ async function handle(context, url) {
       degraded: true,
       /* v8 ignore next -- writer always sets dateGenerated */
       dateGenerated: cached.dateGenerated || new Date().toISOString(),
-    }), { headers: { ...CORS_HEADERS, 'Cache-Control': 'public, max-age=3600' } });
+    }), { headers: { ...CORS_HEADERS, ...rateLimitHeaders(rl), 'Cache-Control': 'public, max-age=3600' } });
   }
 
   // ── AI budget gate (Layer 2) ──
@@ -165,7 +165,7 @@ async function handle(context, url) {
     source: 'ai',
     degraded: false,
     dateGenerated,
-  }), { headers: { ...CORS_HEADERS, 'Cache-Control': 'public, max-age=3600' } });
+  }), { headers: { ...CORS_HEADERS, ...rateLimitHeaders(rl), 'Cache-Control': 'public, max-age=3600' } });
 }
 
 export async function onRequestGet(context) {

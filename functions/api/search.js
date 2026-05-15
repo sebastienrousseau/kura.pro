@@ -11,7 +11,7 @@
  */
 
 import {
-  getManifest, checkRateLimit, errorResponse,
+  getManifest, checkRateLimit, errorResponse, rateLimitHeaders,
   AI_COST, aiBudgetState, aiBudgetCharge, aiBudgetTrip, isAiQuotaError,
   normalizeQuery, hashString, buildCacheKey, cacheGet, cacheSet,
 } from './_shared.js';
@@ -145,7 +145,7 @@ export async function onRequestGet(context) {
     if (cached) {
       return new Response(
         JSON.stringify({ ...cached, mode: 'cached' }),
-        { headers: CORS_HEADERS }
+        { headers: { ...CORS_HEADERS, ...rateLimitHeaders(rl) } }
       );
     }
 
@@ -201,7 +201,7 @@ export async function onRequestGet(context) {
       await cacheSet(cacheKey, body, SEARCH_CACHE_TTL_SEC);
     }
 
-    return new Response(JSON.stringify(body), { headers: CORS_HEADERS });
+    return new Response(JSON.stringify(body), { headers: { ...CORS_HEADERS, ...rateLimitHeaders(rl) } });
   } catch {
     return new Response(JSON.stringify({ error: 'Search failed. Please try again.' }), { status: 500, headers: CORS_HEADERS });
   }

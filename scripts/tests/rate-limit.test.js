@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { checkRateLimit } = await import('../../functions/api/_shared.js');
+const { checkRateLimit, rateLimitHeaders } = await import('../../functions/api/_shared.js');
 
 function makeKV(currentCount = '0') {
   return {
@@ -177,5 +177,40 @@ describe('Rate Limiting — checkRateLimit', () => {
     };
     const result = await checkRateLimit(kv, 'rl:test:key', 60, 60);
     expect(result.allowed).toBe(true);
+  });
+});
+
+describe('rateLimitHeaders', () => {
+  it('returns X-RateLimit-Limit and X-RateLimit-Remaining for a valid rl result', () => {
+    expect(rateLimitHeaders({ allowed: true, limit: 100, remaining: 47 })).toEqual({
+      'X-RateLimit-Limit': '100',
+      'X-RateLimit-Remaining': '47',
+    });
+  });
+
+  it('includes X-RateLimit-Reset when the DO returns resetAt', () => {
+    expect(rateLimitHeaders({ allowed: true, limit: 100, remaining: 47, resetAt: 1778859821 })).toEqual({
+      'X-RateLimit-Limit': '100',
+      'X-RateLimit-Remaining': '47',
+      'X-RateLimit-Reset': '1778859821',
+    });
+  });
+
+  it('clamps remaining to 0 when negative', () => {
+    expect(rateLimitHeaders({ allowed: false, limit: 100, remaining: -3 })).toEqual({
+      'X-RateLimit-Limit': '100',
+      'X-RateLimit-Remaining': '0',
+    });
+  });
+
+  it('returns {} for the no-binding shortcut so callers can spread unconditionally', () => {
+    expect(rateLimitHeaders({ allowed: true })).toEqual({});
+    expect(rateLimitHeaders(null)).toEqual({});
+    expect(rateLimitHeaders(undefined)).toEqual({});
+  });
+
+  it('returns {} when limit or remaining is not a number', () => {
+    expect(rateLimitHeaders({ allowed: true, limit: '100', remaining: 47 })).toEqual({});
+    expect(rateLimitHeaders({ allowed: true, limit: 100, remaining: '47' })).toEqual({});
   });
 });

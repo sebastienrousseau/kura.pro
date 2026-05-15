@@ -32,7 +32,7 @@
 
 import {
   AI_COST, aiBudgetState, aiBudgetCharge, aiBudgetTrip, isAiQuotaError,
-  checkRateLimit, errorResponse, log,
+  checkRateLimit, errorResponse, log, rateLimitHeaders,
   hashString, buildCacheKey, cacheGet, cacheSet,
   authenticateAny,
 } from '../_shared.js';
@@ -151,7 +151,7 @@ async function handle(context, url) {
       source: 'cached',
       degraded: true,
       dateGenerated: cached.dateGenerated,
-    }), { headers: { ...CORS_HEADERS, 'Cache-Control': 'public, max-age=3600' } });
+    }), { headers: { ...CORS_HEADERS, ...rateLimitHeaders(rl), 'Cache-Control': 'public, max-age=3600' } });
   }
 
   const budget = await aiBudgetState(env);
@@ -207,7 +207,7 @@ async function handle(context, url) {
     source: 'ai',
     degraded: false,
     dateGenerated,
-  }), { headers: { ...CORS_HEADERS, 'Cache-Control': 'public, max-age=3600' } });
+  }), { headers: { ...CORS_HEADERS, ...rateLimitHeaders(rl), 'Cache-Control': 'public, max-age=3600' } });
 }
 
 export async function onRequestGet(context) {

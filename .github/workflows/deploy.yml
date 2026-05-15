@@ -102,7 +102,13 @@ jobs:
       - name: Build ASCII commit message
         id: commit_msg
         run: |
-          msg=$(git log -1 --pretty=%s | LC_ALL=C tr -cd '[:print:][:space:]' | head -c 100)
+          # Strip non-ASCII (Cloudflare API rejects U+2014, U+2192 etc.) AND
+          # strip double-quote + backslash so the message can be safely
+          # interpolated into the shell-quoted --commit-message=... below.
+          # Without the quote-strip, revert commits with embedded quotes
+          # (e.g. Revert "feat(...)") break the shell expansion and wrangler
+          # fails to parse its arguments. Cap at 100 chars.
+          msg=$(git log -1 --pretty=%s | LC_ALL=C tr -cd '[:print:][:space:]' | tr -d '"\\' | head -c 100)
           # Fallback if stripping leaves us empty
           [ -z "$msg" ] && msg="deploy ${GITHUB_SHA::7}"
           echo "msg=$msg" >> "$GITHUB_OUTPUT"

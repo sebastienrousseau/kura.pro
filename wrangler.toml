@@ -16,6 +16,10 @@ pages_build_output_dir = "."
 # ever accidentally cleared from the Pages dashboard.
 [vars]
 STRICT_AUTH = "1"
+# Repository pointer for /api/pipeline (GitOps zone creation). Public info,
+# safe as plaintext. The matching GITHUB_TOKEN must be uploaded via
+# `wrangler pages secret put` — see docs/pipeline-setup.md.
+GITHUB_REPO = "sebastienrousseau/cloudcdn.pro"
 
 # Smart Placement co-locates the worker with the data it talks to most
 # (KV reads, AI calls). Reduces tail latency on cold PoPs by 30-50ms.

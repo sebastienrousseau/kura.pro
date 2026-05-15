@@ -7,7 +7,7 @@
  * Auth: AccountKey header (env.ACCOUNT_KEY) — separated from StorageKey.
  */
 
-import { checkRateLimit, errorResponse, fetchWithTimeout, log, cdnOrigin, appendAuditLog } from '../_shared.js';
+import { checkRateLimit, errorResponse, fetchWithTimeout, log, cdnOrigin, appendAuditLog, rateLimitHeaders } from '../_shared.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -78,7 +78,7 @@ export async function onRequestGet(context) {
     Suspended: false,
   }));
 
-  return new Response(JSON.stringify(result, null, 2), { headers: CORS });
+  return new Response(JSON.stringify(result, null, 2), { headers: { ...CORS, ...rateLimitHeaders(rl) } });
 }
 
 /**
@@ -172,7 +172,7 @@ export async function onRequestPost(context) {
       EdgeStatus: 'pending',
       EdgeNote: 'Zone will be live after CI/CD deploy (~60-90 seconds).',
       DateCreated: new Date().toISOString(),
-    }, null, 2), { status: 201, headers: CORS });
+    }, null, 2), { status: 201, headers: { ...CORS, ...rateLimitHeaders(rl) } });
   } catch (err) {
     log.error('ZONE_CREATE_ERROR', err.message);
     return new Response(JSON.stringify({ HttpCode: 500, Message: 'The zone creation failed due to an unexpected error. Verify your credentials and try again.' }), { status: 500, headers: CORS });

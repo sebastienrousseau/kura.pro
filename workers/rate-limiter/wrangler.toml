@@ -18,6 +18,10 @@ compatibility_date = "2026-04-01"
 name       = "RATE_LIMITER"
 class_name = "RateLimiterDO"
 
+# SQLite-backed DO classes are the only option on the free Workers plan
+# and are the recommended default on paid plans too (faster + supports
+# point-in-time recovery). The storage API used by RateLimiterDO is
+# identical between the two — no code change required to switch.
 [[migrations]]
-tag         = "v1"
-new_classes = ["RateLimiterDO"]
+tag                = "v1"
+new_sqlite_classes = ["RateLimiterDO"]

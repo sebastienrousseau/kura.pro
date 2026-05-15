@@ -90,9 +90,26 @@ jobs:
           subject-name: cloudcdn-pro
           subject-digest: ${{ steps.digest.outputs.digest }}
 
+      # Build an ASCII-only commit message for the Pages deploy metadata.
+      # Wrangler v4 auto-reads the latest commit subject and passes it to the
+      # Cloudflare Pages API, which rejects non-ASCII characters with
+      # `code: 8000111 — Invalid commit message, it must be a valid UTF-8
+      # string` (the error message is misleading — the bytes ARE valid UTF-8,
+      # but the API treats characters like `—` U+2014 and `→` U+2192 as
+      # invalid). Strip everything outside ASCII printable + space, cap at
+      # 100 chars, and pass it explicitly via --commit-message so the git
+      # auto-detection path is bypassed.
+      - name: Build ASCII commit message
+        id: commit_msg
+        run: |
+          msg=$(git log -1 --pretty=%s | LC_ALL=C tr -cd '[:print:][:space:]' | head -c 100)
+          # Fallback if stripping leaves us empty
+          [ -z "$msg" ] && msg="deploy ${GITHUB_SHA::7}"
+          echo "msg=$msg" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy . --project-name=cloudcdn-pro
+          command: pages deploy . --project-name=cloudcdn-pro --commit-message="${{ steps.commit_msg.outputs.msg }}"

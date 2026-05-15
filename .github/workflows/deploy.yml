@@ -1,4 +1,22 @@
 name: Deploy to Cloudflare Pages
+#
+# This workflow is the SOLE deploy path to Cloudflare Pages production.
+# Cloudflare's own Git auto-deploy was disabled in the Pages dashboard
+# (Settings → Build & deployments → Branch control → "Enable automatic
+# production branch deployments" toggled off) in May 2026.
+#
+# Why: Cloudflare's git-integration build does NOT read binding stanzas
+# from wrangler.toml (analytics_engine_datasets, queues, cross-script
+# durable_objects). When both pipelines ran on every push, whichever
+# finished last won the active production slot — and when CF's pipeline
+# won, the bindings got dropped, leaving prod with metrics=false,
+# webhookQueue=false, rateLimiter unbound. Verified by force-running
+# `wrangler pages deploy` afterwards and seeing the bindings come back.
+#
+# Re-enabling CF's git-integration would silently re-introduce that race.
+# If you ever do, mirror every binding from wrangler.toml into the Pages
+# dashboard (Settings → Functions → bindings) so both pipelines produce
+# identical builds.
 on:
   push:
     branches: [main]

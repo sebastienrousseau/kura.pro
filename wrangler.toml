@@ -35,21 +35,19 @@ id = "e5688bf85dff4b16988c4a3853bb7171"
 
 # Durable Object rate limiter — atomic increment-if-below counter.
 # checkRateLimit() in functions/api/_shared.js auto-detects this binding and
-# falls back to the (non-atomic) KV path when it's absent, so production keeps
-# running through the migration. To activate atomic limits:
-#
-#   1. Uncomment the two stanzas below.
-#   2. Run `npx wrangler deploy` once so Cloudflare provisions the namespace
-#      from the migration tag.
-#   3. Subsequent deploys will use the DO path automatically.
-#
-# [[durable_objects.bindings]]
-# name       = "RATE_LIMITER"
-# class_name = "RateLimiterDO"
-#
-# [[migrations]]
-# tag         = "v1"
-# new_classes = ["RateLimiterDO"]
+# falls back to the (non-atomic) KV path when it's absent. The DO holds the
+# counter in transactional storage so two concurrent requests can never both
+# observe `count < limit` and slip past the cap — and crucially, DO writes
+# don't share the free-tier KV daily put quota that took the rate-limited
+# endpoints down in May 2026 (see PRs #42, #43).
+
+[[durable_objects.bindings]]
+name       = "RATE_LIMITER"
+class_name = "RateLimiterDO"
+
+[[migrations]]
+tag         = "v1"
+new_classes = ["RateLimiterDO"]
 
 # Workers Analytics Engine — high-cardinality, low-cost per-request metrics
 # (request count, latency, status, AI neuron spend, cache hit rate). When the

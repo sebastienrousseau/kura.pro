@@ -2,9 +2,13 @@
   CloudCDN — Unified site navigation (canonical snippet).
   Copy-paste this block into every page, directly after <body>.
 
-  Required <head> entries:
+  Required <head> entries (theme system + nav):
+    <script src="/shared/theme-boot.js"></script>           <!-- sync, pre-paint -->
+    <link rel="stylesheet" href="/shared/vendor/skeletonic/skeletonic.min.css">
     <link rel="stylesheet" href="/shared/site-nav.css">
+    <link rel="stylesheet" href="/shared/theme.css">
     <script defer src="/shared/site-nav.js"></script>
+    <script defer src="/shared/theme-toggle.js"></script>
 
   The skip link target (#main) must exist on the page.
   Set aria-label on <nav> per page if useful (default: "Main navigation").
@@ -28,6 +32,15 @@
     </nav>
 
     <div class="nav-right">
+      <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="false" title="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+        </svg>
+      </button>
       <a href="/dashboard/login" id="auth-link" class="nav-cta" data-logout-label="Logout">Login</a>
     </div>
 

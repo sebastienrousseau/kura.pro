@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CloudCDN — API Reference</title>
   <meta name="description" content="Interactive API reference for CloudCDN. Storage, Core, Assets, Insights, Delivery, and AI endpoints with Try It console and client libraries.">
+  <meta name="theme-color" content="#08090d">
   <link rel="icon" href="/favicon.ico">
+  <script src="/shared/theme-boot.js"></script>
+  <link rel="stylesheet" href="/shared/vendor/skeletonic/skeletonic.min.css">
   <link rel="stylesheet" href="/shared/site-nav.css">
+  <link rel="stylesheet" href="/shared/theme.css">
   <script defer src="/shared/site-nav.js"></script>
+  <script defer src="/shared/theme-toggle.js"></script>
 
   <!-- Preload spec for instant render. Absolute path because the URL
        bar lands on `/api-reference` (no trailing slash) and a relative
@@ -15,30 +20,30 @@
   <link rel="preload" href="/api-reference/openapi.json" as="fetch" crossorigin="anonymous">
 
   <style>
-    body { margin: 0; background: #08090d; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
 
     /* Secondary bar for API-specific client downloads */
     .api-subbar {
-      background: #0f1117;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-subtle);
       padding: 0.625rem 1.5rem;
       display: flex;
       align-items: center;
       gap: 0.75rem;
       flex-wrap: wrap;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: var(--font);
     }
     .api-subbar-label {
-      color: #8b8fa3;
+      color: var(--text-muted);
       font-size: 0.75rem;
       font-weight: 500;
     }
     .api-subbar .pill {
-      background: rgba(99, 102, 241, 0.12);
-      border: 1px solid rgba(99, 102, 241, 0.25);
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
       border-radius: 0.375rem;
       padding: 0.375rem 0.75rem;
-      color: #a5b4fc;
+      color: var(--accent-text);
       font-size: 0.75rem;
       font-weight: 500;
       cursor: pointer;
@@ -48,8 +53,8 @@
       display: inline-flex;
       align-items: center;
     }
-    .api-subbar .pill:hover { background: rgba(99, 102, 241, 0.2); color: #fff; }
-    .api-subbar .pill:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+    .api-subbar .pill:hover { background: var(--accent-soft); color: var(--heading); border-color: var(--accent); }
+    .api-subbar .pill:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
   </style>
 </head>
 <body>
@@ -70,6 +75,15 @@
         </ul>
       </nav>
       <div class="nav-right">
+        <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="false" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
         <a href="/dashboard/login" id="auth-link" class="nav-cta" data-logout-label="Logout">Login</a>
       </div>
       <button

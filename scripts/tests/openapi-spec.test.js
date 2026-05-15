@@ -30,7 +30,7 @@ describe('OpenAPI Spec — Completeness', () => {
 
   it('has tag groups for product organization', () => {
     expect(spec['x-tagGroups']).toBeDefined();
-    expect(spec['x-tagGroups'].length).toBe(3);
+    expect(spec['x-tagGroups'].length).toBe(4);
     const allTags = spec['x-tagGroups'].flatMap(g => g.tags);
     expect(allTags).toContain('Storage');
     expect(allTags).toContain('Core');
@@ -38,6 +38,9 @@ describe('OpenAPI Spec — Completeness', () => {
     expect(allTags).toContain('Insights');
     expect(allTags).toContain('Delivery');
     expect(allTags).toContain('AI');
+    expect(allTags).toContain('Auth');
+    expect(allTags).toContain('Webhooks');
+    expect(allTags).toContain('Operations');
   });
 });
 

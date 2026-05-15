@@ -359,9 +359,16 @@ The npm package (`@cloudcdn/mcp-server`) follows semantic versioning. Breaking c
 ## Contributing and security
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to set up the project, send a PR, and meet the commit-signing requirement.
-- [`SECURITY.md`](SECURITY.md) — responsible disclosure path and supported-versions policy.
+- [`SECURITY.md`](SECURITY.md) — responsible disclosure + the full security architecture (CSP profiles, signed URLs, HMAC sessions, passkeys, rate limiting, supply chain).
 - [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1.
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) — system layout, request flow, and the AI fallback design.
+
+### Deep docs
+
+- [`docs/theming.md`](docs/theming.md) — the light/dark token system, how to add a new page, why explicit `[data-theme]` overrides instead of relying on `color-scheme` inheritance, and the full token table.
+- [`docs/accessibility.md`](docs/accessibility.md) — WCAG 2.2 AA commitments, the axe-core CI gate, past contrast regressions, and how to audit locally.
+- [`docs/mcp.md`](docs/mcp.md) — the 42 MCP tools + 6 resources, what each plane covers, example agent prompts, and how to add a new tool.
+- [`docs/cli.md`](docs/cli.md) — Stratos CLI install, configuration, command reference, and exit codes.
 
 ## License
 

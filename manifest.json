@@ -2485,7 +2485,15 @@
     "project": "bankingoncloudnative",
     "category": "general",
     "format": "ico",
-    "size": 402865
+    "size": 63216
+  },
+  {
+    "name": "banner-bankingoncloudnative.svg",
+    "path": "bankingoncloudnative/v1/banners/banner-bankingoncloudnative.svg",
+    "project": "bankingoncloudnative",
+    "category": "banners",
+    "format": "svg",
+    "size": 1224819
   },
   {
     "name": "favicon.ico",
@@ -2509,7 +2517,7 @@
     "project": "bankingoncloudnative",
     "category": "github",
     "format": "svg",
-    "size": 1307561
+    "size": 1225841
   },
   {
     "name": "180x180.png",

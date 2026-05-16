@@ -319,6 +319,7 @@ export type CdnPath =
   | "bankingonai/v1/logos/bankingonai.svg"
   | "bankingonai/v1/titles/title-bankingonai.svg"
   | "bankingoncloudnative/favicon.ico"
+  | "bankingoncloudnative/v1/banners/banner-bankingoncloudnative.svg"
   | "bankingoncloudnative/v1/favicon.ico"
   | "bankingoncloudnative/v1/github/github-bankingoncloudnative.png"
   | "bankingoncloudnative/v1/github/github-bankingoncloudnative.svg"

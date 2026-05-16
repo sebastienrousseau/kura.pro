@@ -2481,6 +2481,86 @@
   },
   {
     "name": "favicon.ico",
+    "path": "bankingoncloudnative/favicon.ico",
+    "project": "bankingoncloudnative",
+    "category": "general",
+    "format": "ico",
+    "size": 402865
+  },
+  {
+    "name": "favicon.ico",
+    "path": "bankingoncloudnative/v1/favicon.ico",
+    "project": "bankingoncloudnative",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 63216
+  },
+  {
+    "name": "github-bankingoncloudnative.png",
+    "path": "bankingoncloudnative/v1/github/github-bankingoncloudnative.png",
+    "project": "bankingoncloudnative",
+    "category": "github",
+    "format": "png",
+    "size": 163356
+  },
+  {
+    "name": "github-bankingoncloudnative.svg",
+    "path": "bankingoncloudnative/v1/github/github-bankingoncloudnative.svg",
+    "project": "bankingoncloudnative",
+    "category": "github",
+    "format": "svg",
+    "size": 1307561
+  },
+  {
+    "name": "180x180.png",
+    "path": "bankingoncloudnative/v1/icons/180x180.png",
+    "project": "bankingoncloudnative",
+    "category": "icons",
+    "format": "png",
+    "size": 20274
+  },
+  {
+    "name": "192x192.png",
+    "path": "bankingoncloudnative/v1/icons/192x192.png",
+    "project": "bankingoncloudnative",
+    "category": "icons",
+    "format": "png",
+    "size": 21719
+  },
+  {
+    "name": "512x512.png",
+    "path": "bankingoncloudnative/v1/icons/512x512.png",
+    "project": "bankingoncloudnative",
+    "category": "icons",
+    "format": "png",
+    "size": 65908
+  },
+  {
+    "name": "bankingoncloudnative.png",
+    "path": "bankingoncloudnative/v1/logos/bankingoncloudnative.png",
+    "project": "bankingoncloudnative",
+    "category": "logos",
+    "format": "png",
+    "size": 515620
+  },
+  {
+    "name": "bankingoncloudnative.svg",
+    "path": "bankingoncloudnative/v1/logos/bankingoncloudnative.svg",
+    "project": "bankingoncloudnative",
+    "category": "logos",
+    "format": "svg",
+    "size": 24721
+  },
+  {
+    "name": "title-bankingoncloudnative.svg",
+    "path": "bankingoncloudnative/v1/titles/title-bankingoncloudnative.svg",
+    "project": "bankingoncloudnative",
+    "category": "titles",
+    "format": "svg",
+    "size": 634
+  },
+  {
+    "name": "favicon.ico",
     "path": "bankingonquantum/favicon.ico",
     "project": "bankingonquantum",
     "category": "general",

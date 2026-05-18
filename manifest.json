@@ -8957,7 +8957,7 @@
     "project": "raidhos",
     "category": "general",
     "format": "ico",
-    "size": 36974
+    "size": 29468
   },
   {
     "name": "banner-raidhos.svg",
@@ -8965,7 +8965,7 @@
     "project": "raidhos",
     "category": "banners",
     "format": "svg",
-    "size": 2835723
+    "size": 350259
   },
   {
     "name": "favicon.ico",
@@ -8973,7 +8973,7 @@
     "project": "raidhos",
     "category": "favicon.ico",
     "format": "ico",
-    "size": 36974
+    "size": 29468
   },
   {
     "name": "github-raidhos.png",
@@ -8981,7 +8981,7 @@
     "project": "raidhos",
     "category": "github",
     "format": "png",
-    "size": 141191
+    "size": 111765
   },
   {
     "name": "github-raidhos.svg",
@@ -8989,7 +8989,7 @@
     "project": "raidhos",
     "category": "github",
     "format": "svg",
-    "size": 2836723
+    "size": 351250
   },
   {
     "name": "180x180.png",
@@ -8997,7 +8997,7 @@
     "project": "raidhos",
     "category": "icons",
     "format": "png",
-    "size": 8576
+    "size": 4825
   },
   {
     "name": "192x192.png",
@@ -9005,7 +9005,7 @@
     "project": "raidhos",
     "category": "icons",
     "format": "png",
-    "size": 9199
+    "size": 5063
   },
   {
     "name": "512x512.png",
@@ -9013,7 +9013,7 @@
     "project": "raidhos",
     "category": "icons",
     "format": "png",
-    "size": 29048
+    "size": 14671
   },
   {
     "name": "raidhos.png",
@@ -9021,7 +9021,7 @@
     "project": "raidhos",
     "category": "logos",
     "format": "png",
-    "size": 837367
+    "size": 47598
   },
   {
     "name": "raidhos.svg",
@@ -9029,7 +9029,7 @@
     "project": "raidhos",
     "category": "logos",
     "format": "svg",
-    "size": 9538
+    "size": 750
   },
   {
     "name": "title-raidhos.svg",

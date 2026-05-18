@@ -3856,6 +3856,318 @@
     "size": 500
   },
   {
+    "name": "favicon.ico",
+    "path": "crypto-service/favicon.ico",
+    "project": "crypto-service",
+    "category": "general",
+    "format": "ico",
+    "size": 43786
+  },
+  {
+    "name": "banner-crypto-api.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-api.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868620
+  },
+  {
+    "name": "banner-crypto-cli.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-cli.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868620
+  },
+  {
+    "name": "banner-crypto-edge.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-edge.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868621
+  },
+  {
+    "name": "banner-crypto-kms.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-kms.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868620
+  },
+  {
+    "name": "banner-crypto-lib.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-lib.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868618
+  },
+  {
+    "name": "banner-crypto-middleware.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-middleware.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868627
+  },
+  {
+    "name": "banner-crypto-prisma.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-prisma.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868623
+  },
+  {
+    "name": "banner-crypto-react.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-react.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868622
+  },
+  {
+    "name": "banner-crypto-sdk.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-sdk.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868620
+  },
+  {
+    "name": "banner-crypto-server.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-server.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868623
+  },
+  {
+    "name": "banner-crypto-service.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-service.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868624
+  },
+  {
+    "name": "banner-crypto-testing.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-testing.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868624
+  },
+  {
+    "name": "banner-crypto-typeorm.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-typeorm.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868624
+  },
+  {
+    "name": "banner-crypto-vue.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-vue.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868620
+  },
+  {
+    "name": "banner-crypto-wasm.svg",
+    "path": "crypto-service/v1/banners/banner-crypto-wasm.svg",
+    "project": "crypto-service",
+    "category": "banners",
+    "format": "svg",
+    "size": 868621
+  },
+  {
+    "name": "favicon.ico",
+    "path": "crypto-service/v1/favicon.ico",
+    "project": "crypto-service",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 43786
+  },
+  {
+    "name": "github-crypto-service.png",
+    "path": "crypto-service/v1/github/github-crypto-service.png",
+    "project": "crypto-service",
+    "category": "github",
+    "format": "png",
+    "size": 145982
+  },
+  {
+    "name": "github-crypto-service.svg",
+    "path": "crypto-service/v1/github/github-crypto-service.svg",
+    "project": "crypto-service",
+    "category": "github",
+    "format": "svg",
+    "size": 870040
+  },
+  {
+    "name": "180x180.png",
+    "path": "crypto-service/v1/icons/180x180.png",
+    "project": "crypto-service",
+    "category": "icons",
+    "format": "png",
+    "size": 10429
+  },
+  {
+    "name": "192x192.png",
+    "path": "crypto-service/v1/icons/192x192.png",
+    "project": "crypto-service",
+    "category": "icons",
+    "format": "png",
+    "size": 11083
+  },
+  {
+    "name": "512x512.png",
+    "path": "crypto-service/v1/icons/512x512.png",
+    "project": "crypto-service",
+    "category": "icons",
+    "format": "png",
+    "size": 33267
+  },
+  {
+    "name": "crypto-service.png",
+    "path": "crypto-service/v1/logos/crypto-service.png",
+    "project": "crypto-service",
+    "category": "logos",
+    "format": "png",
+    "size": 317818
+  },
+  {
+    "name": "crypto-service.svg",
+    "path": "crypto-service/v1/logos/crypto-service.svg",
+    "project": "crypto-service",
+    "category": "logos",
+    "format": "svg",
+    "size": 3998
+  },
+  {
+    "name": "title-crypto-api.svg",
+    "path": "crypto-service/v1/titles/title-crypto-api.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 311
+  },
+  {
+    "name": "title-crypto-cli.svg",
+    "path": "crypto-service/v1/titles/title-crypto-cli.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 311
+  },
+  {
+    "name": "title-crypto-edge.svg",
+    "path": "crypto-service/v1/titles/title-crypto-edge.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 312
+  },
+  {
+    "name": "title-crypto-kms.svg",
+    "path": "crypto-service/v1/titles/title-crypto-kms.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 311
+  },
+  {
+    "name": "title-crypto-lib.svg",
+    "path": "crypto-service/v1/titles/title-crypto-lib.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 311
+  },
+  {
+    "name": "title-crypto-middleware.svg",
+    "path": "crypto-service/v1/titles/title-crypto-middleware.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 320
+  },
+  {
+    "name": "title-crypto-prisma.svg",
+    "path": "crypto-service/v1/titles/title-crypto-prisma.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 314
+  },
+  {
+    "name": "title-crypto-react.svg",
+    "path": "crypto-service/v1/titles/title-crypto-react.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 313
+  },
+  {
+    "name": "title-crypto-sdk.svg",
+    "path": "crypto-service/v1/titles/title-crypto-sdk.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 311
+  },
+  {
+    "name": "title-crypto-server.svg",
+    "path": "crypto-service/v1/titles/title-crypto-server.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 314
+  },
+  {
+    "name": "title-crypto-service.svg",
+    "path": "crypto-service/v1/titles/title-crypto-service.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 315
+  },
+  {
+    "name": "title-crypto-testing.svg",
+    "path": "crypto-service/v1/titles/title-crypto-testing.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 315
+  },
+  {
+    "name": "title-crypto-typeorm.svg",
+    "path": "crypto-service/v1/titles/title-crypto-typeorm.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 315
+  },
+  {
+    "name": "title-crypto-vue.svg",
+    "path": "crypto-service/v1/titles/title-crypto-vue.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 311
+  },
+  {
+    "name": "title-crypto-wasm.svg",
+    "path": "crypto-service/v1/titles/title-crypto-wasm.svg",
+    "project": "crypto-service",
+    "category": "titles",
+    "format": "svg",
+    "size": 312
+  },
+  {
     "name": "DieHardWithAScracth.svg",
     "path": "cs50x/DieHardWithAScracth.svg",
     "project": "cs50x",
@@ -8638,6 +8950,94 @@
     "category": "titles",
     "format": "svg",
     "size": 304
+  },
+  {
+    "name": "favicon.ico",
+    "path": "raidhos/favicon.ico",
+    "project": "raidhos",
+    "category": "general",
+    "format": "ico",
+    "size": 36974
+  },
+  {
+    "name": "banner-raidhos.svg",
+    "path": "raidhos/v1/banners/banner-raidhos.svg",
+    "project": "raidhos",
+    "category": "banners",
+    "format": "svg",
+    "size": 2835723
+  },
+  {
+    "name": "favicon.ico",
+    "path": "raidhos/v1/favicon.ico",
+    "project": "raidhos",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 36974
+  },
+  {
+    "name": "github-raidhos.png",
+    "path": "raidhos/v1/github/github-raidhos.png",
+    "project": "raidhos",
+    "category": "github",
+    "format": "png",
+    "size": 141191
+  },
+  {
+    "name": "github-raidhos.svg",
+    "path": "raidhos/v1/github/github-raidhos.svg",
+    "project": "raidhos",
+    "category": "github",
+    "format": "svg",
+    "size": 2836723
+  },
+  {
+    "name": "180x180.png",
+    "path": "raidhos/v1/icons/180x180.png",
+    "project": "raidhos",
+    "category": "icons",
+    "format": "png",
+    "size": 8576
+  },
+  {
+    "name": "192x192.png",
+    "path": "raidhos/v1/icons/192x192.png",
+    "project": "raidhos",
+    "category": "icons",
+    "format": "png",
+    "size": 9199
+  },
+  {
+    "name": "512x512.png",
+    "path": "raidhos/v1/icons/512x512.png",
+    "project": "raidhos",
+    "category": "icons",
+    "format": "png",
+    "size": 29048
+  },
+  {
+    "name": "raidhos.png",
+    "path": "raidhos/v1/logos/raidhos.png",
+    "project": "raidhos",
+    "category": "logos",
+    "format": "png",
+    "size": 837367
+  },
+  {
+    "name": "raidhos.svg",
+    "path": "raidhos/v1/logos/raidhos.svg",
+    "project": "raidhos",
+    "category": "logos",
+    "format": "svg",
+    "size": 9538
+  },
+  {
+    "name": "title-raidhos.svg",
+    "path": "raidhos/v1/titles/title-raidhos.svg",
+    "project": "raidhos",
+    "category": "titles",
+    "format": "svg",
+    "size": 311
   },
   {
     "name": "favicon.ico",

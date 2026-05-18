@@ -42,6 +42,14 @@ function parseRoute(params) {
   return { zoneId, subRoute };
 }
 
+// RFC 952/1123 FQDN: labels of 1–63 chars (letters/digits/hyphens, not edge-hyphens),
+// joined by dots, total ≤ 253 chars. Rejects whitespace, scheme, path, etc.
+const FQDN_RE = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/;
+
+function isValidHostname(h) {
+  return typeof h === 'string' && h.length > 0 && h.length <= 253 && FQDN_RE.test(h);
+}
+
 /**
  * GET /api/core/zones/{id} — Zone details.
  */
@@ -207,7 +215,7 @@ export async function onRequestPost(context) {
   }
 
   const hostname = (body.Hostname || '').trim().toLowerCase();
-  if (!hostname || !hostname.includes('.')) {
+  if (!isValidHostname(hostname)) {
     return new Response(JSON.stringify({ HttpCode: 400, Message: 'A valid hostname is required in the "Hostname" field (e.g., cdn.example.com). The hostname must contain at least one dot and be a fully qualified domain name. After adding, create a CNAME record pointing to cloudcdn-pro.pages.dev in your DNS provider.' }), { status: 400, headers: CORS });
   }
 

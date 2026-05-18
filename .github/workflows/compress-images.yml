@@ -76,12 +76,18 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Stage new files and check for changes
-          git add -A '*.webp' '*.avif' '*.jxl'
-          if git diff --cached --quiet; then
+          # Enumerate new/modified converted files (any format may have zero matches —
+          # JXL in particular requires a libjxl-enabled libvips not present in the
+          # sharp npm prebuilt, so .jxl outputs are never produced today).
+          mapfile -t NEW_FILES < <(git ls-files -mo --exclude-standard \
+            | grep -E '\.(webp|avif|jxl)$' || true)
+
+          if [ "${#NEW_FILES[@]}" -eq 0 ]; then
             echo "No new conversions"
             exit 0
           fi
+
+          git add -- "${NEW_FILES[@]}"
 
           # Get current HEAD info
           REPO="${{ github.repository }}"

@@ -19,8 +19,8 @@ const LOW_NETWORK_QUALITY_CEILING = 60;
 
 function clamp(val, min, max) {
   const n = parseInt(val, 10);
-  if (isNaN(n)) return undefined;
-  return Math.max(min, Math.min(max, n));
+  if (isNaN(n) || n < min || n > max) return undefined;
+  return n;
 }
 
 /**

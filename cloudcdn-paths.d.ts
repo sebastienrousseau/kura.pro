@@ -924,6 +924,16 @@ export type CdnPath =
   | "nucleusflow/v1/icons/512x512.png"
   | "nucleusflow/v1/logos/nucleusflow.svg"
   | "nucleusflow/v1/titles/title-nucleusflow.svg"
+  | "pacs008/favicon.ico"
+  | "pacs008/v1/favicon.ico"
+  | "pacs008/v1/github/github-pacs008.png"
+  | "pacs008/v1/github/github-pacs008.svg"
+  | "pacs008/v1/icons/180x180.png"
+  | "pacs008/v1/icons/192x192.png"
+  | "pacs008/v1/icons/512x512.png"
+  | "pacs008/v1/logos/pacs008.png"
+  | "pacs008/v1/logos/pacs008.svg"
+  | "pacs008/v1/titles/title-pacs008.svg"
   | "pain001/favicon.ico"
   | "pain001/images/banners/banner-pain001.svg"
   | "pain001/images/favicon.ico"
@@ -1718,7 +1728,7 @@ export type CdnPath =
   | "xtasks/v1/titles/title-xtasks.svg";
 
 /** All project namespaces */
-export type CdnProject = "akande" | "alienstudio" | "audioanalyser" | "audiotextpro" | "audiowave" | "bankingonai" | "bankingoncloudnative" | "bankingonquantum" | "bankstatementparser" | "beonux" | "cloudcdn" | "cmn" | "common" | "crypto-service" | "cs50x" | "dotfiles" | "dtt" | "frontmatter-gen" | "hsh" | "html-generator" | "http-handle" | "kaishi" | "kyberlib" | "l90s" | "langweave" | "libmake" | "libyml" | "llamadev" | "maccfg" | "mdx-gen" | "metadata-gen" | "mini-functions" | "nalufx" | "neferankh" | "noyalib" | "nucleusflow" | "pain001" | "password-generator-pro" | "pipelines" | "pm2md" | "publications" | "pythondev" | "qrc" | "raidhos" | "rlg" | "routefinder" | "rssgen" | "rustdev" | "sebastienrousseau" | "serde_yml" | "shokunin" | "sinewavegenerator" | "sitemap-gen" | "skeletonic" | "static-site-generator" | "staticdatagen" | "staticrux" | "staticweaver" | "stocks" | "talkwave" | "vrd" | "wiserone" | "xtasks";
+export type CdnProject = "akande" | "alienstudio" | "audioanalyser" | "audiotextpro" | "audiowave" | "bankingonai" | "bankingoncloudnative" | "bankingonquantum" | "bankstatementparser" | "beonux" | "cloudcdn" | "cmn" | "common" | "crypto-service" | "cs50x" | "dotfiles" | "dtt" | "frontmatter-gen" | "hsh" | "html-generator" | "http-handle" | "kaishi" | "kyberlib" | "l90s" | "langweave" | "libmake" | "libyml" | "llamadev" | "maccfg" | "mdx-gen" | "metadata-gen" | "mini-functions" | "nalufx" | "neferankh" | "noyalib" | "nucleusflow" | "pacs008" | "pain001" | "password-generator-pro" | "pipelines" | "pm2md" | "publications" | "pythondev" | "qrc" | "raidhos" | "rlg" | "routefinder" | "rssgen" | "rustdev" | "sebastienrousseau" | "serde_yml" | "shokunin" | "sinewavegenerator" | "sitemap-gen" | "skeletonic" | "static-site-generator" | "staticdatagen" | "staticrux" | "staticweaver" | "stocks" | "talkwave" | "vrd" | "wiserone" | "xtasks";
 
 /** All available formats */
 export type CdnFormat = "ico" | "png" | "svg" | "webp";

@@ -242,6 +242,7 @@ describe('GET /api/auto', () => {
   });
 
   it('handles path with trailing slash', async () => {
+    globalThis.fetch = mockFetchForFormats([]);
     const ctx = makeContext('?path=/img/logo/', '*/*');
     const res = await onRequestGet(ctx);
     // Trailing slash on path is unusual, should not crash

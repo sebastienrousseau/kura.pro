@@ -259,6 +259,7 @@ describe('Core Zones API', () => {
   });
 
   it('POST rejects 2-char name (too short)', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
     const ctx = makeCtx('POST', {
       accountKey: 'acct-123', body: { Name: 'ab' },
       githubToken: 'ghp_test', githubRepo: 'user/repo',

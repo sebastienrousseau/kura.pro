@@ -144,6 +144,7 @@ describe('Input Validation — Unicode/emoji in all string fields', () => {
   });
 
   it('zone creation with unicode name is sanitized', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
     const ctx = {
       request: {
         url: 'https://cloudcdn.pro/api/core/zones',
@@ -187,11 +188,10 @@ describe('Input Validation — Negative numbers where positive expected', () => 
 describe('Input Validation — Float where integer expected', () => {
   it('transform with float width returns 400', async () => {
     const ctx = { request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png&w=1.5' }, env: { RATE_KV: null } };
-    const res = await transformModule.onRequestGet(ctx);
     // parseInt('1.5') === 1, so it should clamp and succeed
     globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
-    const res2 = await transformModule.onRequestGet(ctx);
-    expect([200, 400]).toContain(res2.status);
+    const res = await transformModule.onRequestGet(ctx);
+    expect([200, 400]).toContain(res.status);
   });
 
   it('stream with float segment returns 400 or valid', async () => {
@@ -359,58 +359,40 @@ describe('Input Validation — Boolean and null in JSON bodies', () => {
 });
 
 describe('Input Validation — Boundary numbers', () => {
-  it('transform with w=0 clamps to 1', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+  it('transform with w=0 returns 400', async () => {
     const ctx = { request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png&w=0' }, env: { RATE_KV: null } };
     const res = await transformModule.onRequestGet(ctx);
-    expect(res.status).toBe(200);
-    const opts = globalThis.fetch.mock.calls[0][1].cf.image;
-    expect(opts.width).toBe(1);
+    expect(res.status).toBe(400);
   });
 
-  it('transform with h=0 clamps to 1', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+  it('transform with h=0 returns 400', async () => {
     const ctx = { request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png&h=0' }, env: { RATE_KV: null } };
     const res = await transformModule.onRequestGet(ctx);
-    expect(res.status).toBe(200);
-    const opts = globalThis.fetch.mock.calls[0][1].cf.image;
-    expect(opts.height).toBe(1);
+    expect(res.status).toBe(400);
   });
 
-  it('transform with w=Number.MAX_SAFE_INTEGER clamps to 8192', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+  it('transform with w=Number.MAX_SAFE_INTEGER returns 400', async () => {
     const ctx = { request: { url: `https://cloudcdn.pro/api/transform?url=/test.png&w=${Number.MAX_SAFE_INTEGER}` }, env: { RATE_KV: null } };
     const res = await transformModule.onRequestGet(ctx);
-    expect(res.status).toBe(200);
-    const opts = globalThis.fetch.mock.calls[0][1].cf.image;
-    expect(opts.width).toBeLessThanOrEqual(8192);
+    expect(res.status).toBe(400);
   });
 
-  it('transform with q=0 clamps to 1', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+  it('transform with q=0 returns 400', async () => {
     const ctx = { request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png&q=0' }, env: { RATE_KV: null } };
     const res = await transformModule.onRequestGet(ctx);
-    expect(res.status).toBe(200);
-    const opts = globalThis.fetch.mock.calls[0][1].cf.image;
-    expect(opts.quality).toBe(1);
+    expect(res.status).toBe(400);
   });
 
-  it('transform with blur=0 clamps to 1', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+  it('transform with blur=0 returns 400', async () => {
     const ctx = { request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png&blur=0' }, env: { RATE_KV: null } };
     const res = await transformModule.onRequestGet(ctx);
-    expect(res.status).toBe(200);
-    const opts = globalThis.fetch.mock.calls[0][1].cf.image;
-    expect(opts.blur).toBe(1);
+    expect(res.status).toBe(400);
   });
 
-  it('transform with sharpen=0 clamps to 1', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+  it('transform with sharpen=0 returns 400', async () => {
     const ctx = { request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png&sharpen=0' }, env: { RATE_KV: null } };
     const res = await transformModule.onRequestGet(ctx);
-    expect(res.status).toBe(200);
-    const opts = globalThis.fetch.mock.calls[0][1].cf.image;
-    expect(opts.sharpen).toBe(1);
+    expect(res.status).toBe(400);
   });
 
   it('assets with per_page=1 returns exactly 1 item', async () => {

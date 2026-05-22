@@ -27,14 +27,14 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@playwright/test": "1.59.1",
+    "@playwright/test": "1.60.0",
     "@sebastienrousseau/skeletonic-stylus": "2.0.0",
     "@tailwindcss/cli": "4.3.0",
-    "@vitest/coverage-v8": "4.1.5",
+    "@vitest/coverage-v8": "4.1.6",
     "happy-dom": "20.9.0",
     "husky": "9.1.7",
     "tailwindcss": "4.3.0",
-    "vitest": "4.1.5"
+    "vitest": "4.1.6"
   },
   "dependencies": {
     "sharp": "0.34.5"

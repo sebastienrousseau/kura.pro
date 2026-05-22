@@ -270,6 +270,7 @@ describe('Core API — Zone name edge cases', () => {
   });
 
   it('rejects duplicate zone name', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }));
     const ctx = makeCtx('POST', '/api/core/zones', {
       accountKey: 'acct-key-123',
       body: { Name: 'akande' },

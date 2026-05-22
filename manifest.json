@@ -7344,6 +7344,14 @@
     "size": 45675
   },
   {
+    "name": "github-pacs008.avif",
+    "path": "pacs008/v1/github/github-pacs008.avif",
+    "project": "pacs008",
+    "category": "github",
+    "format": "avif",
+    "size": 67564
+  },
+  {
     "name": "github-pacs008.png",
     "path": "pacs008/v1/github/github-pacs008.png",
     "project": "pacs008",
@@ -7360,12 +7368,44 @@
     "size": 134553
   },
   {
+    "name": "github-pacs008.webp",
+    "path": "pacs008/v1/github/github-pacs008.webp",
+    "project": "pacs008",
+    "category": "github",
+    "format": "webp",
+    "size": 104992
+  },
+  {
+    "name": "180x180.avif",
+    "path": "pacs008/v1/icons/180x180.avif",
+    "project": "pacs008",
+    "category": "icons",
+    "format": "avif",
+    "size": 3363
+  },
+  {
     "name": "180x180.png",
     "path": "pacs008/v1/icons/180x180.png",
     "project": "pacs008",
     "category": "icons",
     "format": "png",
     "size": 13107
+  },
+  {
+    "name": "180x180.webp",
+    "path": "pacs008/v1/icons/180x180.webp",
+    "project": "pacs008",
+    "category": "icons",
+    "format": "webp",
+    "size": 3824
+  },
+  {
+    "name": "192x192.avif",
+    "path": "pacs008/v1/icons/192x192.avif",
+    "project": "pacs008",
+    "category": "icons",
+    "format": "avif",
+    "size": 3452
   },
   {
     "name": "192x192.png",
@@ -7376,12 +7416,44 @@
     "size": 14244
   },
   {
+    "name": "192x192.webp",
+    "path": "pacs008/v1/icons/192x192.webp",
+    "project": "pacs008",
+    "category": "icons",
+    "format": "webp",
+    "size": 3822
+  },
+  {
+    "name": "512x512.avif",
+    "path": "pacs008/v1/icons/512x512.avif",
+    "project": "pacs008",
+    "category": "icons",
+    "format": "avif",
+    "size": 8765
+  },
+  {
     "name": "512x512.png",
     "path": "pacs008/v1/icons/512x512.png",
     "project": "pacs008",
     "category": "icons",
     "format": "png",
     "size": 42242
+  },
+  {
+    "name": "512x512.webp",
+    "path": "pacs008/v1/icons/512x512.webp",
+    "project": "pacs008",
+    "category": "icons",
+    "format": "webp",
+    "size": 11026
+  },
+  {
+    "name": "pacs008.avif",
+    "path": "pacs008/v1/logos/pacs008.avif",
+    "project": "pacs008",
+    "category": "logos",
+    "format": "avif",
+    "size": 72265
   },
   {
     "name": "pacs008.png",
@@ -7398,6 +7470,14 @@
     "category": "logos",
     "format": "svg",
     "size": 127274
+  },
+  {
+    "name": "pacs008.webp",
+    "path": "pacs008/v1/logos/pacs008.webp",
+    "project": "pacs008",
+    "category": "logos",
+    "format": "webp",
+    "size": 175680
   },
   {
     "name": "title-pacs008.svg",

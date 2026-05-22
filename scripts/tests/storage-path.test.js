@@ -566,6 +566,7 @@ describe('Storage API — /api/storage/{path}', () => {
     });
 
     it('falls back to empty params.path on DELETE', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('', { status: 404 }));
       const ctx = makeCtx({ method: 'DELETE', path: [], accessKey: 'storage-secret', githubToken: 'g', githubRepo: 'u/r' });
       delete ctx.params.path;
       const res = await onRequestDelete(ctx);

@@ -321,6 +321,7 @@ describe('GET /api/signed', () => {
   });
 
   it('handles very long path (>8192 chars)', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response('', { status: 404 }));
     const longPath = '/protected/' + 'a'.repeat(8200) + '.pdf';
     const expires = String(Math.floor(Date.now() / 1000) + 3600);
     const sig = makeSignature(TEST_SECRET, longPath, expires);

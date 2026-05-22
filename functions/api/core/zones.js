@@ -108,7 +108,7 @@ export async function onRequestPost(context) {
   }
 
   const name = (body.Name || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
-  if (!name || name.length < 2 || name.length > 64) {
+  if (!name || name.length < 2 || name.length > 64 || !/[a-z0-9]/.test(name)) {
     return new Response(JSON.stringify({ HttpCode: 400, Message: 'The zone name must be between 2 and 64 characters long and contain only lowercase alphanumeric characters and hyphens. Special characters, spaces, and uppercase letters are not allowed. Example valid names: "my-project", "acme-corp", "client2026".' }), { status: 400, headers: CORS });
   }
 

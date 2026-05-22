@@ -259,6 +259,7 @@ describe('Core API — Zone name edge cases', () => {
   });
 
   it('rejects zone name with spaces', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
     const ctx = makeCtx('POST', '/api/core/zones', {
       accountKey: 'acct-key-123',
       body: { Name: 'my zone' },

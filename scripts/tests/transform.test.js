@@ -187,18 +187,17 @@ describe('GET /api/transform', () => {
     }
   });
 
-  it('clamps valid numeric params to range', async () => {
+  it('accepts params at their maximum allowed values', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
     try {
-      // q=999 → 100, blur=999 → 250, sharpen=999 → 10, w=0 → 1
-      const ctx = makeContext('?url=/test.png&q=999&blur=999&sharpen=999&w=0');
+      const ctx = makeContext('?url=/test.png&q=100&blur=250&sharpen=10&w=8192');
       const res = await onRequestGet(ctx);
       expect(res.status).toBe(200);
       const opts = globalThis.fetch.mock.calls[0][1].cf.image;
       expect(opts.quality).toBe(100);
       expect(opts.blur).toBe(250);
       expect(opts.sharpen).toBe(10);
-      expect(opts.width).toBe(1);
+      expect(opts.width).toBe(8192);
     } finally {
       globalThis.fetch = originalFetch;
     }

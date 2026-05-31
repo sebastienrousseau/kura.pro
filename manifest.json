@@ -13744,6 +13744,14 @@
     "size": 48574
   },
   {
+    "name": "github-stratos.avif",
+    "path": "stratos/v1/github/github-stratos.avif",
+    "project": "stratos",
+    "category": "github",
+    "format": "avif",
+    "size": 63658
+  },
+  {
     "name": "github-stratos.png",
     "path": "stratos/v1/github/github-stratos.png",
     "project": "stratos",
@@ -13760,12 +13768,44 @@
     "size": 8472
   },
   {
+    "name": "github-stratos.webp",
+    "path": "stratos/v1/github/github-stratos.webp",
+    "project": "stratos",
+    "category": "github",
+    "format": "webp",
+    "size": 101840
+  },
+  {
+    "name": "180x180.avif",
+    "path": "stratos/v1/icons/180x180.avif",
+    "project": "stratos",
+    "category": "icons",
+    "format": "avif",
+    "size": 7327
+  },
+  {
     "name": "180x180.png",
     "path": "stratos/v1/icons/180x180.png",
     "project": "stratos",
     "category": "icons",
     "format": "png",
     "size": 12749
+  },
+  {
+    "name": "180x180.webp",
+    "path": "stratos/v1/icons/180x180.webp",
+    "project": "stratos",
+    "category": "icons",
+    "format": "webp",
+    "size": 7718
+  },
+  {
+    "name": "192x192.avif",
+    "path": "stratos/v1/icons/192x192.avif",
+    "project": "stratos",
+    "category": "icons",
+    "format": "avif",
+    "size": 7759
   },
   {
     "name": "192x192.png",
@@ -13776,12 +13816,44 @@
     "size": 13661
   },
   {
+    "name": "192x192.webp",
+    "path": "stratos/v1/icons/192x192.webp",
+    "project": "stratos",
+    "category": "icons",
+    "format": "webp",
+    "size": 8136
+  },
+  {
+    "name": "512x512.avif",
+    "path": "stratos/v1/icons/512x512.avif",
+    "project": "stratos",
+    "category": "icons",
+    "format": "avif",
+    "size": 19127
+  },
+  {
     "name": "512x512.png",
     "path": "stratos/v1/icons/512x512.png",
     "project": "stratos",
     "category": "icons",
     "format": "png",
     "size": 41434
+  },
+  {
+    "name": "512x512.webp",
+    "path": "stratos/v1/icons/512x512.webp",
+    "project": "stratos",
+    "category": "icons",
+    "format": "webp",
+    "size": 24030
+  },
+  {
+    "name": "stratos.avif",
+    "path": "stratos/v1/logos/stratos.avif",
+    "project": "stratos",
+    "category": "logos",
+    "format": "avif",
+    "size": 136703
   },
   {
     "name": "stratos.png",
@@ -13798,6 +13870,14 @@
     "category": "logos",
     "format": "svg",
     "size": 6892
+  },
+  {
+    "name": "stratos.webp",
+    "path": "stratos/v1/logos/stratos.webp",
+    "project": "stratos",
+    "category": "logos",
+    "format": "webp",
+    "size": 222656
   },
   {
     "name": "title-stratos.svg",

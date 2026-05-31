@@ -2493,7 +2493,7 @@
     "project": "bankingoncloudnative",
     "category": "banners",
     "format": "svg",
-    "size": 1224781
+    "size": 1224819
   },
   {
     "name": "favicon.ico",
@@ -2517,7 +2517,7 @@
     "project": "bankingoncloudnative",
     "category": "github",
     "format": "svg",
-    "size": 1225839
+    "size": 1225841
   },
   {
     "name": "180x180.png",
@@ -2557,7 +2557,7 @@
     "project": "bankingoncloudnative",
     "category": "logos",
     "format": "svg",
-    "size": 20248
+    "size": 24721
   },
   {
     "name": "title-bankingoncloudnative.svg",
@@ -2565,7 +2565,7 @@
     "project": "bankingoncloudnative",
     "category": "titles",
     "format": "svg",
-    "size": 328
+    "size": 634
   },
   {
     "name": "favicon.ico",
@@ -4005,7 +4005,7 @@
     "project": "crypto-service",
     "category": "github",
     "format": "svg",
-    "size": 870036
+    "size": 870040
   },
   {
     "name": "180x180.png",
@@ -4037,7 +4037,7 @@
     "project": "crypto-service",
     "category": "logos",
     "format": "png",
-    "size": 306781
+    "size": 317818
   },
   {
     "name": "crypto-service.svg",
@@ -5749,7 +5749,7 @@
     "project": "inclusio",
     "category": "banners",
     "format": "svg",
-    "size": 32276
+    "size": 39638
   },
   {
     "name": "favicon.ico",
@@ -5773,7 +5773,7 @@
     "project": "inclusio",
     "category": "github",
     "format": "png",
-    "size": 190447
+    "size": 310063
   },
   {
     "name": "github-inclusio.svg",
@@ -5781,7 +5781,7 @@
     "project": "inclusio",
     "category": "github",
     "format": "svg",
-    "size": 34240
+    "size": 40757
   },
   {
     "name": "github-inclusio.webp",
@@ -5805,7 +5805,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 17340
+    "size": 17732
   },
   {
     "name": "180x180.webp",
@@ -5829,7 +5829,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 18610
+    "size": 19089
   },
   {
     "name": "192x192.webp",
@@ -5853,7 +5853,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 57259
+    "size": 58795
   },
   {
     "name": "512x512.webp",
@@ -5877,7 +5877,7 @@
     "project": "inclusio",
     "category": "logos",
     "format": "png",
-    "size": 478969
+    "size": 832442
   },
   {
     "name": "inclusio.svg",
@@ -5885,7 +5885,7 @@
     "project": "inclusio",
     "category": "logos",
     "format": "svg",
-    "size": 31975
+    "size": 38938
   },
   {
     "name": "inclusio.webp",
@@ -5901,7 +5901,7 @@
     "project": "inclusio",
     "category": "titles",
     "format": "svg",
-    "size": 307
+    "size": 357
   },
   {
     "name": "favicon.ico",
@@ -7349,7 +7349,7 @@
     "project": "noyalib",
     "category": "banners",
     "format": "svg",
-    "size": 174277
+    "size": 174323
   },
   {
     "name": "favicon.ico",
@@ -7373,7 +7373,7 @@
     "project": "noyalib",
     "category": "github",
     "format": "svg",
-    "size": 117167
+    "size": 117205
   },
   {
     "name": "180x180.png",
@@ -7413,7 +7413,7 @@
     "project": "noyalib",
     "category": "logos",
     "format": "svg",
-    "size": 88289
+    "size": 88312
   },
   {
     "name": "title-noyalib.svg",
@@ -9077,7 +9077,7 @@
     "project": "publications",
     "category": "banners",
     "format": "svg",
-    "size": 109736
+    "size": 109984
   },
   {
     "name": "favicon.ico",
@@ -9101,7 +9101,7 @@
     "project": "publications",
     "category": "github",
     "format": "svg",
-    "size": 149294
+    "size": 149542
   },
   {
     "name": "180x180.png",
@@ -9141,7 +9141,7 @@
     "project": "publications",
     "category": "logos",
     "format": "svg",
-    "size": 115743
+    "size": 115976
   },
   {
     "name": "favicon.ico",

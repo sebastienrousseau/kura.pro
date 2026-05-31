@@ -728,13 +728,23 @@ export type CdnPath =
   | "inclusio/favicon.ico"
   | "inclusio/v1/banners/banner-inclusio.svg"
   | "inclusio/v1/favicon.ico"
+  | "inclusio/v1/github/github-inclusio.avif"
   | "inclusio/v1/github/github-inclusio.png"
   | "inclusio/v1/github/github-inclusio.svg"
+  | "inclusio/v1/github/github-inclusio.webp"
+  | "inclusio/v1/icons/180x180.avif"
   | "inclusio/v1/icons/180x180.png"
+  | "inclusio/v1/icons/180x180.webp"
+  | "inclusio/v1/icons/192x192.avif"
   | "inclusio/v1/icons/192x192.png"
+  | "inclusio/v1/icons/192x192.webp"
+  | "inclusio/v1/icons/512x512.avif"
   | "inclusio/v1/icons/512x512.png"
+  | "inclusio/v1/icons/512x512.webp"
+  | "inclusio/v1/logos/inclusio.avif"
   | "inclusio/v1/logos/inclusio.png"
   | "inclusio/v1/logos/inclusio.svg"
+  | "inclusio/v1/logos/inclusio.webp"
   | "inclusio/v1/titles/title-inclusio.svg"
   | "kaishi/favicon.ico"
   | "kaishi/v1/banners/banner-kaishi.svg"
@@ -1713,6 +1723,17 @@ export type CdnPath =
   | "stocks/images/yente-van-eynde-cIJ6ABNA6H8.webp"
   | "stocks/images/ylanite-koppens-1445419.webp"
   | "stocks/images/zeng-yili-c9ZQDFwn-pk.webp"
+  | "stratos/favicon.ico"
+  | "stratos/v1/banners/banner-stratos.svg"
+  | "stratos/v1/favicon.ico"
+  | "stratos/v1/github/github-stratos.png"
+  | "stratos/v1/github/github-stratos.svg"
+  | "stratos/v1/icons/180x180.png"
+  | "stratos/v1/icons/192x192.png"
+  | "stratos/v1/icons/512x512.png"
+  | "stratos/v1/logos/stratos.png"
+  | "stratos/v1/logos/stratos.svg"
+  | "stratos/v1/titles/title-stratos.svg"
   | "talkwave/favicon.ico"
   | "talkwave/v1/banners/banner-talkwave.svg"
   | "talkwave/v1/favicon.ico"
@@ -1749,7 +1770,7 @@ export type CdnPath =
   | "xtasks/v1/titles/title-xtasks.svg";
 
 /** All project namespaces */
-export type CdnProject = "akande" | "alienstudio" | "audioanalyser" | "audiotextpro" | "audiowave" | "bankingonai" | "bankingoncloudnative" | "bankingonquantum" | "bankstatementparser" | "beonux" | "cloudcdn" | "cmn" | "common" | "crypto-service" | "cs50x" | "dotfiles" | "dtt" | "frontmatter-gen" | "hsh" | "html-generator" | "http-handle" | "inclusio" | "kaishi" | "kyberlib" | "l90s" | "langweave" | "libmake" | "libyml" | "llamadev" | "maccfg" | "mdx-gen" | "metadata-gen" | "mini-functions" | "nalufx" | "neferankh" | "noyalib" | "nucleusflow" | "pacs008" | "pain001" | "password-generator-pro" | "pipelines" | "pm2md" | "publications" | "pythondev" | "qrc" | "raidhos" | "rlg" | "routefinder" | "rssgen" | "rustdev" | "sebastienrousseau" | "serde_yml" | "shokunin" | "sinewavegenerator" | "sitemap-gen" | "skeletonic" | "static-site-generator" | "staticdatagen" | "staticrux" | "staticweaver" | "stocks" | "talkwave" | "vrd" | "wiserone" | "xtasks";
+export type CdnProject = "akande" | "alienstudio" | "audioanalyser" | "audiotextpro" | "audiowave" | "bankingonai" | "bankingoncloudnative" | "bankingonquantum" | "bankstatementparser" | "beonux" | "cloudcdn" | "cmn" | "common" | "crypto-service" | "cs50x" | "dotfiles" | "dtt" | "frontmatter-gen" | "hsh" | "html-generator" | "http-handle" | "inclusio" | "kaishi" | "kyberlib" | "l90s" | "langweave" | "libmake" | "libyml" | "llamadev" | "maccfg" | "mdx-gen" | "metadata-gen" | "mini-functions" | "nalufx" | "neferankh" | "noyalib" | "nucleusflow" | "pacs008" | "pain001" | "password-generator-pro" | "pipelines" | "pm2md" | "publications" | "pythondev" | "qrc" | "raidhos" | "rlg" | "routefinder" | "rssgen" | "rustdev" | "sebastienrousseau" | "serde_yml" | "shokunin" | "sinewavegenerator" | "sitemap-gen" | "skeletonic" | "static-site-generator" | "staticdatagen" | "staticrux" | "staticweaver" | "stocks" | "stratos" | "talkwave" | "vrd" | "wiserone" | "xtasks";
 
 /** All available formats */
 export type CdnFormat = "avif" | "ico" | "png" | "svg" | "webp";

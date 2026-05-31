@@ -5737,6 +5737,94 @@
   },
   {
     "name": "favicon.ico",
+    "path": "inclusio/favicon.ico",
+    "project": "inclusio",
+    "category": "general",
+    "format": "ico",
+    "size": 52821
+  },
+  {
+    "name": "banner-inclusio.svg",
+    "path": "inclusio/v1/banners/banner-inclusio.svg",
+    "project": "inclusio",
+    "category": "banners",
+    "format": "svg",
+    "size": 39638
+  },
+  {
+    "name": "favicon.ico",
+    "path": "inclusio/v1/favicon.ico",
+    "project": "inclusio",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 52821
+  },
+  {
+    "name": "github-inclusio.png",
+    "path": "inclusio/v1/github/github-inclusio.png",
+    "project": "inclusio",
+    "category": "github",
+    "format": "png",
+    "size": 310063
+  },
+  {
+    "name": "github-inclusio.svg",
+    "path": "inclusio/v1/github/github-inclusio.svg",
+    "project": "inclusio",
+    "category": "github",
+    "format": "svg",
+    "size": 40757
+  },
+  {
+    "name": "180x180.png",
+    "path": "inclusio/v1/icons/180x180.png",
+    "project": "inclusio",
+    "category": "icons",
+    "format": "png",
+    "size": 17732
+  },
+  {
+    "name": "192x192.png",
+    "path": "inclusio/v1/icons/192x192.png",
+    "project": "inclusio",
+    "category": "icons",
+    "format": "png",
+    "size": 19089
+  },
+  {
+    "name": "512x512.png",
+    "path": "inclusio/v1/icons/512x512.png",
+    "project": "inclusio",
+    "category": "icons",
+    "format": "png",
+    "size": 58795
+  },
+  {
+    "name": "inclusio.png",
+    "path": "inclusio/v1/logos/inclusio.png",
+    "project": "inclusio",
+    "category": "logos",
+    "format": "png",
+    "size": 832442
+  },
+  {
+    "name": "inclusio.svg",
+    "path": "inclusio/v1/logos/inclusio.svg",
+    "project": "inclusio",
+    "category": "logos",
+    "format": "svg",
+    "size": 38938
+  },
+  {
+    "name": "title-inclusio.svg",
+    "path": "inclusio/v1/titles/title-inclusio.svg",
+    "project": "inclusio",
+    "category": "titles",
+    "format": "svg",
+    "size": 357
+  },
+  {
+    "name": "favicon.ico",
     "path": "kaishi/favicon.ico",
     "project": "kaishi",
     "category": "general",

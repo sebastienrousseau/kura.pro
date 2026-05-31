@@ -725,6 +725,17 @@ export type CdnPath =
   | "http-handle/v1/icons/512x512.png"
   | "http-handle/v1/logos/http-handle.svg"
   | "http-handle/v1/titles/title-http-handle.svg"
+  | "inclusio/favicon.ico"
+  | "inclusio/v1/banners/banner-inclusio.svg"
+  | "inclusio/v1/favicon.ico"
+  | "inclusio/v1/github/github-inclusio.png"
+  | "inclusio/v1/github/github-inclusio.svg"
+  | "inclusio/v1/icons/180x180.png"
+  | "inclusio/v1/icons/192x192.png"
+  | "inclusio/v1/icons/512x512.png"
+  | "inclusio/v1/logos/inclusio.png"
+  | "inclusio/v1/logos/inclusio.svg"
+  | "inclusio/v1/titles/title-inclusio.svg"
   | "kaishi/favicon.ico"
   | "kaishi/v1/banners/banner-kaishi.svg"
   | "kaishi/v1/favicon.ico"
@@ -926,13 +937,23 @@ export type CdnPath =
   | "nucleusflow/v1/titles/title-nucleusflow.svg"
   | "pacs008/favicon.ico"
   | "pacs008/v1/favicon.ico"
+  | "pacs008/v1/github/github-pacs008.avif"
   | "pacs008/v1/github/github-pacs008.png"
   | "pacs008/v1/github/github-pacs008.svg"
+  | "pacs008/v1/github/github-pacs008.webp"
+  | "pacs008/v1/icons/180x180.avif"
   | "pacs008/v1/icons/180x180.png"
+  | "pacs008/v1/icons/180x180.webp"
+  | "pacs008/v1/icons/192x192.avif"
   | "pacs008/v1/icons/192x192.png"
+  | "pacs008/v1/icons/192x192.webp"
+  | "pacs008/v1/icons/512x512.avif"
   | "pacs008/v1/icons/512x512.png"
+  | "pacs008/v1/icons/512x512.webp"
+  | "pacs008/v1/logos/pacs008.avif"
   | "pacs008/v1/logos/pacs008.png"
   | "pacs008/v1/logos/pacs008.svg"
+  | "pacs008/v1/logos/pacs008.webp"
   | "pacs008/v1/titles/title-pacs008.svg"
   | "pain001/favicon.ico"
   | "pain001/images/banners/banner-pain001.svg"
@@ -1728,10 +1749,10 @@ export type CdnPath =
   | "xtasks/v1/titles/title-xtasks.svg";
 
 /** All project namespaces */
-export type CdnProject = "akande" | "alienstudio" | "audioanalyser" | "audiotextpro" | "audiowave" | "bankingonai" | "bankingoncloudnative" | "bankingonquantum" | "bankstatementparser" | "beonux" | "cloudcdn" | "cmn" | "common" | "crypto-service" | "cs50x" | "dotfiles" | "dtt" | "frontmatter-gen" | "hsh" | "html-generator" | "http-handle" | "kaishi" | "kyberlib" | "l90s" | "langweave" | "libmake" | "libyml" | "llamadev" | "maccfg" | "mdx-gen" | "metadata-gen" | "mini-functions" | "nalufx" | "neferankh" | "noyalib" | "nucleusflow" | "pacs008" | "pain001" | "password-generator-pro" | "pipelines" | "pm2md" | "publications" | "pythondev" | "qrc" | "raidhos" | "rlg" | "routefinder" | "rssgen" | "rustdev" | "sebastienrousseau" | "serde_yml" | "shokunin" | "sinewavegenerator" | "sitemap-gen" | "skeletonic" | "static-site-generator" | "staticdatagen" | "staticrux" | "staticweaver" | "stocks" | "talkwave" | "vrd" | "wiserone" | "xtasks";
+export type CdnProject = "akande" | "alienstudio" | "audioanalyser" | "audiotextpro" | "audiowave" | "bankingonai" | "bankingoncloudnative" | "bankingonquantum" | "bankstatementparser" | "beonux" | "cloudcdn" | "cmn" | "common" | "crypto-service" | "cs50x" | "dotfiles" | "dtt" | "frontmatter-gen" | "hsh" | "html-generator" | "http-handle" | "inclusio" | "kaishi" | "kyberlib" | "l90s" | "langweave" | "libmake" | "libyml" | "llamadev" | "maccfg" | "mdx-gen" | "metadata-gen" | "mini-functions" | "nalufx" | "neferankh" | "noyalib" | "nucleusflow" | "pacs008" | "pain001" | "password-generator-pro" | "pipelines" | "pm2md" | "publications" | "pythondev" | "qrc" | "raidhos" | "rlg" | "routefinder" | "rssgen" | "rustdev" | "sebastienrousseau" | "serde_yml" | "shokunin" | "sinewavegenerator" | "sitemap-gen" | "skeletonic" | "static-site-generator" | "staticdatagen" | "staticrux" | "staticweaver" | "stocks" | "talkwave" | "vrd" | "wiserone" | "xtasks";
 
 /** All available formats */
-export type CdnFormat = "ico" | "png" | "svg" | "webp";
+export type CdnFormat = "avif" | "ico" | "png" | "svg" | "webp";
 
 /** Build a fully qualified CDN URL from a path */
 export declare function cdnUrl(path: CdnPath): string;

@@ -2493,7 +2493,7 @@
     "project": "bankingoncloudnative",
     "category": "banners",
     "format": "svg",
-    "size": 1224819
+    "size": 1224781
   },
   {
     "name": "favicon.ico",
@@ -2517,7 +2517,7 @@
     "project": "bankingoncloudnative",
     "category": "github",
     "format": "svg",
-    "size": 1225841
+    "size": 1225839
   },
   {
     "name": "180x180.png",
@@ -2557,7 +2557,7 @@
     "project": "bankingoncloudnative",
     "category": "logos",
     "format": "svg",
-    "size": 24721
+    "size": 20248
   },
   {
     "name": "title-bankingoncloudnative.svg",
@@ -2565,7 +2565,7 @@
     "project": "bankingoncloudnative",
     "category": "titles",
     "format": "svg",
-    "size": 634
+    "size": 328
   },
   {
     "name": "favicon.ico",
@@ -4005,7 +4005,7 @@
     "project": "crypto-service",
     "category": "github",
     "format": "svg",
-    "size": 870040
+    "size": 870036
   },
   {
     "name": "180x180.png",
@@ -4037,7 +4037,7 @@
     "project": "crypto-service",
     "category": "logos",
     "format": "png",
-    "size": 317818
+    "size": 306781
   },
   {
     "name": "crypto-service.svg",
@@ -5749,7 +5749,7 @@
     "project": "inclusio",
     "category": "banners",
     "format": "svg",
-    "size": 39638
+    "size": 32276
   },
   {
     "name": "favicon.ico",
@@ -5773,7 +5773,7 @@
     "project": "inclusio",
     "category": "github",
     "format": "png",
-    "size": 310063
+    "size": 190447
   },
   {
     "name": "github-inclusio.svg",
@@ -5781,7 +5781,7 @@
     "project": "inclusio",
     "category": "github",
     "format": "svg",
-    "size": 40757
+    "size": 34240
   },
   {
     "name": "github-inclusio.webp",
@@ -5805,7 +5805,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 17732
+    "size": 17340
   },
   {
     "name": "180x180.webp",
@@ -5829,7 +5829,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 19089
+    "size": 18610
   },
   {
     "name": "192x192.webp",
@@ -5853,7 +5853,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 58795
+    "size": 57259
   },
   {
     "name": "512x512.webp",
@@ -5877,7 +5877,7 @@
     "project": "inclusio",
     "category": "logos",
     "format": "png",
-    "size": 832442
+    "size": 478969
   },
   {
     "name": "inclusio.svg",
@@ -5885,7 +5885,7 @@
     "project": "inclusio",
     "category": "logos",
     "format": "svg",
-    "size": 38938
+    "size": 31975
   },
   {
     "name": "inclusio.webp",
@@ -5901,7 +5901,7 @@
     "project": "inclusio",
     "category": "titles",
     "format": "svg",
-    "size": 357
+    "size": 307
   },
   {
     "name": "favicon.ico",
@@ -7349,7 +7349,7 @@
     "project": "noyalib",
     "category": "banners",
     "format": "svg",
-    "size": 174323
+    "size": 174277
   },
   {
     "name": "favicon.ico",
@@ -7373,7 +7373,7 @@
     "project": "noyalib",
     "category": "github",
     "format": "svg",
-    "size": 117205
+    "size": 117167
   },
   {
     "name": "180x180.png",
@@ -7413,7 +7413,7 @@
     "project": "noyalib",
     "category": "logos",
     "format": "svg",
-    "size": 88312
+    "size": 88289
   },
   {
     "name": "title-noyalib.svg",
@@ -9077,7 +9077,7 @@
     "project": "publications",
     "category": "banners",
     "format": "svg",
-    "size": 109984
+    "size": 109736
   },
   {
     "name": "favicon.ico",
@@ -9101,7 +9101,7 @@
     "project": "publications",
     "category": "github",
     "format": "svg",
-    "size": 149542
+    "size": 149294
   },
   {
     "name": "180x180.png",
@@ -9141,7 +9141,7 @@
     "project": "publications",
     "category": "logos",
     "format": "svg",
-    "size": 115976
+    "size": 115743
   },
   {
     "name": "favicon.ico",
@@ -13718,6 +13718,94 @@
     "category": "zeng-yili-c9ZQDFwn-pk.webp",
     "format": "webp",
     "size": 169298
+  },
+  {
+    "name": "favicon.ico",
+    "path": "stratos/favicon.ico",
+    "project": "stratos",
+    "category": "general",
+    "format": "ico",
+    "size": 48574
+  },
+  {
+    "name": "banner-stratos.svg",
+    "path": "stratos/v1/banners/banner-stratos.svg",
+    "project": "stratos",
+    "category": "banners",
+    "format": "svg",
+    "size": 7211
+  },
+  {
+    "name": "favicon.ico",
+    "path": "stratos/v1/favicon.ico",
+    "project": "stratos",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 48574
+  },
+  {
+    "name": "github-stratos.png",
+    "path": "stratos/v1/github/github-stratos.png",
+    "project": "stratos",
+    "category": "github",
+    "format": "png",
+    "size": 175263
+  },
+  {
+    "name": "github-stratos.svg",
+    "path": "stratos/v1/github/github-stratos.svg",
+    "project": "stratos",
+    "category": "github",
+    "format": "svg",
+    "size": 8472
+  },
+  {
+    "name": "180x180.png",
+    "path": "stratos/v1/icons/180x180.png",
+    "project": "stratos",
+    "category": "icons",
+    "format": "png",
+    "size": 12749
+  },
+  {
+    "name": "192x192.png",
+    "path": "stratos/v1/icons/192x192.png",
+    "project": "stratos",
+    "category": "icons",
+    "format": "png",
+    "size": 13661
+  },
+  {
+    "name": "512x512.png",
+    "path": "stratos/v1/icons/512x512.png",
+    "project": "stratos",
+    "category": "icons",
+    "format": "png",
+    "size": 41434
+  },
+  {
+    "name": "stratos.png",
+    "path": "stratos/v1/logos/stratos.png",
+    "project": "stratos",
+    "category": "logos",
+    "format": "png",
+    "size": 366543
+  },
+  {
+    "name": "stratos.svg",
+    "path": "stratos/v1/logos/stratos.svg",
+    "project": "stratos",
+    "category": "logos",
+    "format": "svg",
+    "size": 6892
+  },
+  {
+    "name": "title-stratos.svg",
+    "path": "stratos/v1/titles/title-stratos.svg",
+    "project": "stratos",
+    "category": "titles",
+    "format": "svg",
+    "size": 306
   },
   {
     "name": "favicon.ico",

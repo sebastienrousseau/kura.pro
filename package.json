@@ -29,15 +29,15 @@
   "devDependencies": {
     "@playwright/test": "1.60.0",
     "@sebastienrousseau/skeletonic-stylus": "2.0.0",
-    "@tailwindcss/cli": "4.3.0",
-    "@vitest/coverage-v8": "4.1.7",
-    "happy-dom": "20.9.0",
+    "@tailwindcss/cli": "4.3.1",
+    "@vitest/coverage-v8": "4.1.9",
+    "happy-dom": "20.10.3",
     "husky": "9.1.7",
-    "tailwindcss": "4.3.0",
-    "vitest": "4.1.7"
+    "tailwindcss": "4.3.1",
+    "vitest": "4.1.9"
   },
   "dependencies": {
-    "sharp": "0.34.5"
+    "sharp": "0.35.1"
   },
   "overrides": {
     "vite": "8.0.10"

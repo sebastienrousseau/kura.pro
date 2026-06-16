@@ -1,6 +1,94 @@
 [
   {
     "name": "favicon.ico",
+    "path": "acmt001/favicon.ico",
+    "project": "acmt001",
+    "category": "general",
+    "format": "ico",
+    "size": 44922
+  },
+  {
+    "name": "banner-acmt001.svg",
+    "path": "acmt001/v1/banners/banner-acmt001.svg",
+    "project": "acmt001",
+    "category": "banners",
+    "format": "svg",
+    "size": 14464
+  },
+  {
+    "name": "favicon.ico",
+    "path": "acmt001/v1/favicon.ico",
+    "project": "acmt001",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 44922
+  },
+  {
+    "name": "github-acmt001.png",
+    "path": "acmt001/v1/github/github-acmt001.png",
+    "project": "acmt001",
+    "category": "github",
+    "format": "png",
+    "size": 151929
+  },
+  {
+    "name": "github-acmt001.svg",
+    "path": "acmt001/v1/github/github-acmt001.svg",
+    "project": "acmt001",
+    "category": "github",
+    "format": "svg",
+    "size": 17722
+  },
+  {
+    "name": "180x180.png",
+    "path": "acmt001/v1/icons/180x180.png",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "png",
+    "size": 11979
+  },
+  {
+    "name": "192x192.png",
+    "path": "acmt001/v1/icons/192x192.png",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "png",
+    "size": 12781
+  },
+  {
+    "name": "512x512.png",
+    "path": "acmt001/v1/icons/512x512.png",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "png",
+    "size": 39836
+  },
+  {
+    "name": "acmt001.png",
+    "path": "acmt001/v1/logos/acmt001.png",
+    "project": "acmt001",
+    "category": "logos",
+    "format": "png",
+    "size": 400252
+  },
+  {
+    "name": "acmt001.svg",
+    "path": "acmt001/v1/logos/acmt001.svg",
+    "project": "acmt001",
+    "category": "logos",
+    "format": "svg",
+    "size": 13959
+  },
+  {
+    "name": "title-acmt001.svg",
+    "path": "acmt001/v1/titles/title-acmt001.svg",
+    "project": "acmt001",
+    "category": "titles",
+    "format": "svg",
+    "size": 311
+  },
+  {
+    "name": "favicon.ico",
     "path": "akande/favicon.ico",
     "project": "akande",
     "category": "general",
@@ -2493,7 +2581,7 @@
     "project": "bankingoncloudnative",
     "category": "banners",
     "format": "svg",
-    "size": 1224781
+    "size": 1224819
   },
   {
     "name": "favicon.ico",
@@ -2517,7 +2605,7 @@
     "project": "bankingoncloudnative",
     "category": "github",
     "format": "svg",
-    "size": 1225839
+    "size": 1225841
   },
   {
     "name": "180x180.png",
@@ -2557,7 +2645,7 @@
     "project": "bankingoncloudnative",
     "category": "logos",
     "format": "svg",
-    "size": 20248
+    "size": 24721
   },
   {
     "name": "title-bankingoncloudnative.svg",
@@ -2565,7 +2653,7 @@
     "project": "bankingoncloudnative",
     "category": "titles",
     "format": "svg",
-    "size": 328
+    "size": 634
   },
   {
     "name": "favicon.ico",
@@ -4005,7 +4093,7 @@
     "project": "crypto-service",
     "category": "github",
     "format": "svg",
-    "size": 870036
+    "size": 870040
   },
   {
     "name": "180x180.png",
@@ -4037,7 +4125,7 @@
     "project": "crypto-service",
     "category": "logos",
     "format": "png",
-    "size": 306781
+    "size": 317818
   },
   {
     "name": "crypto-service.svg",
@@ -5449,6 +5537,94 @@
   },
   {
     "name": "favicon.ico",
+    "path": "euxis/favicon.ico",
+    "project": "euxis",
+    "category": "general",
+    "format": "ico",
+    "size": 83411
+  },
+  {
+    "name": "banner-euxis.svg",
+    "path": "euxis/v1/banners/banner-euxis.svg",
+    "project": "euxis",
+    "category": "banners",
+    "format": "svg",
+    "size": 15200
+  },
+  {
+    "name": "favicon.ico",
+    "path": "euxis/v1/favicon.ico",
+    "project": "euxis",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 83411
+  },
+  {
+    "name": "github-euxis.png",
+    "path": "euxis/v1/github/github-euxis.png",
+    "project": "euxis",
+    "category": "github",
+    "format": "png",
+    "size": 216574
+  },
+  {
+    "name": "github-euxis.svg",
+    "path": "euxis/v1/github/github-euxis.svg",
+    "project": "euxis",
+    "category": "github",
+    "format": "svg",
+    "size": 15892
+  },
+  {
+    "name": "180x180.png",
+    "path": "euxis/v1/icons/180x180.png",
+    "project": "euxis",
+    "category": "icons",
+    "format": "png",
+    "size": 25762
+  },
+  {
+    "name": "192x192.png",
+    "path": "euxis/v1/icons/192x192.png",
+    "project": "euxis",
+    "category": "icons",
+    "format": "png",
+    "size": 27626
+  },
+  {
+    "name": "512x512.png",
+    "path": "euxis/v1/icons/512x512.png",
+    "project": "euxis",
+    "category": "icons",
+    "format": "png",
+    "size": 92089
+  },
+  {
+    "name": "euxis.png",
+    "path": "euxis/v1/logos/euxis.png",
+    "project": "euxis",
+    "category": "logos",
+    "format": "png",
+    "size": 756530
+  },
+  {
+    "name": "euxis.svg",
+    "path": "euxis/v1/logos/euxis.svg",
+    "project": "euxis",
+    "category": "logos",
+    "format": "svg",
+    "size": 14722
+  },
+  {
+    "name": "title-euxis.svg",
+    "path": "euxis/v1/titles/title-euxis.svg",
+    "project": "euxis",
+    "category": "titles",
+    "format": "svg",
+    "size": 304
+  },
+  {
+    "name": "favicon.ico",
     "path": "frontmatter-gen/favicon.ico",
     "project": "frontmatter-gen",
     "category": "general",
@@ -5749,7 +5925,7 @@
     "project": "inclusio",
     "category": "banners",
     "format": "svg",
-    "size": 32276
+    "size": 39638
   },
   {
     "name": "favicon.ico",
@@ -5773,7 +5949,7 @@
     "project": "inclusio",
     "category": "github",
     "format": "png",
-    "size": 190447
+    "size": 310063
   },
   {
     "name": "github-inclusio.svg",
@@ -5781,7 +5957,7 @@
     "project": "inclusio",
     "category": "github",
     "format": "svg",
-    "size": 34240
+    "size": 40757
   },
   {
     "name": "github-inclusio.webp",
@@ -5805,7 +5981,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 17340
+    "size": 17732
   },
   {
     "name": "180x180.webp",
@@ -5829,7 +6005,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 18610
+    "size": 19089
   },
   {
     "name": "192x192.webp",
@@ -5853,7 +6029,7 @@
     "project": "inclusio",
     "category": "icons",
     "format": "png",
-    "size": 57259
+    "size": 58795
   },
   {
     "name": "512x512.webp",
@@ -5877,7 +6053,7 @@
     "project": "inclusio",
     "category": "logos",
     "format": "png",
-    "size": 478969
+    "size": 832442
   },
   {
     "name": "inclusio.svg",
@@ -5885,7 +6061,7 @@
     "project": "inclusio",
     "category": "logos",
     "format": "svg",
-    "size": 31975
+    "size": 38938
   },
   {
     "name": "inclusio.webp",
@@ -5901,7 +6077,7 @@
     "project": "inclusio",
     "category": "titles",
     "format": "svg",
-    "size": 307
+    "size": 357
   },
   {
     "name": "favicon.ico",
@@ -7349,7 +7525,7 @@
     "project": "noyalib",
     "category": "banners",
     "format": "svg",
-    "size": 174277
+    "size": 174323
   },
   {
     "name": "favicon.ico",
@@ -7373,7 +7549,7 @@
     "project": "noyalib",
     "category": "github",
     "format": "svg",
-    "size": 117167
+    "size": 117205
   },
   {
     "name": "180x180.png",
@@ -7413,7 +7589,7 @@
     "project": "noyalib",
     "category": "logos",
     "format": "svg",
-    "size": 88289
+    "size": 88312
   },
   {
     "name": "title-noyalib.svg",
@@ -9077,7 +9253,7 @@
     "project": "publications",
     "category": "banners",
     "format": "svg",
-    "size": 109736
+    "size": 109984
   },
   {
     "name": "favicon.ico",
@@ -9101,7 +9277,7 @@
     "project": "publications",
     "category": "github",
     "format": "svg",
-    "size": 149294
+    "size": 149542
   },
   {
     "name": "180x180.png",
@@ -9141,7 +9317,7 @@
     "project": "publications",
     "category": "logos",
     "format": "svg",
-    "size": 115743
+    "size": 115976
   },
   {
     "name": "favicon.ico",
@@ -9874,6 +10050,262 @@
   {
     "name": "title-sebastienrousseau.svg",
     "path": "sebastienrousseau/v1/titles/title-sebastienrousseau.svg",
+    "project": "sebastienrousseau",
+    "category": "titles",
+    "format": "svg",
+    "size": 18398
+  },
+  {
+    "name": "banner-sebastienrousseau.svg",
+    "path": "sebastienrousseau/v2/banners/banner-sebastienrousseau.svg",
+    "project": "sebastienrousseau",
+    "category": "banners",
+    "format": "svg",
+    "size": 47964
+  },
+  {
+    "name": "favicon.ico",
+    "path": "sebastienrousseau/v2/favicon.ico",
+    "project": "sebastienrousseau",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 384592
+  },
+  {
+    "name": "180x180.png",
+    "path": "sebastienrousseau/v2/icons/180x180.png",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "png",
+    "size": 6142
+  },
+  {
+    "name": "192x192.png",
+    "path": "sebastienrousseau/v2/icons/192x192.png",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "png",
+    "size": 6688
+  },
+  {
+    "name": "512x512.png",
+    "path": "sebastienrousseau/v2/icons/512x512.png",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "png",
+    "size": 20303
+  },
+  {
+    "name": "akqa.png",
+    "path": "sebastienrousseau/v2/logos/akqa.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 366380
+  },
+  {
+    "name": "akqa.svg",
+    "path": "sebastienrousseau/v2/logos/akqa.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 656168
+  },
+  {
+    "name": "akqa.webp",
+    "path": "sebastienrousseau/v2/logos/akqa.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 149194
+  },
+  {
+    "name": "banner-sebastienrousseau-dark.svg",
+    "path": "sebastienrousseau/v2/logos/banner-sebastienrousseau-dark.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 722545
+  },
+  {
+    "name": "banner-sebastienrousseau.svg",
+    "path": "sebastienrousseau/v2/logos/banner-sebastienrousseau.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 722578
+  },
+  {
+    "name": "barclays.png",
+    "path": "sebastienrousseau/v2/logos/barclays.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 732290
+  },
+  {
+    "name": "barclays.svg",
+    "path": "sebastienrousseau/v2/logos/barclays.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 1462143
+  },
+  {
+    "name": "barclays.webp",
+    "path": "sebastienrousseau/v2/logos/barclays.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 546962
+  },
+  {
+    "name": "capgemini.svg",
+    "path": "sebastienrousseau/v2/logos/capgemini.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 4349
+  },
+  {
+    "name": "gemma.svg",
+    "path": "sebastienrousseau/v2/logos/gemma.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 4167
+  },
+  {
+    "name": "hsbc.png",
+    "path": "sebastienrousseau/v2/logos/hsbc.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 400036
+  },
+  {
+    "name": "hsbc.svg",
+    "path": "sebastienrousseau/v2/logos/hsbc.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 813554
+  },
+  {
+    "name": "hsbc.webp",
+    "path": "sebastienrousseau/v2/logos/hsbc.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 179698
+  },
+  {
+    "name": "ollama.svg",
+    "path": "sebastienrousseau/v2/logos/ollama.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 9735
+  },
+  {
+    "name": "paypal.png",
+    "path": "sebastienrousseau/v2/logos/paypal.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 482765
+  },
+  {
+    "name": "paypal.svg",
+    "path": "sebastienrousseau/v2/logos/paypal.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 67630
+  },
+  {
+    "name": "paypal.webp",
+    "path": "sebastienrousseau/v2/logos/paypal.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 342436
+  },
+  {
+    "name": "rufusleonard.png",
+    "path": "sebastienrousseau/v2/logos/rufusleonard.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 15446
+  },
+  {
+    "name": "sebastienrousseau.svg",
+    "path": "sebastienrousseau/v2/logos/sebastienrousseau.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 22390
+  },
+  {
+    "name": "shazam.png",
+    "path": "sebastienrousseau/v2/logos/shazam.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 304915
+  },
+  {
+    "name": "shazam.svg",
+    "path": "sebastienrousseau/v2/logos/shazam.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 687715
+  },
+  {
+    "name": "shazam.webp",
+    "path": "sebastienrousseau/v2/logos/shazam.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 194362
+  },
+  {
+    "name": "virgin.png",
+    "path": "sebastienrousseau/v2/logos/virgin.png",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "png",
+    "size": 203497
+  },
+  {
+    "name": "virgin.svg",
+    "path": "sebastienrousseau/v2/logos/virgin.svg",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "svg",
+    "size": 328640
+  },
+  {
+    "name": "virgin.webp",
+    "path": "sebastienrousseau/v2/logos/virgin.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 79672
+  },
+  {
+    "name": "title-sebastienrousseau-white.svg",
+    "path": "sebastienrousseau/v2/titles/title-sebastienrousseau-white.svg",
+    "project": "sebastienrousseau",
+    "category": "titles",
+    "format": "svg",
+    "size": 286
+  },
+  {
+    "name": "title-sebastienrousseau.svg",
+    "path": "sebastienrousseau/v2/titles/title-sebastienrousseau.svg",
     "project": "sebastienrousseau",
     "category": "titles",
     "format": "svg",

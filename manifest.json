@@ -24,6 +24,14 @@
     "size": 44922
   },
   {
+    "name": "github-acmt001.avif",
+    "path": "acmt001/v1/github/github-acmt001.avif",
+    "project": "acmt001",
+    "category": "github",
+    "format": "avif",
+    "size": 85715
+  },
+  {
     "name": "github-acmt001.png",
     "path": "acmt001/v1/github/github-acmt001.png",
     "project": "acmt001",
@@ -40,12 +48,44 @@
     "size": 17722
   },
   {
+    "name": "github-acmt001.webp",
+    "path": "acmt001/v1/github/github-acmt001.webp",
+    "project": "acmt001",
+    "category": "github",
+    "format": "webp",
+    "size": 112570
+  },
+  {
+    "name": "180x180.avif",
+    "path": "acmt001/v1/icons/180x180.avif",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "avif",
+    "size": 4649
+  },
+  {
     "name": "180x180.png",
     "path": "acmt001/v1/icons/180x180.png",
     "project": "acmt001",
     "category": "icons",
     "format": "png",
     "size": 11979
+  },
+  {
+    "name": "180x180.webp",
+    "path": "acmt001/v1/icons/180x180.webp",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "webp",
+    "size": 6134
+  },
+  {
+    "name": "192x192.avif",
+    "path": "acmt001/v1/icons/192x192.avif",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "avif",
+    "size": 4918
   },
   {
     "name": "192x192.png",
@@ -56,12 +96,44 @@
     "size": 12781
   },
   {
+    "name": "192x192.webp",
+    "path": "acmt001/v1/icons/192x192.webp",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "webp",
+    "size": 6284
+  },
+  {
+    "name": "512x512.avif",
+    "path": "acmt001/v1/icons/512x512.avif",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "avif",
+    "size": 10673
+  },
+  {
     "name": "512x512.png",
     "path": "acmt001/v1/icons/512x512.png",
     "project": "acmt001",
     "category": "icons",
     "format": "png",
     "size": 39836
+  },
+  {
+    "name": "512x512.webp",
+    "path": "acmt001/v1/icons/512x512.webp",
+    "project": "acmt001",
+    "category": "icons",
+    "format": "webp",
+    "size": 19888
+  },
+  {
+    "name": "acmt001.avif",
+    "path": "acmt001/v1/logos/acmt001.avif",
+    "project": "acmt001",
+    "category": "logos",
+    "format": "avif",
+    "size": 128559
   },
   {
     "name": "acmt001.png",
@@ -78,6 +150,14 @@
     "category": "logos",
     "format": "svg",
     "size": 13959
+  },
+  {
+    "name": "acmt001.webp",
+    "path": "acmt001/v1/logos/acmt001.webp",
+    "project": "acmt001",
+    "category": "logos",
+    "format": "webp",
+    "size": 282354
   },
   {
     "name": "title-acmt001.svg",
@@ -5560,6 +5640,14 @@
     "size": 83411
   },
   {
+    "name": "github-euxis.avif",
+    "path": "euxis/v1/github/github-euxis.avif",
+    "project": "euxis",
+    "category": "github",
+    "format": "avif",
+    "size": 101777
+  },
+  {
     "name": "github-euxis.png",
     "path": "euxis/v1/github/github-euxis.png",
     "project": "euxis",
@@ -5576,12 +5664,44 @@
     "size": 15892
   },
   {
+    "name": "github-euxis.webp",
+    "path": "euxis/v1/github/github-euxis.webp",
+    "project": "euxis",
+    "category": "github",
+    "format": "webp",
+    "size": 157208
+  },
+  {
+    "name": "180x180.avif",
+    "path": "euxis/v1/icons/180x180.avif",
+    "project": "euxis",
+    "category": "icons",
+    "format": "avif",
+    "size": 7999
+  },
+  {
     "name": "180x180.png",
     "path": "euxis/v1/icons/180x180.png",
     "project": "euxis",
     "category": "icons",
     "format": "png",
     "size": 25762
+  },
+  {
+    "name": "180x180.webp",
+    "path": "euxis/v1/icons/180x180.webp",
+    "project": "euxis",
+    "category": "icons",
+    "format": "webp",
+    "size": 13290
+  },
+  {
+    "name": "192x192.avif",
+    "path": "euxis/v1/icons/192x192.avif",
+    "project": "euxis",
+    "category": "icons",
+    "format": "avif",
+    "size": 8796
   },
   {
     "name": "192x192.png",
@@ -5592,12 +5712,44 @@
     "size": 27626
   },
   {
+    "name": "192x192.webp",
+    "path": "euxis/v1/icons/192x192.webp",
+    "project": "euxis",
+    "category": "icons",
+    "format": "webp",
+    "size": 14564
+  },
+  {
+    "name": "512x512.avif",
+    "path": "euxis/v1/icons/512x512.avif",
+    "project": "euxis",
+    "category": "icons",
+    "format": "avif",
+    "size": 23615
+  },
+  {
     "name": "512x512.png",
     "path": "euxis/v1/icons/512x512.png",
     "project": "euxis",
     "category": "icons",
     "format": "png",
     "size": 92089
+  },
+  {
+    "name": "512x512.webp",
+    "path": "euxis/v1/icons/512x512.webp",
+    "project": "euxis",
+    "category": "icons",
+    "format": "webp",
+    "size": 49234
+  },
+  {
+    "name": "euxis.avif",
+    "path": "euxis/v1/logos/euxis.avif",
+    "project": "euxis",
+    "category": "logos",
+    "format": "avif",
+    "size": 270551
   },
   {
     "name": "euxis.png",
@@ -5614,6 +5766,14 @@
     "category": "logos",
     "format": "svg",
     "size": 14722
+  },
+  {
+    "name": "euxis.webp",
+    "path": "euxis/v1/logos/euxis.webp",
+    "project": "euxis",
+    "category": "logos",
+    "format": "webp",
+    "size": 479486
   },
   {
     "name": "title-euxis.svg",
@@ -10072,12 +10232,36 @@
     "size": 384592
   },
   {
+    "name": "180x180.avif",
+    "path": "sebastienrousseau/v2/icons/180x180.avif",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "avif",
+    "size": 4324
+  },
+  {
     "name": "180x180.png",
     "path": "sebastienrousseau/v2/icons/180x180.png",
     "project": "sebastienrousseau",
     "category": "icons",
     "format": "png",
     "size": 6142
+  },
+  {
+    "name": "180x180.webp",
+    "path": "sebastienrousseau/v2/icons/180x180.webp",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "webp",
+    "size": 4772
+  },
+  {
+    "name": "192x192.avif",
+    "path": "sebastienrousseau/v2/icons/192x192.avif",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "avif",
+    "size": 3537
   },
   {
     "name": "192x192.png",
@@ -10088,12 +10272,44 @@
     "size": 6688
   },
   {
+    "name": "192x192.webp",
+    "path": "sebastienrousseau/v2/icons/192x192.webp",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "webp",
+    "size": 5026
+  },
+  {
+    "name": "512x512.avif",
+    "path": "sebastienrousseau/v2/icons/512x512.avif",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "avif",
+    "size": 10448
+  },
+  {
     "name": "512x512.png",
     "path": "sebastienrousseau/v2/icons/512x512.png",
     "project": "sebastienrousseau",
     "category": "icons",
     "format": "png",
     "size": 20303
+  },
+  {
+    "name": "512x512.webp",
+    "path": "sebastienrousseau/v2/icons/512x512.webp",
+    "project": "sebastienrousseau",
+    "category": "icons",
+    "format": "webp",
+    "size": 13746
+  },
+  {
+    "name": "akqa.avif",
+    "path": "sebastienrousseau/v2/logos/akqa.avif",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "avif",
+    "size": 71177
   },
   {
     "name": "akqa.png",
@@ -10136,6 +10352,14 @@
     "size": 722578
   },
   {
+    "name": "barclays.avif",
+    "path": "sebastienrousseau/v2/logos/barclays.avif",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "avif",
+    "size": 164069
+  },
+  {
     "name": "barclays.png",
     "path": "sebastienrousseau/v2/logos/barclays.png",
     "project": "sebastienrousseau",
@@ -10176,6 +10400,14 @@
     "size": 4167
   },
   {
+    "name": "hsbc.avif",
+    "path": "sebastienrousseau/v2/logos/hsbc.avif",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "avif",
+    "size": 65729
+  },
+  {
     "name": "hsbc.png",
     "path": "sebastienrousseau/v2/logos/hsbc.png",
     "project": "sebastienrousseau",
@@ -10208,6 +10440,14 @@
     "size": 9735
   },
   {
+    "name": "paypal.avif",
+    "path": "sebastienrousseau/v2/logos/paypal.avif",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "avif",
+    "size": 114500
+  },
+  {
     "name": "paypal.png",
     "path": "sebastienrousseau/v2/logos/paypal.png",
     "project": "sebastienrousseau",
@@ -10232,6 +10472,14 @@
     "size": 342436
   },
   {
+    "name": "rufusleonard.avif",
+    "path": "sebastienrousseau/v2/logos/rufusleonard.avif",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "avif",
+    "size": 2359
+  },
+  {
     "name": "rufusleonard.png",
     "path": "sebastienrousseau/v2/logos/rufusleonard.png",
     "project": "sebastienrousseau",
@@ -10240,12 +10488,28 @@
     "size": 15446
   },
   {
+    "name": "rufusleonard.webp",
+    "path": "sebastienrousseau/v2/logos/rufusleonard.webp",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "webp",
+    "size": 2560
+  },
+  {
     "name": "sebastienrousseau.svg",
     "path": "sebastienrousseau/v2/logos/sebastienrousseau.svg",
     "project": "sebastienrousseau",
     "category": "logos",
     "format": "svg",
     "size": 22390
+  },
+  {
+    "name": "shazam.avif",
+    "path": "sebastienrousseau/v2/logos/shazam.avif",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "avif",
+    "size": 60197
   },
   {
     "name": "shazam.png",
@@ -10270,6 +10534,14 @@
     "category": "logos",
     "format": "webp",
     "size": 194362
+  },
+  {
+    "name": "virgin.avif",
+    "path": "sebastienrousseau/v2/logos/virgin.avif",
+    "project": "sebastienrousseau",
+    "category": "logos",
+    "format": "avif",
+    "size": 55522
   },
   {
     "name": "virgin.png",

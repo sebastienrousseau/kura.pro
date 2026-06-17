@@ -1,3 +1,14 @@
+/**
+ * AI / search MCP tools — semantic search, RAG concierge, vision
+ * endpoints, and placeholder generators. All are public-access.
+ *
+ * The vision and chat endpoints share a Workers AI budget guard; when the
+ * daily quota trips, responses flip to cached / fuzzy / curated mode and
+ * mark themselves with `degraded: true` so agents don't need to branch.
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/ai
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
@@ -6,6 +17,15 @@ const URL_PATH = z.string()
   .max(2048)
   .describe('Relative asset path (e.g. "/clients/akande/v1/logos/logo.svg"). Absolute URLs are rejected.');
 
+/**
+ * Register the AI tools (`semantic_search`, `health_check`,
+ * `generate_alt_text`, `smart_crop`, `moderate_image`, `placeholder_lqip`,
+ * `placeholder_blurhash`, `chat_ask`, `remove_background`) on the given
+ * MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerAiTools(server) {
   server.tool(
     'semantic_search',

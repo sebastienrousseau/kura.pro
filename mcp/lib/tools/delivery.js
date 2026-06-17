@@ -1,6 +1,25 @@
+/**
+ * Edge-delivery MCP tools — transforms, cache purge, signed URLs, HLS
+ * playlists, and the asset pipeline.
+ *
+ * Auth is per-tool: `transform_image` and `stream_playlist` are public,
+ * `cache_purge` uses PurgeKey, `signed_url_generate` and `pipeline_ingest`
+ * use AccountKey.
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/delivery
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
+/**
+ * Register the delivery tools (`transform_image`, `cache_purge`,
+ * `signed_url_generate`, `stream_playlist`, `pipeline_ingest`) on the
+ * given MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerDeliveryTools(server) {
   server.tool(
     'transform_image',

@@ -1,6 +1,21 @@
+/**
+ * Webhook MCP tools — list, create, and delete webhook subscriptions.
+ * Deliveries are HMAC-SHA256 signed; the consumer Worker takes care of
+ * the retry + DLQ flow. AccountKey auth on every call.
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/webhooks
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
+/**
+ * Register the webhook tools (`webhook_list`, `webhook_create`,
+ * `webhook_delete`) on the given MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerWebhookTools(server) {
   server.tool(
     'webhook_list',

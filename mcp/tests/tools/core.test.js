@@ -29,6 +29,17 @@ describe('core tools', () => {
     return tools;
   }
 
+  it('statistics_summary calls GET /api/core/statistics with AccountKey', async () => {
+    mockFetch({ TotalZones: 67, TotalFiles: 1824 });
+    const tools = await getTools();
+    const result = await tools.statistics_summary({});
+    const parsed = JSON.parse(result.content[0].text);
+    expect(parsed.TotalZones).toBe(67);
+    const [url, opts] = globalThis.fetch.mock.calls[0];
+    expect(url).toContain('/api/core/statistics');
+    expect(opts.headers.AccountKey).toBe('ak_test');
+  });
+
   it('zone_list calls GET /api/core/zones with AccountKey', async () => {
     mockFetch([{ Id: 'akande', FileCount: 10 }]);
     const tools = await getTools();

@@ -67,6 +67,29 @@ describe('storage tools', () => {
     });
   });
 
+  describe('storage_upload (with checksum)', () => {
+    it('forwards the Checksum header when provided', async () => {
+      process.env.CLOUDCDN_BASE_URL = 'https://test.cdn';
+      process.env.CLOUDCDN_ACCESS_KEY = 'sk_test';
+      mockFetch({ HttpCode: 201 });
+
+      const { registerStorageTools } = await import('../../lib/tools/storage.js');
+      const tools = {};
+      const server = {
+        tool: (name, _desc, _schema, handler) => { tools[name] = handler; },
+      };
+      registerStorageTools(server);
+
+      await tools.storage_upload({
+        path: 'clients/test/v1/logos/logo.svg',
+        content_base64: btoa('<svg></svg>'),
+        checksum: 'deadbeef',
+      });
+      const [, opts] = globalThis.fetch.mock.calls[0];
+      expect(opts.headers.Checksum).toBe('deadbeef');
+    });
+  });
+
   describe('storage_delete', () => {
     it('calls DELETE with correct path', async () => {
       process.env.CLOUDCDN_BASE_URL = 'https://test.cdn';

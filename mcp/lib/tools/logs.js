@@ -1,6 +1,18 @@
+/**
+ * Operations / log-query MCP tools.
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/logs
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
+/**
+ * Register the log tools (`logs_query`) on the given MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerLogTools(server) {
   server.tool(
     'logs_query',

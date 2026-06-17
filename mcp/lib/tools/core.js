@@ -1,6 +1,20 @@
+/**
+ * Core control-plane MCP tools — zones, domains, edge rules, account stats.
+ * AccountKey auth on every call.
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/core
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
+/**
+ * Register the core tools (`statistics_summary`, `zone_*`, `domain_add`,
+ * `rules_*`) on the given MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerCoreTools(server) {
   server.tool(
     'statistics_summary',

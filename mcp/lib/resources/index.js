@@ -1,5 +1,22 @@
+/**
+ * Read-only MCP resources exposed under the `cloudcdn://` scheme.
+ *
+ * Resources are passive — agents read them to populate context — and so
+ * each handler just forwards to a REST endpoint and serialises the JSON
+ * body back. All six refresh on every read.
+ *
+ * @module @cloudcdn/mcp-server/lib/resources
+ */
+
 import * as api from '../api-client.js';
 
+/**
+ * Register the six MCP resources (`manifest`, `zones`, `rules`, `health`,
+ * `openapi`, `insights-today`) on the given MCP server.
+ *
+ * @param {{ resource: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerResources(server) {
   server.resource(
     'manifest',

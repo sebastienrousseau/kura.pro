@@ -104,4 +104,108 @@ describe('api-client', () => {
     expect(opts.headers.AccessKey).toBeUndefined();
     expect(opts.headers.AccountKey).toBeUndefined();
   });
+
+  it('uses analytics auth as x-api-key', async () => {
+    process.env.CLOUDCDN_ANALYTICS_KEY = 'an_test';
+    const { get } = await import('../lib/api-client.js');
+    await get('/api/analytics', { auth: 'analytics' });
+
+    const [, opts] = globalThis.fetch.mock.calls[0];
+    expect(opts.headers['x-api-key']).toBe('an_test');
+    delete process.env.CLOUDCDN_ANALYTICS_KEY;
+  });
+
+  it('sends HEAD verb via head()', async () => {
+    const { head } = await import('../lib/api-client.js');
+    await head('/api/transform', { params: { url: '/x.png' } });
+    const [, opts] = globalThis.fetch.mock.calls[0];
+    expect(opts.method).toBe('HEAD');
+  });
+
+  it('sends PUT with raw Uint8Array body (no JSON wrapping)', async () => {
+    const { put } = await import('../lib/api-client.js');
+    const bytes = new Uint8Array([1, 2, 3, 4]);
+    await put('/api/storage/foo.bin', bytes, { auth: 'access' });
+    const [, opts] = globalThis.fetch.mock.calls[0];
+    expect(opts.method).toBe('PUT');
+    expect(opts.body).toBeInstanceOf(Uint8Array);
+    expect(opts.headers['Content-Type']).toBeUndefined();
+  });
+
+  it('sends PUT with ArrayBuffer body without JSON wrapping', async () => {
+    const { put } = await import('../lib/api-client.js');
+    const buf = new ArrayBuffer(8);
+    await put('/api/storage/foo.bin', buf, { auth: 'access' });
+    const [, opts] = globalThis.fetch.mock.calls[0];
+    expect(opts.body).toBe(buf);
+    expect(opts.headers['Content-Type']).toBeUndefined();
+  });
+
+  it('emits empty auth headers when configured key is missing', async () => {
+    // Each fetch() consumes the Response body, so build a fresh Response per call.
+    globalThis.fetch = vi.fn().mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify({ ok: true }), {
+        headers: { 'content-type': 'application/json' },
+      }))
+    );
+    const { get } = await import('../lib/api-client.js');
+    const prevAccess = process.env.CLOUDCDN_ACCESS_KEY;
+    const prevAccount = process.env.CLOUDCDN_ACCOUNT_KEY;
+    const prevPurge = process.env.CLOUDCDN_PURGE_KEY;
+    delete process.env.CLOUDCDN_ACCESS_KEY;
+    delete process.env.CLOUDCDN_ACCOUNT_KEY;
+    delete process.env.CLOUDCDN_PURGE_KEY;
+    try {
+      await get('/api/x', { auth: 'access' });
+      let [, opts] = globalThis.fetch.mock.calls.at(-1);
+      expect(opts.headers.AccessKey).toBeUndefined();
+
+      await get('/api/x', { auth: 'account' });
+      [, opts] = globalThis.fetch.mock.calls.at(-1);
+      expect(opts.headers.AccountKey).toBeUndefined();
+
+      await get('/api/x', { auth: 'purge' });
+      [, opts] = globalThis.fetch.mock.calls.at(-1);
+      expect(opts.headers['x-api-key']).toBeUndefined();
+    } finally {
+      process.env.CLOUDCDN_ACCESS_KEY = prevAccess;
+      process.env.CLOUDCDN_ACCOUNT_KEY = prevAccount;
+      process.env.CLOUDCDN_PURGE_KEY = prevPurge;
+    }
+  });
+
+  it('falls back to empty headers when auth name is unknown', async () => {
+    const { get } = await import('../lib/api-client.js');
+    await get('/api/x', { auth: 'nope' });
+    const [, opts] = globalThis.fetch.mock.calls.at(-1);
+    expect(opts.headers.AccessKey).toBeUndefined();
+    expect(opts.headers.AccountKey).toBeUndefined();
+  });
+
+  it('analytics auth without a key emits no x-api-key header', async () => {
+    const prev = process.env.CLOUDCDN_ANALYTICS_KEY;
+    delete process.env.CLOUDCDN_ANALYTICS_KEY;
+    try {
+      const { get } = await import('../lib/api-client.js');
+      await get('/api/analytics', { auth: 'analytics' });
+      const [, opts] = globalThis.fetch.mock.calls.at(-1);
+      expect(opts.headers['x-api-key']).toBeUndefined();
+    } finally {
+      process.env.CLOUDCDN_ANALYTICS_KEY = prev;
+    }
+  });
+
+  it('falls back gracefully when the response has no content-type header', async () => {
+    // Building a fake response object so the runtime can't auto-fill a default
+    // text/plain content-type the way `new Response(stringBody)` does.
+    const fake = {
+      ok: true,
+      status: 200,
+      headers: { get: () => null },
+    };
+    globalThis.fetch = vi.fn().mockResolvedValue(fake);
+    const { get } = await import('../lib/api-client.js');
+    const res = await get('/api/raw');
+    expect(res.data.contentType).toBe('');
+  });
 });

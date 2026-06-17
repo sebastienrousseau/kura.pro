@@ -41,6 +41,32 @@ describe('delivery tools', () => {
     expect(parsed.status).toBe(200);
   });
 
+  it('transform_image skips explicitly undefined params and falls back to null content_type', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        headers: { 'content-type': 'application/json' },
+      })
+    );
+    const tools = await getTools();
+    const result = await tools.transform_image({
+      url: '/akande/v1/logos/logo.svg',
+      w: undefined,
+      h: undefined,
+    });
+    const parsed = JSON.parse(result.content[0].text);
+    expect(parsed.transform_url).toContain('url=');
+    expect(parsed.transform_url).not.toContain('w=');
+    expect(parsed.content_type).toBeNull();
+  });
+
+  it('cache_purge with nothing set sends an empty body', async () => {
+    mockFetch({ success: true });
+    const tools = await getTools();
+    await tools.cache_purge({});
+    const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
+    expect(body).toEqual({});
+  });
+
   it('cache_purge sends urls to POST /api/purge', async () => {
     mockFetch({ success: true });
     const tools = await getTools();
@@ -57,6 +83,50 @@ describe('delivery tools', () => {
     await tools.cache_purge({ purge_everything: true });
     const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
     expect(body.purge_everything).toBe(true);
+  });
+
+  it('cache_purge sends tags array', async () => {
+    mockFetch({ success: true });
+    const tools = await getTools();
+    await tools.cache_purge({ tags: ['hero', 'home'] });
+    const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
+    expect(body.tags).toEqual(['hero', 'home']);
+    expect(body.urls).toBeUndefined();
+  });
+
+  it('signed_url_generate POSTs path + expires (default TTL)', async () => {
+    const fixedNow = 1_700_000_000_000;
+    vi.spyOn(Date, 'now').mockReturnValue(fixedNow);
+    mockFetch({ url: 'https://test.cdn/x?sig=abc', expiresAt: fixedNow / 1000 + 3600 });
+    const tools = await getTools();
+    await tools.signed_url_generate({ path: '/clients/acme/private/report.pdf' });
+    const [url, opts] = globalThis.fetch.mock.calls[0];
+    expect(url).toContain('/api/signed');
+    expect(opts.headers.AccountKey).toBe('ak_test');
+    const body = JSON.parse(opts.body);
+    expect(body.path).toBe('/clients/acme/private/report.pdf');
+    expect(body.expires).toBe(fixedNow / 1000 + 3600);
+    vi.restoreAllMocks();
+  });
+
+  it('signed_url_generate honours custom expires_in', async () => {
+    const fixedNow = 1_700_000_000_000;
+    vi.spyOn(Date, 'now').mockReturnValue(fixedNow);
+    mockFetch({ url: 'x', expiresAt: 1 });
+    const tools = await getTools();
+    await tools.signed_url_generate({ path: '/p', expires_in: 600 });
+    const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
+    expect(body.expires).toBe(fixedNow / 1000 + 600);
+    vi.restoreAllMocks();
+  });
+
+  it('stream_playlist GETs /api/stream with id param', async () => {
+    mockFetch({ playlist_url: 'https://test.cdn/stream.m3u8' });
+    const tools = await getTools();
+    await tools.stream_playlist({ asset_id: '/stocks/promo/launch.mp4' });
+    const u = new URL(globalThis.fetch.mock.calls[0][0]);
+    expect(u.pathname).toBe('/api/stream');
+    expect(u.searchParams.get('id')).toBe('/stocks/promo/launch.mp4');
   });
 
   it('pipeline_ingest sends POST /api/pipeline with mode and svg', async () => {

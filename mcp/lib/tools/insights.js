@@ -1,8 +1,25 @@
+/**
+ * Insights / analytics MCP tools — summary, top assets, geography, errors,
+ * per-asset roll-ups, and the long-retention audit log.
+ *
+ * The first five are AccessKey-gated (observability data); `audit_logs`
+ * is AccountKey-gated (control-plane history).
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/insights
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
 const daysParam = z.number().int().min(1).max(90).default(7).optional().describe('Number of days to query (1-90)');
 
+/**
+ * Register the insights tools (`insights_*`, `audit_logs`) on the given
+ * MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerInsightsTools(server) {
   server.tool(
     'insights_summary',

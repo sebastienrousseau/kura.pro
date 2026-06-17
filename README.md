@@ -12,7 +12,7 @@
   <a href="https://github.com/sebastienrousseau/cloudcdn.pro/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/cloudcdn.pro/deploy.yml?style=for-the-badge&logo=github" alt="Build" /></a>
   <a href="https://cloudcdn.pro"><img src="https://img.shields.io/badge/edge-300%2B%20PoPs-6366f1?style=for-the-badge&logo=cloudflare" alt="Edge" /></a>
   <a href="https://cloudcdn.pro/api-reference"><img src="https://img.shields.io/badge/api-OpenAPI%203.1-34d399?style=for-the-badge&logo=openapiinitiative" alt="API" /></a>
-  <a href="#testing"><img src="https://img.shields.io/badge/tests-2,994%20%E2%80%A2%20100%25-15803d?style=for-the-badge" alt="Tests" /></a>
+  <a href="#testing"><img src="https://img.shields.io/badge/tests-3,190%20%E2%80%A2%20100%25-15803d?style=for-the-badge" alt="Tests" /></a>
   <a href="#accessibility"><img src="https://img.shields.io/badge/WCAG-AA%20clean-4338ca?style=for-the-badge" alt="WCAG-AA" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License" /></a>
 </p>
@@ -25,7 +25,7 @@ Most CDNs are a deploy target. CloudCDN is also a **product** — multi-tenant z
 
 | What you usually get | What CloudCDN ships |
 | :--- | :--- |
-| A single zone serving a single site | **Multi-tenant** — 59 isolated zones, per-tenant Cache-Tags, per-asset analytics |
+| A single zone serving a single site | **Multi-tenant** — 65 isolated tenant zones, per-tenant Cache-Tags, per-asset analytics |
 | Image resizing | Resize **plus** AI alt-text, smart-crop (subject-aware gravity), background-remove, content moderation |
 | A purge button | URL purge, tag purge, full purge — plus a 90-day immutable audit log of every control-plane mutation |
 | Search-by-filename | **Semantic search** (Vectorize) with day-bucketed edge cache and fuzzy fallback when AI quota is dry |
@@ -38,14 +38,14 @@ Most CDNs are a deploy target. CloudCDN is also a **product** — multi-tenant z
 
 CloudCDN is a multi-tenant CDN platform built entirely on Cloudflare Workers, Pages, KV, Vectorize, and Workers AI. A single SVG upload scaffolds a complete project directory. Every image is optimized, cached at the edge, and served in under 100ms globally.
 
-- **59 tenant zones** with isolated `v1/` directory structures
-- **1,647 optimized assets** in the live manifest — single source per image, derivatives on demand
-- **38 edge API endpoints** across 8 planes (Storage, Core, Assets, Insights, Delivery, AI, Auth, Webhooks)
-- **2,994 tests** with **100% statement / branch / function / line coverage** on 41 gated production files
+- **65 tenant zones** with isolated `v1/` directory structures (plus shared `cmn/` and `common/` asset libraries)
+- **1,824 optimized assets** in the live manifest — single source per image, derivatives on demand
+- **36 edge API endpoints** across 8 planes (Storage, Core, Assets, Insights, Delivery, AI, Auth, Webhooks)
+- **3,190 tests** with **100% statement / branch / function / line coverage** on 41 gated production files
 - **WCAG-AA accessible** — zero serious/critical axe-core violations on every page we own, both themes, blocking gate on every PR
 - **Light + dark theme** site-wide via `[data-theme]` + CSS native `light-dark()`, pre-paint boot to prevent FOUC
 - **Quota-resilient AI** — response cache, neuron budget, circuit breaker, and curated FAQ fallback keep `/api/search` and `/api/chat` answering when Workers AI is exhausted; vision endpoints share the same guard
-- **Agent-controllable** — `@cloudcdn/mcp-server` exposes 22 tools + 3 resources for Claude Code, Cursor, Windsurf, Cline
+- **Agent-controllable** — [`@cloudcdn/mcp-server`](mcp/README.md) exposes **42 tools + 6 resources** for Claude Code, Cursor, Windsurf, Cline, Claude Desktop, and VS Code Copilot
 - **Signed commits** enforced end-to-end — from developer machine to edge deployment via the `verify-signatures` gate
 
 ## Architecture
@@ -69,7 +69,7 @@ graph TD
 
 ```
 /
-├── clients/          59 tenant asset directories
+├── clients/          65 tenant asset directories + 2 shared libraries (cmn, common)
 ├── stocks/           Global stock media (images, diagrams, videos)
 ├── cdn/              Application layer (localized pages, dashboard, docs)
 │   ├── en/           English homepage (canonical)
@@ -112,7 +112,7 @@ Leaked physical paths (`/cdn/<locale>/...`, including old bookmarks and preview-
 | **HLS Streaming** | Adaptive bitrate video delivery via HTTP Live Streaming playlists and byte-range segmentation. |
 | **Semantic Search** | Natural language asset search powered by Workers AI embeddings and Vectorize vector similarity. Day-bucketed edge cache, neuron budget, and fuzzy fallback keep results flowing when AI quota is exhausted — responses are annotated with `mode: vector \| fuzzy \| cached`. |
 | **AI Concierge** | RAG-powered chat assistant with SSE streaming, confidence scoring, and follow-up suggestions. Layered fallback: edge response cache → 30-entry curated FAQ → templated default. Failures never surface as HTTP errors; `metadata.source` is `ai \| cached \| curated`. |
-| **MCP Server** | [`@cloudcdn/mcp-server`](mcp/README.md) exposes **22 tools + 3 resources** (storage, zones, assets, insights, audit, transform, purge, AI vision, placeholders, semantic search) for AI agents. Drop-in compatible with Claude Code, Claude Desktop, Cursor, Windsurf, and Cline. |
+| **MCP Server** | [`@cloudcdn/mcp-server`](mcp/README.md) exposes **42 tools + 6 resources** (storage, zones, assets, insights, audit, transform, purge, signed URLs, HLS playlists, AI vision, placeholders, semantic search, scoped tokens, webhooks, operational logs) for AI agents. Drop-in compatible with Claude Code, Claude Desktop, Cursor, Windsurf, and Cline. |
 | **Audit Trail** | Every control-plane mutation (token create/revoke, webhook register/delete, zone create, purge) writes to an immutable 90-day audit log accessible via `/api/core/audit-logs`. Records carry IP, user-agent, trace ID, and action-specific metadata. |
 | **Asset Pipeline** | Upload a single SVG → automatic directory scaffold with PWA icons, banners, and favicon. |
 | **Zone Management** | Create, delete, and configure tenant zones via GitOps commits through the Core API. |
@@ -266,7 +266,7 @@ required bindings are reachable; `503 degraded` otherwise.
 ## Testing
 
 ```bash
-npm test                # 2,994 tests across 72 suites
+npm test                # 3,190 tests across 72 suites
 npm run test:coverage   # 100% on statements / branches / functions / lines
 npm run test:visual     # Playwright visual regression
 npm run test:load       # k6 smoke against production
@@ -275,20 +275,22 @@ npm run test:audit      # npm dependency security audit
 
 The vitest config gates **41 production files** at 100% — every Cloudflare Function endpoint, every API handler, the middleware, the build scripts, the Stratos CLI, the theme system (`theme-boot.js`, `theme-toggle.js`, `scalar-theme.js`), and the Skeletonic vendor script. CI fails fast on any coverage drop or `vitest` error; the a11y audit on the homepage and dashboard is a **blocking gate** on every PR.
 
+The MCP package (`mcp/`) carries its own vitest suite with the same 100% gate — see [`mcp/README.md#testing`](mcp/README.md#testing).
+
 <details>
 <summary><strong>Test suite breakdown</strong></summary>
 
 | Category | Suites | Approx. tests |
 | :--- | :--- | :--- |
-| Endpoint unit tests (38 API endpoints) | 24 | 1,400+ |
-| Domain regression (Data / Control / Edge) | 13 | 300+ |
-| Cross-cutting (auth, CORS, pagination, streaming, signed URLs, passkeys) | 14 | 350+ |
+| Endpoint unit tests (36 API endpoints) | 24 | 1,500+ |
+| Domain regression (Data / Control / Edge) | 13 | 320+ |
+| Cross-cutting (auth, CORS, pagination, streaming, signed URLs, passkeys) | 14 | 370+ |
 | OpenAPI spec validation | 2 | 500+ |
-| Infrastructure (manifest, client libs, Skeletonic vendor) | 9 | 400+ |
+| Infrastructure (manifest, client libs, Skeletonic vendor) | 9 | 420+ |
 | AI fallback (cache, budget, breaker, curated, vector) | 5 | 40+ |
 | Theme system (theme-boot, theme-toggle, scalar-theme via happy-dom) | 3 | 24 |
 | Stratos CLI | 2 | 30+ |
-| **Total** | **72** | **2,994** |
+| **Total** | **72** | **3,190** |
 
 </details>
 

@@ -12,7 +12,40 @@ into the *sprints* used during development.
 
 ### Sprint 15 — cleanup & open-source
 
-Carry-over polish from Sprint 14. To be filled in as commits land.
+Polish toward top-decile open-source signal: zero stale numbers in
+headline docs, the MCP package overhauled to library-grade publication
+standard, every empty placeholder filled with a single source of truth.
+
+#### Added
+- **`@cloudcdn/mcp-server`** — first publishable revision of the MCP
+  package. Adds `exports` map (`/server`, `/api-client`), `bin`,
+  `files` allowlist, runnable `examples/` (quickstart-stdio,
+  programmatic-embed, semantic-search, cache-purge, transform-image),
+  JSDoc on every public surface, and a `test:coverage` script.
+- **MCP test suite expanded** from 91 to 133 tests across 13 files:
+  direct units for `assets`, `webhooks`, `tokens`, `logs`,
+  `resources`, plus the `index.js` entry point, plus branch-coverage
+  gap fillers in `api-client`, `ai`, `core`, `delivery`, `storage`.
+  100% statements / branches / functions / lines gated in
+  `mcp/vitest.config.js`.
+- **New client zones**: `acmt001`, `euxis`, `inclusio`, `stratos`,
+  plus `sebastienrousseau/v2`. Manifest now indexes 1,824 assets.
+- **Filled CDN README stubs** for `clients/cmn`, `clients/common`,
+  `clients/dotfiles/v1`, `clients/dotfiles/v2` — each describes
+  whether the directory is a tenant zone or a shared library.
+
+#### Changed
+- **Hardened `webhook_delete` and `token_revoke`** to pass `id` as a
+  URL-encoded query param via the api-client rather than interpolating
+  it into the URL string. Defensive against ids with reserved chars.
+- **Refreshed root README** to live source-of-truth counts: 3,190
+  tests across 72 suites (was 2,994), 1,824 manifest assets (was
+  1,647), 65 tenant zones + 2 shared libraries (was 59), 42 MCP tools
+  + 6 resources (was 22 + 3), 36 edge API endpoints (was 38).
+- **Hot-path dependency bumps** (Dependabot): `actions/checkout` 6.0.2
+  → 6.0.3, `sharp` 0.34.5 → 0.35.1, `@vitest/coverage-v8` 4.1.7 →
+  4.1.9, `vitest` 4.1.7 → 4.1.9, `happy-dom` 20.9.0 → 20.10.3,
+  `tailwindcss` + `@tailwindcss/cli` 4.3.0 → 4.3.1.
 
 ## 2026-05-14 — Sprint 14
 

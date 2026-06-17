@@ -128,6 +128,63 @@ describe('ai tools', () => {
     expect(url.searchParams.has('size')).toBe(false);
   });
 
+  it('chat_ask POSTs to /api/chat with messages array', async () => {
+    mockFetch({ answer: 'Use /api/purge with tags', sources: [], confidence: 'high', source: 'ai' });
+    const tools = await getTools();
+    const result = await tools.chat_ask({ question: 'how do I purge by tag' });
+    const parsed = JSON.parse(result.content[0].text);
+    expect(parsed.answer).toContain('purge');
+    const [url, opts] = globalThis.fetch.mock.calls[0];
+    expect(url).toContain('/api/chat');
+    expect(opts.method).toBe('POST');
+    const body = JSON.parse(opts.body);
+    expect(body.messages).toEqual([{ role: 'user', content: 'how do I purge by tag' }]);
+  });
+
+  it('remove_background catch branch surfaces a structured NotImplemented body', async () => {
+    process.env.CLOUDCDN_BASE_URL = 'https://test.cdn';
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('fetch failed'));
+    const { registerAiTools } = await import('../../lib/tools/ai.js');
+    const tools = {};
+    registerAiTools({
+      tool: (name, _desc, _schema, handler) => { tools[name] = handler; },
+    });
+    const result = await tools.remove_background({ url: '/x.png' });
+    const parsed = JSON.parse(result.content[0].text);
+    expect(parsed.error.code).toBe('NotImplemented');
+    expect(parsed.error.message).toBe('fetch failed');
+  });
+
+  it('remove_background catch branch coerces error to string when message is missing', async () => {
+    process.env.CLOUDCDN_BASE_URL = 'https://test.cdn';
+    // Reject with a plain object (not an Error) so err.message is undefined.
+    globalThis.fetch = vi.fn().mockRejectedValue({ toString: () => 'opaque-failure' });
+    const { registerAiTools } = await import('../../lib/tools/ai.js');
+    const tools = {};
+    registerAiTools({
+      tool: (name, _desc, _schema, handler) => { tools[name] = handler; },
+    });
+    const result = await tools.remove_background({ url: '/x.png' });
+    const parsed = JSON.parse(result.content[0].text);
+    expect(parsed.error.code).toBe('NotImplemented');
+    expect(parsed.error.message).toBe('opaque-failure');
+  });
+
+  it('remove_background catch branch surfaces upstream response body if attached', async () => {
+    process.env.CLOUDCDN_BASE_URL = 'https://test.cdn';
+    const err = new Error('boom');
+    err.response = { data: { error: { code: 'NotImplemented', message: 'upstream said no' } } };
+    globalThis.fetch = vi.fn().mockRejectedValue(err);
+    const { registerAiTools } = await import('../../lib/tools/ai.js');
+    const tools = {};
+    registerAiTools({
+      tool: (name, _desc, _schema, handler) => { tools[name] = handler; },
+    });
+    const result = await tools.remove_background({ url: '/x.png' });
+    const parsed = JSON.parse(result.content[0].text);
+    expect(parsed.error.message).toBe('upstream said no');
+  });
+
   it('remove_background POSTs to /api/ai/background-remove (501 stub)', async () => {
     // Stub returns 501 with a structured body; the MCP tool should surface
     // the body as text content rather than throwing, so the agent can read

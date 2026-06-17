@@ -1,6 +1,20 @@
+/**
+ * Storage-plane MCP tools — read/write the Bunny.net-compatible object store
+ * that backs CloudCDN. AccessKey auth on every call.
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/storage
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
+/**
+ * Register the storage tools (`storage_list`, `storage_upload`,
+ * `storage_delete`, `storage_batch_upload`) on the given MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerStorageTools(server) {
   server.tool(
     'storage_list',

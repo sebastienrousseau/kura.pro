@@ -1,6 +1,20 @@
+/**
+ * Asset-catalog MCP tools — browse, fetch metadata, and search the
+ * read-side asset index. AccessKey auth on every call.
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/assets
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
+/**
+ * Register the asset tools (`assets_list`, `asset_metadata_get`,
+ * `assets_search`) on the given MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerAssetsTools(server) {
   server.tool(
     'assets_list',

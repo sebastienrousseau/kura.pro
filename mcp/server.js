@@ -1,5 +1,9 @@
 /**
- * CloudCDN MCP Server definition.
+ * CloudCDN MCP server definition.
+ *
+ * Wires every tool and resource registration into an `McpServer` instance.
+ * The result is a fully configured server that the entry point (or any
+ * embedder) just needs to `.connect(transport)`.
  *
  * Registers 42 tools across 9 API planes + 6 read-only resources:
  *
@@ -20,7 +24,9 @@
  *
  *   Resources (6)  manifest, zones, rules, health, openapi, insights-today
  *
- * Each tool maps to a CloudCDN API endpoint via the HTTP client.
+ * Each tool maps to a CloudCDN HTTP endpoint via the shared API client.
+ *
+ * @module @cloudcdn/mcp-server/server
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -37,6 +43,20 @@ import { registerTokenTools } from './lib/tools/tokens.js';
 import { registerLogTools } from './lib/tools/logs.js';
 import { registerResources } from './lib/resources/index.js';
 
+/**
+ * Build a fully-wired MCP server with every CloudCDN tool and resource
+ * registered. The caller is responsible for attaching a transport
+ * (`stdio`, Streamable HTTP, SSE, …) and calling `.connect()`.
+ *
+ * @returns {InstanceType<typeof McpServer>} A configured MCP server.
+ *
+ * @example
+ *   import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+ *   import { createServer } from '@cloudcdn/mcp-server/server';
+ *
+ *   const server = createServer();
+ *   await server.connect(new StdioServerTransport());
+ */
 export function createServer() {
   const server = new McpServer({
     name: 'cloudcdn',

@@ -1,6 +1,21 @@
+/**
+ * Scoped-API-token MCP tools — list, create, and revoke tokens. Secrets
+ * are SHA-256 hashed at rest and returned to the caller exactly once at
+ * creation time. AccountKey auth on every call.
+ *
+ * @module @cloudcdn/mcp-server/lib/tools/tokens
+ */
+
 import { z } from 'zod';
 import * as api from '../api-client.js';
 
+/**
+ * Register the token tools (`token_list`, `token_create`, `token_revoke`)
+ * on the given MCP server.
+ *
+ * @param {{ tool: Function }} server - The MCP server instance.
+ * @returns {void}
+ */
 export function registerTokenTools(server) {
   server.tool(
     'token_list',
@@ -35,7 +50,7 @@ export function registerTokenTools(server) {
     'Revoke an API token by its ID. The token will immediately stop working.',
     { id: z.string().describe('Token ID to revoke') },
     async ({ id }) => {
-      const res = await api.del(`/api/tokens?id=${id}`, { auth: 'account' });
+      const res = await api.del('/api/tokens', { auth: 'account', params: { id } });
       return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
     }
   );

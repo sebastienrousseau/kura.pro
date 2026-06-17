@@ -1,23 +1,52 @@
 {
   "name": "@cloudcdn/mcp-server",
   "version": "0.1.0",
-  "description": "MCP server for CloudCDN — lets AI agents manage static assets, zones, transforms, and analytics",
+  "description": "MCP server for CloudCDN — lets AI agents manage static assets, zones, transforms, and analytics.",
   "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./server": "./server.js",
+    "./api-client": "./lib/api-client.js",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "cloudcdn-mcp": "./index.js"
   },
+  "files": [
+    "index.js",
+    "server.js",
+    "lib/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "start": "node index.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cloudcdn",
+    "cdn",
+    "cloudflare",
+    "ai-agents",
+    "claude",
+    "cursor",
+    "windsurf",
+    "vectorize"
+  ],
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0"
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "3.25.76"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "4.1.2",
     "vitest": "^4.1.2"
   },
   "overrides": {
@@ -27,5 +56,15 @@
     "vite": "8.0.10",
     "fast-uri": "3.1.2"
   },
+  "homepage": "https://cloudcdn.pro",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastienrousseau/cloudcdn.pro.git",
+    "directory": "mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/sebastienrousseau/cloudcdn.pro/issues"
+  },
+  "author": "Sebastien Rousseau",
   "license": "MIT AND Apache-2.0"
 }

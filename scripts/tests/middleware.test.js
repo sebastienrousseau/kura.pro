@@ -320,10 +320,24 @@ describe('Middleware: onRequest', () => {
       const ctx = makeContext('/');
       const res = await onRequest(ctx);
       const csp = res.headers.get('Content-Security-Policy');
-      // Strict default: script-src is plain 'self', no jsdelivr / unsafe-inline.
-      expect(csp).toContain("script-src 'self';");
+      // Strict default: script-src allows 'self' plus the pinned
+      // Cloudflare Bot Fight Mode hash — no jsdelivr, no 'unsafe-inline'.
+      expect(csp).toMatch(/script-src 'self' 'sha256-[A-Za-z0-9+/=]+=';/);
       expect(csp).not.toContain('https://cdn.jsdelivr.net');
+      expect(csp).not.toContain("'unsafe-inline'; script-src");
       expect(csp).not.toContain("script-src 'self' 'unsafe-inline'");
+    });
+
+    it('allowlists the Cloudflare Bot Fight Mode inline script hash', async () => {
+      const ctx = makeContext('/');
+      const res = await onRequest(ctx);
+      const csp = res.headers.get('Content-Security-Policy');
+      // The exact hash is the one Cloudflare's edge injects today;
+      // pinning it lets us detect rotation in CI rather than via a
+      // browser CSP error in production.
+      expect(csp).toContain(
+        "'sha256-bLMLQj3mmbsmSm8i3lRrYupyQ5KpfcMro/AiKyc/Y5I='",
+      );
     });
 
     it('rewrites /content/ to /cdn/en/content/', async () => {

@@ -145,8 +145,19 @@ const SECURITY_HEADERS = {
   // that strict script-src would break. The dashboard is admin-only and
   // doesn't render attacker-controlled content, so the threat model is
   // different. See functions/dashboard/_middleware.js for the override.
+  // The sha256 hash below is the Cloudflare Bot Fight Mode tracking
+  // script, which the edge injects into the HTML response *after* our
+  // worker emits it (the script sets `window.__CF$cv$params` and loads
+  // /cdn-cgi/challenge-platform/scripts/jsd/main.js). It's not part of
+  // our code path, so we can't externalise it; allowlisting the hash is
+  // the surgical fix. The clean alternative is to disable
+  // "JavaScript Detections" under Cloudflare dashboard → Security →
+  // Bots → Configure — preferable long-term because Cloudflare may
+  // rotate this hash on future challenge-platform updates and the page
+  // would silently start tripping CSP again.
   "Content-Security-Policy":
-    "script-src 'self'; style-src 'self' 'unsafe-inline'; " +
+    "script-src 'self' 'sha256-bLMLQj3mmbsmSm8i3lRrYupyQ5KpfcMro/AiKyc/Y5I='; " +
+    "style-src 'self' 'unsafe-inline'; " +
     "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
     "object-src 'none'; upgrade-insecure-requests",
 };

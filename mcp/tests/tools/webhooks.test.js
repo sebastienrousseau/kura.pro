@@ -68,12 +68,15 @@ describe('webhook tools', () => {
     expect(body.secret).toBe('super-secret');
   });
 
-  it('webhook_delete DELETEs /api/webhooks?id=', async () => {
+  it('webhook_delete DELETEs /api/webhooks with id as a URL-encoded query param', async () => {
     mockFetch({ deleted: true });
     const tools = await getTools();
-    await tools.webhook_delete({ id: 'wh_abc' });
+    await tools.webhook_delete({ id: 'wh/with spaces & symbols' });
     const [url, opts] = globalThis.fetch.mock.calls[0];
-    expect(url).toContain('/api/webhooks?id=wh_abc');
     expect(opts.method).toBe('DELETE');
+    const u = new URL(url);
+    expect(u.pathname).toBe('/api/webhooks');
+    // Confirms the api-client URL-encoded the id rather than interpolating raw.
+    expect(u.searchParams.get('id')).toBe('wh/with spaces & symbols');
   });
 });

@@ -58,12 +58,15 @@ describe('token tools', () => {
     expect(body.expiresInDays).toBe(30);
   });
 
-  it('token_revoke DELETEs /api/tokens?id=', async () => {
+  it('token_revoke DELETEs /api/tokens with id as a URL-encoded query param', async () => {
     mockFetch({ revoked: true });
     const tools = await getTools();
-    await tools.token_revoke({ id: 't_xyz' });
+    await tools.token_revoke({ id: 't/with spaces & symbols' });
     const [url, opts] = globalThis.fetch.mock.calls[0];
-    expect(url).toContain('/api/tokens?id=t_xyz');
     expect(opts.method).toBe('DELETE');
+    const u = new URL(url);
+    expect(u.pathname).toBe('/api/tokens');
+    // URL-encoded by the api-client rather than naively interpolated.
+    expect(u.searchParams.get('id')).toBe('t/with spaces & symbols');
   });
 });

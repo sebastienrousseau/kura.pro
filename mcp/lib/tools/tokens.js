@@ -50,7 +50,7 @@ export function registerTokenTools(server) {
     'Revoke an API token by its ID. The token will immediately stop working.',
     { id: z.string().describe('Token ID to revoke') },
     async ({ id }) => {
-      const res = await api.del(`/api/tokens?id=${id}`, { auth: 'account' });
+      const res = await api.del('/api/tokens', { auth: 'account', params: { id } });
       return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
     }
   );

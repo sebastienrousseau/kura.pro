@@ -52,7 +52,7 @@ export function registerWebhookTools(server) {
     'Remove a registered webhook by its ID.',
     { id: z.string().describe('Webhook ID to remove') },
     async ({ id }) => {
-      const res = await api.del(`/api/webhooks?id=${id}`, { auth: 'account' });
+      const res = await api.del('/api/webhooks', { auth: 'account', params: { id } });
       return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
     }
   );

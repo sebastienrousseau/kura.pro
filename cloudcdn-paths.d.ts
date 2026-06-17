@@ -1708,6 +1708,7 @@ export type CdnPath =
   | "stocks/images/pawel-czerwinski-7LoWpCOAn6k.webp"
   | "stocks/images/pedro-lastra-Nyvq2juw4_o.webp"
   | "stocks/images/peter-nguyen-OpiZAxueRUE.webp"
+  | "stocks/images/philip-intallura-hsbc-economist-5th-annual-commercialising-quantum.webp"
   | "stocks/images/philipp-katzenberger-iIJrUoeRoCQ.webp"
   | "stocks/images/photo-nic-Db66yYtBgEs.webp"
   | "stocks/images/photoholgic-lPoEqodfh-o.webp"

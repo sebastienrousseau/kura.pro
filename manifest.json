@@ -2961,6 +2961,174 @@
   },
   {
     "name": "favicon.ico",
+    "path": "camt053/favicon.ico",
+    "project": "camt053",
+    "category": "general",
+    "format": "ico",
+    "size": 41592
+  },
+  {
+    "name": "banner-camt053.svg",
+    "path": "camt053/v1/banners/banner-camt053.svg",
+    "project": "camt053",
+    "category": "banners",
+    "format": "svg",
+    "size": 5708
+  },
+  {
+    "name": "favicon.ico",
+    "path": "camt053/v1/favicon.ico",
+    "project": "camt053",
+    "category": "favicon.ico",
+    "format": "ico",
+    "size": 41592
+  },
+  {
+    "name": "github-camt053.avif",
+    "path": "camt053/v1/github/github-camt053.avif",
+    "project": "camt053",
+    "category": "github",
+    "format": "avif",
+    "size": 112044
+  },
+  {
+    "name": "github-camt053.png",
+    "path": "camt053/v1/github/github-camt053.png",
+    "project": "camt053",
+    "category": "github",
+    "format": "png",
+    "size": 231734
+  },
+  {
+    "name": "github-camt053.svg",
+    "path": "camt053/v1/github/github-camt053.svg",
+    "project": "camt053",
+    "category": "github",
+    "format": "svg",
+    "size": 6568
+  },
+  {
+    "name": "github-camt053.webp",
+    "path": "camt053/v1/github/github-camt053.webp",
+    "project": "camt053",
+    "category": "github",
+    "format": "webp",
+    "size": 138306
+  },
+  {
+    "name": "180x180.avif",
+    "path": "camt053/v1/icons/180x180.avif",
+    "project": "camt053",
+    "category": "icons",
+    "format": "avif",
+    "size": 4875
+  },
+  {
+    "name": "180x180.png",
+    "path": "camt053/v1/icons/180x180.png",
+    "project": "camt053",
+    "category": "icons",
+    "format": "png",
+    "size": 9516
+  },
+  {
+    "name": "180x180.webp",
+    "path": "camt053/v1/icons/180x180.webp",
+    "project": "camt053",
+    "category": "icons",
+    "format": "webp",
+    "size": 6048
+  },
+  {
+    "name": "192x192.avif",
+    "path": "camt053/v1/icons/192x192.avif",
+    "project": "camt053",
+    "category": "icons",
+    "format": "avif",
+    "size": 5280
+  },
+  {
+    "name": "192x192.png",
+    "path": "camt053/v1/icons/192x192.png",
+    "project": "camt053",
+    "category": "icons",
+    "format": "png",
+    "size": 10358
+  },
+  {
+    "name": "192x192.webp",
+    "path": "camt053/v1/icons/192x192.webp",
+    "project": "camt053",
+    "category": "icons",
+    "format": "webp",
+    "size": 6386
+  },
+  {
+    "name": "512x512.avif",
+    "path": "camt053/v1/icons/512x512.avif",
+    "project": "camt053",
+    "category": "icons",
+    "format": "avif",
+    "size": 13925
+  },
+  {
+    "name": "512x512.png",
+    "path": "camt053/v1/icons/512x512.png",
+    "project": "camt053",
+    "category": "icons",
+    "format": "png",
+    "size": 31511
+  },
+  {
+    "name": "512x512.webp",
+    "path": "camt053/v1/icons/512x512.webp",
+    "project": "camt053",
+    "category": "icons",
+    "format": "webp",
+    "size": 19150
+  },
+  {
+    "name": "camt053.avif",
+    "path": "camt053/v1/logos/camt053.avif",
+    "project": "camt053",
+    "category": "logos",
+    "format": "avif",
+    "size": 151042
+  },
+  {
+    "name": "camt053.png",
+    "path": "camt053/v1/logos/camt053.png",
+    "project": "camt053",
+    "category": "logos",
+    "format": "png",
+    "size": 362672
+  },
+  {
+    "name": "camt053.svg",
+    "path": "camt053/v1/logos/camt053.svg",
+    "project": "camt053",
+    "category": "logos",
+    "format": "svg",
+    "size": 5462
+  },
+  {
+    "name": "camt053.webp",
+    "path": "camt053/v1/logos/camt053.webp",
+    "project": "camt053",
+    "category": "logos",
+    "format": "webp",
+    "size": 224692
+  },
+  {
+    "name": "title-camt053.svg",
+    "path": "camt053/v1/titles/title-camt053.svg",
+    "project": "camt053",
+    "category": "titles",
+    "format": "svg",
+    "size": 306
+  },
+  {
+    "name": "favicon.ico",
     "path": "cloudcdn/favicon.ico",
     "project": "cloudcdn",
     "category": "general",

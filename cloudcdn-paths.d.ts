@@ -378,6 +378,27 @@ export type CdnPath =
   | "beonux/v1/icons/512x512.png"
   | "beonux/v1/logos/beonux.svg"
   | "beonux/v1/titles/title-beonux.svg"
+  | "camt053/favicon.ico"
+  | "camt053/v1/banners/banner-camt053.svg"
+  | "camt053/v1/favicon.ico"
+  | "camt053/v1/github/github-camt053.avif"
+  | "camt053/v1/github/github-camt053.png"
+  | "camt053/v1/github/github-camt053.svg"
+  | "camt053/v1/github/github-camt053.webp"
+  | "camt053/v1/icons/180x180.avif"
+  | "camt053/v1/icons/180x180.png"
+  | "camt053/v1/icons/180x180.webp"
+  | "camt053/v1/icons/192x192.avif"
+  | "camt053/v1/icons/192x192.png"
+  | "camt053/v1/icons/192x192.webp"
+  | "camt053/v1/icons/512x512.avif"
+  | "camt053/v1/icons/512x512.png"
+  | "camt053/v1/icons/512x512.webp"
+  | "camt053/v1/logos/camt053.avif"
+  | "camt053/v1/logos/camt053.png"
+  | "camt053/v1/logos/camt053.svg"
+  | "camt053/v1/logos/camt053.webp"
+  | "camt053/v1/titles/title-camt053.svg"
   | "cloudcdn/favicon.ico"
   | "cloudcdn/v1/banners/banner-cloudcdn.svg"
   | "cloudcdn/v1/favicon.ico"
@@ -1873,7 +1894,7 @@ export type CdnPath =
   | "xtasks/v1/titles/title-xtasks.svg";
 
 /** All project namespaces */
-export type CdnProject = "acmt001" | "akande" | "alienstudio" | "audioanalyser" | "audiotextpro" | "audiowave" | "bankingonai" | "bankingoncloudnative" | "bankingonquantum" | "bankstatementparser" | "beonux" | "cloudcdn" | "cmn" | "common" | "crypto-service" | "cs50x" | "dotfiles" | "dtt" | "euxis" | "frontmatter-gen" | "hsh" | "html-generator" | "http-handle" | "inclusio" | "kaishi" | "kyberlib" | "l90s" | "langweave" | "libmake" | "libyml" | "llamadev" | "maccfg" | "mdx-gen" | "metadata-gen" | "mini-functions" | "nalufx" | "neferankh" | "noyalib" | "nucleusflow" | "pacs008" | "pain001" | "password-generator-pro" | "pipelines" | "pm2md" | "publications" | "pythondev" | "qrc" | "raidhos" | "rlg" | "routefinder" | "rssgen" | "rustdev" | "sebastienrousseau" | "serde_yml" | "shokunin" | "sinewavegenerator" | "sitemap-gen" | "skeletonic" | "static-site-generator" | "staticdatagen" | "staticrux" | "staticweaver" | "stocks" | "stratos" | "talkwave" | "vrd" | "wiserone" | "xtasks";
+export type CdnProject = "acmt001" | "akande" | "alienstudio" | "audioanalyser" | "audiotextpro" | "audiowave" | "bankingonai" | "bankingoncloudnative" | "bankingonquantum" | "bankstatementparser" | "beonux" | "camt053" | "cloudcdn" | "cmn" | "common" | "crypto-service" | "cs50x" | "dotfiles" | "dtt" | "euxis" | "frontmatter-gen" | "hsh" | "html-generator" | "http-handle" | "inclusio" | "kaishi" | "kyberlib" | "l90s" | "langweave" | "libmake" | "libyml" | "llamadev" | "maccfg" | "mdx-gen" | "metadata-gen" | "mini-functions" | "nalufx" | "neferankh" | "noyalib" | "nucleusflow" | "pacs008" | "pain001" | "password-generator-pro" | "pipelines" | "pm2md" | "publications" | "pythondev" | "qrc" | "raidhos" | "rlg" | "routefinder" | "rssgen" | "rustdev" | "sebastienrousseau" | "serde_yml" | "shokunin" | "sinewavegenerator" | "sitemap-gen" | "skeletonic" | "static-site-generator" | "staticdatagen" | "staticrux" | "staticweaver" | "stocks" | "stratos" | "talkwave" | "vrd" | "wiserone" | "xtasks";
 
 /** All available formats */
 export type CdnFormat = "avif" | "ico" | "png" | "svg" | "webp";

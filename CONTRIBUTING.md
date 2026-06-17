@@ -74,6 +74,72 @@ Keep PRs small. If your change spans more than ~500 LOC, look for a way to split
 - Changes that introduce a feature flag or backwards-compatibility shim where a clean replacement would do.
 - Generated artefacts (`manifest.json`, `cloudcdn-paths.d.ts`, `coverage/`) — these regenerate from source and should never be hand-edited.
 
+## Adding a package to the `/dist/` marketplace
+
+The Setapp-style discovery surface at https://cloudcdn.pro/dist/ is driven by a hand-curated catalogue:
+
+- **Source of truth**: [`scripts/dist/packages-catalogue.json`](scripts/dist/packages-catalogue.json) — every published package, hand-edited.
+- **Generated artefact**: [`cdn/en/dist/_dist.json`](cdn/en/dist/_dist.json) — version-augmented output the marketplace page reads.
+- **Generator**: [`scripts/dist/generate-dist-catalogue.mjs`](scripts/dist/generate-dist-catalogue.mjs) — fetches the latest version from every declared registry in parallel.
+- **Refresh**: a Monday-morning cron at [`.github/workflows/cron-refresh-dist.yml`](.github/workflows/cron-refresh-dist.yml) re-runs the generator weekly and opens a PR if any version drifted. You can also trigger it manually from Actions → "Refresh /dist/ marketplace catalogue" → Run workflow.
+
+### Adding a new package — 5-minute flow
+
+1. **Open `scripts/dist/packages-catalogue.json`** and append a new entry to `packages[]`. The minimal shape:
+
+   ```jsonc
+   {
+     "name": "Display Name",            // What the card shows
+     "slug": "kebab-case",              // Stable internal id; must be unique
+     "category": "cli",                 // One of categories[].id
+     "tagline": "<=160 chars, one line",
+     "repo": "sebastienrousseau/foo",   // GitHub repo (for the "Source ↗" link)
+     "logo": "/foo/v1/logos/foo.svg",   // Optional; falls back to initials
+     "registries": [
+       { "type": "npm",             "name": "foo" },
+       { "type": "crates.io",       "name": "foo" },
+       { "type": "pypi",            "name": "foo" },
+       { "type": "github-releases", "repo": "owner/foo" }
+     ],
+     "install": {
+       // OS-aware install picker order:
+       //   macos:   ['macos','npx','pipx','cargo install','cargo','pip','npm','pnpm']
+       //   linux:   ['linux','npx','pipx','cargo install','cargo','pip','npm','pnpm']
+       //   windows: ['windows','npx','cargo install','cargo','pip','pipx','npm','pnpm']
+       "npm":  "npm install foo",
+       "pnpm": "pnpm add foo"
+     }
+   }
+   ```
+
+2. **Add a logo** at `clients/<slug>/v1/logos/<slug>.svg` if you have one, otherwise omit `logo` and the card will render initials.
+
+3. **Run the generator** to update the on-disk output:
+
+   ```bash
+   node scripts/dist/generate-dist-catalogue.mjs
+   ```
+
+   The script prints a warning for any package that has no live version on any declared registry.
+
+4. **Run the tests**:
+
+   ```bash
+   npx vitest run scripts/tests/dist-catalogue.test.js
+   ```
+
+   The structural-invariant tests enforce: unique slugs, valid category refs, every package has at least one registry of a known type, every package has at least one install command, taglines ≤ 160 chars.
+
+5. **Commit** `packages-catalogue.json` + `_dist.json` + the logo together. Don't hand-edit `_dist.json` — re-run the generator.
+
+### Editing categories
+
+To add a category, append to `categories[]` in `packages-catalogue.json`. The marketplace page renders sections in the order they appear there.
+
+### Featuring a package on the hero
+
+Set `"featured": "<slug>"` at the top of `packages-catalogue.json`. Whatever you pick is rendered as the big hero card above the category grids.
+
 ## Code of conduct
 
 Participation in this project is governed by the [Code of Conduct](CODE_OF_CONDUCT.md). By contributing you agree to abide by it.

@@ -10,11 +10,50 @@ into the *sprints* used during development.
 
 ## [Unreleased]
 
-### Sprint 15 — cleanup & open-source
+### Sprint 15 — cleanup, open-source, release pipeline
+
+#### Added (dist marketplace)
+- **Setapp-style `/dist/` marketplace.** Replaces the two-package
+  hardcoded list with a discovery surface that catalogues every
+  published software product. Featured hero card + nine
+  category-grouped grids (ISO 20022, Cryptography, Static Sites,
+  YAML Ecosystem, CLI Tools, AI & Agents, Rust Libraries, Web &
+  Styling, Workstation). Per-card: logo, name, version, registry
+  badges (npm / crates.io / PyPI / GitHub Releases) with deep links,
+  OS-aware install command + Copy button.
+- **`scripts/dist/packages-catalogue.json`** — hand-curated source of
+  truth covering 44 packages across the four registries.
+- **`scripts/dist/generate-dist-catalogue.mjs`** — fetches the latest
+  version from every declared registry in parallel (bounded
+  concurrency), picks a primary version following npm > crates.io >
+  PyPI > GitHub Releases priority, and emits
+  `cdn/en/dist/_dist.json` for the page to consume.
+- **`scripts/tests/dist-catalogue.test.js`** — 12 tests covering the
+  catalogue's structural invariants (unique slugs, valid category
+  refs, registry types, install-command presence, tagline length)
+  plus generator behaviour (per-registry parsing, primary-version
+  selection, 404/network failure handling).
+
+#### Added (release pipeline)
+- **`.github/workflows/release.yml`** — tag-triggered workflow that
+  publishes `@cloudcdn/mcp-server` to npm with **sigstore provenance**
+  attestation (`npm publish --provenance`). Requires `NPM_TOKEN` repo
+  secret. Verifies `mcp/package.json` version matches the pushed tag
+  and runs the mcp coverage gate before publishing.
+- **`docs/STATUS.md`** — operator transparency doc grounded in the
+  live `/api/health?deep=1` endpoint rather than a third-party status
+  page. Documents internal SLO targets, the AI-quota fallback design,
+  and how to read an incident.
+- **CodeQL Actions coverage** — new `codeql-actions` job in `test.yml`
+  scans `.github/workflows/*.yml` for script-injection and unsafe-ref
+  patterns via the `security-extended` query pack. Complements the
+  existing JavaScript CodeQL analysis run by the reusable security
+  pipeline.
 
 Polish toward top-decile open-source signal: zero stale numbers in
 headline docs, the MCP package overhauled to library-grade publication
-standard, every empty placeholder filled with a single source of truth.
+standard, every empty placeholder filled with a single source of truth,
+release pipeline in place with sigstore provenance.
 
 #### Added
 - **`@cloudcdn/mcp-server`** — first publishable revision of the MCP

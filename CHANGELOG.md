@@ -10,7 +10,35 @@ into the *sprints* used during development.
 
 ## [Unreleased]
 
-### Sprint 15 — cleanup, open-source, release pipeline
+### Sprint 16 — ops follow-through
+
+Carry-over polish from Sprint 15: CSP allowlisting for Cloudflare Bot
+Fight Mode, weekly auto-refresh of the marketplace catalogue, and
+contributor-facing docs for the new dist surface. To be expanded as
+commits land.
+
+#### Added
+- **`.github/workflows/cron-refresh-dist.yml`** — Monday 06:00 UTC
+  cron + manual `workflow_dispatch` that re-runs the dist catalogue
+  generator and opens a PR if any version drifted. Keeps the
+  marketplace fresh without a developer touching it.
+- **CONTRIBUTING.md → "Adding a package to the /dist/ marketplace"** —
+  step-by-step for adding a new entry to
+  `scripts/dist/packages-catalogue.json`, with required fields,
+  registry types, and the regen workflow.
+
+#### Fixed
+- **CSP allowlist for the Cloudflare Bot Fight Mode inline script.**
+  The edge injects a `window.__CF$cv$params` tracker into every HTML
+  response *after* our middleware runs, which was tripping our strict
+  `script-src 'self'` and blocking JS execution on every page. Pinned
+  the SHA-256 of that script
+  (`sha256-bLMLQj3mmbsmSm8i3lRrYupyQ5KpfcMro/AiKyc/Y5I=`) in
+  `functions/_middleware.js`. Two new middleware tests guard against
+  regressions; the cleaner long-term fix is to disable
+  "JavaScript Detections" under Cloudflare → Security → Bots.
+
+## 2026-06-17 — Sprint 15 — cleanup, open-source, release pipeline
 
 #### Added (dist marketplace)
 - **Setapp-style `/dist/` marketplace.** Replaces the two-package

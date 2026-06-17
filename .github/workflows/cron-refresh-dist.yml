@@ -75,6 +75,11 @@ jobs:
           delete-branch: true
           base: main
           commit-message: 'chore(dist): auto-refresh marketplace catalogue versions'
+          # sign-commits: true uses the GitHub Apps API to commit via
+          # github-actions[bot], which produces a GitHub-verified
+          # signature. Without this, the repo's verify-signatures gate
+          # blocks the auto-PR from merging.
+          sign-commits: true
           title: 'chore(dist): auto-refresh marketplace catalogue'
           body: |
             Automated refresh of `cdn/en/dist/_dist.json` — pulls the

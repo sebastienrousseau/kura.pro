@@ -116,11 +116,14 @@ describe('generate-dist-catalogue.mjs', () => {
     }));
 
     globalThis.fetch = vi.fn().mockImplementation((url) => {
-      const u = String(url);
+      // Use proper URL parsing — `string.includes('crates.io')` would also
+      // match `evil.example/api/crates.io/...`, which CodeQL flags as
+      // js/incomplete-url-substring-sanitization. Anchor on the hostname.
+      const host = new URL(String(url)).hostname;
       let body;
-      if (u.includes('crates.io')) body = { crate: { newest_version: '1.0.0' } };
-      else if (u.includes('pypi.org')) body = { info: { version: '2.0.0' } };
-      else if (u.includes('api.github.com')) body = { tag_name: 'v3.0.0' };
+      if (host === 'crates.io') body = { crate: { newest_version: '1.0.0' } };
+      else if (host === 'pypi.org') body = { info: { version: '2.0.0' } };
+      else if (host === 'api.github.com') body = { tag_name: 'v3.0.0' };
       else body = {};
       return Promise.resolve(new Response(JSON.stringify(body), {
         headers: { 'content-type': 'application/json' },
@@ -191,8 +194,10 @@ describe('generate-dist-catalogue.mjs', () => {
     }));
 
     globalThis.fetch = vi.fn().mockImplementation((url) => {
-      const u = String(url);
-      const body = u.includes('crates.io')
+      // Hostname check (rather than substring) — see the parallel fix in
+      // the "routes each registry type" test above.
+      const host = new URL(String(url)).hostname;
+      const body = host === 'crates.io'
         ? { crate: { newest_version: '0.1.0' } }
         : { 'dist-tags': { latest: '9.9.9' } };
       return Promise.resolve(new Response(JSON.stringify(body), {

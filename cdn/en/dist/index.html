@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CloudCDN — Software Distribution</title>
-  <meta name="description" content="Download CLI tools and binaries distributed via CloudCDN's global edge network.">
+  <title>CloudCDN — Software Marketplace</title>
+  <meta name="description" content="Every CLI, library, and binary published by Sebastien Rousseau — across npm, crates.io, PyPI, and GitHub Releases — discoverable, signed, and SHA-256 verified.">
   <meta name="theme-color" content="#08090d">
   <link rel="icon" href="/favicon.ico">
   <script src="/shared/theme-boot.js"></script>
@@ -15,69 +15,148 @@
   <script defer src="/shared/theme-toggle.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      /* dist page-specific aliases — palette lives in theme.css */
-      --mono: var(--font-mono);
-    }
+    :root { --mono: var(--font-mono); }
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    .container { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
-    h2 { font-size: 1.5rem; font-weight: 700; color: var(--heading); margin-bottom: 0.5rem; }
-    .subtitle { color: var(--text-muted); margin-bottom: 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 3rem 1.5rem; }
+    .container > h1 { font-size: 1.75rem; font-weight: 700; color: var(--heading); margin-bottom: 0.5rem; }
+    .container > .subtitle { color: var(--text-muted); margin-bottom: 2rem; max-width: 64ch; }
 
-    /* OS Detection Banner */
+    /* OS Detection */
     .os-banner {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 0.75rem;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2.5rem;
       display: flex;
       align-items: center;
       gap: 1rem;
     }
-    .os-icon { font-size: 2rem; }
+    .os-icon { font-size: 1.5rem; }
     .os-banner .detected { font-size: 0.875rem; color: var(--text-muted); }
     .os-banner .detected strong { color: var(--heading); }
+    .os-banner .hint { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
 
-    /* Package cards */
-    .packages { display: grid; gap: 1rem; }
+    /* Hero featured card */
+    .hero { margin-bottom: 3rem; }
+    .hero-eyebrow {
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--accent-text); margin-bottom: 0.75rem; font-weight: 600;
+    }
+    .pkg-hero {
+      background: linear-gradient(135deg, var(--surface), var(--green-soft));
+      border: 1px solid var(--green-border) !important;
+    }
+    .pkg-hero .pkg-name { font-size: 1.5rem; }
+
+    /* Category sections */
+    .cat-section { margin-bottom: 2.5rem; }
+    .cat-head { margin-bottom: 1rem; }
+    .cat-name { font-size: 1.25rem; font-weight: 700; color: var(--heading); }
+    .cat-tagline { font-size: 0.875rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Card grid */
+    .cat-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
     .pkg {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 0.75rem;
       padding: 1.25rem;
-      transition: border-color 0.15s;
+      transition: border-color 0.15s, transform 0.15s;
+      display: flex;
+      flex-direction: column;
     }
     .pkg:hover { border-color: var(--accent); }
-    .pkg.recommended { border-color: var(--green-border); background: linear-gradient(135deg, var(--surface), var(--green-soft)); }
-    .pkg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-    .pkg-name { font-weight: 600; color: var(--heading); }
-    .pkg-badge {
+
+    .pkg-head { display: flex; align-items: flex-start; gap: 0.875rem; margin-bottom: 0.75rem; }
+    .pkg-logo {
+      flex: 0 0 48px;
+      width: 48px; height: 48px;
+      border-radius: 0.5rem;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      object-fit: contain;
+      padding: 4px;
+    }
+    .pkg-logo-fallback {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--accent-text);
+      font-family: var(--mono);
+    }
+    .pkg-titleblock { min-width: 0; flex: 1; }
+    .pkg-name {
+      font-size: 1rem; font-weight: 600; color: var(--heading);
+      line-height: 1.35;
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem;
+    }
+    .pkg-version {
+      font-size: 0.75rem; font-weight: 500;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+    .coming-soon {
       font-size: 0.6875rem;
+      font-weight: 600;
       padding: 2px 8px;
       border-radius: 999px;
-      background: var(--green-soft);
-      color: var(--green);
-      border: 1px solid var(--green-border);
+      background: var(--code-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      letter-spacing: 0.02em;
     }
-    .pkg-desc { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .pkg-tagline {
+      font-size: 0.8125rem; color: var(--text-muted);
+      line-height: 1.45; margin-top: 4px;
+    }
 
-    /* Install command */
+    .pkg-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 0.75rem; margin: 0.5rem 0 0.75rem;
+      flex-wrap: wrap;
+    }
+    .pkg-registries { display: flex; gap: 0.375rem; flex-wrap: wrap; }
+    .registry {
+      font-size: 0.6875rem; font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    a.registry:hover { color: var(--heading); border-color: var(--accent); }
+    .registry-npm        { color: #cb3837; border-color: rgba(203, 56, 55, 0.4); }
+    .registry-crates-io  { color: #cc7833; border-color: rgba(204, 120, 51, 0.4); }
+    .registry-pypi       { color: #3776ab; border-color: rgba(55, 118, 171, 0.4); }
+    .registry-github-releases { color: var(--text-muted); }
+    .pkg-repo {
+      font-size: 0.75rem; color: var(--text-dim); text-decoration: none;
+      font-family: var(--mono);
+    }
+    .pkg-repo:hover { color: var(--accent-hover); }
+
+    /* Install command block */
     .install-cmd {
       background: var(--code-block-bg);
       border: 1px solid var(--border);
       border-radius: 0.5rem;
-      padding: 0.75rem 1rem;
+      padding: 0.625rem 0.875rem;
       font-family: var(--mono);
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
       color: var(--green);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 0.625rem;
       overflow-x: auto;
+      margin-top: auto;
     }
     .install-cmd code { white-space: nowrap; flex: 1; }
     .install-cmd button {
@@ -93,51 +172,37 @@
       white-space: nowrap;
     }
     .install-cmd button:hover { color: var(--text); border-color: var(--text-dim); }
-
-    /* Checksum */
-    .checksum {
-      font-size: 0.6875rem;
-      color: var(--text-dim);
+    .install-hint {
+      font-size: 0.6875rem; color: var(--text-dim); margin-top: 0.4rem;
       font-family: var(--mono);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
-    .checksum .label { color: var(--text-muted); }
+    .install-hint code {
+      color: var(--accent-text); background: transparent; padding: 0 2px;
+    }
+    .install-hint-soon { color: var(--text-muted); font-family: var(--font); }
 
-    /* File grid */
-    .file-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 0.5rem;
-      margin-top: 0.75rem;
+    .load-error {
+      padding: 1rem; border-radius: 0.5rem; background: var(--surface);
+      border: 1px solid var(--border); color: var(--text-muted);
     }
-    .file-item {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-    }
-    .file-item .name { font-family: var(--mono); color: var(--accent-text); }
-    .file-item .size { color: var(--text-dim); }
-    .file-item.active { border-color: var(--green-border); background: var(--green-soft); }
-    .file-item.active .name { color: var(--green); }
 
-    footer { text-align: center; padding: 2rem; font-size: 0.75rem; color: var(--text-dim); border-top: 1px solid var(--border); margin-top: 2rem; }
+    footer {
+      text-align: center; padding: 2rem; font-size: 0.75rem;
+      color: var(--text-dim); border-top: 1px solid var(--border); margin-top: 2rem;
+    }
     footer a { color: var(--text-dim); text-decoration: none; }
     footer a:hover { color: var(--accent-hover); }
 
-    /* Toast */
     .toast {
-      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px);
-      background: var(--surface-2); border: 1px solid var(--green-border); color: var(--green);
-      font-size: 0.8125rem; padding: 0.5rem 1rem; border-radius: 999px; z-index: 100;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface-2);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+      font-size: 0.8125rem; padding: 0.5rem 1rem;
+      border-radius: 999px; z-index: 100;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
@@ -170,14 +235,8 @@
         </button>
         <a href="/dashboard/login" id="auth-link" class="nav-cta" data-logout-label="Logout">Login</a>
       </div>
-      <button
-        class="nav-hamburger"
-        id="nav-toggle"
-        type="button"
-        aria-label="Toggle navigation menu"
-        aria-expanded="false"
-        aria-controls="nav-menu"
-      >
+      <button class="nav-hamburger" id="nav-toggle" type="button"
+              aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
         </svg>
@@ -186,23 +245,31 @@
   </header>
 
   <main id="main" class="container">
-    <h2>Software Distribution</h2>
-    <p class="subtitle">Download CLI tools and binaries delivered from 300+ edge locations. SHA-256 verified.</p>
+    <h1>Software Marketplace</h1>
+    <p class="subtitle">
+      Every CLI, library, and binary published by Sebastien Rousseau —
+      delivered from 300+ edge locations, signed releases, SHA-256 verified.
+      Versions are auto-refreshed from <a href="https://www.npmjs.com/" target="_blank" rel="noopener">npm</a>,
+      <a href="https://crates.io/" target="_blank" rel="noopener">crates.io</a>,
+      <a href="https://pypi.org/" target="_blank" rel="noopener">PyPI</a>, and
+      <a href="https://github.com/sebastienrousseau" target="_blank" rel="noopener">GitHub Releases</a>.
+    </p>
 
-    <!-- OS Detection -->
     <div class="os-banner" id="os-banner">
       <span class="os-icon" id="os-icon"></span>
       <div>
-        <p class="detected">Detected: <strong id="os-name">detecting...</strong></p>
-        <p style="font-size:0.75rem;color:var(--text-dim);margin-top:2px;" id="os-hint"></p>
+        <p class="detected">Detected platform: <strong id="os-name">detecting…</strong></p>
+        <p class="hint" id="os-hint"></p>
       </div>
     </div>
 
-    <!-- Packages -->
-    <div class="packages" id="packages"></div>
+    <div id="marketplace"></div>
   </main>
 
-  <footer><a href="/">CloudCDN</a> &middot; <a href="/dashboard/">Dashboard</a> &middot; All binaries signed and SHA-256 verified</footer>
+  <footer>
+    <a href="/">CloudCDN</a> &middot; <a href="/dashboard/">Dashboard</a> &middot;
+    All binaries signed and SHA-256 verified
+  </footer>
 
   <div class="toast" id="toast"></div>
 

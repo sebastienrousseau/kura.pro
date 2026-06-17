@@ -1,0 +1,1062 @@
+{
+  "generated_at": "2026-06-17T14:36:47.028Z",
+  "featured": "stratos",
+  "categories": [
+    {
+      "id": "iso20022",
+      "name": "ISO 20022 Payments",
+      "tagline": "Generate, validate, parse the world's financial-messaging standard."
+    },
+    {
+      "id": "cryptography",
+      "name": "Cryptography",
+      "tagline": "Post-quantum primitives, password hashing, signed releases."
+    },
+    {
+      "id": "static-sites",
+      "name": "Static Sites",
+      "tagline": "Secure-by-default Rust pipelines for the open web."
+    },
+    {
+      "id": "yaml",
+      "name": "YAML Ecosystem",
+      "tagline": "Lossless YAML 1.2 — library, CLI, LSP, MCP, WASM."
+    },
+    {
+      "id": "cli",
+      "name": "CLI Tools",
+      "tagline": "Single-binary developer tools."
+    },
+    {
+      "id": "ai",
+      "name": "AI & Agents",
+      "tagline": "MCP servers, voice assistants, transcription."
+    },
+    {
+      "id": "rust-libs",
+      "name": "Rust Libraries",
+      "tagline": "Domain helpers, no_std friendly, audit-ready."
+    },
+    {
+      "id": "web",
+      "name": "Web & Styling",
+      "tagline": "CSS frameworks, password generators, browser tools."
+    },
+    {
+      "id": "workstation",
+      "name": "Workstation",
+      "tagline": "Dotfiles, configuration, environment setup."
+    }
+  ],
+  "packages": [
+    {
+      "name": "Stratos",
+      "slug": "stratos",
+      "category": "cli",
+      "tagline": "Official CloudCDN CLI — health, purge, signed URLs, assets, transforms, audit log.",
+      "repo": "sebastienrousseau/stratos",
+      "logo": "/stratos/v1/logos/stratos.svg",
+      "registries": [
+        {
+          "type": "github-releases",
+          "repo": "sebastienrousseau/stratos",
+          "version": "0.0.21",
+          "ok": true,
+          "page": "https://github.com/sebastienrousseau/stratos/releases/latest",
+          "error": null
+        }
+      ],
+      "install": {
+        "macos": "curl -sL https://cloudcdn.pro/dist/stratos/install.sh | bash",
+        "linux": "curl -sL https://cloudcdn.pro/dist/stratos/install.sh | bash",
+        "windows": "irm https://cloudcdn.pro/dist/stratos/install.ps1 | iex"
+      },
+      "primary_version": "0.0.21",
+      "primary_registry": "github-releases"
+    },
+    {
+      "name": "@cloudcdn/mcp-server",
+      "slug": "cloudcdn-mcp-server",
+      "category": "ai",
+      "tagline": "MCP server for CloudCDN — lets AI agents drive 42 tools across 9 API planes.",
+      "repo": "sebastienrousseau/cloudcdn.pro",
+      "logo": "/cloudcdn/v1/logos/cloudcdn.svg",
+      "registries": [
+        {
+          "type": "npm",
+          "name": "@cloudcdn/mcp-server",
+          "version": null,
+          "ok": false,
+          "page": null,
+          "error": "HTTP 404"
+        }
+      ],
+      "install": {
+        "npx": "npx -y @cloudcdn/mcp-server",
+        "npm": "npm install -g @cloudcdn/mcp-server"
+      },
+      "primary_version": null,
+      "primary_registry": null
+    },
+    {
+      "name": "pain001",
+      "slug": "pain001",
+      "category": "iso20022",
+      "tagline": "Generate + validate ISO 20022 pain.001 / pain.008 payment files from CSV / JSON / SQLite / Parquet.",
+      "repo": "sebastienrousseau/pain001",
+      "logo": "/pain001/v1/logos/pain001.svg",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "pain001",
+          "version": "0.0.51",
+          "ok": true,
+          "page": "https://pypi.org/project/pain001/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pip": "pip install pain001",
+        "pipx": "pipx install pain001"
+      },
+      "primary_version": "0.0.51",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "pacs008",
+      "slug": "pacs008",
+      "category": "iso20022",
+      "tagline": "ISO 20022 pacs.008 generation, validation, parsing — CBPR+, HVPS+, Fedwire, CHAPS, T2 RTGS, SCT Inst.",
+      "repo": "sebastienrousseau/pacs008",
+      "logo": "/pacs008/v1/logos/pacs008.svg",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "pacs008",
+          "version": "0.0.4",
+          "ok": true,
+          "page": "https://pypi.org/project/pacs008/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pip": "pip install pacs008",
+        "pipx": "pipx install pacs008"
+      },
+      "primary_version": "0.0.4",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "acmt001",
+      "slug": "acmt001",
+      "category": "iso20022",
+      "tagline": "Automate ISO 20022 Account Management messages — open, maintain, close, switch, verify bank accounts.",
+      "repo": "sebastienrousseau/acmt001",
+      "logo": "/acmt001/v1/logos/acmt001.svg",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "acmt001",
+          "version": "0.0.1",
+          "ok": true,
+          "page": "https://pypi.org/project/acmt001/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pip": "pip install acmt001",
+        "pipx": "pipx install acmt001"
+      },
+      "primary_version": "0.0.1",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "acmt001-lsp",
+      "slug": "acmt001-lsp",
+      "category": "iso20022",
+      "tagline": "Language Server Protocol server for authoring acmt001 ISO 20022 data files.",
+      "repo": "sebastienrousseau/acmt001-lsp",
+      "logo": "/acmt001/v1/logos/acmt001.svg",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "acmt001-lsp",
+          "version": "0.0.1",
+          "ok": true,
+          "page": "https://pypi.org/project/acmt001-lsp/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pip": "pip install acmt001-lsp",
+        "pipx": "pipx install acmt001-lsp"
+      },
+      "primary_version": "0.0.1",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "acmt001-mcp",
+      "slug": "acmt001-mcp",
+      "category": "iso20022",
+      "tagline": "Model Context Protocol server exposing the acmt001 library as agent tools.",
+      "repo": "sebastienrousseau/acmt001-mcp",
+      "logo": "/acmt001/v1/logos/acmt001.svg",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "acmt001-mcp",
+          "version": "0.0.1",
+          "ok": true,
+          "page": "https://pypi.org/project/acmt001-mcp/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pipx": "pipx install acmt001-mcp",
+        "pip": "pip install acmt001-mcp"
+      },
+      "primary_version": "0.0.1",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "bankstatementparser",
+      "slug": "bankstatementparser",
+      "category": "iso20022",
+      "tagline": "Parse bank statements — CAMT, PAIN, CSV, OFX, MT940, PDFs — into unified Transactions.",
+      "repo": "sebastienrousseau/bankstatementparser",
+      "logo": "/bankstatementparser/v1/logos/bankstatementparser.svg",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "bankstatementparser",
+          "version": "0.0.9",
+          "ok": true,
+          "page": "https://pypi.org/project/bankstatementparser/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pip": "pip install bankstatementparser",
+        "pipx": "pipx install bankstatementparser"
+      },
+      "primary_version": "0.0.9",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "pain",
+      "slug": "pain",
+      "category": "iso20022",
+      "tagline": "Rust library to manage ISO 20022 pain.001 payment initiation messages.",
+      "repo": "sebastienrousseau/pain",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "pain",
+          "version": "0.0.1",
+          "ok": true,
+          "page": "https://crates.io/crates/pain",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add pain"
+      },
+      "primary_version": "0.0.1",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "kyberlib",
+      "slug": "kyberlib",
+      "category": "cryptography",
+      "tagline": "FIPS 203 ML-KEM (CRYSTALS-Kyber) for Rust — pure-Rust, no_std, ACVP-validated, KyberSlash-clean.",
+      "repo": "sebastienrousseau/kyberlib",
+      "logo": "/kyberlib/v1/logos/kyberlib.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "kyberlib",
+          "version": "0.0.7",
+          "ok": true,
+          "page": "https://crates.io/crates/kyberlib",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add kyberlib"
+      },
+      "primary_version": "0.0.7",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "kyberlib-wasm",
+      "slug": "kyberlib-wasm",
+      "category": "cryptography",
+      "tagline": "WebAssembly bindings for kyberlib — FIPS 203 ML-KEM in the browser and Node.",
+      "repo": "sebastienrousseau/kyberlib",
+      "logo": "/kyberlib/v1/logos/kyberlib.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "kyberlib-wasm",
+          "version": "0.0.7",
+          "ok": true,
+          "page": "https://crates.io/crates/kyberlib-wasm",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add kyberlib-wasm"
+      },
+      "primary_version": "0.0.7",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "hsh",
+      "slug": "hsh",
+      "category": "cryptography",
+      "tagline": "Multi-algorithm password hashing for Rust — Argon2id / bcrypt / scrypt / PBKDF2, KMS-backed pepper.",
+      "repo": "sebastienrousseau/hsh",
+      "logo": "/hsh/v1/logos/hsh.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "hsh",
+          "version": "0.0.10",
+          "ok": true,
+          "page": "https://crates.io/crates/hsh",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add hsh",
+        "cargo install": "cargo install hsh"
+      },
+      "primary_version": "0.0.10",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "password-generator",
+      "slug": "password-generator",
+      "category": "cryptography",
+      "tagline": "Memorable password generator for Node and browsers (async WebCrypto).",
+      "repo": "sebastienrousseau/password-generator",
+      "registries": [
+        {
+          "type": "npm",
+          "name": "password-generator",
+          "version": "3.0.0",
+          "ok": true,
+          "page": "https://www.npmjs.com/package/password-generator",
+          "error": null
+        }
+      ],
+      "install": {
+        "npm": "npm install password-generator",
+        "pnpm": "pnpm add password-generator"
+      },
+      "primary_version": "3.0.0",
+      "primary_registry": "npm"
+    },
+    {
+      "name": "ssg (static-site-generator)",
+      "slug": "ssg",
+      "category": "static-sites",
+      "tagline": "Secure-by-default Rust SSG — WCAG 2.2 AA, CSP/SRI, native minification, 28-locale i18n, WASM target.",
+      "repo": "sebastienrousseau/static-site-generator",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "ssg",
+          "version": "0.0.40",
+          "ok": true,
+          "page": "https://crates.io/crates/ssg",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo install": "cargo install ssg",
+        "macos": "curl -sL https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.sh | bash",
+        "linux": "curl -sL https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.sh | bash",
+        "windows": "irm https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.ps1 | iex"
+      },
+      "primary_version": "0.0.40",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "html-generator",
+      "slug": "html-generator",
+      "category": "static-sites",
+      "tagline": "Markdown → WCAG-compliant HTML — front matter, TOC, JSON-LD, MathML, Mermaid, minification.",
+      "repo": "sebastienrousseau/html-generator",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "html-generator",
+          "version": "0.0.5",
+          "ok": true,
+          "page": "https://crates.io/crates/html-generator",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add html-generator"
+      },
+      "primary_version": "0.0.5",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "mdx-gen",
+      "slug": "mdx-gen",
+      "category": "static-sites",
+      "tagline": "AST-first Markdown → HTML library — custom blocks, syntax highlighting, ToC, mermaid.",
+      "repo": "sebastienrousseau/mdx-gen",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "mdx-gen",
+          "version": "0.0.4",
+          "ok": true,
+          "page": "https://crates.io/crates/mdx-gen",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add mdx-gen"
+      },
+      "primary_version": "0.0.4",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "nucleusflow",
+      "slug": "nucleusflow",
+      "category": "static-sites",
+      "tagline": "Rust library for content processing — static site generation, document conversion, templating.",
+      "repo": "sebastienrousseau/nucleusflow",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "nucleusflow",
+          "version": "0.0.1",
+          "ok": true,
+          "page": "https://crates.io/crates/nucleusflow",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add nucleusflow"
+      },
+      "primary_version": "0.0.1",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "frontmatter-gen",
+      "slug": "frontmatter-gen",
+      "category": "static-sites",
+      "tagline": "Generate and parse frontmatter in YAML, TOML, and JSON formats.",
+      "repo": "sebastienrousseau/frontmatter-gen",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "frontmatter-gen",
+          "version": "0.0.5",
+          "ok": true,
+          "page": "https://crates.io/crates/frontmatter-gen",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add frontmatter-gen"
+      },
+      "primary_version": "0.0.5",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "metadata-gen",
+      "slug": "metadata-gen",
+      "category": "static-sites",
+      "tagline": "Extract, validate, and process metadata — generates SEO / Open Graph / Twitter Cards / Apple meta tags.",
+      "repo": "sebastienrousseau/metadata-gen",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "metadata-gen",
+          "version": "0.0.3",
+          "ok": true,
+          "page": "https://crates.io/crates/metadata-gen",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add metadata-gen"
+      },
+      "primary_version": "0.0.3",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "sitemap-gen",
+      "slug": "sitemap-gen",
+      "category": "static-sites",
+      "tagline": "Efficient sitemap generation and optimization for Rust — multiple formats, customizable.",
+      "repo": "sebastienrousseau/sitemap-gen",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "sitemap-gen",
+          "version": "0.0.1",
+          "ok": true,
+          "page": "https://crates.io/crates/sitemap-gen",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add sitemap-gen"
+      },
+      "primary_version": "0.0.1",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "staticdatagen",
+      "slug": "staticdatagen",
+      "category": "static-sites",
+      "tagline": "Generate structured data and metadata for static sites — HTML, RSS, sitemaps, SEO meta tags.",
+      "repo": "sebastienrousseau/staticdatagen",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "staticdatagen",
+          "version": "0.0.8",
+          "ok": true,
+          "page": "https://crates.io/crates/staticdatagen",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add staticdatagen"
+      },
+      "primary_version": "0.0.8",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "staticweaver",
+      "slug": "staticweaver",
+      "category": "static-sites",
+      "tagline": "Fast, safe Rust template engine — Mustache-compatible, 23 built-in filters, SIMD HTML escape.",
+      "repo": "sebastienrousseau/staticweaver",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "staticweaver",
+          "version": "0.0.2",
+          "ok": true,
+          "page": "https://crates.io/crates/staticweaver",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add staticweaver"
+      },
+      "primary_version": "0.0.2",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "noyalib",
+      "slug": "noyalib",
+      "category": "yaml",
+      "tagline": "Pure-Rust YAML 1.2 ecosystem — zero unsafe, 406/406 official suite, streaming serde, lossless CST.",
+      "repo": "sebastienrousseau/noyalib",
+      "logo": "/noyalib/v1/logos/noyalib.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "noyalib",
+          "version": "0.0.7",
+          "ok": true,
+          "page": "https://crates.io/crates/noyalib",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add noyalib"
+      },
+      "primary_version": "0.0.7",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "noya-cli",
+      "slug": "noya-cli",
+      "category": "yaml",
+      "tagline": "Two binaries: noyafmt (formatter) and noyavalidate (schema validator + autofixer) for YAML.",
+      "repo": "sebastienrousseau/noyalib",
+      "logo": "/noyalib/v1/logos/noyalib.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "noya-cli",
+          "version": "0.0.7",
+          "ok": true,
+          "page": "https://crates.io/crates/noya-cli",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo install": "cargo install noya-cli"
+      },
+      "primary_version": "0.0.7",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "noyalib-mcp",
+      "slug": "noyalib-mcp",
+      "category": "yaml",
+      "tagline": "MCP server exposing noyalib's lossless YAML editing to AI agents (Claude / Cursor / Continue).",
+      "repo": "sebastienrousseau/noyalib",
+      "logo": "/noyalib/v1/logos/noyalib.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "noyalib-mcp",
+          "version": "0.0.7",
+          "ok": true,
+          "page": "https://crates.io/crates/noyalib-mcp",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo install": "cargo install noyalib-mcp"
+      },
+      "primary_version": "0.0.7",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "noyalib-lsp",
+      "slug": "noyalib-lsp",
+      "category": "yaml",
+      "tagline": "Language Server Protocol implementation for noyalib — YAML formatting, validation in any editor.",
+      "repo": "sebastienrousseau/noyalib",
+      "logo": "/noyalib/v1/logos/noyalib.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "noyalib-lsp",
+          "version": "0.0.7",
+          "ok": true,
+          "page": "https://crates.io/crates/noyalib-lsp",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo install": "cargo install noyalib-lsp"
+      },
+      "primary_version": "0.0.7",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "akande",
+      "slug": "akande",
+      "category": "ai",
+      "tagline": "Self-hosted, provider-agnostic voice assistant — structured executive assistance via OpenAI GPT.",
+      "repo": "sebastienrousseau/akande",
+      "logo": "/akande/v1/logos/akande.svg",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "akande",
+          "version": "0.0.6",
+          "ok": true,
+          "page": "https://pypi.org/project/akande/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pipx": "pipx install akande",
+        "pip": "pip install akande"
+      },
+      "primary_version": "0.0.6",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "audiotext",
+      "slug": "audiotext",
+      "category": "ai",
+      "tagline": "Real-time speech recognition powered by the Whisper library.",
+      "repo": "sebastienrousseau/audiotext",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "audiotext",
+          "version": "0.0.4",
+          "ok": true,
+          "page": "https://pypi.org/project/audiotext/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pip": "pip install audiotext"
+      },
+      "primary_version": "0.0.4",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "talkwave",
+      "slug": "talkwave",
+      "category": "ai",
+      "tagline": "AI chatbot for developers written in Python.",
+      "repo": "sebastienrousseau/talkwave",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "talkwave",
+          "version": "0.0.6",
+          "ok": true,
+          "page": "https://pypi.org/project/talkwave/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pipx": "pipx install talkwave",
+        "pip": "pip install talkwave"
+      },
+      "primary_version": "0.0.6",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "inclusio",
+      "slug": "inclusio",
+      "category": "ai",
+      "tagline": "Accessibility-first publishing engine — PDF/UA-2, WTPDF, PDF/A-4f, C2PA, PAdES, SLSA provenance, MCP.",
+      "repo": "sebastienrousseau/inclusio",
+      "logo": "/inclusio/v1/logos/inclusio.svg",
+      "registries": [
+        {
+          "type": "pypi",
+          "name": "inclusio",
+          "version": "0.0.5",
+          "ok": true,
+          "page": "https://pypi.org/project/inclusio/",
+          "error": null
+        }
+      ],
+      "install": {
+        "pipx": "pipx install inclusio",
+        "pip": "pip install inclusio"
+      },
+      "primary_version": "0.0.5",
+      "primary_registry": "pypi"
+    },
+    {
+      "name": "cmn",
+      "slug": "cmn",
+      "category": "rust-libs",
+      "tagline": "121 mathematical, physical, cryptographic constants — no_std, WASM, 15 macros.",
+      "repo": "sebastienrousseau/cmn",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "cmn",
+          "version": "0.0.6",
+          "ok": true,
+          "page": "https://crates.io/crates/cmn",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add cmn"
+      },
+      "primary_version": "0.0.6",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "dtt",
+      "slug": "dtt",
+      "category": "rust-libs",
+      "tagline": "Date, time, and timezone manipulation — RFC 3339 / ISO 8601 round-trip safety.",
+      "repo": "sebastienrousseau/dtt",
+      "logo": "/dtt/v1/logos/dtt.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "dtt",
+          "version": "0.0.10",
+          "ok": true,
+          "page": "https://crates.io/crates/dtt",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add dtt"
+      },
+      "primary_version": "0.0.10",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "http-handle",
+      "slug": "http-handle",
+      "category": "rust-libs",
+      "tagline": "Lightweight HTTP server library — sync + async, HTTP/1.1, h2c, HTTP/3 ALPN. 180 k req/s.",
+      "repo": "sebastienrousseau/http-handle",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "http-handle",
+          "version": "0.0.5",
+          "ok": true,
+          "page": "https://crates.io/crates/http-handle",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add http-handle"
+      },
+      "primary_version": "0.0.5",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "langweave",
+      "slug": "langweave",
+      "category": "rust-libs",
+      "tagline": "Seamless internationalization (i18n) and localization for Rust.",
+      "repo": "sebastienrousseau/langweave",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "langweave",
+          "version": "0.0.2",
+          "ok": true,
+          "page": "https://crates.io/crates/langweave",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add langweave"
+      },
+      "primary_version": "0.0.2",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "libmake",
+      "slug": "libmake",
+      "category": "rust-libs",
+      "tagline": "Code generator to reduce repetitive tasks and build high-quality Rust libraries.",
+      "repo": "sebastienrousseau/libmake",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "libmake",
+          "version": "0.2.6",
+          "ok": true,
+          "page": "https://crates.io/crates/libmake",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo install": "cargo install libmake"
+      },
+      "primary_version": "0.2.6",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "mini-functions",
+      "slug": "mini-functions",
+      "category": "rust-libs",
+      "tagline": "Highly performant utility and wrapper functions library for Rust.",
+      "repo": "sebastienrousseau/mini-functions",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "mini-functions",
+          "version": "0.0.10",
+          "ok": true,
+          "page": "https://crates.io/crates/mini-functions",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add mini-functions"
+      },
+      "primary_version": "0.0.10",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "qrc",
+      "slug": "qrc",
+      "category": "rust-libs",
+      "tagline": "Generate and manipulate QR-code images in various formats.",
+      "repo": "sebastienrousseau/qrc",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "qrc",
+          "version": "0.0.5",
+          "ok": true,
+          "page": "https://crates.io/crates/qrc",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add qrc"
+      },
+      "primary_version": "0.0.5",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "rlg",
+      "slug": "rlg",
+      "category": "rust-libs",
+      "tagline": "Near-lock-free structured logging — sub-microsecond ingestion path.",
+      "repo": "sebastienrousseau/rlg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "rlg",
+          "version": "0.0.10",
+          "ok": true,
+          "page": "https://crates.io/crates/rlg",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add rlg"
+      },
+      "primary_version": "0.0.10",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "vrd",
+      "slug": "vrd",
+      "category": "rust-libs",
+      "tagline": "no_std-friendly RNG — Xoshiro256++ default, optional Mersenne Twister, ChaCha20, SIMD bulk-byte.",
+      "repo": "sebastienrousseau/vrd",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "vrd",
+          "version": "0.0.12",
+          "ok": true,
+          "page": "https://crates.io/crates/vrd",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add vrd"
+      },
+      "primary_version": "0.0.12",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "wiserone",
+      "slug": "wiserone",
+      "category": "rust-libs",
+      "tagline": "Daily nuggets of wisdom in a clean, minimalist design.",
+      "repo": "sebastienrousseau/wiserone",
+      "logo": "/wiserone/v1/logos/wiserone.svg",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "wiserone",
+          "version": "0.0.5",
+          "ok": true,
+          "page": "https://crates.io/crates/wiserone",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo install": "cargo install wiserone"
+      },
+      "primary_version": "0.0.5",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "xtasks",
+      "slug": "xtasks",
+      "category": "rust-libs",
+      "tagline": "Essential tools and tasks for Rust projects using the xtask pattern.",
+      "repo": "sebastienrousseau/xtasks",
+      "registries": [
+        {
+          "type": "crates.io",
+          "name": "xtasks",
+          "version": "0.0.2",
+          "ok": true,
+          "page": "https://crates.io/crates/xtasks",
+          "error": null
+        }
+      ],
+      "install": {
+        "cargo": "cargo add xtasks"
+      },
+      "primary_version": "0.0.2",
+      "primary_registry": "crates.io"
+    },
+    {
+      "name": "skeletonic-stylus",
+      "slug": "skeletonic-stylus",
+      "category": "web",
+      "tagline": "Lightweight Stylus library — OKLCH colours, native @layer, CSS Grid, container queries, WCAG 2.2 AA. Sub-5kb core.",
+      "repo": "sebastienrousseau/skeletonic-stylus",
+      "logo": "/skeletonic/v1/logos/skeletonic.svg",
+      "registries": [
+        {
+          "type": "npm",
+          "name": "@sebastienrousseau/skeletonic-stylus",
+          "version": "2.0.0",
+          "ok": true,
+          "page": "https://www.npmjs.com/package/@sebastienrousseau/skeletonic-stylus",
+          "error": null
+        }
+      ],
+      "install": {
+        "npm": "npm install @sebastienrousseau/skeletonic-stylus",
+        "pnpm": "pnpm add @sebastienrousseau/skeletonic-stylus"
+      },
+      "primary_version": "2.0.0",
+      "primary_registry": "npm"
+    },
+    {
+      "name": "crypto-service",
+      "slug": "crypto-service",
+      "category": "cryptography",
+      "tagline": "Common cryptographic operations performed securely and efficiently — TypeScript.",
+      "repo": "sebastienrousseau/crypto-service",
+      "logo": "/crypto-service/v1/logos/crypto-service.svg",
+      "registries": [
+        {
+          "type": "npm",
+          "name": "crypto-service",
+          "version": "0.1.1",
+          "ok": true,
+          "page": "https://www.npmjs.com/package/crypto-service",
+          "error": null
+        }
+      ],
+      "install": {
+        "npm": "npm install crypto-service",
+        "pnpm": "pnpm add crypto-service"
+      },
+      "primary_version": "0.1.1",
+      "primary_registry": "npm"
+    },
+    {
+      "name": "dotfiles",
+      "slug": "dotfiles",
+      "category": "workstation",
+      "tagline": "Declarative dotfiles for macOS, Linux, WSL — multi-shell parity, wallpaper-driven themes, SLSA-signed releases.",
+      "repo": "sebastienrousseau/dotfiles",
+      "registries": [
+        {
+          "type": "github-releases",
+          "repo": "sebastienrousseau/dotfiles",
+          "version": "0.2.505",
+          "ok": true,
+          "page": "https://github.com/sebastienrousseau/dotfiles/releases/latest",
+          "error": null
+        }
+      ],
+      "install": {
+        "macos": "curl -fsSL https://raw.githubusercontent.com/sebastienrousseau/dotfiles/main/install.sh | bash",
+        "linux": "curl -fsSL https://raw.githubusercontent.com/sebastienrousseau/dotfiles/main/install.sh | bash"
+      },
+      "primary_version": "0.2.505",
+      "primary_registry": "github-releases"
+    }
+  ]
+}

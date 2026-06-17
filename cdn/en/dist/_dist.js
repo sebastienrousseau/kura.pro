@@ -1,172 +1,219 @@
 /**
- * /dist/ landing page — OS detection + per-platform install commands.
+ * /dist/ marketplace — Setapp-inspired discovery surface.
  *
- * Extracted from the inline <script> in cdn/en/dist/index.html so the
- * /dist/ route serves under strict script-src 'self' CSP (no
- * 'unsafe-inline'). Same UX as before: detect the visitor's OS and
- * architecture from navigator.userAgent/platform, render the package
- * grid, surface a "Copy" button on each install command.
+ * Fetches the auto-generated `_dist.json` catalogue (produced by
+ * `scripts/dist/generate-dist-catalogue.mjs` from
+ * `scripts/dist/packages-catalogue.json`) and renders:
  *
- * The previous inline form embedded `onclick="copyCmd(this)"` in the
- * template literal that became part of innerHTML. Strict CSP also
- * blocks DOM-injected inline event handlers, so this version uses a
- * `data-action="copy" data-cmd="..."` attribute plus a single
- * delegated click listener on the package container.
+ *   1. A featured hero card for the marquee package.
+ *   2. A category-grouped grid of every published software product.
+ *   3. Per-card OS-aware install command + Copy button, registry badges
+ *      (npm, crates.io, PyPI, GitHub Releases) with deep links.
+ *
+ * Strict CSP: no inline event handlers, no inline scripts injected via
+ * innerHTML. All click handling is via a single delegated listener on
+ * the marketplace root.
  */
 (() => {
-  const CDN = 'https://cloudcdn.pro';
+  'use strict';
 
-  const PACKAGES = [
-    {
-      // Stratos v0.1.0 — official CloudCDN CLI. Distributed as a single
-      // Node script (cross-platform; runs anywhere with Node ≥ 18) plus
-      // one-line installers per OS. The installers download, verify the
-      // SHA-256, and drop a `stratos` shim on PATH.
-      name: 'Stratos',
-      desc: 'Official CloudCDN CLI — health, purge, signed URLs, assets, more',
-      version: '0.1.0',
-      // SHAs match the git source bytes — `curl -o file` (and
-      // PowerShell's Invoke-WebRequest -OutFile) write the response
-      // body byte-for-byte. The install scripts use that pattern, so
-      // their pinned SHA-256 is the same value listed here. (Note:
-      // piping curl to a process appends one trailing newline to the
-      // stream, giving a different hash — that's a curl-stdout quirk,
-      // not a CDN transform.)
-      files: {
-        node: {
-          file: 'stratos.mjs',
-          size: '6.9 KB',
-          sha256: '98306c394345fc18b8610c0113e6ef94f071ceba47de0f07eb45a9204effaf27',
-        },
-        installer_unix: {
-          file: 'install.sh',
-          size: '3.9 KB',
-          sha256: '914fec2e2c9749ccdcb71a6bff46164419daefb78b17a121e9592ec229b68c3a',
-        },
-        installer_windows: {
-          file: 'install.ps1',
-          size: '3.6 KB',
-          sha256: 'e0026d86c8502c099e10fc1b691d92ae1f78b44e5364e84c2f4a7b21092d59e4',
-        },
-      },
-      install: {
-        macos:   `curl -sL ${CDN}/dist/stratos/install.sh | bash`,
-        linux:   `curl -sL ${CDN}/dist/stratos/install.sh | bash`,
-        windows: `irm ${CDN}/dist/stratos/install.ps1 | iex`,
-      },
-    },
-    {
-      // static-site-generator — secure-by-default Rust SSG from
-      // sebastienrousseau/static-site-generator. Hosted here so the
-      // CloudCDN dashboard can offer one-click installs for the SSG
-      // it pairs with.
-      name: 'static-site-generator',
-      desc: 'Secure-by-default Rust SSG: WCAG 2.1 AA, CSP/SRI hardening, local LLM content pipeline, 28-locale i18n',
-      version: '0.0.39',
-      files: {
-        macos_arm64: {
-          file: 'ssg-v0.0.39-aarch64-apple-darwin.tar.gz',
-          size: '5.4 MB',
-          sha256: '6e5ce2ce056543909884dddff0d2b3e21a4ef47705c7c2a0212b534b091c8db8',
-        },
-        macos_x64: {
-          file: 'ssg-v0.0.39-x86_64-apple-darwin.tar.gz',
-          size: '5.8 MB',
-          sha256: '8a0995088c59b5ca930b44d369f9de101cc1d95c86ffecdf00df3d72d11fea70',
-        },
-        linux_x64: {
-          file: 'ssg-v0.0.39-x86_64-unknown-linux-gnu.tar.gz',
-          size: '6.1 MB',
-          sha256: '54a77f53061999f43b1093c317c10d178ff39dfbba01dc9aa011d235c7c43b25',
-        },
-        windows_x64: {
-          file: 'ssg-v0.0.39-x86_64-pc-windows-msvc.zip',
-          size: '5.7 MB',
-          sha256: '6d251b60f20b2e01bc9f91739c185d0828a0eb5f63275a01bb3843abb3aaadcf',
-        },
-      },
-      install: {
-        macos:   `curl -sL https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.sh | bash`,
-        linux:   `curl -sL https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.sh | bash`,
-        windows: `irm https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.ps1 | iex`,
-      },
-    },
-  ];
+  const CATALOGUE_URL = '/dist/_dist.json';
+  // Symbolic per-registry badge labels; the CSS sets colours by .registry-* class.
+  const REGISTRY_LABELS = {
+    npm:               'npm',
+    'crates.io':       'crates.io',
+    pypi:              'PyPI',
+    'github-releases': 'GitHub Releases',
+  };
+  // Install-command key → recommended OS for OS-aware ordering.
+  const OS_PRIORITY_KEYS = {
+    macos:   ['macos', 'npx', 'pipx', 'cargo install', 'cargo', 'pip', 'npm', 'pnpm'],
+    linux:   ['linux', 'npx', 'pipx', 'cargo install', 'cargo', 'pip', 'npm', 'pnpm'],
+    windows: ['windows', 'npx', 'cargo install', 'cargo', 'pip', 'pipx', 'npm', 'pnpm'],
+  };
 
+  /** Cheap, dependency-free escapers — we never inject untrusted HTML. */
+  const escapeHtml = (s) => String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const escapeAttr = (s) => String(s)
+    .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  /** Detect OS + arch from navigator. */
   function detectOS() {
-    const ua = navigator.userAgent.toLowerCase();
-    const platform = navigator.platform?.toLowerCase() || '';
-
+    const ua = (navigator.userAgent || '').toLowerCase();
+    const platform = (navigator.platform || '').toLowerCase();
     if (ua.includes('win')) {
-      return { os: 'windows', label: 'Windows', icon: '◺', arch: ua.includes('arm') ? 'arm64' : 'x64' };
+      return { os: 'windows', label: 'Windows', icon: '◺',
+        arch: ua.includes('arm') ? 'arm64' : 'x64' };
     }
     if (ua.includes('mac') || platform.includes('mac')) {
-      return { os: 'macos', label: 'macOS', icon: '', arch: (ua.includes('arm') || platform.includes('arm')) ? 'arm64' : 'x64' };
+      return { os: 'macos', label: 'macOS', icon: '',
+        arch: (ua.includes('arm') || platform.includes('arm')) ? 'arm64' : 'x64' };
     }
     if (ua.includes('linux')) {
       if (ua.includes('wsl') || ua.includes('microsoft')) {
         return { os: 'linux', label: 'Linux (WSL)', icon: '🐧', arch: 'x64' };
       }
-      return { os: 'linux', label: 'Linux', icon: '🐧', arch: ua.includes('aarch64') || ua.includes('arm') ? 'arm64' : 'x64' };
+      return { os: 'linux', label: 'Linux', icon: '🐧',
+        arch: (ua.includes('aarch64') || ua.includes('arm')) ? 'arm64' : 'x64' };
     }
     return { os: 'linux', label: 'Unknown (defaulting to Linux)', icon: '💻', arch: 'x64' };
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-  function escapeAttr(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  /**
+   * Choose the most relevant install command for the visitor's OS,
+   * given the per-package `install` map (e.g. `{ macos, linux, windows,
+   * cargo, npm, pip, pipx, npx }`).
+   *
+   * @returns {{ key: string, cmd: string } | null}
+   */
+  function pickInstall(install, detected) {
+    if (!install) return null;
+    const order = OS_PRIORITY_KEYS[detected.os] || OS_PRIORITY_KEYS.linux;
+    for (const key of order) {
+      if (install[key]) return { key, cmd: install[key] };
+    }
+    const first = Object.entries(install)[0];
+    return first ? { key: first[0], cmd: first[1] } : null;
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function regBadge(reg) {
+    const label = REGISTRY_LABELS[reg.type] || reg.type;
+    const cls = 'registry registry-' + reg.type.replace(/[^a-z0-9]/gi, '-');
+    if (reg.ok && reg.page) {
+      return `<a class="${cls}" href="${escapeAttr(reg.page)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`;
+    }
+    return `<span class="${cls}">${escapeHtml(label)}</span>`;
+  }
+
+  /**
+   * Render the small <img> tag for a package logo, or initials when the
+   * package has no logo entry.
+   */
+  function logoHtml(pkg) {
+    if (pkg.logo) {
+      return `<img class="pkg-logo" src="${escapeAttr(pkg.logo)}" alt="" loading="lazy" width="48" height="48">`;
+    }
+    const initials = (pkg.name || pkg.slug || '?').replace(/[^A-Za-z0-9]/g, '')
+      .slice(0, 2).toUpperCase();
+    return `<span class="pkg-logo pkg-logo-fallback" aria-hidden="true">${escapeHtml(initials)}</span>`;
+  }
+
+  /** Build the card HTML for one package. */
+  function renderCard(pkg, detected, { hero = false } = {}) {
+    const install = pickInstall(pkg.install, detected);
+    const installCmd = install?.cmd || '';
+    const installKey = install?.key || '';
+    const version = pkg.primary_version
+      ? `v${escapeHtml(pkg.primary_version)}`
+      : '<span class="coming-soon">Coming soon</span>';
+    const tagline = escapeHtml(pkg.tagline || '');
+    const repoLink = pkg.repo
+      ? `<a class="pkg-repo" href="https://github.com/${escapeAttr(pkg.repo)}" target="_blank" rel="noopener" aria-label="Source on GitHub">Source ↗</a>`
+      : '';
+
+    const regBadges = (pkg.registries || []).map(regBadge).join('');
+
+    const installBlock = installCmd
+      ? `<div class="install-cmd">
+            <code>${escapeHtml(installCmd)}</code>
+            <button type="button" class="copy-btn" data-action="copy"
+              data-cmd="${escapeAttr(installCmd)}"
+              aria-label="Copy ${escapeAttr(pkg.name)} install command">Copy</button>
+         </div>
+         <p class="install-hint">Install method: <code>${escapeHtml(installKey)}</code></p>`
+      : `<p class="install-hint install-hint-soon">Will be installable once the first release ships.</p>`;
+
+    return `<article class="pkg${hero ? ' pkg-hero' : ''}" data-slug="${escapeAttr(pkg.slug)}">
+      <div class="pkg-head">
+        ${logoHtml(pkg)}
+        <div class="pkg-titleblock">
+          <h3 class="pkg-name">${escapeHtml(pkg.name)} <span class="pkg-version">${version}</span></h3>
+          <p class="pkg-tagline">${tagline}</p>
+        </div>
+      </div>
+      <div class="pkg-meta">
+        <div class="pkg-registries">${regBadges}</div>
+        ${repoLink}
+      </div>
+      ${installBlock}
+    </article>`;
+  }
+
+  /** Render a single category section + its grid of cards. */
+  function renderSection(category, packages, detected) {
+    if (packages.length === 0) return '';
+    const cards = packages.map((p) => renderCard(p, detected)).join('');
+    return `<section class="cat-section" data-cat="${escapeAttr(category.id)}">
+      <header class="cat-head">
+        <h2 class="cat-name">${escapeHtml(category.name)}</h2>
+        <p class="cat-tagline">${escapeHtml(category.tagline || '')}</p>
+      </header>
+      <div class="cat-grid">${cards}</div>
+    </section>`;
+  }
+
+  /** Render the hero featured-package card. */
+  function renderHero(pkg, detected) {
+    if (!pkg) return '';
+    return `<section class="hero">
+      <div class="hero-eyebrow">Featured</div>
+      ${renderCard(pkg, detected, { hero: true })}
+    </section>`;
+  }
+
+  async function fetchCatalogue() {
+    const res = await fetch(CATALOGUE_URL, { headers: { Accept: 'application/json' } });
+    if (!res.ok) throw new Error(`Failed to load catalogue (${res.status})`);
+    return res.json();
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const root = document.getElementById('marketplace');
+    if (!root) return;
+
     const detected = detectOS();
-    document.getElementById('os-icon').textContent = detected.icon;
-    document.getElementById('os-name').textContent = `${detected.label} (${detected.arch})`;
-    document.getElementById('os-hint').textContent = 'Showing recommended downloads for your platform. All platforms available below.';
+    const osIcon = document.getElementById('os-icon');
+    const osName = document.getElementById('os-name');
+    const osHint = document.getElementById('os-hint');
+    if (osIcon) osIcon.textContent = detected.icon;
+    if (osName) osName.textContent = `${detected.label} (${detected.arch})`;
+    if (osHint) osHint.textContent = 'Install commands below are tailored to your platform.';
 
-    const container = document.getElementById('packages');
-    const fileKey = `${detected.os}_${detected.arch}`;
-
-    for (const pkg of PACKAGES) {
-      const recommended = pkg.files[fileKey];
-      const installCmd = pkg.install[detected.os] || pkg.install.linux;
-
-      let html = `<div class="pkg">`;
-      html += `<div class="pkg-header"><span class="pkg-name">${escapeHtml(pkg.name)} <span style="color:var(--text-dim);font-weight:400;">v${escapeHtml(pkg.version)}</span></span></div>`;
-      html += `<p class="pkg-desc">${escapeHtml(pkg.desc)}</p>`;
-
-      // Install command — use data-action so the delegated listener below
-      // can route the click. No inline onclick (CSP).
-      html += `<div class="install-cmd"><code>${escapeHtml(installCmd)}</code>`;
-      html += `<button type="button" data-action="copy" data-cmd="${escapeAttr(installCmd)}">Copy</button>`;
-      html += `</div>`;
-
-      if (recommended) {
-        html += `<div class="checksum"><span class="label">SHA-256:</span> ${escapeHtml(recommended.sha256)}</div>`;
-      }
-
-      html += `<div class="file-grid">`;
-      for (const [key, info] of Object.entries(pkg.files)) {
-        const isActive = key === fileKey;
-        html += `<div class="file-item ${isActive ? 'active' : ''}">`;
-        html += `<span class="name">${escapeHtml(info.file.split('-').pop())}</span>`;
-        html += `<span class="size">${escapeHtml(info.size)}</span>`;
-        html += `</div>`;
-      }
-      html += `</div></div>`;
-
-      container.innerHTML += html;
+    let data;
+    try {
+      data = await fetchCatalogue();
+    } catch (err) {
+      root.innerHTML = `<p class="load-error">Could not load the catalogue: ${escapeHtml(err.message)}.</p>`;
+      return;
     }
 
-    // Single delegated click listener — handles every Copy button under
-    // #packages, no matter when they were rendered.
-    container.addEventListener('click', (e) => {
+    const featured = data.packages.find((p) => p.slug === data.featured);
+    const byCat = new Map();
+    for (const pkg of data.packages) {
+      if (pkg.slug === data.featured) continue;
+      const arr = byCat.get(pkg.category) || [];
+      arr.push(pkg);
+      byCat.set(pkg.category, arr);
+    }
+
+    let html = renderHero(featured, detected);
+    for (const cat of data.categories) {
+      const pkgs = byCat.get(cat.id) || [];
+      html += renderSection(cat, pkgs, detected);
+    }
+    root.innerHTML = html;
+
+    // Single delegated click listener — survives any future re-render of
+    // the marketplace area, and avoids inline onclick (CSP).
+    root.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action="copy"]');
       if (!btn) return;
       const cmd = btn.dataset.cmd;
+      if (!cmd || !navigator.clipboard) return;
       navigator.clipboard.writeText(cmd).then(() => {
         const toast = document.getElementById('toast');
+        if (!toast) return;
         toast.textContent = 'Copied!';
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 1500);

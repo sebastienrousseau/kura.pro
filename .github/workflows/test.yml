@@ -50,6 +50,37 @@ jobs:
       security-events: write
       contents: read
 
+  # CodeQL coverage for GitHub Actions workflow files themselves. Catches
+  # script injection (${{ github.event.* }} into shell), unsafe ref pinning,
+  # untrusted artifact use, etc. The reusable security workflow above only
+  # accepts node/rust/python/go, so we run the actions analyzer inline.
+  codeql-actions:
+    name: CodeQL Actions Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+
+      - name: Initialize CodeQL (actions)
+        uses: github/codeql-action/init@5c8a8a642e79153f5d047b10ec1cba1d1cc65699 # v3
+        with:
+          languages: actions
+          # security-extended adds the GitHub Actions query pack for known
+          # workflow misconfigurations on top of the default queries.
+          queries: security-extended
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@5c8a8a642e79153f5d047b10ec1cba1d1cc65699 # v3
+        with:
+          category: '/language:actions'
+
   sbom:
     runs-on: ubuntu-latest
     timeout-minutes: 5

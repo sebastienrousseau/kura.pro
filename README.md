@@ -371,6 +371,7 @@ The npm package (`@cloudcdn/mcp-server`) follows semantic versioning. Breaking c
 - [`docs/accessibility.md`](docs/accessibility.md) — WCAG 2.2 AA commitments, the axe-core CI gate, past contrast regressions, and how to audit locally.
 - [`docs/mcp.md`](docs/mcp.md) — the 42 MCP tools + 6 resources, what each plane covers, example agent prompts, and how to add a new tool.
 - [`docs/cli.md`](docs/cli.md) — Stratos CLI install, configuration, command reference, and exit codes.
+- [`docs/STATUS.md`](docs/STATUS.md) — operator transparency: the live `/api/health` endpoints, internal SLO targets, and how to read an incident.
 
 ## License
 

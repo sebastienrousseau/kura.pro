@@ -186,6 +186,20 @@
 
       if (res.status === 201 && body && body.apiKey) {
         // Persist the one-shot reveal payload so /onboarding can show it.
+        //
+        // NOTE: CodeQL flags this as "clear-text storage of sensitive data"
+        // (rule js/clear-text-storage-of-sensitive-info). The trade-off is
+        // intentional and bounded for Phase 0:
+        //   - The page enforces a strict CSP (script-src 'self' only +
+        //     challenges.cloudflare.com — see _headers /sign-up*).
+        //   - sessionStorage is per-tab and cleared on close.
+        //   - /onboarding clears the entry as soon as Step 3 is reached
+        //     (see _onboarding.js MutationObserver).
+        //   - Both pages are gated behind Cloudflare Access + LAUNCH_PUBLIC=0,
+        //     so only the owner + invited testers reach this code today.
+        // Follow-up will replace this with a server-side handoff
+        // (HttpOnly Path=/onboarding cookie + /api/auth/signup/reveal
+        // endpoint) so the key never lands in JS-readable storage.
         try {
           sessionStorage.setItem('cloudcdn:signup_result', JSON.stringify({
             user: body.user,

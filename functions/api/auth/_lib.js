@@ -52,9 +52,16 @@ export async function sha256Hex(input) {
 
 function randomBase62(length) {
   const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  // Rejection sampling: 256 % 62 = 8, so bytes >= 248 would bias the
+  // first 8 alphabet chars to 5/256 vs 4/256 for the rest. Reject those.
+  const MAX = 248; // largest multiple of 62 below 256
   let out = "";
-  for (let i = 0; i < length; i++) out += alphabet[bytes[i] % 62];
+  while (out.length < length) {
+    const bytes = crypto.getRandomValues(new Uint8Array(length - out.length + 8));
+    for (let i = 0; i < bytes.length && out.length < length; i++) {
+      if (bytes[i] < MAX) out += alphabet[bytes[i] % 62];
+    }
+  }
   return out;
 }
 

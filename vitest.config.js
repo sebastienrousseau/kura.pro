@@ -44,6 +44,11 @@ export default defineConfig({
         'functions/api/storage/batch.js',
         'functions/_middleware.js',
         'functions/api/_shared.js',
+        // TODO(phase0-followup): include functions/api/auth/* once the
+        // OAuth + passkey + OTP endpoints land alongside their tests.
+        // The 54 existing auth tests cover the happy paths + most error
+        // branches; full 100% branch coverage will go in with the next
+        // PR. Tracked in the Phase 0 plan.
         'cdn/en/dist/stratos/stratos.mjs',
         'cdn/shared/theme-boot.js',
         'cdn/shared/theme-toggle.js',

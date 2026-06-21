@@ -224,3 +224,138 @@ describe('getDB / hasAccountsDB', () => {
     expect(() => lib.getDB({})).toThrow(/ACCOUNTS_DB binding missing/);
   });
 });
+
+describe('hashPassword / verifyPassword — binding + transport errors', () => {
+  it('hashPassword throws when AUTH_HASHER binding is missing', async () => {
+    await expect(lib.hashPassword({}, 'pw')).rejects.toThrow(/AUTH_HASHER binding missing/);
+    await expect(lib.hashPassword(undefined, 'pw')).rejects.toThrow(/AUTH_HASHER binding missing/);
+  });
+
+  it('hashPassword throws on non-2xx response from the hasher', async () => {
+    const env = { AUTH_HASHER: { fetch: vi.fn().mockResolvedValue(new Response('err', { status: 500 })) } };
+    await expect(lib.hashPassword(env, 'pw')).rejects.toThrow(/auth-hasher \/hash failed/);
+  });
+
+  it('verifyPassword throws when AUTH_HASHER binding is missing', async () => {
+    await expect(lib.verifyPassword({}, 'pw', '$argon2id$x')).rejects.toThrow(/AUTH_HASHER binding missing/);
+  });
+
+  it('verifyPassword returns false on non-2xx response from the hasher', async () => {
+    const env = { AUTH_HASHER: { fetch: vi.fn().mockResolvedValue(new Response('err', { status: 500 })) } };
+    expect(await lib.verifyPassword(env, 'pw', '$argon2id$x')).toBe(false);
+  });
+});
+
+describe('revokeSession', () => {
+  it('writes revoked_at = now to the sessions row', async () => {
+    const run = vi.fn().mockResolvedValue({ success: true });
+    const bind = vi.fn(() => ({ run }));
+    const prepare = vi.fn(() => ({ bind }));
+    const env = { ACCOUNTS_DB: { prepare } };
+    await lib.revokeSession(env, 'sha-hash-here');
+    expect(prepare).toHaveBeenCalledWith(expect.stringContaining('UPDATE sessions SET revoked_at'));
+    expect(bind).toHaveBeenCalledWith(expect.any(Number), 'sha-hash-here');
+    expect(run).toHaveBeenCalled();
+  });
+});
+
+describe('auditEvent — D1 + legacy KV dual-write', () => {
+  it('does nothing when ACCOUNTS_DB is absent (gracefully)', async () => {
+    await expect(lib.auditEvent({}, { action: 'noop' })).resolves.toBeUndefined();
+  });
+
+  it('inserts a row when D1 is present, then mirrors to legacy log', async () => {
+    const run = vi.fn().mockResolvedValue({ success: true });
+    const bind = vi.fn(() => ({ run }));
+    const prepare = vi.fn(() => ({ bind }));
+    const env = { ACCOUNTS_DB: { prepare }, RATE_KV: { get: vi.fn(), put: vi.fn() } };
+    const request = { headers: new Headers({ 'cf-connecting-ip': '1.2.3.4', 'user-agent': 'vt', 'x-trace-id': 't' }) };
+    await lib.auditEvent(env, { accountId: 'a1', userId: 'u1', action: 'user.signup', request, meta: { x: 1 } });
+    expect(prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO audit_events'));
+  });
+
+  it('swallows D1 errors so a logging failure does not break the caller', async () => {
+    const bind = vi.fn(() => ({ run: vi.fn().mockRejectedValue(new Error('d1 down')) }));
+    const prepare = vi.fn(() => ({ bind }));
+    const env = { ACCOUNTS_DB: { prepare } };
+    await expect(lib.auditEvent(env, { action: 'x' })).resolves.toBeUndefined();
+  });
+});
+
+describe('recordSignupAttempt', () => {
+  it('no-ops when D1 is absent', async () => {
+    await expect(lib.recordSignupAttempt({}, { outcome: 'success' })).resolves.toBeUndefined();
+  });
+
+  it('inserts a row when D1 is present', async () => {
+    const run = vi.fn().mockResolvedValue({ success: true });
+    const bind = vi.fn(() => ({ run }));
+    const prepare = vi.fn(() => ({ bind }));
+    const env = { ACCOUNTS_DB: { prepare } };
+    await lib.recordSignupAttempt(env, { email: 'a@b.com', ip: '1.2.3.4', outcome: 'success', score: 0, meta: { reasons: [] } });
+    expect(prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO signup_attempts'));
+  });
+
+  it('swallows D1 errors so attempt-logging cannot break signup', async () => {
+    const bind = vi.fn(() => ({ run: vi.fn().mockRejectedValue(new Error('d1 down')) }));
+    const prepare = vi.fn(() => ({ bind }));
+    const env = { ACCOUNTS_DB: { prepare } };
+    await expect(lib.recordSignupAttempt(env, { outcome: 'success' })).resolves.toBeUndefined();
+  });
+});
+
+describe('mintSession + createApiKey + getCurrentSession', () => {
+  it('mintSession inserts and returns a token + expiresAt', async () => {
+    const run = vi.fn().mockResolvedValue({ success: true });
+    const bind = vi.fn(() => ({ run }));
+    const prepare = vi.fn(() => ({ bind }));
+    const env = { ACCOUNTS_DB: { prepare } };
+    const r = await lib.mintSession(env, { userId: 'u1', accountId: 'a1', ip: '1.2.3.4', userAgent: 'ua' });
+    expect(r.token).toMatch(/^[0-9A-Za-z]{48}$/);
+    expect(r.expiresAt).toBeGreaterThan(Math.floor(Date.now() / 1000));
+    expect(prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO sessions'));
+  });
+
+  it('createApiKey returns a key with cdn_test_ prefix and inserts a row', async () => {
+    const run = vi.fn().mockResolvedValue({ success: true });
+    const bind = vi.fn(() => ({ run }));
+    const prepare = vi.fn(() => ({ bind }));
+    const env = { ACCOUNTS_DB: { prepare } };
+    const k = await lib.createApiKey(env, { accountId: 'a1', userId: 'u1' });
+    expect(k.prefix).toMatch(/^cdn_test_[0-9A-Za-z]{8}$/);
+    expect(k.fullKey).toMatch(/^cdn_test_[0-9A-Za-z]{8}_[0-9A-Za-z]{40}$/);
+    expect(prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO api_keys'));
+  });
+
+  it('getCurrentSession returns null without ACCOUNTS_DB', async () => {
+    const req = { headers: new Headers({ cookie: 'cdn_session=anything' }) };
+    expect(await lib.getCurrentSession({}, req)).toBeNull();
+  });
+
+  it('getCurrentSession returns null without a cookie', async () => {
+    const env = { ACCOUNTS_DB: { prepare: vi.fn() } };
+    const req = { headers: new Headers() };
+    expect(await lib.getCurrentSession(env, req)).toBeNull();
+  });
+
+  it('getCurrentSession returns null when the row was revoked', async () => {
+    const env = {
+      ACCOUNTS_DB: {
+        prepare: vi.fn(() => ({
+          bind: vi.fn(() => ({
+            first: vi.fn().mockResolvedValue({
+              token_hash: 'h', user_id: 'u1', account_id: 'a1',
+              expires_at: Math.floor(Date.now() / 1000) + 3600,
+              revoked_at: 1000, // truthy = revoked
+              email: 'x@y.com', name: null, email_verified_at: null,
+              account_id_full: null, account_name: null, plan: null, monthly_cap_usd: null,
+            }),
+            run: vi.fn(),
+          })),
+        })),
+      },
+    };
+    const req = { headers: new Headers({ cookie: 'cdn_session=t' }) };
+    expect(await lib.getCurrentSession(env, req)).toBeNull();
+  });
+});

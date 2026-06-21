@@ -93,6 +93,12 @@ function defaultExternalMocks() {
 describe('POST /api/auth/signup', () => {
   beforeEach(() => defaultExternalMocks());
 
+  it('OPTIONS preflight returns 204 with CORS headers', async () => {
+    const res = await signupModule.onRequestOptions();
+    expect(res.status).toBe(204);
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBeTruthy();
+  });
+
   function validBody(overrides = {}) {
     return {
       email: 'newuser@example.com',
@@ -203,6 +209,65 @@ describe('POST /api/auth/signup', () => {
     );
   });
 
+  it('marketing consent path inserts the additional consents row', async () => {
+    const env = freshEnv();
+    const res = await signupModule.onRequestPost({
+      request: makeRequest({ body: validBody({ consents: { tos: true, marketing: true } }) }),
+      env,
+    });
+    expect(res.status).toBe(201);
+    // batch() was called with > 5 statements (users + password + accounts +
+    // memberships + ToS consent + marketing consent)
+    const lastBatch = env.ACCOUNTS_DB.batch.mock.calls.at(-1)[0];
+    expect(lastBatch.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it('returns 409 email_exists when batch insert hits UNIQUE constraint race', async () => {
+    const env = freshEnv({
+      ACCOUNTS_DB: {
+        prepare: vi.fn(() => ({
+          bind: vi.fn(() => ({ first: vi.fn().mockResolvedValue(null), run: vi.fn() })),
+        })),
+        batch: vi.fn().mockRejectedValue(new Error('D1_ERROR: UNIQUE constraint failed: users.email')),
+      },
+    });
+    const res = await signupModule.onRequestPost({ request: makeRequest({ body: validBody() }), env });
+    expect(res.status).toBe(409);
+    expect((await res.json()).error.code).toBe('email_exists');
+  });
+
+  it('returns 500 internal when batch insert hits a non-UNIQUE error', async () => {
+    const env = freshEnv({
+      ACCOUNTS_DB: {
+        prepare: vi.fn(() => ({
+          bind: vi.fn(() => ({ first: vi.fn().mockResolvedValue(null), run: vi.fn() })),
+        })),
+        batch: vi.fn().mockRejectedValue(new Error('D1_ERROR: database is locked')),
+      },
+    });
+    const res = await signupModule.onRequestPost({ request: makeRequest({ body: validBody() }), env });
+    expect(res.status).toBe(500);
+    expect((await res.json()).error.code).toBe('internal');
+  });
+
+  it('returns 500 internal when hashPassword fails', async () => {
+    const env = freshEnv({
+      AUTH_HASHER: { fetch: vi.fn().mockResolvedValue(new Response('err', { status: 500 })) },
+    });
+    const res = await signupModule.onRequestPost({ request: makeRequest({ body: validBody() }), env });
+    expect(res.status).toBe(500);
+    expect((await res.json()).error.code).toBe('internal');
+  });
+
+  it('returns 429 rate_limited when the per-IP limit trips', async () => {
+    const env = freshEnv({
+      RATE_KV: { get: vi.fn().mockResolvedValue('999'), put: vi.fn() },
+    });
+    const res = await signupModule.onRequestPost({ request: makeRequest({ body: validBody() }), env });
+    expect(res.status).toBe(429);
+    expect((await res.json()).error.code).toBe('rate_limited');
+  });
+
   it('rejects a known-pwned password (count >= 5)', async () => {
     // SHA-1 of "password" → 5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8
     globalThis.fetch = vi.fn(async (url) => {
@@ -233,6 +298,35 @@ describe('POST /api/auth/signup', () => {
 // session.js
 // ─────────────────────────────────────────────────────────────────
 describe('GET/DELETE /api/auth/session', () => {
+  it('OPTIONS preflight returns 204 with CORS headers', async () => {
+    const res = await sessionModule.onRequestOptions();
+    expect(res.status).toBe(204);
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBeTruthy();
+  });
+
+  it('DELETE revokes the active session and emits an audit event', async () => {
+    const run = vi.fn().mockResolvedValue({ success: true });
+    const bind = vi.fn(() => ({ run, first: vi.fn().mockResolvedValue({
+      token_hash: 'h', user_id: 'u1', account_id: 'a1',
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      revoked_at: null,
+      email: 'who@example.com', name: null, email_verified_at: null,
+      account_id_full: 'a1', account_name: 'A', plan: 'free', monthly_cap_usd: 0,
+    }) }));
+    const prepare = vi.fn(() => ({ bind }));
+    const env = freshEnv({ ACCOUNTS_DB: { prepare } });
+    const res = await sessionModule.onRequestDelete({
+      request: makeRequest({ method: 'DELETE', cookie: 'cdn_session=token' }),
+      env,
+    });
+    expect(res.status).toBe(200);
+    expect((await res.json()).authenticated).toBe(false);
+    // Cleared cookies present
+    expect(res.headers.get('set-cookie')).toContain('Max-Age=0');
+    // revokeSession was invoked (UPDATE sessions...)
+    expect(prepare).toHaveBeenCalledWith(expect.stringContaining('UPDATE sessions SET revoked_at'));
+  });
+
   it('GET returns authenticated:false without a session cookie', async () => {
     const env = freshEnv();
     const res = await sessionModule.onRequestGet({ request: makeRequest({ method: 'GET' }), env });
@@ -358,6 +452,24 @@ describe('POST /api/auth/password/login', () => {
       env,
     });
     expect(res.status).toBe(401);
+  });
+
+  it('OPTIONS preflight returns 204 with CORS headers', async () => {
+    const res = await loginModule.onRequestOptions();
+    expect(res.status).toBe(204);
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBeTruthy();
+  });
+
+  it('returns 429 when the rate-limit trips', async () => {
+    const env = freshEnv({
+      RATE_KV: { get: vi.fn().mockResolvedValue('99'), put: vi.fn() },
+    });
+    const res = await loginModule.onRequestPost({
+      request: makeRequest({ body: { email: 'a@b.com', password: 'p' } }),
+      env,
+    });
+    expect(res.status).toBe(429);
+    expect((await res.json()).error.code).toBe('rate_limited');
   });
 
   it('happy path — 200 with session cookie + account info', async () => {

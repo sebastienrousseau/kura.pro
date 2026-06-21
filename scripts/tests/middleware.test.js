@@ -96,6 +96,50 @@ describe('Middleware: onRequest', () => {
       const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
       expect(fetchedUrl).toContain('/cdn/shared/branding/akqa.svg');
     });
+
+    it('rewrites bare /sign-up to /cdn/en/sign-up/ directory', async () => {
+      const ctx = makeContext('/sign-up');
+      await onRequest(ctx);
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
+      expect(fetchedUrl).toContain('/cdn/en/sign-up/');
+      expect(fetchedUrl).not.toContain('/index.html');
+    });
+
+    it('rewrites /sign-up/ (trailing slash) to /cdn/en/sign-up/', async () => {
+      const ctx = makeContext('/sign-up/');
+      await onRequest(ctx);
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
+      expect(fetchedUrl).toContain('/cdn/en/sign-up/');
+    });
+
+    it('rewrites /sign-up/_signup.js via LOCALIZED_PREFIXES', async () => {
+      const ctx = makeContext('/sign-up/_signup.js');
+      await onRequest(ctx);
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
+      expect(fetchedUrl).toContain('/cdn/en/sign-up/_signup.js');
+    });
+
+    it('rewrites bare /onboarding to /cdn/en/onboarding/ directory', async () => {
+      const ctx = makeContext('/onboarding');
+      await onRequest(ctx);
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
+      expect(fetchedUrl).toContain('/cdn/en/onboarding/');
+      expect(fetchedUrl).not.toContain('/index.html');
+    });
+
+    it('rewrites /onboarding/ (trailing slash) to /cdn/en/onboarding/', async () => {
+      const ctx = makeContext('/onboarding/');
+      await onRequest(ctx);
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
+      expect(fetchedUrl).toContain('/cdn/en/onboarding/');
+    });
+
+    it('rewrites /onboarding/_onboarding.js via LOCALIZED_PREFIXES', async () => {
+      const ctx = makeContext('/onboarding/_onboarding.js');
+      await onRequest(ctx);
+      const fetchedUrl = ctx.env.ASSETS.fetch.mock.calls[0][0].url;
+      expect(fetchedUrl).toContain('/cdn/en/onboarding/_onboarding.js');
+    });
   });
 
   // --- /cdn/* canonical redirects ---

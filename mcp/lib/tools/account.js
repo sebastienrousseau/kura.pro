@@ -80,4 +80,56 @@ export function registerAccountTools(server) {
       return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
     }
   );
+
+  // ── Mutations (Phase 2C v2) ───────────────────────────────────
+
+  server.tool(
+    'purge_cache',
+    'Invalidate cached content. Pass `urls` (1-30 absolute https://cloudcdn.pro/... URLs), `tags` (Cache-Tag values), or `everything: true`. Returns the number of items invalidated. AccountKey-gated (uses CLOUDCDN_ACCOUNT_KEY env var).',
+    {
+      urls: z.array(z.string().url()).max(30).optional().describe('Specific URLs to purge (max 30)'),
+      tags: z.array(z.string().min(1).max(128)).max(30).optional().describe('Cache-Tag values to purge (max 30)'),
+      everything: z.boolean().optional().describe('Purge the entire zone — use sparingly (degrades global edge cache for ~5 min).'),
+    },
+    async ({ urls, tags, everything }) => {
+      const body = {};
+      if (urls && urls.length) body.urls = urls;
+      if (tags && tags.length) body.tags = tags;
+      if (everything === true) body.everything = true;
+      const res = await api.post('/api/purge', body);
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'deploy_function',
+    'Create or update an edge-routing rule (a "function" in the rule-engine sense). The body is the same shape as POST /api/core/rules: { name, pattern, action: "rewrite"|"redirect"|"block"|"transform"|"cache", target?, ttl?, priority? }. AccountKey-gated.',
+    {
+      name: z.string().min(1).max(64).describe('Human-friendly rule name'),
+      pattern: z.string().min(1).max(512).describe('URL pattern to match (glob or regex, see /api/core/rules docs)'),
+      action: z.enum(['rewrite', 'redirect', 'block', 'transform', 'cache']).describe('What the rule does when matched'),
+      target: z.string().max(512).optional().describe('Destination URL/path for rewrite|redirect actions'),
+      ttl: z.number().int().min(0).max(31_536_000).optional().describe('Cache TTL in seconds (for action=cache)'),
+      priority: z.number().int().min(0).max(1000).optional().describe('Lower wins. Default = 100.'),
+    },
+    async (input) => {
+      const res = await api.post('/api/core/rules', input);
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'get_analytics',
+    'Fetch account-wide statistics for a time range. Returns request counts, cache hit ratio, bytes served, AI invocations, error breakdown. Use `zone` to scope to a specific tenant zone; omit for account-wide. AccountKey-gated.',
+    {
+      zone: z.string().min(1).max(128).optional().describe('Zone slug (omit for account-wide)'),
+      range: z.enum(['1h', '24h', '7d', '30d']).default('24h').describe('Time range. 30d max on free tier.'),
+    },
+    async ({ zone, range }) => {
+      const params = { range };
+      if (zone) params.zone = zone;
+      const res = await api.get('/api/core/statistics', { params });
+      return { content: [{ type: 'text', text: JSON.stringify(res.data, null, 2) }] };
+    }
+  );
 }

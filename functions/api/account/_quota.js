@@ -42,6 +42,16 @@ export function secondsUntilNextMonth(now = Date.now()) {
 export async function currentMonthUsageUsd(env, accountId) {
   if (!env || !accountId) return 0;
   const period = currentBillingPeriod();
+  // Preferred path: live read from the per-account usage_meter DO.
+  // Lower latency than KV (single RPC, no eventual-consistency
+  // window) and authoritative — no risk of reading a stale 60s cache.
+  if (env.USAGE_METER) {
+    try {
+      const { readUsage } = await import("../usage_meter_do.js");
+      const snap = await readUsage(env, accountId);
+      if (snap && snap.period === period) return Number(snap.units) || 0;
+    } catch { /* fall through */ }
+  }
   if (env.RATE_KV) {
     try {
       const cached = await env.RATE_KV.get(USAGE_CACHE_KEY(accountId, period));
@@ -105,6 +115,40 @@ export function buildCapResponse(account, usageUsd) {
       "X-RateLimit-Reset": String(Math.floor((Date.now() / 1000) + retryAfter)),
     },
   });
+}
+
+/**
+ * Record a billable unit for the given account. Fans out to:
+ *   - usage_meter DO (authoritative, atomic)
+ *   - RATE_KV cache (best-effort; only when the DO is unavailable so
+ *     we don't burn KV writes that the DO already covers)
+ *   - Workers Analytics Engine (audit trail; only when METRICS is set)
+ *
+ * Cost is in USD as a fractional number (e.g. 0.0042). Errors swallow
+ * — never let metering break a user request.
+ */
+export async function recordUsage(env, accountId, amountUsd, kind = "generic") {
+  if (!env || !accountId || !Number.isFinite(amountUsd) || amountUsd < 0) return;
+  try {
+    if (env.USAGE_METER) {
+      const { addUsage } = await import("../usage_meter_do.js");
+      await addUsage(env, accountId, amountUsd);
+    } else if (env.RATE_KV) {
+      const period = currentBillingPeriod();
+      const prev = Number(await env.RATE_KV.get(USAGE_CACHE_KEY(accountId, period))) || 0;
+      // adr: ADR-09 — usage cache, written only when the DO is absent
+      await env.RATE_KV.put(USAGE_CACHE_KEY(accountId, period), String(prev + amountUsd), { expirationTtl: 86400 });
+    }
+  } catch { /* swallow */ }
+  try {
+    if (env.METRICS) {
+      env.METRICS.writeDataPoint({
+        indexes: [accountId],
+        blobs: [kind],
+        doubles: [amountUsd],
+      });
+    }
+  } catch { /* swallow */ }
 }
 
 // Returns a Response when the request must be refused, null when it

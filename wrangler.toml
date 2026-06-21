@@ -21,6 +21,11 @@ STRICT_AUTH = "1"
 # `wrangler pages secret put` — see docs/pipeline-setup.md.
 GITHUB_REPO = "sebastienrousseau/cloudcdn.pro"
 
+# Phase 0 sign-up gate. While "0", /api/auth/signup returns 503 even if
+# Cloudflare Access is bypassed. Flip to "1" only when ready to open
+# public sign-ups. Local dev: override with `wrangler pages dev --var LAUNCH_PUBLIC=1`.
+LAUNCH_PUBLIC = "0"
+
 # Smart Placement co-locates the worker with the data it talks to most
 # (KV reads, AI calls). Reduces tail latency on cold PoPs by 30-50ms.
 [placement]
@@ -101,3 +106,31 @@ dataset = "cloudcdn_analytics"
 [[queues.producers]]
 binding    = "WEBHOOK_QUEUE"
 queue      = "cloudcdn-webhooks"
+
+# ── D1: accounts / users / sessions / api_keys / passkeys / audit ──
+#
+# Phase 0 multi-tenant data store. Replaces the global KV-keyed
+# singletons in tokens.js / passkeys/index.js / audit-logs.js once
+# Phase 1 migrates them in. The Pages Worker reads/writes via the
+# `ACCOUNTS_DB` binding below; schema lives in migrations/0001_init.sql.
+#
+# Provisioned 2026-06-20 in the Team Rousseau Account (ENAM region).
+# Re-apply migrations with:
+#   wrangler d1 execute cloudcdn-pro-accounts --remote --file migrations/000X_*.sql
+[[d1_databases]]
+binding       = "ACCOUNTS_DB"
+database_name = "cloudcdn-pro-accounts"
+database_id   = "de7125a8-14ac-43f8-890b-2b298047e7b4"
+
+# ── Service binding: cloudcdn-auth-hasher ──
+#
+# Runs Argon2id off the Pages CPU budget. The standalone Worker lives at
+# workers/auth-hasher/ — see workers/auth-hasher/README.md for the full
+# rationale. functions/api/auth/* calls this binding via
+# `env.AUTH_HASHER.fetch(...)` — no public HTTP path.
+#
+# Deployed 2026-06-20 → https://cloudcdn-auth-hasher.team-rousseau-account.workers.dev
+[[services]]
+binding     = "AUTH_HASHER"
+service     = "cloudcdn-auth-hasher"
+environment = "production"

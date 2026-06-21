@@ -29,7 +29,7 @@ const FUNCTIONS_PREFIXES = ["/dashboard/", "/dist/"];
 // Prefixes served from /cdn/ root (language-agnostic)
 const SHARED_PREFIXES = ["/shared/"];
 // Prefixes served from /cdn/en/ (English by default, with locale fallback)
-const LOCALIZED_PREFIXES = ["/content/", "/api-reference/"];
+const LOCALIZED_PREFIXES = ["/content/", "/api-reference/", "/sign-up/", "/onboarding/"];
 // Supported language codes — /{lang}/ serves /cdn/{lang}/index.html
 const LOCALES = new Set([
   "en", "ar", "bn", "cs", "de", "es", "fr", "ha", "he", "hi", "id",
@@ -385,6 +385,15 @@ async function routeRequest(context) {
     // like /api-reference/openapi.json or /api-reference/clients/*).
     const res = await rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/api-reference/");
     return withApiReferenceCsp(res);
+  }
+  // Bare /sign-up and /onboarding — serve the index directly to avoid the
+  // 308 trailing-slash redirect. Deeper paths (e.g. /sign-up/_signup.js)
+  // are handled by the LOCALIZED_PREFIXES loop below.
+  if (path === "/sign-up" || path === "/sign-up/") {
+    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/sign-up/");
+  }
+  if (path === "/onboarding" || path === "/onboarding/") {
+    return rewriteFetch(env, request, rawUrl, pathStart, "/cdn/en/onboarding/");
   }
   // Bare paths without trailing slash — redirect so they hit the Functions middleware
   if (path === "/dist" || path === "/dashboard") {

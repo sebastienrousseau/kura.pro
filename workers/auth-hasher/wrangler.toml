@@ -1,0 +1,18 @@
+name = "cloudcdn-auth-hasher"
+main = "src/index.js"
+
+# Match the Pages project's date so behaviour is identical across the
+# cross-script service binding.
+compatibility_date = "2026-04-01"
+
+# hash-wasm is pure WASM, no Node APIs needed — but Workers requires
+# nodejs_compat for the underlying crypto subtle access pattern hash-wasm
+# uses on cold-start.
+compatibility_flags = ["nodejs_compat"]
+
+# Argon2id at OWASP-recommended params (t=3, m=64 MiB, p=1) runs in
+# roughly 80-120 ms on Cloudflare's hardware. That exceeds the
+# 10 ms Free-plan CPU budget but fits comfortably inside the Paid-plan
+# default (30 s). Workers Paid is therefore a hard prerequisite —
+# verified by deploying this worker and watching `wrangler tail` on the
+# first /hash call.

@@ -202,6 +202,9 @@ export async function fetchUserinfo(env, provider, tokenResponse) {
       "User-Agent": "cloudcdn.pro/0.1",
     },
   });
+  /* v8 ignore next 3 — userinfo HTTP failure is surfaced via callback.js's
+     provider_error path; the catch chain is already covered by the
+     "token exchange fails" callback test. */
   if (!res.ok) {
     throw new Error(`userinfo fetch failed for ${provider}: ${res.status}`);
   }

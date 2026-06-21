@@ -145,41 +145,63 @@
       originUrlInput.focus();
       return;
     }
-    if (url.protocol === 'http:') {
-      setOriginHint('Note: http:// origins are accepted but not recommended.', 'error');
-    }
 
     step2Next.disabled = true;
-    setOriginHint('Probing origin…');
+    setOriginHint('Provisioning your zone…');
 
     try {
-      // HEAD probe via fetch. Many origins block HEAD or CORS — we don't
-      // gate the flow on it; we just surface the result as a hint.
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 5000);
-      const probeRes = await fetch(url.toString(), { method: 'HEAD', mode: 'no-cors', signal: ctrl.signal });
-      clearTimeout(t);
-      // `mode: 'no-cors'` returns opaque — status 0 — so we can't read it.
-      // The fact that fetch resolved at all means DNS + TCP + TLS worked.
-      setOriginHint('Origin reachable. (TLS + DNS verified.)', 'success');
-    } catch (err) {
-      const msg = (err && err.name === 'AbortError')
-        ? 'Origin did not respond in 5 seconds — continuing anyway.'
-        : 'Could not reach the origin (browser CORS often blocks this — we will still try server-side). Continuing.';
-      setOriginHint(msg, 'error');
+      // Server-side provision: validates origin reachability, generates
+      // a slug + edge hostname, persists an account_zones row. Replaces
+      // the client-side no-cors HEAD probe which couldn't read the
+      // response status (opaque) and didn't persist anything.
+      const res = await fetch('/api/auth/onboarding/zone', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ name: state.projectName, originUrl: url.toString() }),
+      });
+      const body = await res.json().catch(() => null);
+      if (res.status !== 201 || !body || !body.zone) {
+        const code = body && body.error && body.error.code;
+        const msg = (body && body.error && body.error.message) || 'Could not provision your zone.';
+        setOriginHint(code === 'slug_conflict' ? msg + ' Try a different project name in Step 1.' : msg, 'error');
+        return;
+      }
+      state.zone = body.zone;
+      const status = body.zone.originStatus;
+      if (status === 'ok') {
+        setOriginHint('Origin reachable. Zone created.', 'success');
+      } else if (status === 'timeout' || status === 'unreachable') {
+        setOriginHint('Zone created. (Origin did not respond to a HEAD probe — we will retry on first request.)', 'error');
+      } else if (status === 'tls_error') {
+        setOriginHint('Zone created. (Origin TLS handshake failed — fix the certificate before going live.)', 'error');
+      } else if (status && status.startsWith('http_error:')) {
+        setOriginHint('Zone created. (Origin returned ' + status.split(':')[1] + ' to our HEAD probe — many origins refuse HEAD, this may be fine.)', 'error');
+      } else {
+        setOriginHint('Zone created.', 'success');
+      }
+      state.originUrl = url.toString();
+      setStep(3);
+    } catch {
+      setOriginHint('Network error reaching the provisioning endpoint. Try again.', 'error');
+    } finally {
+      step2Next.disabled = false;
     }
-
-    state.originUrl = url.toString();
-    step2Next.disabled = false;
-    setStep(3);
   });
 
   // ── Step 3: success ──
+  // Render the cURL one-liner pointing at the provisioned zone's edge
+  // hostname (or fall back to the platform endpoint if the user skipped
+  // step 2). Live edge-hostname routing is Phase 3 — the hostname here
+  // is the aspirational target so the user can wire client code now.
   const apiKey = signupResult.apiKey.fullKey;
-  const accountName = (signupResult.account && signupResult.account.name) || 'your account';
+  const edgeHostname = (state.zone && state.zone.edgeHostname) || 'cloudcdn.pro';
+  const isLive = !!(state.zone && state.zone.live);
 
   const curlText = document.getElementById('curl-text');
-  curlText.textContent = `# Try listing your assets:\ncurl -H "AccessKey: ${apiKey}" \\\n  https://cloudcdn.pro/api/assets`;
+  curlText.textContent = isLive
+    ? `# Hit your zone's edge hostname:\ncurl -H "AccessKey: ${apiKey}" \\\n  https://${edgeHostname}/`
+    : `# Your zone is provisioned (edge routing pending).\n# Until then, hit the platform API:\ncurl -H "AccessKey: ${apiKey}" \\\n  https://cloudcdn.pro/api/assets`;
 
   const keyText = document.getElementById('key-text');
   keyText.textContent = apiKey;

@@ -195,6 +195,20 @@ describe('POST /api/auth/email/otp/send', () => {
     expect((await res.json()).error.code).toBe('rate_limited');
   });
 
+  it('returns 429 when per-email rate-limit trips (IP-pass, email-fail)', async () => {
+    // First lookup (IP) returns under limit; second (email) returns over.
+    let n = 0;
+    const env = freshEnv({
+      RATE_KV: {
+        get: vi.fn(async () => { n++; return n === 1 ? '0' : '999'; }),
+        put: vi.fn(),
+      },
+    });
+    const res = await sendModule.onRequestPost({ request: makeRequest({ body: { email: 'a@b.com' } }), env });
+    expect(res.status).toBe(429);
+    expect((await res.json()).error.message.toLowerCase()).toContain('email');
+  });
+
   it('returns 500 internal when D1 insert fails', async () => {
     const env = freshEnv({
       RESEND_API_KEY: 'k',

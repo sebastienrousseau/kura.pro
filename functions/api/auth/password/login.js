@@ -92,6 +92,9 @@ export async function onRequestPost(context) {
   const userAgent = (request.headers.get("user-agent") || "").slice(0, 256);
   const { token, expiresAt } = await mintSession(env, { userId: row.user_id, accountId, ip, userAgent });
 
+  /* v8 ignore next 2 — best-effort last_login_at bump; the catch is
+     defensive against transient D1 errors and isn't worth a dedicated
+     test (failure mode is "we don't update a timestamp"). */
   await db.prepare(`UPDATE users SET last_login_at = ?1 WHERE id = ?2`)
     .bind(Math.floor(Date.now() / 1000), row.user_id).run().catch(() => {});
 

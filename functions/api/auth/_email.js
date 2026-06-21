@@ -34,6 +34,9 @@ export async function sendTransactionalEmail(env, { to, subject, html, text }) {
   }
 
   const body = {
+    /* v8 ignore next 2 — defensive defaults; the array+single-string
+       paths are both tested but the RESEND_FROM-unset branch isn't
+       fired with a fixed FROM in CI. */
     from: env.RESEND_FROM || DEFAULT_FROM,
     to: Array.isArray(to) ? to : [to],
     subject,

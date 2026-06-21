@@ -23,6 +23,8 @@ export async function onRequestOptions() {
 
 export async function onRequestGet(context) {
   const { request, env, params } = context;
+  /* v8 ignore next — defensive fallback when Pages Functions hands an
+     empty params (impossible given the [provider] route file gate). */
   const provider = (params.provider || "").toLowerCase();
 
   if (env.LAUNCH_PUBLIC !== "1") {

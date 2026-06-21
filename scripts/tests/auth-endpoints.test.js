@@ -196,13 +196,18 @@ describe('POST /api/auth/signup', () => {
     expect(json.account.plan).toBe('free');
     expect(json.account.monthlyCapUsd).toBe(0);
     expect(json.apiKey.prefix).toMatch(/^cdn_test_[0-9A-Za-z]{8}$/);
-    expect(json.apiKey.fullKey).toMatch(/^cdn_test_[0-9A-Za-z]{8}_[0-9A-Za-z]{40}$/);
-    expect(json.apiKey.revealed_once).toBe(true);
+    // The full key is never returned in the JSON body any more — it lives
+    // only in the cdn_signup_reveal cookie, fetched by /onboarding via
+    // POST /api/auth/signup/reveal.
+    expect(json.apiKey.fullKey).toBeUndefined();
+    expect(json.apiKey.reveal_via).toBe('POST /api/auth/signup/reveal');
     expect(json.redirectTo).toBe('/onboarding');
-    // Session cookie present
+    // Session cookie + reveal cookie both present
     const setCookie = res.headers.get('set-cookie');
     expect(setCookie).toBeTruthy();
     expect(setCookie).toContain('cdn_session=');
+    expect(setCookie).toContain('cdn_signup_reveal=');
+    expect(setCookie).toContain('Path=/api/auth/signup');
     expect(env.AUTH_HASHER.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/hash'),
       expect.objectContaining({ method: 'POST' })

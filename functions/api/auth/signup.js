@@ -42,6 +42,7 @@ import {
   hasAccountsDB, getDB, uuid, hashPassword, isPasswordPwned, verifyTurnstile,
   scoreSignupAttempt, recordSignupAttempt, auditEvent, mintSession,
   sessionCookieHeader, loggedInIndicatorCookie, createApiKey,
+  signRevealPayload, revealCookieHeader,
   POLICY_VERSION, SIGNUP_RATE_LIMIT, SIGNUP_RATE_WINDOW, AUTH_CORS,
   jsonError, authJson,
 } from "./_lib.js";
@@ -193,6 +194,21 @@ export async function onRequestPost(context) {
   await auditEvent(env, { accountId, userId, action: "user.signup", request, meta: { score: score.score, reasons: score.reasons } });
   await auditEvent(env, { accountId, userId, action: "apikey.create", request, meta: { keyId: apiKey.id, prefix: apiKey.prefix, scopes: apiKey.scopes } });
 
+  // Sign the API-key payload for the one-shot reveal cookie. The actual
+  // key value never lands in this JSON response body — only metadata
+  // (prefix + scopes) — so a downstream caller logging the response
+  // can't leak the secret. /onboarding fetches the value via
+  // POST /api/auth/signup/reveal, which validates session + HMAC
+  // signature and clears the cookie on first read.
+  const revealSigned = await signRevealPayload(env, {
+    userId,
+    accountId,
+    apiKeyId: apiKey.id,
+    apiKeyPrefix: apiKey.prefix,
+    apiKeyFullKey: apiKey.fullKey,
+    apiKeyScopes: apiKey.scopes,
+  });
+
   const headers = {
     "Content-Type": "application/json",
     "Cache-Control": "no-store",
@@ -203,13 +219,13 @@ export async function onRequestPost(context) {
     account: { id: accountId, name: accountName, plan: "free", monthlyCapUsd: 0 },
     apiKey: {
       prefix: apiKey.prefix,
-      fullKey: apiKey.fullKey,
       scopes: apiKey.scopes,
-      revealed_once: true,
+      reveal_via: "POST /api/auth/signup/reveal",
     },
     redirectTo: "/onboarding",
   }), { status: 201, headers });
   response.headers.append("Set-Cookie", sessionCookieHeader(token, expiresAt));
   response.headers.append("Set-Cookie", loggedInIndicatorCookie(expiresAt));
+  response.headers.append("Set-Cookie", revealCookieHeader(revealSigned));
   return response;
 }

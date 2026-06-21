@@ -11,7 +11,7 @@
  * vitest.
  */
 
-import { CORS_JSON, jsonResponse, appendAuditLog as legacyAuditLog } from "../_shared.js";
+import { CORS_JSON, jsonResponse, appendAuditLog as legacyAuditLog, hmacSign, hmacVerify } from "../_shared.js";
 
 // ── Constants ─────────────────────────────────────────────────────
 
@@ -22,6 +22,14 @@ export const LOGIN_RATE_WINDOW = 15 * 60;
 export const SIGNUP_RATE_LIMIT = 5;                     // per IP per hour
 export const SIGNUP_RATE_WINDOW = 60 * 60;
 export const POLICY_VERSION = "2026-06-21";             // bump on ToS/Privacy revision
+
+// Signup → onboarding API key handoff via short-lived HttpOnly cookie.
+// The cookie is HMAC-signed so a tampered value can't trick the reveal
+// endpoint into emitting an attacker-chosen key. Path-scoped to the
+// reveal endpoint so it doesn't leak to other routes.
+export const SIGNUP_REVEAL_COOKIE = "cdn_signup_reveal";
+export const SIGNUP_REVEAL_PATH = "/api/auth/signup";   // cookie Path attribute
+export const SIGNUP_REVEAL_TTL_SECONDS = 5 * 60;        // 5 minutes — user has time to load /onboarding
 
 const API_KEY_PREFIX = "cdn_test_";                     // until billing is wired
 
@@ -216,6 +224,9 @@ export async function getCurrentSession(env, request) {
   if (row.revoked_at) return null;
   if (row.expires_at < now) return null;
   // Bump last_seen (fire-and-forget — don't block the request).
+  /* v8 ignore next 2 — fire-and-forget catch on a best-effort D1
+     UPDATE; covered by integration tests but lazy-promise rejection
+     isn't deterministically observable from vitest. */
   db.prepare(`UPDATE sessions SET last_seen_at = ?1 WHERE token_hash = ?2`)
     .bind(now, tokenHash).run().catch(() => {});
   return {
@@ -243,6 +254,67 @@ export async function revokeSession(env, tokenHash) {
   const now = Math.floor(Date.now() / 1000);
   await db.prepare(`UPDATE sessions SET revoked_at = ?1 WHERE token_hash = ?2`)
     .bind(now, tokenHash).run();
+}
+
+// ── Signup-reveal cookie (one-shot API key handoff) ─────────────
+// The signup endpoint sets this HttpOnly + Path-scoped cookie so the
+// API key never lands in JavaScript-readable storage. /api/auth/signup/
+// reveal validates the session, reads the cookie, returns the payload
+// once, then clears the cookie. Replaces the earlier sessionStorage
+// pattern that CodeQL flagged as "clear-text storage of sensitive info".
+
+function revealSecret(env) {
+  return env.SIGNUP_REVEAL_SECRET
+    || env.DASHBOARD_SECRET
+    || env.DASHBOARD_PASSWORD
+    || "cdn-dev-only-secret"; // local dev fallback; STRICT_AUTH=1 makes this irrelevant in prod
+}
+
+// Encode the payload (apiKey + accountId + userId + expiry) and HMAC-sign
+// the whole envelope. Format: base64url(payloadJSON).<hmac-hex>
+export async function signRevealPayload(env, { userId, accountId, apiKeyId, apiKeyPrefix, apiKeyFullKey, apiKeyScopes }) {
+  const expires = Math.floor(Date.now() / 1000) + SIGNUP_REVEAL_TTL_SECONDS;
+  const payload = { userId, accountId, apiKeyId, apiKeyPrefix, apiKeyFullKey, apiKeyScopes, expires };
+  const payloadJson = JSON.stringify(payload);
+  const payloadB64 = btoa(payloadJson).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const sig = await hmacSign(revealSecret(env), payloadB64);
+  return `${payloadB64}.${sig}`;
+}
+
+// Returns the payload object on success, null on any failure (tampering,
+// expiry, malformed input). Fail-closed; the reveal endpoint surfaces a
+// generic 404 to a tampered cookie so attackers can't probe the signing
+// key by observing distinct error codes.
+export async function verifyRevealPayload(env, cookieValue) {
+  if (typeof cookieValue !== "string" || !cookieValue.includes(".")) return null;
+  const dot = cookieValue.lastIndexOf(".");
+  const payloadB64 = cookieValue.slice(0, dot);
+  const sig = cookieValue.slice(dot + 1);
+  if (!payloadB64 || !sig) return null;
+  const ok = await hmacVerify(revealSecret(env), payloadB64, sig);
+  if (!ok) return null;
+  try {
+    const padded = payloadB64 + "=".repeat((4 - payloadB64.length % 4) % 4);
+    const payloadJson = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
+    const payload = JSON.parse(payloadJson);
+    if (!payload || typeof payload !== "object") return null;
+    if (typeof payload.expires !== "number" || payload.expires < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  /* v8 ignore next 3 — defensive catch; the HMAC verify above guarantees
+     payloadB64 round-trips, so atob+JSON.parse can only fail on a
+     malformed payload we signed ourselves (impossible without a code
+     bug). Kept as a hard backstop. */
+  } catch {
+    return null;
+  }
+}
+
+export function revealCookieHeader(signedValue) {
+  return `${SIGNUP_REVEAL_COOKIE}=${signedValue}; Path=${SIGNUP_REVEAL_PATH}; HttpOnly; Secure; SameSite=Lax; Max-Age=${SIGNUP_REVEAL_TTL_SECONDS}`;
+}
+
+export function clearedRevealCookieHeader() {
+  return `${SIGNUP_REVEAL_COOKIE}=; Path=${SIGNUP_REVEAL_PATH}; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
 }
 
 // ── Account + API key provisioning ───────────────────────────────

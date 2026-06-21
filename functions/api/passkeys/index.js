@@ -36,7 +36,7 @@ const CHALLENGE_TTL_SECONDS = 300;
  * fresh KV row). HMAC challenges have a 5-minute window built into the
  * signed expiry, need zero storage, and can never exhaust quota.
  */
-async function issueChallenge(secret, type) {
+export async function issueChallenge(secret, type) {
   const nonce = bufferToBase64url(crypto.getRandomValues(new Uint8Array(32)));
   const expires = Math.floor(Date.now() / 1000) + CHALLENGE_TTL_SECONDS;
   const payload = `${nonce}.${expires}.${type}`;
@@ -50,7 +50,7 @@ async function issueChallenge(secret, type) {
  * the signature is valid (timing-safe) AND the challenge has not expired
  * AND the embedded type matches the expected flow.
  */
-async function verifyChallenge(secret, signedChallenge, expectedType) {
+export async function verifyChallenge(secret, signedChallenge, expectedType) {
   try {
     const decoded = new TextDecoder().decode(base64urlToBuffer(signedChallenge));
     const parts = decoded.split('.');
@@ -256,14 +256,14 @@ async function authenticateAdmin(request, env) {
 const PASSKEYS_KEY = 'passkeys:credentials';
 const RP_NAME = 'CloudCDN';
 
-function bufferToBase64url(buffer) {
+export function bufferToBase64url(buffer) {
   const bytes = new Uint8Array(buffer);
   let str = '';
   for (const b of bytes) str += String.fromCharCode(b);
   return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-function base64urlToBuffer(b64url) {
+export function base64urlToBuffer(b64url) {
   const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
   const raw = atob(b64);
   const bytes = new Uint8Array(raw.length);

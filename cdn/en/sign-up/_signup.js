@@ -82,23 +82,46 @@
   });
 
   // OAuth provider buttons — redirect to the provider-begin endpoint.
+  // The provider list is a closed set; whitelist explicitly so a
+  // DOM-tampered data-provider attribute can't redirect to an
+  // arbitrary path. CodeQL also flags the open form
+  // (js/xss-through-dom) — the whitelist closes it.
+  const ALLOWED_OAUTH_PROVIDERS = new Set(['google', 'github', 'apple']);
   document.querySelectorAll('.oauth-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const provider = btn.getAttribute('data-provider');
-      // STUB: real flow is `window.location.href = '/api/auth/oauth/' + provider + '/begin'`
-      setStatus(
-        'OAuth wiring not deployed yet. Production flow will redirect to /api/auth/oauth/' +
-          provider + '/begin (handled by Arctic on Cloudflare Workers).',
-        'info'
-      );
+      if (!ALLOWED_OAUTH_PROVIDERS.has(provider)) return;
+      // ToS acceptance is enforced server-side too (the OAuth callback
+      // creates the account), but surface it client-side to avoid an
+      // 8-second round-trip just to learn the user forgot to tick a box.
+      if (!tosCheckbox.checked) {
+        tosCheckbox.focus();
+        setStatus('Accept the Terms of Service to continue.', 'error');
+        return;
+      }
+      clearStatus();
+      window.location.assign('/api/auth/oauth/' + provider + '/begin');
     });
   });
 
-  // Passkey-first registration.
+  // Surface OAuth errors bounced back via the URL fragment
+  // (#oauth_error=...). The callback only emits short, ASCII-only
+  // reason codes (provider error codes filtered through a
+  // [^a-zA-Z0-9_] strip on the server), but defend in depth: clamp
+  // length + whitelist characters before using the value anywhere.
+  if (window.location.hash.startsWith('#oauth_error=')) {
+    const rawReason = window.location.hash.slice('#oauth_error='.length);
+    const reason = rawReason.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 64);
+    setStatus('Sign-in cancelled or refused (' + reason + '). Try again, or use a different method.', 'error');
+    // Strip the fragment so a reload doesn't keep showing the error.
+    history.replaceState(null, '', window.location.pathname);
+  }
+
+  // Passkey-first registration — the differentiator vs Cloudflare's
+  // current dashboard signup (which doesn't offer passkeys).
   passkeyBtn.addEventListener('click', async () => {
     clearStatus();
 
-    // Capture email up front so the account always has a recoverable channel.
     const email = (emailInput.value || '').trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       emailInput.focus();
@@ -110,17 +133,97 @@
       setStatus('Accept the Terms of Service to continue.', 'error');
       return;
     }
-
-    // Feature-detect WebAuthn before promising anything.
     if (!('credentials' in navigator) || !('create' in navigator.credentials)) {
       setStatus('Your browser does not support passkeys. Use email + password or an OAuth provider above.', 'error');
       return;
     }
 
     passkeyBtn.disabled = true;
-    setStatus('STUB: would POST /api/auth/passkey/register/begin with { email } → receive a WebAuthn challenge → call navigator.credentials.create({ publicKey }) → POST /api/auth/passkey/register/complete with the attestation. Auto-create User + Account + default API key. Redirect to /onboarding.', 'info');
-    setTimeout(() => { passkeyBtn.disabled = false; }, 2500);
+    setStatus('Talk to your authenticator…');
+
+    try {
+      // 1. Begin: get WebAuthn options from the server.
+      const beginRes = await fetch('/api/auth/passkey/register/begin', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const beginBody = await beginRes.json().catch(() => null);
+      if (!beginRes.ok || !beginBody || !beginBody.challenge) {
+        const code = beginBody && beginBody.error && beginBody.error.code;
+        const msg = (beginBody && beginBody.error && beginBody.error.message) || 'Could not start passkey registration.';
+        setStatus(code === 'email_exists' ? msg + ' Use "Log in" below.' : msg, 'error');
+        return;
+      }
+
+      // 2. Browser ceremony.
+      const opts = {
+        rp: beginBody.rp,
+        user: {
+          id: b64urlToBytes(beginBody.user.id),
+          name: beginBody.user.name,
+          displayName: beginBody.user.displayName,
+        },
+        challenge: b64urlToBytes(beginBody.challenge),
+        pubKeyCredParams: beginBody.pubKeyCredParams,
+        authenticatorSelection: beginBody.authenticatorSelection,
+        timeout: beginBody.timeout,
+        attestation: beginBody.attestation,
+        excludeCredentials: (beginBody.excludeCredentials || []).map((c) => ({
+          type: c.type, id: b64urlToBytes(c.id),
+        })),
+      };
+      const cred = await navigator.credentials.create({ publicKey: opts });
+      if (!cred) {
+        setStatus('Passkey creation was cancelled.', 'error');
+        return;
+      }
+
+      const credentialId = bytesToB64url(new Uint8Array(cred.rawId));
+      // getPublicKey() is the standardised way to obtain the SPKI bytes;
+      // older Safari may not expose it, in which case we fall back to
+      // attestationObject (the server's existing legacy path handles it).
+      const pkBuf = cred.response.getPublicKey ? cred.response.getPublicKey() : cred.response.attestationObject;
+      const publicKey = bytesToB64url(new Uint8Array(pkBuf));
+
+      // 3. Complete: server creates the account + sets cookies.
+      const completeRes = await fetch('/api/auth/passkey/register/complete', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email, credentialId, publicKey, challenge: beginBody.challenge, name: 'Passkey' }),
+      });
+      const completeBody = await completeRes.json().catch(() => null);
+      if (completeRes.status === 201 && completeBody && completeBody.account) {
+        window.location.assign(completeBody.redirectTo || '/onboarding');
+        return;
+      }
+      const code = completeBody && completeBody.error && completeBody.error.code;
+      const msg = (completeBody && completeBody.error && completeBody.error.message) || 'Passkey registration failed.';
+      setStatus(code === 'email_exists' ? msg + ' Use "Log in" below.' : msg, 'error');
+    } catch (err) {
+      setStatus(err && err.name === 'NotAllowedError'
+        ? 'Passkey creation was cancelled or timed out.'
+        : 'Could not complete passkey registration — try again or use another method.', 'error');
+    } finally {
+      passkeyBtn.disabled = false;
+    }
   });
+
+  // ── base64url helpers ──
+  function b64urlToBytes(b64url) {
+    const padded = b64url.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64url.length + 3) % 4);
+    const bin = atob(padded);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  function bytesToB64url(bytes) {
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
 
   // Email + password submit.
   form.addEventListener('submit', async (e) => {
@@ -184,29 +287,10 @@
       let body = null;
       try { body = await res.json(); } catch { /* non-JSON */ }
 
-      if (res.status === 201 && body && body.apiKey) {
-        // Persist the one-shot reveal payload so /onboarding can show it.
-        //
-        // NOTE: CodeQL flags this as "clear-text storage of sensitive data"
-        // (rule js/clear-text-storage-of-sensitive-info). The trade-off is
-        // intentional and bounded for Phase 0:
-        //   - The page enforces a strict CSP (script-src 'self' only +
-        //     challenges.cloudflare.com — see _headers /sign-up*).
-        //   - sessionStorage is per-tab and cleared on close.
-        //   - /onboarding clears the entry as soon as Step 3 is reached
-        //     (see _onboarding.js MutationObserver).
-        //   - Both pages are gated behind Cloudflare Access + LAUNCH_PUBLIC=0,
-        //     so only the owner + invited testers reach this code today.
-        // Follow-up will replace this with a server-side handoff
-        // (HttpOnly Path=/onboarding cookie + /api/auth/signup/reveal
-        // endpoint) so the key never lands in JS-readable storage.
-        try {
-          sessionStorage.setItem('cloudcdn:signup_result', JSON.stringify({
-            user: body.user,
-            account: body.account,
-            apiKey: body.apiKey,
-          }));
-        } catch { /* sessionStorage may be disabled */ }
+      if (res.status === 201 && body && body.account) {
+        // Server set the cdn_signup_reveal cookie (HttpOnly + Path-
+        // scoped). /onboarding will fetch it via /api/auth/signup/
+        // reveal. The API key value never crosses through this script.
         window.location.assign(body.redirectTo || '/onboarding');
         return;
       }

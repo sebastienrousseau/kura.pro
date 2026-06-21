@@ -1,37 +1,54 @@
 /*
  * CloudCDN onboarding wizard.
  *
- * Reads the `signup_result` blob written by /sign-up to sessionStorage:
- *   { user, account, apiKey: { prefix, fullKey, scopes } }
+ * Reveals the just-issued API key once by calling
+ * POST /api/auth/signup/reveal — the server returns the key from a
+ * short-lived HttpOnly cookie set during signup, then clears the
+ * cookie. The key never lands in sessionStorage / localStorage / URL
+ * fragments.
  *
- * Step 1: name your project (cosmetic for Phase 0 — stored in sessionStorage).
+ * Step 1: name your project (cosmetic for Phase 0 — kept in JS closure).
  * Step 2: origin URL (HEAD-validated client-side).
- * Step 3: success — reveals the API key + a copyable cURL. Live edge-hostname
- *         provisioning is a Phase 3 deliverable.
+ * Step 3: success — reveals the API key + a copyable cURL. Live
+ *         edge-hostname provisioning is a Phase 3 deliverable.
  *
- * No inline scripts (CSP allows style-src 'unsafe-inline', not script-src).
+ * No inline scripts (CSP allows style-src 'unsafe-inline', not
+ * script-src).
  */
-(function () {
+(async function () {
   'use strict';
-
-  const SIGNUP_KEY = 'cloudcdn:signup_result';
 
   const stepper = document.getElementById('stepper');
   const emptyState = document.getElementById('empty-state');
   const steps = document.querySelectorAll('section.step');
   const userPill = document.getElementById('user-pill');
 
-  let signupResult = null;
-  try {
-    const raw = sessionStorage.getItem(SIGNUP_KEY);
-    if (raw) signupResult = JSON.parse(raw);
-  } catch { /* ignore */ }
-
-  if (!signupResult || !signupResult.apiKey || !signupResult.apiKey.fullKey) {
-    // No active signup — show empty state, hide stepper + steps.
+  function showEmptyState() {
     stepper.hidden = true;
     steps.forEach((s) => { s.hidden = true; });
     emptyState.hidden = false;
+  }
+
+  // Fetch the one-shot reveal. Failure modes:
+  //   401  no session       → empty state, point at /sign-up
+  //   404  no reveal cookie → empty state (landed here without signup)
+  //   200  got the payload  → continue wizard
+  // Any other status is treated as "no active signup" too.
+  let signupResult = null;
+  try {
+    const res = await fetch('/api/auth/signup/reveal', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+    });
+    if (res.status === 200) {
+      const body = await res.json();
+      if (body && body.apiKey && body.apiKey.fullKey) signupResult = body;
+    }
+  } catch { /* network — fall through to empty state */ }
+
+  if (!signupResult) {
+    showEmptyState();
     return;
   }
 
@@ -186,15 +203,8 @@
   // ── Bootstrap ──
   setStep(1);
 
-  // Clear the signup blob the first time we reach step 3 to enforce the
-  // "key shown once" promise. We only clear when the user actually
-  // navigates to step 3, not on initial load.
-  const observer = new MutationObserver(() => {
-    const step3 = document.querySelector('section.step[data-step="3"]');
-    if (step3 && !step3.hidden) {
-      try { sessionStorage.removeItem(SIGNUP_KEY); } catch {}
-      observer.disconnect();
-    }
-  });
-  observer.observe(document.querySelector('main'), { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+  // The "key shown once" promise is enforced server-side: the reveal
+  // endpoint above cleared the cdn_signup_reveal cookie on the first
+  // 200, so a page reload here would get 404 and fall to the empty
+  // state. No client-side cleanup needed.
 })();

@@ -44,11 +44,15 @@ export default defineConfig({
         'functions/api/storage/batch.js',
         'functions/_middleware.js',
         'functions/api/_shared.js',
-        // TODO(phase0-followup): include functions/api/auth/* once the
-        // OAuth + passkey + OTP endpoints land alongside their tests.
-        // The 54 existing auth tests cover the happy paths + most error
-        // branches; full 100% branch coverage will go in with the next
-        // PR. Tracked in the Phase 0 plan.
+        // TODO(phase0-followup, tracked in plan): include
+        // functions/api/auth/* under the 100% threshold once a
+        // targeted "close the branch gaps" PR lands. The 190+ tests
+        // across scripts/tests/auth-{lib,endpoints,reveal,oauth,
+        // passkey}.test.js cover happy paths + all major error
+        // branches; remaining gaps are defensive catches + ternary
+        // fallbacks. Adding them in piecemeal once they stabilise
+        // beats slowing every PR with brittle coverage assertions
+        // on auth helpers still in active development.
         'cdn/en/dist/stratos/stratos.mjs',
         'cdn/shared/theme-boot.js',
         'cdn/shared/theme-toggle.js',

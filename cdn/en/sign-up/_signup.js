@@ -82,9 +82,15 @@
   });
 
   // OAuth provider buttons — redirect to the provider-begin endpoint.
+  // The provider list is a closed set; whitelist explicitly so a
+  // DOM-tampered data-provider attribute can't redirect to an
+  // arbitrary path. CodeQL also flags the open form
+  // (js/xss-through-dom) — the whitelist closes it.
+  const ALLOWED_OAUTH_PROVIDERS = new Set(['google', 'github', 'apple']);
   document.querySelectorAll('.oauth-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const provider = btn.getAttribute('data-provider');
+      if (!ALLOWED_OAUTH_PROVIDERS.has(provider)) return;
       // ToS acceptance is enforced server-side too (the OAuth callback
       // creates the account), but surface it client-side to avoid an
       // 8-second round-trip just to learn the user forgot to tick a box.
@@ -94,16 +100,19 @@
         return;
       }
       clearStatus();
-      window.location.assign(`/api/auth/oauth/${provider}/begin`);
+      window.location.assign('/api/auth/oauth/' + provider + '/begin');
     });
   });
 
   // Surface OAuth errors bounced back via the URL fragment
-  // (#oauth_error=...). Parse on load so the page can show "Google
-  // returned access_denied" rather than silently doing nothing.
+  // (#oauth_error=...). The callback only emits short, ASCII-only
+  // reason codes (provider error codes filtered through a
+  // [^a-zA-Z0-9_] strip on the server), but defend in depth: clamp
+  // length + whitelist characters before using the value anywhere.
   if (window.location.hash.startsWith('#oauth_error=')) {
-    const reason = window.location.hash.slice('#oauth_error='.length);
-    setStatus(`Sign-in cancelled or refused (${reason}). Try again, or use a different method.`, 'error');
+    const rawReason = window.location.hash.slice('#oauth_error='.length);
+    const reason = rawReason.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 64);
+    setStatus('Sign-in cancelled or refused (' + reason + '). Try again, or use a different method.', 'error');
     // Strip the fragment so a reload doesn't keep showing the error.
     history.replaceState(null, '', window.location.pathname);
   }

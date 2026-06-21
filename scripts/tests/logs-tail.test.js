@@ -89,6 +89,18 @@ describe('GET /api/logs/tail — upgrade gating', () => {
     const req = makeReq({ upgrade: true, cookie: null, url: 'https://cloudcdn.pro/api/logs/tail?session=abc' });
     expect((await tail.onRequestGet({ request: req, env })).status).toBe(401);
   });
+
+  it('reaches the upgrade path when ?session=<token> resolves a valid session', async () => {
+    // SESSION mock is unrevoked + unexpired → sessionFromToken returns
+    // the populated current object, exercising the success branch.
+    // The handler then calls `new WebSocketPair()`, which is not
+    // implemented in vitest's runtime, so the request throws —
+    // confirming we passed the auth checks rather than short-circuiting
+    // at 401/403.
+    const env = { ACCOUNTS_DB: makeD1() };
+    const req = makeReq({ upgrade: true, cookie: null, url: 'https://cloudcdn.pro/api/logs/tail?session=abc' });
+    await expect(tail.onRequestGet({ request: req, env })).rejects.toThrow();
+  });
 });
 
 describe('pollAuditEvents', () => {

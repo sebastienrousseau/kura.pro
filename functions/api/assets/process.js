@@ -197,10 +197,10 @@ export async function invokeModeration(env, sourceUrl) {
     return block
       ? { verdict: "block", reason: data?.reason || data?.label || "unsafe" }
       : { verdict: "allow", labels: data?.labels || null };
-  /* v8 ignore next 3 — defensive catch on the self-fetch; the failure
-     mode is "moderation upstream is wholly unreachable" which is rare
-     enough to not warrant a contrived test. */
   } catch (err) {
+    /* v8 ignore next — defensive catch on the self-fetch; the failure
+       mode is "moderation upstream is wholly unreachable" which is rare
+       enough to not warrant a contrived test. */
     return { verdict: "allow", note: `moderation failed: ${err && err.message || err} — defaulting to allow` };
   }
 }

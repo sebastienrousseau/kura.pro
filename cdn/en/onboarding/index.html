@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome — CloudCDN</title>
+  <meta name="description" content="Set up your first CloudCDN zone in under a minute.">
+  <meta name="theme-color" content="#08090d">
+  <meta name="robots" content="noindex,nofollow">
+
+  <link rel="canonical" href="https://cloudcdn.pro/onboarding">
+  <link rel="icon" href="/favicon.ico">
+
+  <script src="/shared/theme-boot.js"></script>
+  <link rel="stylesheet" href="/shared/theme.css">
+  <script defer src="/shared/theme-toggle.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    .skip-link { position: absolute; top: -40px; left: 0; background: var(--accent); color: #fff; padding: 0.5rem 1rem; text-decoration: none; border-radius: 0 0 0.5rem 0; z-index: 100; }
+    .skip-link:focus { top: 0; }
+
+    .auth-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; gap: 1rem; }
+    .auth-brand { display: inline-flex; align-items: center; gap: 0.625rem; text-decoration: none; color: var(--heading); font-weight: 700; font-size: 1rem; }
+    .auth-brand .accent { color: var(--accent-text); }
+    .auth-header-right { display: flex; align-items: center; gap: 0.5rem; }
+    .auth-header-right .theme-toggle { background: transparent; border: 1px solid var(--border-subtle); border-radius: 0.5rem; color: var(--text-muted); width: 2.25rem; height: 2.25rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+    .auth-header-right .theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+    .auth-header-right .theme-toggle svg { width: 16px; height: 16px; }
+    .auth-header-right .user-pill { font-size: 0.8125rem; color: var(--text-muted); padding: 0.5rem 0.875rem; border: 1px solid var(--border-subtle); border-radius: 0.5rem; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 4rem; }
+
+    .wizard {
+      width: 100%;
+      max-width: 560px;
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stepper { display: flex; gap: 0.5rem; margin-bottom: 1.75rem; align-items: center; }
+    .step-dot {
+      flex: 1;
+      height: 4px;
+      background: var(--border-subtle);
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+    }
+    .step-dot.active { background: linear-gradient(90deg, #6366f1, #818cf8); }
+    .step-dot.done { background: var(--green); }
+    .step-label { font-size: 0.6875rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; font-weight: 500; }
+
+    h1 { font-size: 1.5rem; font-weight: 700; color: var(--heading); margin-bottom: 0.375rem; line-height: 1.25; letter-spacing: -0.01em; }
+    h1 .accent { color: var(--accent-text); }
+    .lede { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.75rem; line-height: 1.5; }
+
+    .field { margin-top: 1rem; }
+    .field label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.375rem; font-weight: 500; }
+    .field input[type="text"], .field input[type="url"] {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      color: var(--text);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: var(--font);
+    }
+    .field input:focus { border-color: var(--accent); }
+    .field .hint { font-size: 0.6875rem; color: var(--text-dim); margin-top: 0.375rem; }
+    .field .hint.error { color: light-dark(#dc2626, #ef4444); }
+    .field .hint.success { color: var(--green); }
+
+    .actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+    .btn-primary {
+      background: #4f46e5; color: #fff; border: none; border-radius: 0.5rem;
+      padding: 0.625rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--accent); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-secondary {
+      background: transparent; color: var(--text-muted); border: 1px solid var(--border-subtle);
+      border-radius: 0.5rem; padding: 0.625rem 1.25rem; font-size: 0.875rem; font-weight: 500; cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+    .spacer { flex: 1; }
+
+    /* Step 3 — success */
+    .success-icon {
+      width: 48px; height: 48px;
+      background: var(--green-soft);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .success-icon svg { width: 24px; height: 24px; }
+
+    .codeblock {
+      position: relative;
+      background: var(--code-block-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.5rem;
+      padding: 0.875rem 0.875rem 0.875rem 0.875rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text);
+      overflow-x: auto;
+      white-space: pre;
+      margin-top: 0.75rem;
+    }
+    .codeblock .copy-btn {
+      position: absolute;
+      top: 0.5rem; right: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.375rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.6875rem;
+      font-family: var(--font);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .codeblock .copy-btn:hover { border-color: var(--accent); color: var(--text); }
+    .codeblock .copy-btn.copied { color: var(--green); border-color: var(--green-border); }
+
+    .reveal-once {
+      background: light-dark(rgba(245,158,11,0.08), rgba(251,191,36,0.10));
+      border: 1px solid light-dark(rgba(245,158,11,0.30), rgba(251,191,36,0.25));
+      color: light-dark(#92400e, #fbbf24);
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .footer-link { text-align: center; font-size: 0.8125rem; color: var(--text-muted); margin-top: 1.5rem; }
+    .footer-link a { color: var(--accent-text); text-decoration: none; font-weight: 500; }
+    .footer-link a:hover { text-decoration: underline; }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+    }
+    .empty-state p { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem; }
+
+    @media (max-width: 480px) {
+      .wizard { padding: 1.75rem 1.5rem; }
+      .auth-header { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="auth-header">
+    <a class="auth-brand" href="/" aria-label="CloudCDN — home">
+      <img src="/cloudcdn/v1/logos/cloudcdn.svg" alt="" width="28" height="28" aria-hidden="true">
+      <span>Cloud<span class="accent">CDN</span></span>
+    </a>
+    <div class="auth-header-right">
+      <button type="button" class="theme-toggle" aria-label="Switch theme" aria-pressed="false" title="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+        </svg>
+      </button>
+      <span class="user-pill" id="user-pill" hidden></span>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="wizard">
+      <div class="stepper" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" id="stepper">
+        <div class="step-dot active" data-step="1"></div>
+        <div class="step-dot" data-step="2"></div>
+        <div class="step-dot" data-step="3"></div>
+      </div>
+
+      <!-- Empty state — shown when there's no signup session in sessionStorage -->
+      <section id="empty-state" class="empty-state" hidden>
+        <h1>No active sign-up</h1>
+        <p class="lede">It looks like you landed here without signing up first.</p>
+        <a href="/sign-up" class="btn-primary" style="text-decoration:none; display:inline-block;">Go to sign-up</a>
+      </section>
+
+      <!-- Step 1: Project name -->
+      <section data-step="1" class="step">
+        <p class="step-label">Step 1 of 3 — Project</p>
+        <h1>Name your <span class="accent">first project</span></h1>
+        <p class="lede">Projects organise your zones, API keys, and analytics. You can rename it later.</p>
+
+        <div class="field">
+          <label for="project-name">Project name</label>
+          <input type="text" id="project-name" autocomplete="off" placeholder="my-first-zone" value="my-first-zone" maxlength="64">
+          <p class="hint" id="project-name-hint">Lowercase letters, numbers, and hyphens.</p>
+        </div>
+
+        <div class="actions">
+          <div class="spacer"></div>
+          <button type="button" class="btn-primary" id="step1-next">Continue</button>
+        </div>
+      </section>
+
+      <!-- Step 2: Origin URL -->
+      <section data-step="2" class="step" hidden>
+        <p class="step-label">Step 2 of 3 — Origin</p>
+        <h1>Point us at your <span class="accent">origin</span></h1>
+        <p class="lede">CloudCDN pulls from your origin on cache-miss and serves cached responses globally.</p>
+
+        <div class="field">
+          <label for="origin-url">Origin URL</label>
+          <input type="url" id="origin-url" autocomplete="off" placeholder="https://origin.example.com" inputmode="url">
+          <p class="hint" id="origin-url-hint">We'll send a HEAD request to verify it's reachable.</p>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-secondary" id="step2-back">Back</button>
+          <div class="spacer"></div>
+          <button type="button" class="btn-primary" id="step2-next">Verify &amp; continue</button>
+        </div>
+      </section>
+
+      <!-- Step 3: Success + cURL -->
+      <section data-step="3" class="step" hidden>
+        <p class="step-label">Step 3 of 3 — Done</p>
+        <div class="success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h1>You're <span class="accent">live</span>.</h1>
+        <p class="lede">Your account is ready. Live edge-hostname provisioning is in private beta — for now, use the API key below to make signed control-plane calls.</p>
+
+        <p class="step-label" style="margin-top:1.5rem;">Try your first API call</p>
+        <div class="codeblock" id="curl-block"><span id="curl-text">curl -H "AccessKey: …" https://cloudcdn.pro/api/assets</span><button type="button" class="copy-btn" id="copy-curl">Copy</button></div>
+
+        <p class="step-label" style="margin-top:1.25rem;">Your API key</p>
+        <div class="codeblock" id="key-block"><span id="key-text">cdn_test_…</span><button type="button" class="copy-btn" id="copy-key">Copy</button></div>
+
+        <div class="reveal-once" id="reveal-once">
+          <strong>Save this key now.</strong> It will not be shown again — it's hashed at rest. If you lose it, create a new one from the dashboard.
+        </div>
+
+        <div class="actions" style="margin-top:1.5rem;">
+          <div class="spacer"></div>
+          <a href="/dashboard/" class="btn-primary" style="text-decoration:none; display:inline-block;">Go to dashboard</a>
+        </div>
+      </section>
+
+      <p class="footer-link"><a href="/dashboard/">Skip onboarding &rarr;</a></p>
+    </div>
+  </main>
+
+  <script src="/onboarding/_onboarding.js" defer></script>
+</body>
+</html>

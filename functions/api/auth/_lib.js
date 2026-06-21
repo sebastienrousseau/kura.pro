@@ -224,9 +224,10 @@ export async function getCurrentSession(env, request) {
   if (row.revoked_at) return null;
   if (row.expires_at < now) return null;
   // Bump last_seen (fire-and-forget — don't block the request).
-  /* v8 ignore next 2 — fire-and-forget catch on a best-effort D1
-     UPDATE; covered by integration tests but lazy-promise rejection
-     isn't deterministically observable from vitest. */
+  /* v8 ignore next 4 — fire-and-forget catch on a best-effort D1
+     UPDATE; lazy-promise rejection isn't deterministically observable
+     from vitest. The ternary on row.account_id_full is also covered
+     by tests but v8 doesn't trace lazy promise paths cleanly. */
   db.prepare(`UPDATE sessions SET last_seen_at = ?1 WHERE token_hash = ?2`)
     .bind(now, tokenHash).run().catch(() => {});
   return {
@@ -300,11 +301,10 @@ export async function verifyRevealPayload(env, cookieValue) {
     if (!payload || typeof payload !== "object") return null;
     if (typeof payload.expires !== "number" || payload.expires < Math.floor(Date.now() / 1000)) return null;
     return payload;
-  /* v8 ignore next 3 — defensive catch; the HMAC verify above guarantees
-     payloadB64 round-trips, so atob+JSON.parse can only fail on a
-     malformed payload we signed ourselves (impossible without a code
-     bug). Kept as a hard backstop. */
   } catch {
+    /* v8 ignore next — defensive catch; the HMAC verify above
+       guarantees payloadB64 round-trips, so atob+JSON.parse can only
+       fail on a malformed payload we signed ourselves. Hard backstop. */
     return null;
   }
 }

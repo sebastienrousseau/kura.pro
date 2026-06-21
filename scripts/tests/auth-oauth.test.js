@@ -251,6 +251,72 @@ describe('GET /api/auth/oauth/[provider]/begin', () => {
 // callback.js
 // ─────────────────────────────────────────────────────────────────
 
+describe('OAuth callback — preflight + ACCOUNTS_DB guard', () => {
+  it('OPTIONS preflight returns 204', async () => {
+    const res = await callbackModule.onRequestOptions();
+    expect(res.status).toBe(204);
+  });
+
+  it('returns 503 when ACCOUNTS_DB is missing', async () => {
+    const env = { LAUNCH_PUBLIC: '1', GOOGLE_OAUTH_CLIENT_ID: 'x', GOOGLE_OAUTH_CLIENT_SECRET: 'y', RATE_KV: makeKv() };
+    const req = makeRequest({
+      method: 'GET',
+      url: 'https://cloudcdn.pro/api/auth/oauth/google/callback?code=c&state=s',
+    });
+    const res = await callbackModule.onRequestGet({ request: req, env, params: { provider: 'google' } });
+    expect(res.status).toBe(503);
+  });
+
+  it('returns 404 unknown_provider when params.provider is not in PROVIDERS', async () => {
+    const env = googleEnv();
+    const req = makeRequest({
+      method: 'GET',
+      url: 'https://cloudcdn.pro/api/auth/oauth/discord/callback?code=c&state=s',
+    });
+    const res = await callbackModule.onRequestGet({ request: req, env, params: { provider: 'discord' } });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 503 provider_not_configured when credentials are unset', async () => {
+    const env = { LAUNCH_PUBLIC: '1', ACCOUNTS_DB: makeD1(), RATE_KV: makeKv() };
+    const req = makeRequest({
+      method: 'GET',
+      url: 'https://cloudcdn.pro/api/auth/oauth/google/callback?code=c&state=s',
+    });
+    const res = await callbackModule.onRequestGet({ request: req, env, params: { provider: 'google' } });
+    expect(res.status).toBe(503);
+    expect((await res.json()).error.code).toBe('provider_not_configured');
+  });
+
+  it('returns 500 internal when findOrCreateUserFromOAuth throws', async () => {
+    globalThis.fetch = vi.fn(async (urlOrReq) => {
+      const u = typeof urlOrReq === 'string' ? urlOrReq : urlOrReq.url;
+      if (u === 'https://oauth2.googleapis.com/token') return new Response(JSON.stringify({ access_token: 'a' }), { status: 200 });
+      if (u === 'https://openidconnect.googleapis.com/v1/userinfo') return new Response(JSON.stringify({ sub: 'x', email: 'e@x', name: 'n' }), { status: 200 });
+      return new Response('?', { status: 599 });
+    });
+    const env = googleEnv({
+      ACCOUNTS_DB: {
+        prepare: vi.fn(() => ({
+          bind: vi.fn(() => ({
+            first: vi.fn().mockResolvedValue(null),
+            run: vi.fn(),
+          })),
+        })),
+        batch: vi.fn().mockRejectedValue(new Error('db is down hard')),
+      },
+    });
+    const state = await oauth.issueState(env, 'google');
+    const req = makeRequest({
+      method: 'GET',
+      url: `https://cloudcdn.pro/api/auth/oauth/google/callback?code=c&state=${state}`,
+    });
+    const res = await callbackModule.onRequestGet({ request: req, env, params: { provider: 'google' } });
+    expect(res.status).toBe(500);
+    expect((await res.json()).error.code).toBe('internal');
+  });
+});
+
 describe('GET /api/auth/oauth/[provider]/callback', () => {
   beforeEach(() => {
     // Default fetch mock: Google token exchange + userinfo for a new user.

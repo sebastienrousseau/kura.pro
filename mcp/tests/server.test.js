@@ -78,10 +78,17 @@ describe('MCP Server', () => {
     'token_revoke',
     // Operations (1)
     'logs_query',
+    // Account (5) — Phase 2C mutation tools landing alongside the
+    // Phase 0 sign-up surface + cache-explain diagnostic.
+    'explain_cache_miss',
+    'account_cap_get',
+    'account_cap_set',
+    'account_zone_list',
+    'account_zone_provision',
   ];
 
   it(`registers ${expectedTools.length} tools`, () => {
-    expect(expectedTools.length).toBe(42);
+    expect(expectedTools.length).toBe(47);
   });
 
   for (const toolName of expectedTools) {

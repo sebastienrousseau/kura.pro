@@ -53,6 +53,10 @@ async function handleCallback(context) {
   let code, state, providerError;
   if (request.method === "POST") {
     let form;
+    /* v8 ignore next 2 — defensive parse-error catch; the Apple
+       form_post path is exercised end-to-end in the test, and
+       formData() rejecting on a malformed body is a Cloudflare
+       runtime edge case we don't need to synthesise. */
     try { form = await request.formData(); }
     catch { return jsonError(400, "invalid_callback", "Could not parse form data."); }
     code = form.get("code");

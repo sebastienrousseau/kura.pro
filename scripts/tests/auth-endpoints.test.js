@@ -273,30 +273,36 @@ describe('POST /api/auth/signup', () => {
     expect((await res.json()).error.code).toBe('rate_limited');
   });
 
-  it('rejects a known-pwned password (count >= 5)', async () => {
-    // SHA-1 of "password" → 5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8
-    globalThis.fetch = vi.fn(async (url) => {
-      const u = typeof url === 'string' ? url : url.url;
+  it('rejects a known-pwned password when HIBP reports count >= 5', async () => {
+    // Real round-trip: compute the SHA-1 of a candidate password and
+    // mock the HIBP range endpoint to return the exact suffix with a
+    // high count. Tests the actual reject-on-pwned branch.
+    const password = 'correct-horse-battery-staple-2026';
+    const enc = new TextEncoder().encode(password);
+    const sha1 = await crypto.subtle.digest('SHA-1', enc);
+    const hex = [...new Uint8Array(sha1)].map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    const prefix = hex.slice(0, 5);
+    const suffix = hex.slice(5);
+
+    globalThis.fetch = vi.fn(async (urlOrReq) => {
+      const u = typeof urlOrReq === 'string' ? urlOrReq : urlOrReq.url;
       if (u.startsWith('https://challenges.cloudflare.com/turnstile/v0/siteverify')) {
         return new Response(JSON.stringify({ success: true }), { status: 200 });
       }
-      if (u.startsWith('https://api.pwnedpasswords.com/range/5BAA6')) {
-        return new Response('1E4C9B93F3F0682250B6CF8331B7EE68FD8:9999999', { status: 200 });
+      if (u === `https://api.pwnedpasswords.com/range/${prefix}`) {
+        return new Response(`${suffix}:9999999`, { status: 200 });
       }
       return new Response('OTHER:1', { status: 200 });
     });
     const env = freshEnv();
     const res = await signupModule.onRequestPost({
-      request: makeRequest({ body: validBody({ password: 'password-but-12+' }) }),
+      request: makeRequest({ body: validBody({ password }) }),
       env,
     });
-    // password length is 16, passes length gate; HIBP for "password-but-12+" won't match —
-    // use the actual "password" sha-1 prefix scenario by overriding password:
-    // Easier: use literal "password" (8 chars) — rejected by length first. So skip the
-    // exact HIBP assertion here and rely on the unit-test coverage of isPasswordPwned.
-    // Just confirm signup didn't 500 on the network call.
-    expect([201, 400, 409]).toContain(res.status);
+    expect(res.status).toBe(400);
+    expect((await res.json()).error.code).toBe('pwned_password');
   });
+
 });
 
 // ─────────────────────────────────────────────────────────────────

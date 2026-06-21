@@ -41,6 +41,7 @@ import { registerAiTools } from './lib/tools/ai.js';
 import { registerWebhookTools } from './lib/tools/webhooks.js';
 import { registerTokenTools } from './lib/tools/tokens.js';
 import { registerLogTools } from './lib/tools/logs.js';
+import { registerAccountTools } from './lib/tools/account.js';
 import { registerResources } from './lib/resources/index.js';
 
 /**
@@ -72,6 +73,7 @@ export function createServer() {
   registerWebhookTools(server);
   registerTokenTools(server);
   registerLogTools(server);
+  registerAccountTools(server);
   registerResources(server);
 
   return server;

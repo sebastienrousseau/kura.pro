@@ -212,7 +212,20 @@ export async function onRequestOptions() {
  */
 export async function validateToken(env, request, requiredScope) {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
-  if (!token || !token.startsWith('cdnsk_')) return false;
+  if (!token) return false;
+
+  // Phase 1: D1-backed account API keys (`cdn_test_*` / `cdn_live_*`).
+  // Dispatched to the new validator in functions/api/account/api-keys.js
+  // so the two surfaces (legacy admin tokens in KV vs per-account keys
+  // in D1) share the same authorization protocol for callers.
+  if (token.startsWith('cdn_test_') || token.startsWith('cdn_live_')) {
+    const { validateD1ApiKey } = await import('./account/api-keys.js');
+    const r = await validateD1ApiKey(env, token, requiredScope);
+    return !!r.valid;
+  }
+
+  // Legacy single-tenant admin tokens (KV-backed, `cdnsk_*`).
+  if (!token.startsWith('cdnsk_')) return false;
 
   const kv = env.RATE_KV;
   if (!kv) return false;

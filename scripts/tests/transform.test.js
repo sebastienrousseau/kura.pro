@@ -12,6 +12,7 @@ function makeContext(queryString, env = {}) {
         get: vi.fn().mockResolvedValue(null),
         put: vi.fn(),
       },
+      ...env,
     },
   };
 }
@@ -85,13 +86,22 @@ describe('GET /api/transform', () => {
     expect((await res.json()).error).toContain('gravity');
   });
 
-  // --- Rate limiting ---
+  // --- Rate limiting (UsageMeterDO) ---
+  // The previous KV-based check (RATE_KV.get('transforms:YYYY-MM'))
+  // was an ADR-11 banned per-request counter. Production now goes
+  // through UsageMeterDO.addIfBelow; the mock returns
+  // { accepted: false } to trigger 429.
+  function meterReturning(body) {
+    return {
+      idFromName: vi.fn(() => 'do-id'),
+      get: vi.fn(() => ({
+        fetch: vi.fn(async () => new Response(JSON.stringify(body), { status: 200 })),
+      })),
+    };
+  }
   it('returns 429 when monthly limit reached', async () => {
     const ctx = makeContext('?url=/test.png', {
-      RATE_KV: {
-        get: vi.fn().mockResolvedValue('50000'),
-        put: vi.fn(),
-      },
+      USAGE_METER: meterReturning({ accepted: false, units: 50000, period: '2026-06', limit: 50000 }),
     });
     const res = await onRequestGet(ctx);
     expect(res.status).toBe(429);
@@ -470,10 +480,7 @@ describe('GET /api/transform', () => {
   // --- Rate limit at boundary ---
   it('returns 429 at exactly 50000 (boundary)', async () => {
     const ctx = makeContext('?url=/test.png', {
-      RATE_KV: {
-        get: vi.fn().mockResolvedValue('50000'),
-        put: vi.fn(),
-      },
+      USAGE_METER: meterReturning({ accepted: false, units: 50000, period: '2026-06', limit: 50000 }),
     });
     const res = await onRequestGet(ctx);
     expect(res.status).toBe(429);

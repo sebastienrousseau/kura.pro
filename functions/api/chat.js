@@ -16,6 +16,7 @@ import {
   normalizeQuery, hashString, buildCacheKey, cacheGet, cacheSet,
   errorResponse,
 } from './_shared.js';
+import { addUsageIfBelow } from './usage_meter_do.js';
 import fallbackData from './chat-fallback.json';
 
 const MONTHLY_LIMIT = 1000;
@@ -177,25 +178,34 @@ function curatedResponse(message, remaining) {
 // ── Main handler ──
 
 export async function onRequestPost(context) {
-  const { AI, VECTOR_INDEX, RATE_KV } = context.env;
+  const { AI, VECTOR_INDEX, RATE_KV, USAGE_METER, METRICS } = context.env;
 
-  // --- KV-tracked daily/monthly soft limit (existing behavior preserved) ---
-  const now = new Date();
-  const monthKey = `queries:${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
-  const dayKey = `queries:${now.toISOString().slice(0, 10)}`;
-
+  // --- Atomic monthly soft limit via UsageMeterDO ---
+  //
+  // Previously a hand-rolled `RATE_KV.get → check → put` pattern (two
+  // KV writes per chat call). UsageMeterDO.addIfBelow serialises the
+  // check-and-increment in a single RPC hop with zero KV writes.
+  //
+  // Degrades open when USAGE_METER isn't bound (local dev / pre-deploy).
+  // The previous KV fallback is intentionally NOT preserved — that
+  // path is ADR-11 banned.
   let monthCount = 0;
-  let dayCount = 0;
-
-  if (RATE_KV) {
-    try {
-      monthCount = parseInt(await RATE_KV.get(monthKey)) || 0;
-      dayCount = parseInt(await RATE_KV.get(dayKey)) || 0;
-    } catch { /* KV transient — treat as zero */ }
-
-    if (monthCount >= MONTHLY_LIMIT) {
+  if (USAGE_METER) {
+    const result = await addUsageIfBelow(context.env, 'global-chat', 1, MONTHLY_LIMIT);
+    if (result && !result.accepted) {
       return errorResponse(429, 'limit_reached', 'Monthly query limit reached. The Concierge will be back next month.');
     }
+    monthCount = result ? Number(result.units) || 0 : 0;
+  }
+
+  // Observability-only daily counter — fire-and-forget to Analytics
+  // Engine so dashboards can still answer "how many queries today?"
+  // without a KV write per call. METRICS quota is effectively
+  // unlimited (high-cardinality, low-cost). adr: ADR-12.
+  if (METRICS) {
+    try {
+      METRICS.writeDataPoint({ indexes: ['chat-query'], blobs: ['chat'], doubles: [1] });
+    } catch { /* metrics never block the user request */ }
   }
 
   let message, history;
@@ -217,7 +227,7 @@ export async function onRequestPost(context) {
     ? history.filter((m) => m && typeof m === 'object' && typeof m.role === 'string' && typeof m.content === 'string')
     : [];
 
-  const remaining = RATE_KV ? MONTHLY_LIMIT - monthCount - 1 : null;
+  const remaining = USAGE_METER ? Math.max(MONTHLY_LIMIT - monthCount, 0) : null;
 
   // --- Response cache lookup (Layer 1) ---
   // Cache key includes the message and an opaque shape-hash of recent history
@@ -293,18 +303,8 @@ ${contextText || 'No relevant context found for this query.'}
     { role: 'user', content: message },
   ];
 
-  // Increment user-facing counters before streaming.
-  if (RATE_KV) {
-    try {
-      // adr: ADR-11 — legacy per-request usage counter (×2). BANNED
-      // pattern per CLAUDE.md; two writes per chat call burns the KV
-      // free-tier quota by mid-day under modest load. Migrate to
-      // UsageMeterDO (already deployed for /api/assets/process) so
-      // reads + atomic increments happen in one RPC hop.
-      await RATE_KV.put(monthKey, String(monthCount + 1), { expirationTtl: 86400 * 35 });
-      await RATE_KV.put(dayKey, String(dayCount + 1), { expirationTtl: 86400 * 2 });
-    } catch { /* KV transient — non-fatal */ }
-  }
+  // Counter increment already happened atomically above via
+  // UsageMeterDO.addIfBelow — no second write here.
 
   let aiStream;
   try {

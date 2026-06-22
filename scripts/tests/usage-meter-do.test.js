@@ -181,3 +181,105 @@ describe('addUsage / readUsage convenience wrappers', () => {
     expect(await mod.readUsage(env, 'acct-1')).toBeNull();
   });
 });
+
+describe('UsageMeterDO addIfBelow (atomic check-and-increment)', () => {
+  it('400 on non-JSON body', async () => {
+    const meter = new mod.UsageMeterDO(makeState(), {});
+    const req = jsonReq('https://x.internal/addIfBelow', 'POST');
+    req.json = async () => { throw new Error('parse'); };
+    const res = await meter.fetch(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('400 on non-finite amount', async () => {
+    const meter = new mod.UsageMeterDO(makeState(), {});
+    const res = await meter.fetch(jsonReq('https://x.internal/addIfBelow', 'POST', { amount: 'nope', limit: 10 }));
+    expect(res.status).toBe(400);
+  });
+
+  it('400 on negative amount', async () => {
+    const meter = new mod.UsageMeterDO(makeState(), {});
+    const res = await meter.fetch(jsonReq('https://x.internal/addIfBelow', 'POST', { amount: -1, limit: 10 }));
+    expect(res.status).toBe(400);
+  });
+
+  it('400 on non-finite limit', async () => {
+    const meter = new mod.UsageMeterDO(makeState(), {});
+    const res = await meter.fetch(jsonReq('https://x.internal/addIfBelow', 'POST', { amount: 1, limit: 'nope' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('400 on negative limit', async () => {
+    const meter = new mod.UsageMeterDO(makeState(), {});
+    const res = await meter.fetch(jsonReq('https://x.internal/addIfBelow', 'POST', { amount: 1, limit: -5 }));
+    expect(res.status).toBe(400);
+  });
+
+  it('accepts when below limit and returns the new units', async () => {
+    const meter = new mod.UsageMeterDO(makeState(), {});
+    const res = await meter.fetch(jsonReq('https://x.internal/addIfBelow', 'POST', { amount: 1, limit: 10 }));
+    const body = await res.json();
+    expect(body.accepted).toBe(true);
+    expect(body.units).toBe(1);
+    expect(body.limit).toBe(10);
+  });
+
+  it('refuses when carryover >= limit and does NOT increment', async () => {
+    const state = makeState();
+    // Seed snapshot at exactly the limit.
+    state.storage.get.mockImplementation(async () => ({ units: 10, period: mod.UsageMeterDO === undefined ? 'x' : new Date().toISOString().slice(0, 7) }));
+    const meter = new mod.UsageMeterDO(state, {});
+    const res = await meter.fetch(jsonReq('https://x.internal/addIfBelow', 'POST', { amount: 1, limit: 10 }));
+    const body = await res.json();
+    expect(body.accepted).toBe(false);
+    expect(body.units).toBe(10);
+    expect(body.limit).toBe(10);
+    // Storage was NOT written.
+    expect(state.storage.put).not.toHaveBeenCalled();
+  });
+
+  it('treats stale-period stored snapshot as zero carryover', async () => {
+    const state = makeState();
+    state.storage.get.mockImplementation(async () => ({ units: 999, period: '1999-01' }));
+    const meter = new mod.UsageMeterDO(state, {});
+    const res = await meter.fetch(jsonReq('https://x.internal/addIfBelow', 'POST', { amount: 5, limit: 10 }));
+    const body = await res.json();
+    expect(body.accepted).toBe(true);
+    expect(body.units).toBe(5);
+  });
+});
+
+describe('addUsageIfBelow convenience wrapper', () => {
+  function mockBinding({ status = 200, body = {} } = {}) {
+    return {
+      USAGE_METER: {
+        idFromName: vi.fn((n) => `id-of-${n}`),
+        get: vi.fn(() => ({
+          fetch: vi.fn(async (url) => {
+            const u = new URL(url);
+            if (u.pathname === '/addIfBelow') return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+            return new Response('nope', { status: 404 });
+          }),
+        })),
+      },
+    };
+  }
+
+  it('returns null when binding or accountId is missing', async () => {
+    expect(await mod.addUsageIfBelow({}, 'acct', 1, 10)).toBeNull();
+    expect(await mod.addUsageIfBelow(mockBinding(), null, 1, 10)).toBeNull();
+  });
+
+  it('returns parsed JSON on success', async () => {
+    const env = mockBinding({ body: { accepted: true, units: 3, period: '2026-06', limit: 10 } });
+    const out = await mod.addUsageIfBelow(env, 'global-chat', 1, 10);
+    expect(out.accepted).toBe(true);
+    expect(out.units).toBe(3);
+    expect(env.USAGE_METER.idFromName).toHaveBeenCalledWith('global-chat');
+  });
+
+  it('returns null on DO error response', async () => {
+    const env = mockBinding({ status: 503 });
+    expect(await mod.addUsageIfBelow(env, 'acct-1', 1, 10)).toBeNull();
+  });
+});

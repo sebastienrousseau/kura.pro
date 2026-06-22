@@ -1,4 +1,5 @@
 import { legacyErrorJson } from './_shared.js';
+import { addUsageIfBelow } from './usage_meter_do.js';
 
 const MONTHLY_LIMIT = 50000;
 
@@ -73,33 +74,28 @@ function applyNetworkAwareDefaults(request, imageOpts, explicitFormatProvided) {
 }
 
 export async function onRequestGet(context) {
-  const { RATE_KV } = context.env;
+  const { USAGE_METER } = context.env;
   const url = new URL(context.request.url);
   const params = url.searchParams;
 
-  // --- Rate limiting ---
-  if (RATE_KV) {
-    const now = new Date();
-    const monthKey = `transforms:${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
-    let monthCount = 0;
-    try {
-      monthCount = parseInt(await RATE_KV.get(monthKey)) || 0;
-    } catch {}
-
-    if (monthCount >= MONTHLY_LIMIT) {
+  // --- Atomic monthly soft limit via UsageMeterDO ---
+  //
+  // Previously hand-rolled `RATE_KV.get → check → put` (banned
+  // ADR-11 pattern; 50,000 writes/month would exhaust the
+  // 1000/day Free-tier KV write quota in under 30 minutes on a
+  // hot zone). addIfBelow does the check-and-increment in one
+  // atomic RPC hop with zero KV writes.
+  //
+  // Degrades open when USAGE_METER isn't bound (local dev).
+  if (USAGE_METER) {
+    const result = await addUsageIfBelow(context.env, 'global-transform', 1, MONTHLY_LIMIT);
+    if (result && !result.accepted) {
       return legacyErrorJson(429, 'limit_reached', {
         extra: { message: 'Monthly transform limit reached.' },
         limit: MONTHLY_LIMIT,
         retryAfter: 86400,
       });
     }
-
-    try {
-      // adr: ADR-11 — legacy per-request usage counter. BANNED
-      // pattern per CLAUDE.md; one write per transform call burns
-      // the KV quota fast on a hot zone. Migrate to UsageMeterDO.
-      await RATE_KV.put(monthKey, String(monthCount + 1), { expirationTtl: 86400 * 35 });
-    } catch {}
   }
 
   // --- Validate required param ---

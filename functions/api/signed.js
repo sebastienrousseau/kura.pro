@@ -7,6 +7,8 @@
  * protected asset from origin with appropriate cache headers.
  */
 
+import { checkRateLimit } from './_shared.js';
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Content-Type': 'application/json',
@@ -77,19 +79,16 @@ function timingSafeEqual(a, b) {
 }
 
 export async function onRequestGet(context) {
-  const { SIGNED_URL_SECRET, RATE_KV } = context.env;
+  const { SIGNED_URL_SECRET } = context.env;
 
-  // Rate limit: 300 req/min per IP
-  if (RATE_KV) {
-    const ip = context.request.headers.get('cf-connecting-ip') || 'unknown';
-    const key = `rl:signed:${ip}`;
-    const count = parseInt(await RATE_KV.get(key) || '0', 10);
-    if (count >= 300) {
-      return Response.json({ error: 'Rate limit exceeded' }, { status: 429, headers: { ...CORS_HEADERS, 'Retry-After': '60' } });
-    }
-    // adr: ADR-11 — legacy per-request rate-limit counter. BANNED
-    // pattern per CLAUDE.md; tracked for migration to RateLimiterDO.
-    await RATE_KV.put(key, String(count + 1), { expirationTtl: 60 });
+  // Rate limit: 300 req/min per IP. Dispatched via checkRateLimit
+  // (DO-preferred, KV-fallback) so this no longer burns a KV write
+  // per request. Headers may be absent in minimal test contexts —
+  // optional chaining keeps the path safe.
+  const ip = context.request.headers?.get?.('cf-connecting-ip') || 'unknown';
+  const rl = await checkRateLimit(context.env, `rl:signed:${ip}`, 300, 60);
+  if (!rl.allowed) {
+    return Response.json({ error: 'Rate limit exceeded' }, { status: 429, headers: { ...CORS_HEADERS, 'Retry-After': '60' } });
   }
 
   if (!SIGNED_URL_SECRET) {

@@ -33,6 +33,21 @@ import {
   AUTH_CORS, jsonError,
 } from "../auth/_lib.js";
 import { parseCookies } from "../_shared.js";
+import { bridgeAvailable } from "./_workers_logs_bridge.js";
+
+/**
+ * Pure: decide which streaming source to use for a tail session.
+ * `audit` is always available (D1-backed). `workers` is preferred when
+ * the client opts in AND the Workers Logs bridge is configured.
+ *
+ * Returns: 'audit' | 'workers'
+ */
+export function decideSource(env, { requested } = {}) {
+  if (requested === "workers" && bridgeAvailable(env)) return "workers";
+  // `auto` opts into workers when available; otherwise audit.
+  if (requested === "auto" && bridgeAvailable(env)) return "workers";
+  return "audit";
+}
 
 const HEARTBEAT_MS = 30_000;
 const POLL_MS = 5_000;
@@ -70,11 +85,12 @@ export async function onRequestGet(context) {
      end-to-end in production deploys + manual `websocat` smoke tests
      rather than in unit tests. The pollAuditEvents helper below IS
      unit-tested. */
+  const source = decideSource(env, { requested: url.searchParams.get("source") });
   const pair = new WebSocketPair();
   const [client, server] = Object.values(pair);
 
   server.accept();
-  startTail(env, server, current).catch((err) => {
+  startTail(env, server, current, source).catch((err) => {
     try {
       server.send(JSON.stringify({ type: "error", message: String(err && err.message || err) }));
       server.close(1011, "internal error");
@@ -113,14 +129,16 @@ async function sessionFromToken(env, token, request) {
   };
 }
 
-/* v8 ignore next 60 — long-running WebSocket loop; not unit-testable
+/* v8 ignore next 80 — long-running WebSocket loop; not unit-testable
    in vitest's environment which doesn't model the runtime
    WebSocketPair / `server.send()` lifecycle. The functions it calls
-   (pollAuditEvents) ARE covered. */
-async function startTail(env, server, current) {
+   (pollAuditEvents, eventBelongsToAccount, mapWorkersLogEvent) ARE
+   covered. */
+async function startTail(env, server, current, source = "audit") {
   // Hello frame.
   server.send(JSON.stringify({
     type: "hello",
+    source,
     accountId: current.account.id,
     user: { id: current.user.id, email: current.user.email },
     pollIntervalMs: POLL_MS,
@@ -148,7 +166,37 @@ async function startTail(env, server, current) {
     catch { closed = true; clearInterval(heartbeat); }
   }, HEARTBEAT_MS);
 
-  // Poll loop.
+  if (source === "workers") {
+    // Workers Logs bridge — connect to the tail WebSocket and forward
+    // events that match this account.
+    const { createTailSession, eventBelongsToAccount, mapWorkersLogEvent } =
+      await import("./_workers_logs_bridge.js");
+    try {
+      const session = await createTailSession(env);
+      const upstream = await fetch(session.url, { headers: { Upgrade: "websocket" } });
+      const ws = upstream.webSocket;
+      if (!ws) throw new Error("workers-logs upstream did not return a webSocket");
+      ws.accept();
+      ws.addEventListener("message", (ev) => {
+        if (closed) return;
+        let event;
+        try { event = JSON.parse(typeof ev.data === "string" ? ev.data : ""); }
+        catch { return; }
+        if (!eventBelongsToAccount(event, current.account.id)) return;
+        try { server.send(JSON.stringify(mapWorkersLogEvent(event))); }
+        catch { closed = true; }
+      });
+      // Wait for the client to close.
+      while (!closed) await sleep(POLL_MS);
+    } catch (err) {
+      try { server.send(JSON.stringify({ type: "error", message: String(err?.message || err) })); }
+      catch { /* socket already closed */ }
+    }
+    clearInterval(heartbeat);
+    return;
+  }
+
+  // Default — audit-event polling.
   let since = Math.floor(Date.now() / 1000);
   while (!closed) {
     await sleep(POLL_MS);

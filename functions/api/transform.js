@@ -95,6 +95,9 @@ export async function onRequestGet(context) {
     }
 
     try {
+      // adr: ADR-11 — legacy per-request usage counter. BANNED
+      // pattern per CLAUDE.md; one write per transform call burns
+      // the KV quota fast on a hot zone. Migrate to UsageMeterDO.
       await RATE_KV.put(monthKey, String(monthCount + 1), { expirationTtl: 86400 * 35 });
     } catch {}
   }

@@ -87,6 +87,8 @@ export async function onRequestGet(context) {
     if (count >= 300) {
       return Response.json({ error: 'Rate limit exceeded' }, { status: 429, headers: { ...CORS_HEADERS, 'Retry-After': '60' } });
     }
+    // adr: ADR-11 — legacy per-request rate-limit counter. BANNED
+    // pattern per CLAUDE.md; tracked for migration to RateLimiterDO.
     await RATE_KV.put(key, String(count + 1), { expirationTtl: 60 });
   }
 

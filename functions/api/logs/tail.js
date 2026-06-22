@@ -50,8 +50,16 @@ export function decideSource(env, { requested } = {}) {
 }
 
 const HEARTBEAT_MS = 30_000;
-const POLL_MS = 5_000;
+// 30s instead of 5s — one open tab now costs 2,880 D1 reads/day
+// instead of 17,280. Audit events surface "within the last 30s" which
+// is still well within the "live tail" mental model. Drop further to
+// 60s if Free-tier quota pressure returns.
+const POLL_MS = 30_000;
 const MAX_FRAMES_PER_POLL = 50;
+// Disconnect tails that have been silent (no client ping AND no audit
+// activity) for this long. Forgotten browser tabs are the dominant
+// cause of "free-tier quota burned overnight" incidents.
+const IDLE_DISCONNECT_MS = 10 * 60 * 1000; // 10 minutes
 
 export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: { ...AUTH_CORS, "Access-Control-Max-Age": "86400" } });
@@ -147,11 +155,15 @@ async function startTail(env, server, current, source = "audit") {
     helloAt: new Date().toISOString(),
   }));
 
+  // Track the last sign of life — incoming pings OR outbound audit
+  // events. Forgotten browser tabs idle out after IDLE_DISCONNECT_MS.
+  let lastActivityAt = Date.now();
   // Client→server messages.
   server.addEventListener("message", (ev) => {
     try {
       const msg = JSON.parse(typeof ev.data === "string" ? ev.data : "{}");
       if (msg.type === "ping") {
+        lastActivityAt = Date.now();
         server.send(JSON.stringify({ type: "pong", timestamp: Date.now() }));
       }
     } catch { /* ignore malformed */ }
@@ -201,7 +213,17 @@ async function startTail(env, server, current, source = "audit") {
   while (!closed) {
     await sleep(POLL_MS);
     if (closed) break;
+    // Idle-disconnect — no client pings AND no events flowing.
+    if (Date.now() - lastActivityAt > IDLE_DISCONNECT_MS) {
+      try {
+        server.send(JSON.stringify({ type: "idle_disconnect", reason: `no activity for ${IDLE_DISCONNECT_MS / 60_000} minutes` }));
+        server.close(1000, "idle");
+      } catch { /* socket already closed */ }
+      closed = true;
+      break;
+    }
     const events = await pollAuditEvents(env, current.account.id, since, MAX_FRAMES_PER_POLL);
+    if (events.length > 0) lastActivityAt = Date.now();
     for (const e of events) {
       try { server.send(JSON.stringify({ type: "audit", ...e })); }
       catch { closed = true; break; }

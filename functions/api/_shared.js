@@ -728,6 +728,26 @@ export const CORS_JSON = {
   'Content-Type': 'application/json',
 };
 
+// Same envelope plus a 60-second per-client cache. Use for GET-only
+// endpoints whose payload is identical for the same caller within a
+// minute (insights summary, top-assets, geography, errors, zones
+// list). The `private` is critical: AccountKey-gated responses must
+// NEVER hit the shared edge cache — that would serve account A's
+// data to account B. `private` keeps it in the browser cache only.
+// Reduces dashboard-poll Worker invocations by ~50× on a tab held
+// open for 5 minutes.
+export const CORS_JSON_CACHED_60 = {
+  ...CORS_JSON,
+  'Cache-Control': 'private, max-age=60',
+};
+
+// As above but with a 5-minute cache — geography + top-assets refresh
+// more slowly, so the trade-off favours the longer cache.
+export const CORS_JSON_CACHED_300 = {
+  ...CORS_JSON,
+  'Cache-Control': 'private, max-age=300',
+};
+
 // ── API Version ──
 export const API_VERSION = '2026-04-01';
 

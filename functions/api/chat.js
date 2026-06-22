@@ -296,6 +296,11 @@ ${contextText || 'No relevant context found for this query.'}
   // Increment user-facing counters before streaming.
   if (RATE_KV) {
     try {
+      // adr: ADR-11 — legacy per-request usage counter (×2). BANNED
+      // pattern per CLAUDE.md; two writes per chat call burns the KV
+      // free-tier quota by mid-day under modest load. Migrate to
+      // UsageMeterDO (already deployed for /api/assets/process) so
+      // reads + atomic increments happen in one RPC hop.
       await RATE_KV.put(monthKey, String(monthCount + 1), { expirationTtl: 86400 * 35 });
       await RATE_KV.put(dayKey, String(dayCount + 1), { expirationTtl: 86400 * 2 });
     } catch { /* KV transient — non-fatal */ }

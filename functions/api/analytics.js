@@ -153,6 +153,12 @@ export async function onRequestGet(context) {
       if (count >= 100) {
         return legacyErrorJson(429, "Rate limit exceeded", { limit: 100, retryAfter: 60 });
       }
+      // adr: ADR-11 — legacy per-request rate-limit counter. BANNED
+      // pattern per CLAUDE.md (1000 writes/day KV quota burns in hours
+      // under load). Tracked for migration to the existing RateLimiterDO
+      // — the DO already exists for the same purpose at /api/transform;
+      // wire-up is a 3-line change in this file. Out of scope for the
+      // Worker-usage-reduction PR; see follow-up ticket.
       await env.RATE_KV.put(`rl:analytics:${ip}`, String(count + 1), { expirationTtl: 60 });
       rlHeaders = {
         "X-RateLimit-Limit": "100",

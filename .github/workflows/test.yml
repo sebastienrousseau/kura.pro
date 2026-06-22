@@ -210,9 +210,15 @@ jobs:
 
       - name: Run k6 smoke test (10 VUs, 10s)
         continue-on-error: true
+        # I_KNOW_THIS_HITS_PROD=1 is the explicit opt-in required by
+        # the seatbelt added in scripts/tests/load.k6.js. CI legitimately
+        # needs to verify the production edge — the seatbelt's job is
+        # to catch DEVELOPERS typing `k6 run ...` thinking it's local,
+        # not to block CI.
         run: |
           k6 run \
             -e BASE_URL=https://cloudcdn.pro \
+            -e I_KNOW_THIS_HITS_PROD=1 \
             --vus 10 \
             --duration 10s \
             --summary-trend-stats="avg,min,med,max,p(95),p(99)" \

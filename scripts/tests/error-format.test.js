@@ -147,7 +147,19 @@ describe('Error Format — Every 429 response is rate limit', () => {
   it('transform 429 has rate limit error', async () => {
     const ctx = {
       request: { url: 'https://cloudcdn.pro/api/transform?url=/test.png' },
-      env: { RATE_KV: { get: vi.fn().mockResolvedValue('50000'), put: vi.fn() } },
+      env: {
+        // transform.js now enforces via UsageMeterDO (ADR-11 retired
+        // the per-request KV counter). Mock returns "not accepted".
+        USAGE_METER: {
+          idFromName: vi.fn(() => 'do-id'),
+          get: vi.fn(() => ({
+            fetch: vi.fn(async () => new Response(
+              JSON.stringify({ accepted: false, units: 50000, period: '2026-06', limit: 50000 }),
+              { status: 200 },
+            )),
+          })),
+        },
+      },
     };
     const res = await transformModule.onRequestGet(ctx);
     expect(res.status).toBe(429);

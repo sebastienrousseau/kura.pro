@@ -58,6 +58,9 @@ export class UsageMeterDO {
     if (url.pathname === "/add" && request.method === "POST") {
       return this.addUsage(request);
     }
+    if (url.pathname === "/addIfBelow" && request.method === "POST") {
+      return this.addIfBelow(request);
+    }
     if (url.pathname === "/get" && request.method === "GET") {
       return this.getUsage();
     }
@@ -65,6 +68,36 @@ export class UsageMeterDO {
       return this.reset(request);
     }
     return new Response("not found", { status: 404 });
+  }
+
+  // Atomic check-and-increment. Used by callers that need to enforce
+  // a cap without the read-modify-write race. The DO is the only
+  // primitive in the system that can serialise this — KV cannot.
+  async addIfBelow(request) {
+    let body;
+    try { body = await request.json(); } catch {
+      return Response.json({ error: "invalid body" }, { status: 400 });
+    }
+    const amount = Number(body?.amount);
+    const limit  = Number(body?.limit);
+    if (!Number.isFinite(amount) || amount < 0) {
+      return Response.json({ error: "amount must be a non-negative number" }, { status: 400 });
+    }
+    if (!Number.isFinite(limit) || limit < 0) {
+      return Response.json({ error: "limit must be a non-negative number" }, { status: 400 });
+    }
+    return this.state.blockConcurrencyWhile(async () => {
+      const period = utcPeriod();
+      const stored = (await this.state.storage.get("snapshot")) || { units: 0, period };
+      const carryOver = stored.period === period ? Number(stored.units) || 0 : 0;
+      if (carryOver >= limit) {
+        return Response.json({ accepted: false, units: carryOver, period, limit });
+      }
+      const next = carryOver + amount;
+      const now = Math.floor(Date.now() / 1000);
+      await this.state.storage.put("snapshot", { units: next, period, lastWriteAt: now });
+      return Response.json({ accepted: true, units: next, period, limit });
+    });
   }
 
   async addUsage(request) {
@@ -134,6 +167,33 @@ export async function addUsage(env, accountId, amountUsd) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ amountUsd }),
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+/**
+ * Atomic check-and-increment. The DO refuses to increment past
+ * `limit` for the current UTC-month period and returns
+ * `{ accepted: false, units, period, limit }`; otherwise increments
+ * by `amount` and returns `{ accepted: true, units: <new>, period, limit }`.
+ *
+ * Use for global per-feature monthly soft caps (chat queries,
+ * transform invocations) that were previously hand-rolled via
+ * KV read-then-write and would race + burn the 1000-write/day
+ * Free-tier quota.
+ *
+ * Returns null when the binding is absent so callers can degrade
+ * open (matches the previous behaviour of `addUsage`).
+ */
+export async function addUsageIfBelow(env, accountId, amount, limit) {
+  if (!env?.USAGE_METER || !accountId) return null;
+  const id = env.USAGE_METER.idFromName(accountId);
+  const stub = env.USAGE_METER.get(id);
+  const res = await stub.fetch("https://usage-meter.internal/addIfBelow", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount, limit }),
   });
   if (!res.ok) return null;
   return res.json();

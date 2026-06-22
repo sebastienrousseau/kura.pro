@@ -15,6 +15,7 @@ function makeContext(queryString, env = {}) {
   return {
     request: {
       url: `https://cloudcdn.pro/api/signed${queryString}`,
+      headers: new Headers({ 'cf-connecting-ip': '203.0.113.1' }),
     },
     env: {
       SIGNED_URL_SECRET: 'SIGNED_URL_SECRET' in env ? env.SIGNED_URL_SECRET : TEST_SECRET,

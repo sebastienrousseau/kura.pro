@@ -1,7 +1,48 @@
-import { legacyErrorJson } from './_shared.js';
+import { legacyErrorJson, checkRateLimit } from './_shared.js';
 import { addUsageIfBelow } from './usage_meter_do.js';
 
 const MONTHLY_LIMIT = 50000;
+
+// Per-IP rate limit for /api/transform. The monthly cap above is GLOBAL
+// — a single bot can burn the entire 50k/month allowance in minutes
+// (confirmed 2026-06-23: 6+ GB in 15 minutes from one US IP). This
+// per-IP cap stops a single source dead in <1 minute without affecting
+// legitimate clients (a humans-browsing page rarely fires more than
+// ~20 transforms per minute even with eager preloads).
+const PER_IP_LIMIT = 60;
+const PER_IP_WINDOW_SECONDS = 60;
+
+// Known AI-training + scraper bot User-Agent substrings. Match is
+// case-insensitive, substring (matches "Mozilla/5.0 (compatible;
+// GPTBot/1.2)" etc.). Maintained list — see also
+// https://darkvisitors.com for a fuller registry.
+const BOT_UA_BLOCKLIST = [
+  'gptbot', 'chatgpt-user', 'oai-searchbot',     // OpenAI
+  'claudebot', 'anthropic-ai', 'claude-web',     // Anthropic
+  'perplexitybot', 'perplexity-user',            // Perplexity
+  'google-extended', 'googleother',              // Google AI training (NOT Googlebot)
+  'bytespider', 'bytedance',                     // ByteDance / TikTok
+  'ccbot',                                       // Common Crawl
+  'meta-externalagent', 'facebookbot',           // Meta AI
+  'cohere-ai', 'cohere-training-data-crawler',   // Cohere
+  'youbot',                                      // You.com
+  'amazonbot', 'applebot-extended',              // Amazon, Apple AI training
+  'mistralai-user',                              // Mistral
+  'omgili', 'omgilibot',                         // Webz.io
+  'diffbot',                                     // Diffbot
+  'magpie-crawler',                              // Brandwatch
+  'panscient.com',                               // PanScient
+];
+
+// Returns the blocklist substring matched, or null if none.
+export function matchedBotUa(uaHeader) {
+  if (!uaHeader) return null;
+  const ua = uaHeader.toLowerCase();
+  for (const needle of BOT_UA_BLOCKLIST) {
+    if (ua.includes(needle)) return needle;
+  }
+  return null;
+}
 
 const VALID_FIT = new Set(['cover', 'contain', 'fill', 'inside', 'outside']);
 const VALID_FORMAT = new Set(['auto', 'webp', 'avif', 'png', 'jpeg']);
@@ -78,7 +119,36 @@ export async function onRequestGet(context) {
   const url = new URL(context.request.url);
   const params = url.searchParams;
 
-  // --- Atomic monthly soft limit via UsageMeterDO ---
+  // --- Layer 1: known AI-training/scraper bot blocklist ---
+  //
+  // These crawlers have NO legitimate need for image transformations
+  // (they want raw assets for training, not resized versions). Block
+  // them BEFORE counting toward the monthly cap so they can't burn
+  // the global allowance by spinning prefix-only requests.
+  const ua = context.request.headers?.get?.('user-agent') || '';
+  const botMatch = matchedBotUa(ua);
+  if (botMatch) {
+    return legacyErrorJson(403, 'bot_blocked', {
+      extra: { message: `User-Agent "${botMatch}" is blocked from this endpoint. Image transformations are for human-facing CDN traffic.` },
+    });
+  }
+
+  // --- Layer 2: per-IP rate limit (60 req/min) ---
+  //
+  // Stops a single bad source dead without affecting legitimate
+  // browsers (a normal page rarely fires >20 transforms/minute even
+  // with eager preloads). Routes through checkRateLimit (DO-preferred,
+  // KV-fallback) so it's atomic + free of KV write quota.
+  const ip = context.request.headers?.get?.('cf-connecting-ip') || 'unknown';
+  const rl = await checkRateLimit(context.env, `rl:transform:${ip}`, PER_IP_LIMIT, PER_IP_WINDOW_SECONDS);
+  if (!rl.allowed) {
+    return legacyErrorJson(429, 'rate_limit_exceeded', {
+      extra: { message: `Too many transform requests from this IP. Limit: ${PER_IP_LIMIT}/${PER_IP_WINDOW_SECONDS}s.` },
+      retryAfter: PER_IP_WINDOW_SECONDS,
+    });
+  }
+
+  // --- Layer 3: atomic monthly soft limit via UsageMeterDO ---
   //
   // Previously hand-rolled `RATE_KV.get → check → put` (banned
   // ADR-11 pattern; 50,000 writes/month would exhaust the

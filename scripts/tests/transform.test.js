@@ -1,11 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { onRequestGet, onRequestOptions, isLowBandwidthClient } = await import('../../functions/api/transform.js');
+const { onRequestGet, onRequestOptions, isLowBandwidthClient, matchedBotUa } = await import('../../functions/api/transform.js');
 
-function makeContext(queryString, env = {}) {
+function makeContext(queryString, env = {}, headerOverrides = {}) {
+  const headers = new Headers({
+    'user-agent': 'Mozilla/5.0 (test browser)',
+    'cf-connecting-ip': '203.0.113.1',
+    ...headerOverrides,
+  });
   return {
     request: {
       url: `https://cloudcdn.pro/api/transform${queryString}`,
+      headers,
     },
     env: {
       RATE_KV: env.RATE_KV ?? {
@@ -559,11 +565,15 @@ describe('GET /api/transform', () => {
   it('allows request at 49999 (below limit)', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
     try {
+      // After the ADR-11 migration: monthly cap is enforced by
+      // UsageMeterDO (accepted: true at 49999). Per-IP rate limit
+      // uses a different RATE_KV key prefix and gets null = 0.
       const ctx = makeContext('?url=/test.png', {
         RATE_KV: {
-          get: vi.fn().mockResolvedValue('49999'),
+          get: vi.fn(async (key) => key.startsWith('rl:transform:') ? null : null),
           put: vi.fn(),
         },
+        USAGE_METER: meterReturning({ accepted: true, units: 49999, period: '2026-06', limit: 50000 }),
       });
       const res = await onRequestGet(ctx);
       expect(res.status).toBe(200);
@@ -691,6 +701,97 @@ describe('GET /api/transform', () => {
         const ctx = makeNetworkCtx('?url=/test.png', {}, { cf: { clientAcceptEncoding: 'gzip', connectionType: '2g' } });
         const res = await onRequestGet(ctx);
         expect(res.headers.get('X-Network-Aware')).toBe('slow');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+  });
+
+  // ── Bot blocklist (Layer 1 defence) ────────────────────────────
+  describe('AI-crawler User-Agent blocklist', () => {
+    const blocklistFixtures = [
+      ['GPTBot/1.2 (+https://openai.com/gptbot)', 'gptbot'],
+      ['Mozilla/5.0 (compatible; ClaudeBot/1.0)', 'claudebot'],
+      ['Mozilla/5.0 (compatible; PerplexityBot/1.0)', 'perplexitybot'],
+      ['Bytespider; spider-feedback@bytedance.com', 'bytespider'],
+      ['CCBot/2.0 (https://commoncrawl.org/faq/)', 'ccbot'],
+      ['Mozilla/5.0 (compatible; Google-Extended)', 'google-extended'],
+      ['meta-externalagent/1.1', 'meta-externalagent'],
+    ];
+    for (const [ua, expected] of blocklistFixtures) {
+      it(`blocks ${expected} with 403`, async () => {
+        const ctx = makeContext('?url=/x.png', {}, { 'user-agent': ua });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(403);
+        const body = await res.json();
+        expect(body.error).toBe('bot_blocked');
+        // legacyErrorJson's `extra.message` spreads as body.message
+        // (lowercase) — body.Message (capital M) is the short error code.
+        expect(body.message).toContain(expected);
+      });
+    }
+
+    it('matchedBotUa returns the matched substring for blocked UAs', () => {
+      expect(matchedBotUa('Mozilla/5.0 (compatible; GPTBot/1.2)')).toBe('gptbot');
+      expect(matchedBotUa('Mozilla/5.0 ClaudeBot')).toBe('claudebot');
+    });
+
+    it('matchedBotUa returns null for legitimate UAs', () => {
+      expect(matchedBotUa('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36')).toBeNull();
+      expect(matchedBotUa('Googlebot/2.1 (+http://www.google.com/bot.html)')).toBeNull();
+      expect(matchedBotUa('curl/8.4.0')).toBeNull();
+    });
+
+    it('matchedBotUa returns null on null/empty UA', () => {
+      expect(matchedBotUa(null)).toBeNull();
+      expect(matchedBotUa(undefined)).toBeNull();
+      expect(matchedBotUa('')).toBeNull();
+    });
+  });
+
+  // ── Per-IP rate limit (Layer 2 defence) ────────────────────────
+  describe('per-IP rate limit', () => {
+    function meterAccepting() {
+      return {
+        idFromName: vi.fn(() => 'do-id'),
+        get: vi.fn(() => ({
+          fetch: vi.fn(async () => new Response(
+            JSON.stringify({ accepted: true, units: 1, period: '2026-06', limit: 50000 }),
+            { status: 200 },
+          )),
+        })),
+      };
+    }
+
+    it('returns 429 when the per-IP cap is hit (mock RATE_KV returns over-limit count)', async () => {
+      // checkRateLimit (KV path) reads counter, compares to limit. Set
+      // the mock to return a count of 61 which is > the 60/min cap.
+      const ctx = makeContext('?url=/x.png', {
+        RATE_KV: {
+          get: vi.fn(async (key) => key.startsWith('rl:transform:') ? '61' : null),
+          put: vi.fn(),
+        },
+        USAGE_METER: meterAccepting(),
+      });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(429);
+      const body = await res.json();
+      expect(body.error).toBe('rate_limit_exceeded');
+      expect(body.message).toContain('60');
+    });
+
+    it('allows requests when under the per-IP cap', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeContext('?url=/x.png', {
+          RATE_KV: {
+            get: vi.fn().mockResolvedValue('5'), // under the 60/min cap
+            put: vi.fn(),
+          },
+          USAGE_METER: meterAccepting(),
+        });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
       } finally {
         globalThis.fetch = originalFetch;
       }

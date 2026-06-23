@@ -17,7 +17,16 @@
  * wasted probes for niche formats like HEIF on non-Apple clients.
  */
 
-import { legacyErrorJson } from './_shared.js';
+import { legacyErrorJson, checkRateLimit, authenticateAny } from './_shared.js';
+import { hasAccountsDB, getCurrentSession } from './auth/_lib.js';
+import { matchedBotUa, isAllowedReferer } from './transform.js';
+
+// Mirror of /api/transform's per-IP rate limit tiers — same attack
+// surface (public delivery endpoint, can be hammered with arbitrary
+// path values to evade cache).
+const PER_IP_MIN  = 60;
+const PER_IP_HOUR = 1000;
+const PER_IP_DAY  = 5000;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -105,6 +114,57 @@ function resolveAssetPath(userPath) {
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
+
+  // --- Layer 0: authentication required ---
+  // Same gate as /api/transform (PR #107). Public pages now use the
+  // pre-rendered /stocks/.../-{320,640,1200,1920}.webp variants and
+  // never need /api/auto. The only documented callers are programmatic
+  // (stratos CLI, server-side asset pipelines), all of which can send
+  // AccountKey or sign in via cdn_session.
+  let authed = await authenticateAny(context.request, context.env);
+  if (!authed && hasAccountsDB(context.env)) {
+    const session = await getCurrentSession(context.env, context.request);
+    authed = !!session;
+  }
+  if (!authed) {
+    return legacyErrorJson(401, 'unauthenticated', {
+      extra: { message: 'Sign in (cdn_session cookie) or supply an AccountKey/AccessKey header. For public pages, use the pre-generated /stocks/.../-{320,640,1200,1920}.webp variants instead.' },
+    });
+  }
+
+  // --- Layer 1: AI-crawler User-Agent blocklist ---
+  const ua = context.request.headers?.get?.('user-agent') || '';
+  const botMatch = matchedBotUa(ua);
+  if (botMatch) {
+    return legacyErrorJson(403, 'bot_blocked', {
+      extra: { message: `User-Agent "${botMatch}" is blocked from this endpoint.` },
+    });
+  }
+
+  // --- Layer 2: Referer hotlink check ---
+  const referer = context.request.headers?.get?.('referer') || '';
+  if (!isAllowedReferer(referer)) {
+    return legacyErrorJson(403, 'hotlink_blocked', {
+      extra: { message: 'Off-domain hotlinking of /api/auto is not allowed.' },
+    });
+  }
+
+  // --- Layer 3: multi-tier per-IP rate limit ---
+  const ip = context.request.headers?.get?.('cf-connecting-ip') || 'unknown';
+  const tiers = [
+    { key: `rl:auto:m:${ip}`, limit: PER_IP_MIN,  window: 60,    label: 'minute' },
+    { key: `rl:auto:h:${ip}`, limit: PER_IP_HOUR, window: 3600,  label: 'hour'   },
+    { key: `rl:auto:d:${ip}`, limit: PER_IP_DAY,  window: 86400, label: 'day'    },
+  ];
+  for (const t of tiers) {
+    const rl = await checkRateLimit(context.env, t.key, t.limit, t.window);
+    if (!rl.allowed) {
+      return legacyErrorJson(429, `rate_limit_exceeded_${t.label}`, {
+        extra: { message: `Too many /api/auto requests from this IP. Limit: ${t.limit}/${t.label}.` },
+        retryAfter: t.window,
+      });
+    }
+  }
 
   // Support both query param and path-based routing
   // Path format: /api/auto/some/path → context.params or URL parsing

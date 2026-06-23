@@ -200,7 +200,7 @@ export async function hmacVerifyCached(secret, data, signature) {
  * once in Cloudflare Pages env vars alongside the actual keys.
  */
 function strictAuth(env) {
-  return env.STRICT_AUTH === '1' || env.STRICT_AUTH === 'true';
+  return env?.STRICT_AUTH === '1' || env?.STRICT_AUTH === 'true';
 }
 
 export async function authenticateAccess(request, env) {
@@ -232,7 +232,7 @@ export async function authenticateAccess(request, env) {
 
 export function authenticateAccount(request, env) {
   const key = request.headers?.get?.('AccountKey');
-  if (!env.ACCOUNT_KEY) return !strictAuth(env);
+  if (!env?.ACCOUNT_KEY) return !strictAuth(env);
   return key === env.ACCOUNT_KEY;
 }
 

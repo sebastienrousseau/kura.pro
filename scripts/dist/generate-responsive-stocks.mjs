@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 /**
- * Generate responsive webp variants for /stocks/images/*.webp.
+ * Generate responsive webp variants for viewport-sized images.
+ *
+ * Source sets (see SOURCE_SETS below):
+ *   - stocks/images/                         (flat)
+ *   - clients/**\/banners/*.webp             (recursive, filtered)
+ *   - clients/**\/titles/*.webp              (recursive, filtered)
+ *
+ * Logos / icons / github social cards are deliberately excluded —
+ * they render at fixed sizes and don't benefit from <picture> srcsets.
  *
  * For each source image, produces four width variants in the same
  * directory:
@@ -48,9 +56,34 @@ import { join, basename, dirname, extname } from "node:path";
 import { parseArgs } from "node:util";
 import sharp from "sharp";
 
-const STOCKS_DIR = "stocks/images";
 const WIDTHS = [320, 640, 1200, 1920];
 const QUALITY = 80;
+
+// Image sets to generate variants for. Each entry is either a flat
+// directory or a recursive walk filtered by a path-matching predicate.
+// The recursive sets are scoped narrowly to "viewport-sized" images
+// (banners, titles) and skip logos/icons/social cards because those
+// render at fixed sizes and don't benefit from <picture> srcsets.
+export const SOURCE_SETS = [
+  {
+    name: "stocks",
+    baseDir: "stocks/images",
+    recursive: false,
+  },
+  {
+    name: "client-banners",
+    baseDir: "clients",
+    recursive: true,
+    // Match clients/<project>/<version>/[**/]banners/<file>.webp
+    matches: (path) => /\/banners\//.test(path) && path.endsWith(".webp"),
+  },
+  {
+    name: "client-titles",
+    baseDir: "clients",
+    recursive: true,
+    matches: (path) => /\/titles\//.test(path) && path.endsWith(".webp"),
+  },
+];
 
 // A file is a "source" when it ends in .webp AND does NOT end in a
 // recognised width-variant suffix. Using an exact-width allowlist
@@ -143,6 +176,39 @@ async function generateVariants(sourcePath, opts = {}) {
   return { generated: todo.length, skipped: WIDTHS.length - todo.length, missing: todo };
 }
 
+/**
+ * Recursively walk a directory and yield absolute file paths that
+ * pass the `matches` predicate AND `isSourceImage` (so we never
+ * re-process an already-generated variant). Skips .DS_Store + any
+ * dotfiles up front for cheap-out.
+ */
+export async function* walkSources(baseDir, matches) {
+  let entries;
+  try { entries = await readdir(baseDir, { withFileTypes: true }); }
+  catch { return; } // dir doesn't exist — silently skip
+  for (const entry of entries) {
+    if (entry.name.startsWith(".")) continue;
+    const fullPath = join(baseDir, entry.name);
+    if (entry.isDirectory()) {
+      yield* walkSources(fullPath, matches);
+    } else if (entry.isFile() && isSourceImage(entry.name) && matches(fullPath)) {
+      yield fullPath;
+    }
+  }
+}
+
+async function collectSources(set) {
+  if (!set.recursive) {
+    let entries;
+    try { entries = await readdir(set.baseDir); }
+    catch { return []; }
+    return entries.filter(isSourceImage).sort().map((f) => join(set.baseDir, f));
+  }
+  const out = [];
+  for await (const p of walkSources(set.baseDir, set.matches)) out.push(p);
+  return out.sort();
+}
+
 /* v8 ignore start — main() is a CLI entry point; covered by the
    manual `--check` rehearsal. Pure helpers above are unit-tested. */
 async function main() {
@@ -153,28 +219,29 @@ async function main() {
     },
   });
 
-  const entries = await readdir(STOCKS_DIR);
-  const sources = entries.filter(isSourceImage).sort();
-
-  console.log(`Scanning ${STOCKS_DIR} — found ${sources.length} source images`);
-
   let totalGenerated = 0;
   let totalMissing = 0;
   const missingFiles = [];
+  let totalSources = 0;
 
-  for (const filename of sources) {
-    const sourcePath = join(STOCKS_DIR, filename);
-    const result = await generateVariants(sourcePath, {
-      check: values.check,
-      dryRun: values["dry-run"],
-    });
-    if (result.generated > 0) {
-      totalGenerated += result.generated;
-      if (values.check || values["dry-run"]) {
-        totalMissing += result.generated;
-        for (const m of result.missing) missingFiles.push(m.target);
-      } else {
-        console.log(`${filename}: generated ${result.generated} variant(s)`);
+  for (const set of SOURCE_SETS) {
+    const sources = await collectSources(set);
+    console.log(`[${set.name}] ${set.baseDir} — ${sources.length} source images`);
+    totalSources += sources.length;
+
+    for (const sourcePath of sources) {
+      const result = await generateVariants(sourcePath, {
+        check: values.check,
+        dryRun: values["dry-run"],
+      });
+      if (result.generated > 0) {
+        totalGenerated += result.generated;
+        if (values.check || values["dry-run"]) {
+          totalMissing += result.generated;
+          for (const m of result.missing) missingFiles.push(m.target);
+        } else {
+          console.log(`  ${basename(sourcePath)}: generated ${result.generated} variant(s)`);
+        }
       }
     }
   }
@@ -187,11 +254,11 @@ async function main() {
       console.error(`\nRun \`npm run dist:responsive\` to regenerate, then commit.`);
       process.exit(1);
     }
-    console.log(`\n✓ All ${sources.length * WIDTHS.length} variants present and fresh.`);
+    console.log(`\n✓ All ${totalSources * WIDTHS.length} variants present and fresh.`);
     return;
   }
 
-  console.log(`\nDone — generated ${totalGenerated} variant(s) across ${sources.length} sources.`);
+  console.log(`\nDone — generated ${totalGenerated} variant(s) across ${totalSources} sources.`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

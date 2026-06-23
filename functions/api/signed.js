@@ -7,7 +7,7 @@
  * protected asset from origin with appropriate cache headers.
  */
 
-import { checkRateLimit } from './_shared.js';
+import { checkRateLimit, headFromGet } from './_shared.js';
 import { matchedBotUa } from './transform.js';
 
 const CORS_HEADERS = {
@@ -192,9 +192,11 @@ export async function onRequestGet(context) {
   }
 }
 
+export const onRequestHead = headFromGet(onRequestGet);
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
-    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Max-Age': '86400' },
+    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS', 'Access-Control-Max-Age': '86400' },
   });
 }

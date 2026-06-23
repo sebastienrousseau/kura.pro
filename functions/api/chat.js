@@ -17,6 +17,7 @@ import {
   errorResponse,
 } from './_shared.js';
 import { addUsageIfBelow } from './usage_meter_do.js';
+import { matchedBotUa } from './transform.js';
 import fallbackData from './chat-fallback.json';
 
 const MONTHLY_LIMIT = 1000;
@@ -179,6 +180,17 @@ function curatedResponse(message, remaining) {
 
 export async function onRequestPost(context) {
   const { AI, VECTOR_INDEX, RATE_KV, USAGE_METER, METRICS } = context.env;
+
+  // --- Bot blocklist (PR #108 hardening cohort) ---
+  //
+  // /api/chat runs Workers AI inference per request — bot abuse
+  // burns the AI budget. Block known AI-training crawlers at the
+  // entrance (~1µs cost) before any model invocation.
+  const ua = context.request.headers?.get?.('user-agent') || '';
+  const botMatch = matchedBotUa(ua);
+  if (botMatch) {
+    return errorResponse(403, 'bot_blocked', `User-Agent "${botMatch}" is blocked from this endpoint.`);
+  }
 
   // --- Atomic monthly soft limit via UsageMeterDO ---
   //

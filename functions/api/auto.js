@@ -17,7 +17,7 @@
  * wasted probes for niche formats like HEIF on non-Apple clients.
  */
 
-import { legacyErrorJson, checkRateLimit, authenticateAny } from './_shared.js';
+import { legacyErrorJson, checkRateLimit, authenticateAny, headFromGet } from './_shared.js';
 import { hasAccountsDB, getCurrentSession } from './auth/_lib.js';
 import { matchedBotUa, isAllowedReferer } from './transform.js';
 
@@ -236,9 +236,11 @@ export async function onRequestGet(context) {
   return legacyErrorJson(404, 'No suitable format found for the given path');
 }
 
+export const onRequestHead = headFromGet(onRequestGet);
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
-    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Max-Age': '86400' },
+    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS', 'Access-Control-Max-Age': '86400' },
   });
 }

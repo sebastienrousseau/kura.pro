@@ -14,7 +14,9 @@ import {
   getManifest, checkRateLimit, errorResponse, rateLimitHeaders,
   AI_COST, aiBudgetState, aiBudgetCharge, aiBudgetTrip, isAiQuotaError,
   normalizeQuery, hashString, buildCacheKey, cacheGet, cacheSet,
+  headFromGet,
 } from './_shared.js';
+import { matchedBotUa, isAllowedReferer } from './transform.js';
 
 const SEARCH_CACHE_TTL_SEC = 3600;
 
@@ -119,8 +121,21 @@ export async function onRequestGet(context) {
   const { env, request } = context;
   const { AI, VECTOR_INDEX } = env;
 
+  // Bot blocklist + Referer guard (PR #108 hardening cohort).
+  // /api/search is Workers AI + Vectorize-backed — bot abuse costs
+  // real AI budget per request.
+  const ua = request.headers?.get?.('user-agent') || '';
+  const botMatch = matchedBotUa(ua);
+  if (botMatch) {
+    return errorResponse(403, 'bot_blocked', `User-Agent "${botMatch}" is blocked from this endpoint.`);
+  }
+  const referer = request.headers?.get?.('referer') || '';
+  if (!isAllowedReferer(referer)) {
+    return errorResponse(403, 'hotlink_blocked', 'Off-domain hotlinking of /api/search is not allowed.');
+  }
+
   // Rate limit: 100 req/minute per IP
-  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  const ip = request.headers?.get?.('cf-connecting-ip') || 'unknown';
   const rl = await checkRateLimit(env, `rl:search:${ip}`, 100, 60);
   if (!rl.allowed) {
     return errorResponse(429, 'TooManyRequests', 'Rate limit exceeded for search endpoint. Maximum 100 requests per minute per IP address. Wait before retrying.', { retryAfter: '60', limit: rl.limit });
@@ -207,9 +222,11 @@ export async function onRequestGet(context) {
   }
 }
 
+export const onRequestHead = headFromGet(onRequestGet);
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
-    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Max-Age': '86400' },
+    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS', 'Access-Control-Max-Age': '86400' },
   });
 }

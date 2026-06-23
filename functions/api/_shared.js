@@ -728,6 +728,31 @@ export const CORS_JSON = {
   'Content-Type': 'application/json',
 };
 
+/**
+ * Wrap a GET handler so it can also serve HEAD. Pages Functions does
+ * NOT auto-alias HEAD → GET (verified 2026-06-23 in PR #102). Without
+ * an explicit onRequestHead export, every HEAD probe falls through to
+ * "no handler matched" → 404, which:
+ *   - confuses uptime monitors (Pingdom, UptimeRobot, BetterUptime
+ *     all default to HEAD)
+ *   - still costs a Worker invocation to produce the 404
+ *
+ * Returns a body-less Response with the same status + headers as GET
+ * would have produced, per RFC 7231 §4.3.2. Use as:
+ *
+ *     export const onRequestHead = headFromGet(onRequestGet);
+ */
+export function headFromGet(getHandler) {
+  return async (context) => {
+    const res = await getHandler(context);
+    return new Response(null, {
+      status: res.status,
+      statusText: res.statusText,
+      headers: res.headers,
+    });
+  };
+}
+
 // Same envelope plus a 60-second per-client cache. Use for GET-only
 // endpoints whose payload is identical for the same caller within a
 // minute (insights summary, top-assets, geography, errors, zones

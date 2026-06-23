@@ -79,7 +79,29 @@ export async function onRequestPost(context) {
 
   const valid = await verifyPassword(env, password, row.hashed_password);
   if (!valid) {
-    await auditEvent(env, { userId: row.user_id, action: "user.login.fail", request });
+    // Per-email failure counter — defends against distributed credential
+    // stuffing where a botnet spreads attempts across many IPs (each
+    // staying under the per-IP cap above). Independent of source IP:
+    // 5 failures against a single email in any 15-min window locks
+    // that account, regardless of where the attempts originated.
+    //
+    // Successful logins do NOT increment (this is only called on the
+    // failure branch), so a legitimate user fat-fingering their password
+    // a few times then succeeding doesn't get locked out.
+    const emailRl = await checkRateLimit(env, `login-fail:${email}`, 5, 900);
+    await auditEvent(env, {
+      userId: row.user_id, action: "user.login.fail", request,
+      meta: { failedAttemptsInWindow: emailRl.limit ? (emailRl.limit - (emailRl.remaining ?? 0)) : null },
+    });
+    if (!emailRl.allowed) {
+      // Lock the account. Same 429 shape as the per-IP limit so the
+      // response surface stays consistent. Return BEFORE leaking that
+      // the password was wrong (vs the account being locked) — both
+      // failure modes look identical to the attacker.
+      return jsonError(429, "rate_limited", "Too many failed login attempts for this account. Try again in 15 minutes.", {
+        retryAfter: 900,
+      });
+    }
     return jsonError(401, "invalid_credentials", "Email or password incorrect.");
   }
 

@@ -912,4 +912,107 @@ describe('GET /api/transform', () => {
       expect(isAllowedReferer('javascript:alert(1)')).toBe(false);
     });
   });
+
+  // ── Auth gate (Layer 0) ────────────────────────────────────────
+  // /api/transform is no longer public. cdn_session cookie OR
+  // AccountKey/AccessKey header is required. PR added 2026-06-23.
+  describe('authentication gate', () => {
+    function meterAccepting() {
+      return {
+        idFromName: vi.fn(() => 'do-id'),
+        get: vi.fn(() => ({
+          fetch: vi.fn(async () => new Response(
+            JSON.stringify({ accepted: true, units: 1, period: '2026-06', limit: 50000 }),
+            { status: 200 },
+          )),
+        })),
+      };
+    }
+
+    // Minimal valid D1 mock returning a session row that getCurrentSession
+    // will accept. The shape mirrors the production session lookup in
+    // functions/api/auth/_lib.js#getCurrentSession.
+    function dbReturningSession(row) {
+      return {
+        prepare: vi.fn(() => ({
+          bind: vi.fn(() => ({
+            first: vi.fn().mockResolvedValue(row),
+            run: vi.fn().mockResolvedValue({ success: true }),
+          })),
+        })),
+        batch: vi.fn().mockResolvedValue([]),
+      };
+    }
+
+    it('returns 401 unauthenticated under STRICT_AUTH=1 with no creds', async () => {
+      const ctx = makeContext('?url=/x.png', {
+        STRICT_AUTH: '1',
+        ACCOUNT_KEY: 'secret-key',
+      });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(401);
+      const body = await res.json();
+      expect(body.error).toBe('unauthenticated');
+    });
+
+    it('returns 200 when a valid AccountKey header is supplied', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeContext('?url=/x.png', {
+          STRICT_AUTH: '1',
+          ACCOUNT_KEY: 'secret-key',
+          USAGE_METER: meterAccepting(),
+        }, { 'AccountKey': 'secret-key' });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('returns 200 when a valid cdn_session cookie + D1 session row exists', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const now = Math.floor(Date.now() / 1000);
+        const ctx = makeContext('?url=/x.png', {
+          STRICT_AUTH: '1',
+          ACCOUNTS_DB: dbReturningSession({
+            token_hash: 'h', user_id: 'u1', account_id: 'a1',
+            expires_at: now + 3600, revoked_at: null,
+            email: 'a@b.com', name: null, email_verified_at: null,
+            account_id_full: 'a1', account_name: 'A', plan: 'free', monthly_cap_usd: 0,
+          }),
+          USAGE_METER: meterAccepting(),
+        }, { 'cookie': 'cdn_session=abc.signature' });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('returns 401 when the cdn_session cookie does not match a D1 row', async () => {
+      const ctx = makeContext('?url=/x.png', {
+        STRICT_AUTH: '1',
+        ACCOUNTS_DB: dbReturningSession(null), // no matching session
+      }, { 'cookie': 'cdn_session=stale.signature' });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(401);
+    });
+
+    it('skips D1 lookup when ACCOUNTS_DB is missing (degrade-open in dev)', async () => {
+      // Without STRICT_AUTH, authenticateAny returns true (no ACCOUNT_KEY
+      // configured = open). This is the local-dev path.
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeContext('?url=/x.png', {
+          USAGE_METER: meterAccepting(),
+        });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+  });
 });

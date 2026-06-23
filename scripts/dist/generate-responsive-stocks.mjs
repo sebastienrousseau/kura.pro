@@ -85,28 +85,54 @@ async function variantIsFresh(variant, source) {
 }
 
 /**
- * Returns the list of variant paths that need to be generated for the
- * given source. Empty array = source is fully covered.
+ * Returns variant paths that don't exist on disk. Used by --check mode
+ * and the unit tests — MUST NOT consult mtimes because git checkout
+ * sets arbitrary mtimes (and on CI, source and variant can be checked
+ * out in any order), which would falsely flag everything as stale.
+ *
+ * "Source was updated but variants weren't regenerated" is detected by
+ * staleVariants() below, called only from local generate mode where
+ * mtimes are meaningful.
  */
 export async function missingVariants(sourcePath) {
   const missing = [];
   for (const width of WIDTHS) {
     const target = variantPath(sourcePath, width);
-    if (!(await fileExists(target)) || !(await variantIsFresh(target, sourcePath))) {
+    if (!(await fileExists(target))) {
       missing.push({ target, width });
     }
   }
   return missing;
 }
 
+/**
+ * Returns variant paths that need regeneration: missing OR stale
+ * (variant mtime older than source mtime). Local generate mode only —
+ * see missingVariants() docstring for why --check can't use this.
+ */
+export async function staleVariants(sourcePath) {
+  const stale = [];
+  for (const width of WIDTHS) {
+    const target = variantPath(sourcePath, width);
+    if (!(await fileExists(target)) || !(await variantIsFresh(target, sourcePath))) {
+      stale.push({ target, width });
+    }
+  }
+  return stale;
+}
+
 async function generateVariants(sourcePath, opts = {}) {
-  const missing = await missingVariants(sourcePath);
-  if (missing.length === 0) return { generated: 0, skipped: WIDTHS.length };
+  // --check uses missingVariants (no mtime); generate uses
+  // staleVariants (existence + mtime).
+  const todo = opts.check
+    ? await missingVariants(sourcePath)
+    : await staleVariants(sourcePath);
+  if (todo.length === 0) return { generated: 0, skipped: WIDTHS.length };
 
   /* v8 ignore start — sharp IO + CLI output, exercised by the manual
      `npm run dist:responsive` rehearsal rather than the unit tests. */
-  for (const { target, width } of missing) {
-    if (opts.dryRun) continue;
+  for (const { target, width } of todo) {
+    if (opts.dryRun || opts.check) continue;
     await sharp(sourcePath)
       .resize({ width, withoutEnlargement: true })
       .webp({ quality: QUALITY })
@@ -114,7 +140,7 @@ async function generateVariants(sourcePath, opts = {}) {
   }
   /* v8 ignore stop */
 
-  return { generated: missing.length, skipped: WIDTHS.length - missing.length, missing };
+  return { generated: todo.length, skipped: WIDTHS.length - todo.length, missing: todo };
 }
 
 /* v8 ignore start — main() is a CLI entry point; covered by the
@@ -138,7 +164,10 @@ async function main() {
 
   for (const filename of sources) {
     const sourcePath = join(STOCKS_DIR, filename);
-    const result = await generateVariants(sourcePath, { dryRun: values.check || values["dry-run"] });
+    const result = await generateVariants(sourcePath, {
+      check: values.check,
+      dryRun: values["dry-run"],
+    });
     if (result.generated > 0) {
       totalGenerated += result.generated;
       if (values.check || values["dry-run"]) {

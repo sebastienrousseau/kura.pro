@@ -1,4 +1,4 @@
-import { legacyErrorJson, checkRateLimit, authenticateAny } from './_shared.js';
+import { legacyErrorJson, checkRateLimit, authenticateAny, headFromGet } from './_shared.js';
 import { hasAccountsDB, getCurrentSession } from './auth/_lib.js';
 import { addUsageIfBelow } from './usage_meter_do.js';
 
@@ -387,12 +387,14 @@ export async function onRequestGet(context) {
   }
 }
 
+export const onRequestHead = headFromGet(onRequestGet);
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
       'Access-Control-Max-Age': '86400',
     },
   });

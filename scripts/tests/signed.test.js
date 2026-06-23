@@ -537,4 +537,41 @@ describe('GET /api/signed', () => {
       expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
     });
   });
+
+  // ── Bot blocklist (PR #108) ───────────────────────────────────
+  // /api/signed deliberately remains session-FREE — the HMAC sig
+  // is the auth. But if a signed URL ends up in an AI-crawler
+  // corpus (leaked log, shared chat), we'd rather 403 the crawler
+  // than serve the protected asset until expiration.
+  describe('AI-crawler User-Agent blocklist', () => {
+    it('returns 403 for GPTBot UA even with a valid HMAC', async () => {
+      const path = '/protected/file.pdf';
+      const expires = String(Math.floor(Date.now() / 1000) + 3600);
+      const sig = makeSignature(TEST_SECRET, path, expires);
+      const ctx = makeContext(`?path=${encodeURIComponent(path)}&expires=${expires}&sig=${sig}`);
+      ctx.request.headers.set('user-agent', 'GPTBot/1.2');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+      const body = await res.json();
+      expect(body.error).toBe('Bot blocked');
+      expect(body.userAgent).toBe('gptbot');
+    });
+
+    it('returns 403 for ClaudeBot regardless of signature validity', async () => {
+      const ctx = makeContext('?path=/x&expires=9999999999&sig=invalid');
+      ctx.request.headers.set('user-agent', 'Mozilla/5.0 (compatible; ClaudeBot/1.0)');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+    });
+
+    it('allows non-bot UAs through to the signature check', async () => {
+      // Mozilla UA passes the bot block; signature is intentionally
+      // invalid so we expect 403 from THAT layer (not 403 bot_blocked).
+      const ctx = makeContext('?path=/x&expires=9999999999&sig=invalid');
+      ctx.request.headers.set('user-agent', 'Mozilla/5.0 (Macintosh)');
+      const res = await onRequestGet(ctx);
+      const body = await res.json();
+      expect(body.error).not.toBe('Bot blocked');
+    });
+  });
 });

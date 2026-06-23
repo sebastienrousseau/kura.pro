@@ -8,6 +8,7 @@
  */
 
 import { checkRateLimit } from './_shared.js';
+import { matchedBotUa } from './transform.js';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -80,6 +81,25 @@ function timingSafeEqual(a, b) {
 
 export async function onRequestGet(context) {
   const { SIGNED_URL_SECRET } = context.env;
+
+  // ── Bot blocklist (defense in depth) ──
+  //
+  // The HMAC signature + expiration in the URL is the primary auth
+  // mechanism — /api/signed is intentionally not session-gated
+  // because signed URLs are designed for unauthenticated recipients
+  // (e.g. customer-facing private-asset download links). But if a
+  // signed URL somehow lands in an AI-crawler corpus (leaked in a
+  // public log, scraped from a shared chat, etc.), we'd rather
+  // 403 those crawlers than serve them the protected asset until
+  // the expiration ticks past.
+  const ua = context.request.headers?.get?.('user-agent') || '';
+  const botMatch = matchedBotUa(ua);
+  if (botMatch) {
+    return Response.json(
+      { error: 'Bot blocked', userAgent: botMatch },
+      { status: 403, headers: CORS_HEADERS },
+    );
+  }
 
   // Rate limit: 300 req/min per IP. Dispatched via checkRateLimit
   // (DO-preferred, KV-fallback) so this no longer burns a KV write

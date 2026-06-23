@@ -204,12 +204,12 @@ function strictAuth(env) {
 }
 
 export async function authenticateAccess(request, env) {
-  const accessKey = request.headers.get('AccessKey');
+  const accessKey = request.headers?.get?.('AccessKey');
   if (accessKey && env.STORAGE_KEY && accessKey === env.STORAGE_KEY) return true;
 
   const secret = env.DASHBOARD_SECRET || env.DASHBOARD_PASSWORD;
   if (secret) {
-    const cookies = parseCookies(request.headers.get('Cookie'));
+    const cookies = parseCookies(request.headers?.get?.('Cookie'));
     const session = cookies[SESSION_COOKIE];
     if (session) {
       const dot = session.lastIndexOf('.');
@@ -231,7 +231,7 @@ export async function authenticateAccess(request, env) {
 }
 
 export function authenticateAccount(request, env) {
-  const key = request.headers.get('AccountKey');
+  const key = request.headers?.get?.('AccountKey');
   if (!env.ACCOUNT_KEY) return !strictAuth(env);
   return key === env.ACCOUNT_KEY;
 }

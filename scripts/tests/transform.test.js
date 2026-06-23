@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { onRequestGet, onRequestOptions, isLowBandwidthClient, matchedBotUa } = await import('../../functions/api/transform.js');
+const { onRequestGet, onRequestOptions, isLowBandwidthClient, matchedBotUa, isAllowedReferer } = await import('../../functions/api/transform.js');
 
 function makeContext(queryString, env = {}, headerOverrides = {}) {
   const headers = new Headers({
@@ -750,7 +750,7 @@ describe('GET /api/transform', () => {
   });
 
   // ── Per-IP rate limit (Layer 2 defence) ────────────────────────
-  describe('per-IP rate limit', () => {
+  describe('multi-tier per-IP rate limit', () => {
     function meterAccepting() {
       return {
         idFromName: vi.fn(() => 'do-id'),
@@ -763,29 +763,54 @@ describe('GET /api/transform', () => {
       };
     }
 
-    it('returns 429 when the per-IP cap is hit (mock RATE_KV returns over-limit count)', async () => {
-      // checkRateLimit (KV path) reads counter, compares to limit. Set
-      // the mock to return a count of 61 which is > the 60/min cap.
+    // RATE_KV mock that returns `count` for keys matching the given
+    // tier prefix and null for everything else — exercises one tier at
+    // a time without tripping the others.
+    function tierMock(prefix, count) {
+      return {
+        get: vi.fn(async (key) => key.startsWith(prefix) ? String(count) : null),
+        put: vi.fn(),
+      };
+    }
+
+    it('returns 429 rate_limit_exceeded_minute when over the 60/min cap', async () => {
       const ctx = makeContext('?url=/x.png', {
-        RATE_KV: {
-          get: vi.fn(async (key) => key.startsWith('rl:transform:') ? '61' : null),
-          put: vi.fn(),
-        },
+        RATE_KV: tierMock('rl:transform:m:', 61),
         USAGE_METER: meterAccepting(),
       });
       const res = await onRequestGet(ctx);
       expect(res.status).toBe(429);
       const body = await res.json();
-      expect(body.error).toBe('rate_limit_exceeded');
-      expect(body.message).toContain('60');
+      expect(body.error).toBe('rate_limit_exceeded_minute');
+      expect(body.message).toContain('minute');
     });
 
-    it('allows requests when under the per-IP cap', async () => {
+    it('returns 429 rate_limit_exceeded_hour when minute OK but hour over 1k', async () => {
+      const ctx = makeContext('?url=/x.png', {
+        RATE_KV: tierMock('rl:transform:h:', 1001),
+        USAGE_METER: meterAccepting(),
+      });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(429);
+      expect((await res.json()).error).toBe('rate_limit_exceeded_hour');
+    });
+
+    it('returns 429 rate_limit_exceeded_day when minute+hour OK but day over 5k', async () => {
+      const ctx = makeContext('?url=/x.png', {
+        RATE_KV: tierMock('rl:transform:d:', 5001),
+        USAGE_METER: meterAccepting(),
+      });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(429);
+      expect((await res.json()).error).toBe('rate_limit_exceeded_day');
+    });
+
+    it('allows requests when under all three caps', async () => {
       globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
       try {
         const ctx = makeContext('?url=/x.png', {
           RATE_KV: {
-            get: vi.fn().mockResolvedValue('5'), // under the 60/min cap
+            get: vi.fn().mockResolvedValue('5'), // under every cap
             put: vi.fn(),
           },
           USAGE_METER: meterAccepting(),
@@ -795,6 +820,96 @@ describe('GET /api/transform', () => {
       } finally {
         globalThis.fetch = originalFetch;
       }
+    });
+  });
+
+  // ── Referer check (Layer 2 defence-in-depth) ──────────────────
+  describe('Referer hotlink check', () => {
+    function meterAccepting() {
+      return {
+        idFromName: vi.fn(() => 'do-id'),
+        get: vi.fn(() => ({
+          fetch: vi.fn(async () => new Response(
+            JSON.stringify({ accepted: true, units: 1, period: '2026-06', limit: 50000 }),
+            { status: 200 },
+          )),
+        })),
+      };
+    }
+
+    it('blocks external Referer with 403 hotlink_blocked', async () => {
+      const ctx = makeContext('?url=/x.png', {}, { referer: 'https://evil.com/scrape.html' });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+      const body = await res.json();
+      expect(body.error).toBe('hotlink_blocked');
+    });
+
+    it('allows cloudcdn.pro Referer', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeContext('?url=/x.png', { USAGE_METER: meterAccepting() }, { referer: 'https://cloudcdn.pro/en/' });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('allows *.cloudcdn.pro Referer (multi-tenant subdomain)', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        const ctx = makeContext('?url=/x.png', { USAGE_METER: meterAccepting() }, { referer: 'https://acme.cloudcdn.pro/' });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('allows missing Referer (no-referrer-policy / direct API)', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+      try {
+        // makeContext default includes a Mozilla UA but the test sets
+        // referer to empty string explicitly.
+        const ctx = makeContext('?url=/x.png', { USAGE_METER: meterAccepting() }, { referer: '' });
+        const res = await onRequestGet(ctx);
+        expect(res.status).toBe(200);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('blocks malformed Referer with 403', async () => {
+      const ctx = makeContext('?url=/x.png', {}, { referer: 'not-a-url' });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+    });
+
+    // ── isAllowedReferer pure helper ───────────────────────────
+    it('isAllowedReferer: empty → true', () => {
+      expect(isAllowedReferer('')).toBe(true);
+      expect(isAllowedReferer(null)).toBe(true);
+      expect(isAllowedReferer(undefined)).toBe(true);
+    });
+
+    it('isAllowedReferer: cloudcdn.pro and subdomains → true', () => {
+      expect(isAllowedReferer('https://cloudcdn.pro/')).toBe(true);
+      expect(isAllowedReferer('https://cloudcdn.pro/some/path?q=1')).toBe(true);
+      expect(isAllowedReferer('https://acme.cloudcdn.pro/')).toBe(true);
+      expect(isAllowedReferer('https://staging.cloudcdn.pro/x')).toBe(true);
+    });
+
+    it('isAllowedReferer: external hosts → false', () => {
+      expect(isAllowedReferer('https://evil.com/')).toBe(false);
+      expect(isAllowedReferer('https://google.com/imgres?...')).toBe(false);
+      // Subdomain trick: "cloudcdn.pro.evil.com" should NOT match the suffix.
+      expect(isAllowedReferer('https://cloudcdn.pro.evil.com/')).toBe(false);
+    });
+
+    it('isAllowedReferer: malformed URL → false', () => {
+      expect(isAllowedReferer('not-a-url')).toBe(false);
+      expect(isAllowedReferer('javascript:alert(1)')).toBe(false);
     });
   });
 });

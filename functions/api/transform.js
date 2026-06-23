@@ -3,14 +3,49 @@ import { addUsageIfBelow } from './usage_meter_do.js';
 
 const MONTHLY_LIMIT = 50000;
 
-// Per-IP rate limit for /api/transform. The monthly cap above is GLOBAL
-// — a single bot can burn the entire 50k/month allowance in minutes
-// (confirmed 2026-06-23: 6+ GB in 15 minutes from one US IP). This
-// per-IP cap stops a single source dead in <1 minute without affecting
-// legitimate clients (a humans-browsing page rarely fires more than
-// ~20 transforms per minute even with eager preloads).
-const PER_IP_LIMIT = 60;
-const PER_IP_WINDOW_SECONDS = 60;
+// Per-IP rate limits for /api/transform. The monthly cap above is
+// GLOBAL — a single bot can burn the entire 50k/month allowance in
+// minutes (confirmed 2026-06-23: 6+ GB in 15 minutes from one US IP).
+//
+// Three tiers stop different attack shapes:
+//   - PER_IP_MIN (60/min)  — burst attacks (today's pattern)
+//   - PER_IP_HOUR (1k/hr)  — sustained at-the-cap (bot pacing 60/min)
+//   - PER_IP_DAY (5k/day)  — very-slow-drip (bot pacing 200/hr)
+//
+// A normal browser loading a page fires 5-15 transforms; even
+// aggressive eager-preloads stay under 20/min. The minute cap is the
+// hot path; the hour + day tiers catch adaptive bots that pace just
+// below the per-minute cap.
+const PER_IP_MIN  = 60;
+const PER_IP_HOUR = 1000;
+const PER_IP_DAY  = 5000;
+
+// Allowed Referer hostnames. Empty Referer is ALSO allowed
+// (no-referrer-policy clients, direct API users) — see isAllowedReferer.
+// Hotlink Protection at the WAF level (enabled in Cloudflare dashboard)
+// provides the primary defence; this code-level check is belt-and-braces
+// in case the WAF rule is accidentally disabled.
+const REFERER_ALLOWED_HOSTS = new Set([
+  'cloudcdn.pro',
+]);
+const REFERER_ALLOWED_SUFFIXES = [
+  '.cloudcdn.pro',  // multi-tenant subdomains
+];
+
+// Returns true when the Referer header is missing OR matches an allowed
+// host. Returns false only for explicit external Referers.
+// Exported for unit tests.
+export function isAllowedReferer(refererHeader) {
+  if (!refererHeader) return true; // no-referrer-policy / API clients
+  let host;
+  try { host = new URL(refererHeader).hostname.toLowerCase(); }
+  catch { return false; } // malformed Referer — block as a precaution
+  if (REFERER_ALLOWED_HOSTS.has(host)) return true;
+  for (const suffix of REFERER_ALLOWED_SUFFIXES) {
+    if (host.endsWith(suffix)) return true;
+  }
+  return false;
+}
 
 // Known AI-training + scraper bot User-Agent substrings. Match is
 // case-insensitive, substring (matches "Mozilla/5.0 (compatible;
@@ -133,22 +168,47 @@ export async function onRequestGet(context) {
     });
   }
 
-  // --- Layer 2: per-IP rate limit (60 req/min) ---
+  // --- Layer 2: code-level Referer check (defence-in-depth) ---
   //
-  // Stops a single bad source dead without affecting legitimate
-  // browsers (a normal page rarely fires >20 transforms/minute even
-  // with eager preloads). Routes through checkRateLimit (DO-preferred,
-  // KV-fallback) so it's atomic + free of KV write quota.
-  const ip = context.request.headers?.get?.('cf-connecting-ip') || 'unknown';
-  const rl = await checkRateLimit(context.env, `rl:transform:${ip}`, PER_IP_LIMIT, PER_IP_WINDOW_SECONDS);
-  if (!rl.allowed) {
-    return legacyErrorJson(429, 'rate_limit_exceeded', {
-      extra: { message: `Too many transform requests from this IP. Limit: ${PER_IP_LIMIT}/${PER_IP_WINDOW_SECONDS}s.` },
-      retryAfter: PER_IP_WINDOW_SECONDS,
+  // Cloudflare's Hotlink Protection (enabled at the WAF layer
+  // 2026-06-23) is the primary defence against off-domain hotlinks;
+  // this is the belt-and-braces version that runs even if Hotlink
+  // Protection is accidentally disabled. Allow:
+  //   - Empty Referer (no-referrer-policy clients, direct API)
+  //   - cloudcdn.pro + *.cloudcdn.pro
+  // Block any explicit external Referer.
+  const referer = context.request.headers?.get?.('referer') || '';
+  if (!isAllowedReferer(referer)) {
+    return legacyErrorJson(403, 'hotlink_blocked', {
+      extra: { message: 'Off-domain hotlinking of /api/transform is not allowed.' },
     });
   }
 
-  // --- Layer 3: atomic monthly soft limit via UsageMeterDO ---
+  // --- Layer 3: multi-tier per-IP rate limit ---
+  //
+  // Three sequential checks stop three attack shapes:
+  //   60/min  — bursts (today's pattern, ~10k/min from 1 IP)
+  //   1k/hr   — sustained-at-cap (60/min × 60 min = 3600/hr, blocked)
+  //   5k/day  — slow drip (200/hr would sneak past 1k/hr but caps at 5k/day)
+  // All checks route through checkRateLimit (DO-preferred, KV-fallback),
+  // atomic + free of KV write quota.
+  const ip = context.request.headers?.get?.('cf-connecting-ip') || 'unknown';
+  const tiers = [
+    { key: `rl:transform:m:${ip}`, limit: PER_IP_MIN,  window: 60,    label: 'minute' },
+    { key: `rl:transform:h:${ip}`, limit: PER_IP_HOUR, window: 3600,  label: 'hour'   },
+    { key: `rl:transform:d:${ip}`, limit: PER_IP_DAY,  window: 86400, label: 'day'    },
+  ];
+  for (const t of tiers) {
+    const rl = await checkRateLimit(context.env, t.key, t.limit, t.window);
+    if (!rl.allowed) {
+      return legacyErrorJson(429, `rate_limit_exceeded_${t.label}`, {
+        extra: { message: `Too many transform requests from this IP. Limit: ${t.limit}/${t.label}.` },
+        retryAfter: t.window,
+      });
+    }
+  }
+
+  // --- Layer 4: atomic monthly soft limit via UsageMeterDO ---
   //
   // Previously hand-rolled `RATE_KV.get → check → put` (banned
   // ADR-11 pattern; 50,000 writes/month would exhaust the

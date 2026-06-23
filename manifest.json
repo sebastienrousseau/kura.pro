@@ -3192,6 +3192,38 @@
     "size": 284
   },
   {
+    "name": "banner-cmn-1200.webp",
+    "path": "cmn/v1/banners/banner-cmn-1200.webp",
+    "project": "cmn",
+    "category": "banners",
+    "format": "webp",
+    "size": 29014
+  },
+  {
+    "name": "banner-cmn-1920.webp",
+    "path": "cmn/v1/banners/banner-cmn-1920.webp",
+    "project": "cmn",
+    "category": "banners",
+    "format": "webp",
+    "size": 27876
+  },
+  {
+    "name": "banner-cmn-320.webp",
+    "path": "cmn/v1/banners/banner-cmn-320.webp",
+    "project": "cmn",
+    "category": "banners",
+    "format": "webp",
+    "size": 5358
+  },
+  {
+    "name": "banner-cmn-640.webp",
+    "path": "cmn/v1/banners/banner-cmn-640.webp",
+    "project": "cmn",
+    "category": "banners",
+    "format": "webp",
+    "size": 12750
+  },
+  {
     "name": "banner-cmn.png",
     "path": "cmn/v1/banners/banner-cmn.png",
     "project": "cmn",
@@ -3822,6 +3854,38 @@
     "category": "logos",
     "format": "webp",
     "size": 137902
+  },
+  {
+    "name": "title-cmn-1200.webp",
+    "path": "cmn/v1/titles/title-cmn-1200.webp",
+    "project": "cmn",
+    "category": "titles",
+    "format": "webp",
+    "size": 22256
+  },
+  {
+    "name": "title-cmn-1920.webp",
+    "path": "cmn/v1/titles/title-cmn-1920.webp",
+    "project": "cmn",
+    "category": "titles",
+    "format": "webp",
+    "size": 14978
+  },
+  {
+    "name": "title-cmn-320.webp",
+    "path": "cmn/v1/titles/title-cmn-320.webp",
+    "project": "cmn",
+    "category": "titles",
+    "format": "webp",
+    "size": 4654
+  },
+  {
+    "name": "title-cmn-640.webp",
+    "path": "cmn/v1/titles/title-cmn-640.webp",
+    "project": "cmn",
+    "category": "titles",
+    "format": "webp",
+    "size": 10224
   },
   {
     "name": "title-cmn.png",
@@ -5126,6 +5190,38 @@
     "category": "images",
     "format": "svg",
     "size": 220176
+  },
+  {
+    "name": "dotfiles-1200.webp",
+    "path": "dotfiles/v2/images/banners/dotfiles-1200.webp",
+    "project": "dotfiles",
+    "category": "images",
+    "format": "webp",
+    "size": 39464
+  },
+  {
+    "name": "dotfiles-1920.webp",
+    "path": "dotfiles/v2/images/banners/dotfiles-1920.webp",
+    "project": "dotfiles",
+    "category": "images",
+    "format": "webp",
+    "size": 76354
+  },
+  {
+    "name": "dotfiles-320.webp",
+    "path": "dotfiles/v2/images/banners/dotfiles-320.webp",
+    "project": "dotfiles",
+    "category": "images",
+    "format": "webp",
+    "size": 6764
+  },
+  {
+    "name": "dotfiles-640.webp",
+    "path": "dotfiles/v2/images/banners/dotfiles-640.webp",
+    "project": "dotfiles",
+    "category": "images",
+    "format": "webp",
+    "size": 16988
   },
   {
     "name": "dotfiles.webp",
@@ -6560,6 +6656,38 @@
     "size": 410486
   },
   {
+    "name": "banner-l90s.svg-1200.webp",
+    "path": "l90s/v1/banners/banner-l90s.svg-1200.webp",
+    "project": "l90s",
+    "category": "banners",
+    "format": "webp",
+    "size": 16620
+  },
+  {
+    "name": "banner-l90s.svg-1920.webp",
+    "path": "l90s/v1/banners/banner-l90s.svg-1920.webp",
+    "project": "l90s",
+    "category": "banners",
+    "format": "webp",
+    "size": 17394
+  },
+  {
+    "name": "banner-l90s.svg-320.webp",
+    "path": "l90s/v1/banners/banner-l90s.svg-320.webp",
+    "project": "l90s",
+    "category": "banners",
+    "format": "webp",
+    "size": 3302
+  },
+  {
+    "name": "banner-l90s.svg-640.webp",
+    "path": "l90s/v1/banners/banner-l90s.svg-640.webp",
+    "project": "l90s",
+    "category": "banners",
+    "format": "webp",
+    "size": 7590
+  },
+  {
     "name": "banner-l90s.svg.webp",
     "path": "l90s/v1/banners/banner-l90s.svg.webp",
     "project": "l90s",
@@ -6912,6 +7040,38 @@
     "size": 347
   },
   {
+    "name": "maccfg-1200.webp",
+    "path": "maccfg/v1/banners/maccfg-1200.webp",
+    "project": "maccfg",
+    "category": "banners",
+    "format": "webp",
+    "size": 4804
+  },
+  {
+    "name": "maccfg-1920.webp",
+    "path": "maccfg/v1/banners/maccfg-1920.webp",
+    "project": "maccfg",
+    "category": "banners",
+    "format": "webp",
+    "size": 4804
+  },
+  {
+    "name": "maccfg-320.webp",
+    "path": "maccfg/v1/banners/maccfg-320.webp",
+    "project": "maccfg",
+    "category": "banners",
+    "format": "webp",
+    "size": 1384
+  },
+  {
+    "name": "maccfg-640.webp",
+    "path": "maccfg/v1/banners/maccfg-640.webp",
+    "project": "maccfg",
+    "category": "banners",
+    "format": "webp",
+    "size": 3482
+  },
+  {
     "name": "maccfg.webp",
     "path": "maccfg/v1/banners/maccfg.webp",
     "project": "maccfg",
@@ -7070,6 +7230,38 @@
     "category": "general",
     "format": "ico",
     "size": 389825
+  },
+  {
+    "name": "banner-mini-functions-1200.webp",
+    "path": "mini-functions/v1/banners/banner-mini-functions-1200.webp",
+    "project": "mini-functions",
+    "category": "banners",
+    "format": "webp",
+    "size": 26030
+  },
+  {
+    "name": "banner-mini-functions-1920.webp",
+    "path": "mini-functions/v1/banners/banner-mini-functions-1920.webp",
+    "project": "mini-functions",
+    "category": "banners",
+    "format": "webp",
+    "size": 25166
+  },
+  {
+    "name": "banner-mini-functions-320.webp",
+    "path": "mini-functions/v1/banners/banner-mini-functions-320.webp",
+    "project": "mini-functions",
+    "category": "banners",
+    "format": "webp",
+    "size": 5208
+  },
+  {
+    "name": "banner-mini-functions-640.webp",
+    "path": "mini-functions/v1/banners/banner-mini-functions-640.webp",
+    "project": "mini-functions",
+    "category": "banners",
+    "format": "webp",
+    "size": 11664
   },
   {
     "name": "banner-mini-functions.png",
@@ -7694,6 +7886,38 @@
     "category": "logos",
     "format": "webp",
     "size": 44704
+  },
+  {
+    "name": "title-mini-functions-1200.webp",
+    "path": "mini-functions/v1/titles/title-mini-functions-1200.webp",
+    "project": "mini-functions",
+    "category": "titles",
+    "format": "webp",
+    "size": 17234
+  },
+  {
+    "name": "title-mini-functions-1920.webp",
+    "path": "mini-functions/v1/titles/title-mini-functions-1920.webp",
+    "project": "mini-functions",
+    "category": "titles",
+    "format": "webp",
+    "size": 13578
+  },
+  {
+    "name": "title-mini-functions-320.webp",
+    "path": "mini-functions/v1/titles/title-mini-functions-320.webp",
+    "project": "mini-functions",
+    "category": "titles",
+    "format": "webp",
+    "size": 3890
+  },
+  {
+    "name": "title-mini-functions-640.webp",
+    "path": "mini-functions/v1/titles/title-mini-functions-640.webp",
+    "project": "mini-functions",
+    "category": "titles",
+    "format": "webp",
+    "size": 8456
   },
   {
     "name": "title-mini-functions.png",
@@ -9550,6 +9774,38 @@
     "category": "logos",
     "format": "svg",
     "size": 328463
+  },
+  {
+    "name": "pm2md-1200.webp",
+    "path": "pm2md/v1/banners/pm2md-1200.webp",
+    "project": "pm2md",
+    "category": "banners",
+    "format": "webp",
+    "size": 22762
+  },
+  {
+    "name": "pm2md-1920.webp",
+    "path": "pm2md/v1/banners/pm2md-1920.webp",
+    "project": "pm2md",
+    "category": "banners",
+    "format": "webp",
+    "size": 40588
+  },
+  {
+    "name": "pm2md-320.webp",
+    "path": "pm2md/v1/banners/pm2md-320.webp",
+    "project": "pm2md",
+    "category": "banners",
+    "format": "webp",
+    "size": 5196
+  },
+  {
+    "name": "pm2md-640.webp",
+    "path": "pm2md/v1/banners/pm2md-640.webp",
+    "project": "pm2md",
+    "category": "banners",
+    "format": "webp",
+    "size": 10944
   },
   {
     "name": "pm2md.webp",

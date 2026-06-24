@@ -12,6 +12,10 @@ on:
       - 'cdn/shared/**'
       - 'package.json'
       - '.github/workflows/test.yml'
+      # Docs-only paths: included so the 7 required status checks fire
+      # on CHANGELOG/README PRs. Branch protection requires all seven to
+      # report green; if the workflow doesn't trigger, the PR is stuck.
+      - '**/*.md'
   pull_request:
     paths:
       - 'scripts/**'
@@ -22,6 +26,7 @@ on:
       - 'cdn/shared/**'
       - 'package.json'
       - '.github/workflows/test.yml'
+      - '**/*.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

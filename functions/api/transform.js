@@ -1,6 +1,149 @@
-import { legacyErrorJson } from './_shared.js';
+import { legacyErrorJson, checkRateLimit, authenticateAny, headFromGet } from './_shared.js';
+import { hasAccountsDB, getCurrentSession } from './auth/_lib.js';
+import { addUsageIfBelow } from './usage_meter_do.js';
 
 const MONTHLY_LIMIT = 50000;
+
+// Per-IP rate limits for /api/transform. The monthly cap above is
+// GLOBAL — a single bot can burn the entire 50k/month allowance in
+// minutes (confirmed 2026-06-23: 6+ GB in 15 minutes from one US IP).
+//
+// Three tiers stop different attack shapes:
+//   - PER_IP_MIN (60/min)  — burst attacks (today's pattern)
+//   - PER_IP_HOUR (1k/hr)  — sustained at-the-cap (bot pacing 60/min)
+//   - PER_IP_DAY (5k/day)  — very-slow-drip (bot pacing 200/hr)
+//
+// A normal browser loading a page fires 5-15 transforms; even
+// aggressive eager-preloads stay under 20/min. The minute cap is the
+// hot path; the hour + day tiers catch adaptive bots that pace just
+// below the per-minute cap.
+const PER_IP_MIN  = 60;
+const PER_IP_HOUR = 1000;
+const PER_IP_DAY  = 5000;
+
+// Allowed Referer hostnames. Empty Referer is ALSO allowed
+// (no-referrer-policy clients, direct API users) — see isAllowedReferer.
+// Hotlink Protection at the WAF level (enabled in Cloudflare dashboard)
+// provides the primary defence; this code-level check is belt-and-braces
+// in case the WAF rule is accidentally disabled.
+const REFERER_ALLOWED_HOSTS = new Set([
+  'cloudcdn.pro',
+]);
+const REFERER_ALLOWED_SUFFIXES = [
+  '.cloudcdn.pro',  // multi-tenant subdomains
+];
+
+// Returns true when the Referer header is missing OR matches an allowed
+// host. Returns false only for explicit external Referers.
+// Exported for unit tests.
+export function isAllowedReferer(refererHeader) {
+  if (!refererHeader) return true; // no-referrer-policy / API clients
+  let host;
+  try { host = new URL(refererHeader).hostname.toLowerCase(); }
+  catch { return false; } // malformed Referer — block as a precaution
+  if (REFERER_ALLOWED_HOSTS.has(host)) return true;
+  for (const suffix of REFERER_ALLOWED_SUFFIXES) {
+    if (host.endsWith(suffix)) return true;
+  }
+  return false;
+}
+
+// Known AI-training + scraper bot User-Agent patterns. Maintained
+// hand-curated list as of 2026-06 — see darkvisitors.com/agents/agents.json
+// for the upstream registry. PR #115 wires a weekly CI sync that opens a
+// follow-up PR when new entries land there.
+//
+// Regex (not substring) so we can use word boundaries on the few patterns
+// that need them. All flags are case-insensitive — UAs vary in case across
+// libraries (GPTBot vs gptbot vs GPTbot etc.).
+//
+// Audit notes:
+//   - Redundant subset patterns intentionally absent (e.g. ChatGPT matches
+//     ChatGPT-User; Perplexity matches PerplexityBot)
+//   - /oBot/i deliberately omitted — matches Robot, Roboto (Google font!),
+//     Lobotomy, and many other false positives
+//   - /Gemini/i, /MetaAI/i, /LLaMA/i, /MicrosoftPreview/i, /Copilot/i
+//     deliberately omitted — not published crawler UAs or risk false-
+//     positive on legitimate Edge / app traffic
+//   - Cloudflare Bot Fight Mode at the WAF layer is the primary defence;
+//     this list is the defense-in-depth second layer that runs inside the
+//     Worker
+export const BLOCKED_UA_PATTERNS = [
+  // OpenAI
+  /GPTBot/i, /ChatGPT/i, /OpenAI/i, /OAI-SearchBot/i,
+
+  // Anthropic
+  /ClaudeBot/i, /Claude-Web/i, /anthropic-ai/i, /anthropic\.com/i,
+
+  // Google AI training (NOT Googlebot — that's allowed for search)
+  /Google-Extended/i, /GoogleOther/i,
+
+  // Perplexity
+  /Perplexity/i,
+
+  // ByteDance / TikTok
+  /Bytespider/i, /Bytedance/i,
+
+  // Meta / Facebook
+  /FacebookBot/i, /Meta-ExternalAgent/i, /Meta-ExternalFetcher/i,
+
+  // Microsoft Bing AI preview (NOT bingbot for search)
+  /BingPreview/i,
+
+  // Apple
+  /Applebot/i,
+
+  // Cohere
+  /Cohere/i, /cohere-ai/i,
+
+  // Amazon
+  /Amazonbot/i,
+
+  // Mistral
+  /mistralai-user/i,
+
+  // Allen Institute (AI2)
+  /AI2Bot/i,
+
+  // Common Crawl
+  /CCBot/i,
+
+  // Diffbot
+  /Diffbot/i,
+
+  // Webz.io
+  /omgili/i, /Webzio-Extended/i,
+
+  // Image dataset builders
+  /ImagesiftBot/i, /img2dataset/i,
+
+  // Huawei AI
+  /PetalBot/i,
+
+  // DuckDuckGo AI
+  /DuckAssistBot/i,
+
+  // Timpi AI
+  /Timpibot/i,
+
+  // iAsk.AI
+  /iaskspider/i,
+
+  // Aggressive SEO / marketing bots that often hammer APIs
+  /AhrefsBot/i, /SemrushBot/i, /MJ12bot/i,
+  /DotBot/i, /BLEXBot/i, /DataForSeoBot/i,
+];
+
+// Returns the matched pattern's source string (e.g. "GPTBot") for
+// logging and the 403 error message, or null if none matched.
+// Case-insensitive substring match via regex .test().
+export function matchedBotUa(uaHeader) {
+  if (!uaHeader) return null;
+  for (const pattern of BLOCKED_UA_PATTERNS) {
+    if (pattern.test(uaHeader)) return pattern.source;
+  }
+  return null;
+}
 
 const VALID_FIT = new Set(['cover', 'contain', 'fill', 'inside', 'outside']);
 const VALID_FORMAT = new Set(['auto', 'webp', 'avif', 'png', 'jpeg']);
@@ -73,30 +216,116 @@ function applyNetworkAwareDefaults(request, imageOpts, explicitFormatProvided) {
 }
 
 export async function onRequestGet(context) {
-  const { RATE_KV } = context.env;
+  const { USAGE_METER } = context.env;
   const url = new URL(context.request.url);
   const params = url.searchParams;
 
-  // --- Rate limiting ---
-  if (RATE_KV) {
-    const now = new Date();
-    const monthKey = `transforms:${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
-    let monthCount = 0;
-    try {
-      monthCount = parseInt(await RATE_KV.get(monthKey)) || 0;
-    } catch {}
+  // --- Layer 0: authentication required ---
+  //
+  // /api/transform is no longer a public endpoint. Two ways to
+  // authenticate:
+  //   1. cdn_session cookie — set by /api/auth/* (passkey, OAuth,
+  //      email+password). Browser users signed into cloudcdn.pro
+  //      (including the dashboard) get this for free.
+  //   2. AccountKey or AccessKey header — programmatic API users
+  //      using the documented client libraries.
+  //
+  // Public pages no longer reference /api/transform programmatically
+  // (PR #105 + #106 shipped pre-rendered responsive variants under
+  // /stocks/images/ and /clients/**/banners/ for all viewport-sized
+  // images). The only remaining caller is the dashboard's Transform
+  // Playground, which already runs behind a session.
+  //
+  // Behaviour:
+  //   - With cdn_session cookie OR AccountKey/AccessKey: proceed.
+  //   - Without either: 401 unauthenticated.
+  //
+  // This kills the entire bot-attack class for /api/transform: a
+  // crawler with no session + no API key gets 401 in ~50µs (one D1
+  // cookie lookup if cookie present, zero work if absent).
+  let authed = await authenticateAny(context.request, context.env);
+  if (!authed && hasAccountsDB(context.env)) {
+    const session = await getCurrentSession(context.env, context.request);
+    authed = !!session;
+  }
+  if (!authed) {
+    return legacyErrorJson(401, 'unauthenticated', {
+      extra: { message: 'Sign in (cdn_session cookie) or supply an AccountKey/AccessKey header. Public pages should use the pre-generated /stocks/.../-{320,640,1200,1920}.webp variants instead — see /api-reference/.' },
+    });
+  }
 
-    if (monthCount >= MONTHLY_LIMIT) {
+  // --- Layer 1: known AI-training/scraper bot blocklist ---
+  //
+  // These crawlers have NO legitimate need for image transformations
+  // (they want raw assets for training, not resized versions). Block
+  // them BEFORE counting toward the monthly cap so they can't burn
+  // the global allowance by spinning prefix-only requests.
+  const ua = context.request.headers?.get?.('user-agent') || '';
+  const botMatch = matchedBotUa(ua);
+  if (botMatch) {
+    return legacyErrorJson(403, 'bot_blocked', {
+      extra: { message: `User-Agent "${botMatch}" is blocked from this endpoint. Image transformations are for human-facing CDN traffic.` },
+    });
+  }
+
+  // --- Layer 2: code-level Referer check (defence-in-depth) ---
+  //
+  // Cloudflare's Hotlink Protection (enabled at the WAF layer
+  // 2026-06-23) is the primary defence against off-domain hotlinks;
+  // this is the belt-and-braces version that runs even if Hotlink
+  // Protection is accidentally disabled. Allow:
+  //   - Empty Referer (no-referrer-policy clients, direct API)
+  //   - cloudcdn.pro + *.cloudcdn.pro
+  // Block any explicit external Referer.
+  const referer = context.request.headers?.get?.('referer') || '';
+  if (!isAllowedReferer(referer)) {
+    return legacyErrorJson(403, 'hotlink_blocked', {
+      extra: { message: 'Off-domain hotlinking of /api/transform is not allowed.' },
+    });
+  }
+
+  // --- Layer 3: multi-tier per-IP rate limit ---
+  //
+  // Three sequential checks stop three attack shapes:
+  //   60/min  — bursts (today's pattern, ~10k/min from 1 IP)
+  //   1k/hr   — sustained-at-cap (60/min × 60 min = 3600/hr, blocked)
+  //   5k/day  — slow drip (200/hr would sneak past 1k/hr but caps at 5k/day)
+  // All checks route through checkRateLimit (DO-preferred, KV-fallback),
+  // atomic + free of KV write quota.
+  const ip = context.request.headers?.get?.('cf-connecting-ip') || 'unknown';
+  const tiers = [
+    { key: `rl:transform:m:${ip}`, limit: PER_IP_MIN,  window: 60,    label: 'minute' },
+    { key: `rl:transform:h:${ip}`, limit: PER_IP_HOUR, window: 3600,  label: 'hour'   },
+    { key: `rl:transform:d:${ip}`, limit: PER_IP_DAY,  window: 86400, label: 'day'    },
+  ];
+  for (const t of tiers) {
+    const rl = await checkRateLimit(context.env, t.key, t.limit, t.window);
+    if (!rl.allowed) {
+      return legacyErrorJson(429, `rate_limit_exceeded_${t.label}`, {
+        extra: { message: `Too many transform requests from this IP. Limit: ${t.limit}/${t.label}.` },
+        retryAfter: t.window,
+      });
+    }
+  }
+
+  // --- Layer 4: atomic monthly soft limit via UsageMeterDO ---
+  //
+  // Previously hand-rolled `RATE_KV.get → check → put` (banned
+  // ADR-11 pattern; 50,000 writes/month would exhaust the
+  // 1000/day Free-tier KV write quota in under 30 minutes on a
+  // hot zone). addIfBelow does the check-and-increment in one
+  // atomic RPC hop with zero KV writes.
+  //
+  // Degrades open when USAGE_METER isn't bound (local dev).
+  if (USAGE_METER) {
+    const result = await addUsageIfBelow(context.env, 'global-transform', 1, MONTHLY_LIMIT);
+    if (result && !result.accepted) {
       return legacyErrorJson(429, 'limit_reached', {
         extra: { message: 'Monthly transform limit reached.' },
         limit: MONTHLY_LIMIT,
         retryAfter: 86400,
       });
     }
-
-    try {
-      await RATE_KV.put(monthKey, String(monthCount + 1), { expirationTtl: 86400 * 35 });
-    } catch {}
   }
 
   // --- Validate required param ---
@@ -223,12 +452,14 @@ export async function onRequestGet(context) {
   }
 }
 
+export const onRequestHead = headFromGet(onRequestGet);
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
       'Access-Control-Max-Age': '86400',
     },
   });

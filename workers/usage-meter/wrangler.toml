@@ -1,0 +1,21 @@
+name = "cloudcdn-usage-meter"
+main = "src/index.js"
+
+# Match the Pages project's date so behaviour is identical across the
+# cross-script binding.
+compatibility_date = "2026-04-01"
+
+# Declare the Durable Object class hosted by this Worker. The
+# `[[migrations]]` directive is what actually provisions the namespace
+# on Cloudflare's side; without it the class exists in code but no
+# storage backing is allocated.
+[[durable_objects.bindings]]
+name       = "USAGE_METER"
+class_name = "UsageMeterDO"
+
+# SQLite-backed DO classes — recommended default on paid plans, only
+# option on the free plan. Storage API used by UsageMeterDO is
+# identical between the two — no code change required to switch.
+[[migrations]]
+tag                = "v1"
+new_sqlite_classes = ["UsageMeterDO"]

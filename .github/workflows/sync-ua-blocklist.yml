@@ -1,0 +1,77 @@
+name: Sync AI-crawler UA blocklist
+
+# Compares functions/api/transform.js#BLOCKED_UA_PATTERNS against the
+# community-maintained ai-robots-txt registry and posts a step-summary
+# with any drift. Manual review/merge per pattern — see the script
+# docstring for why we don't auto-PR.
+
+on:
+  schedule:
+    # Mondays 06:00 UTC — early-week, after weekend AI-crawler launches.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-ua-blocklist
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '20'
+
+      - name: Compute UA blocklist drift
+        id: sync
+        run: |
+          # Capture both the human-readable report (for step summary)
+          # and the JSON (for parsing the missing count).
+          node scripts/sync-ua-blocklist.mjs > human.txt
+          node scripts/sync-ua-blocklist.mjs --json > drift.json
+          MISSING=$(python3 -c "import json; print(json.load(open('drift.json'))['missingCount'])")
+          echo "missing=$MISSING" >> "$GITHUB_OUTPUT"
+
+      - name: Attach report to step summary
+        run: |
+          {
+            echo "## AI-crawler UA blocklist drift"
+            echo ""
+            echo "Source: [ai-robots-txt/ai.robots.txt](https://github.com/ai-robots-txt/ai.robots.txt)"
+            echo ""
+            echo '```'
+            cat human.txt
+            echo '```'
+            echo ""
+            if [ "${{ steps.sync.outputs.missing }}" -gt "0" ]; then
+              echo "### How to act"
+              echo ""
+              echo "1. Review each candidate above for false-positive risk (see audit notes in \`functions/api/transform.js\`)"
+              echo "2. Add accepted patterns to \`BLOCKED_UA_PATTERNS\` in that file"
+              echo "3. Update \`scripts/tests/transform.test.js\` fixtures"
+              echo "4. Open a PR"
+              echo ""
+              echo "Reasons to REJECT a candidate:"
+              echo "- Pattern would match legitimate browser/app traffic (e.g. /Copilot/i matches Edge browsers)"
+              echo "- Operator is a legitimate search engine (e.g. Googlebot, bingbot — keep allowed)"
+              echo "- Pattern is too short (≤3 chars) and risks substring false-positives"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload drift JSON artifact
+        if: steps.sync.outputs.missing != '0'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ua-blocklist-drift
+          path: drift.json
+          retention-days: 30

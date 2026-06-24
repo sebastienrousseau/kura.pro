@@ -27,6 +27,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Top-level least-privilege default. Individual jobs that need more
+# (e.g. CodeQL needs security-events: write) declare their own
+# permissions blocks. Closes CodeQL alert
+# actions/missing-workflow-permissions (#72).
+permissions:
+  contents: read
+
 jobs:
   ci:
     uses: sebastienrousseau/pipelines/.github/workflows/node-ci.yml@main
@@ -62,14 +69,14 @@ jobs:
       security-events: write
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
 
       - name: Initialize CodeQL (actions)
-        uses: github/codeql-action/init@5c8a8a642e79153f5d047b10ec1cba1d1cc65699 # v3
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v3
         with:
           languages: actions
           # security-extended adds the GitHub Actions query pack for known
@@ -77,7 +84,7 @@ jobs:
           queries: security-extended
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@5c8a8a642e79153f5d047b10ec1cba1d1cc65699 # v3
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v3
         with:
           category: '/language:actions'
 
@@ -87,7 +94,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 1
           persist-credentials: false
@@ -109,6 +116,34 @@ jobs:
           path: sbom.cdx.json
           retention-days: 90
 
+  # Verifies every stocks/images/<name>.webp has its full responsive
+  # variant set (-320, -640, -1200, -1920). Catches "added a new image
+  # but forgot to run `npm run dist:responsive` before committing".
+  # Pre-generated variants are the user-facing alternative to
+  # /api/transform — without them, pages fall back to runtime
+  # transforms which were the confirmed source of the 2026-06-23
+  # bandwidth spike.
+  responsive-variants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify every source image has all 4 responsive variants
+        run: npm run dist:responsive:check
+
   accessibility:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -116,7 +151,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 1
           persist-credentials: false
@@ -197,7 +232,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 1
           persist-credentials: false
@@ -210,9 +245,15 @@ jobs:
 
       - name: Run k6 smoke test (10 VUs, 10s)
         continue-on-error: true
+        # I_KNOW_THIS_HITS_PROD=1 is the explicit opt-in required by
+        # the seatbelt added in scripts/tests/load.k6.js. CI legitimately
+        # needs to verify the production edge — the seatbelt's job is
+        # to catch DEVELOPERS typing `k6 run ...` thinking it's local,
+        # not to block CI.
         run: |
           k6 run \
             -e BASE_URL=https://cloudcdn.pro \
+            -e I_KNOW_THIS_HITS_PROD=1 \
             --vus 10 \
             --duration 10s \
             --summary-trend-stats="avg,min,med,max,p(95),p(99)" \
@@ -225,7 +266,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 1
           persist-credentials: false

@@ -18,6 +18,8 @@
     "build:locales": "node scripts/i18n/build-locales.mjs",
     "build:skeletonic": "node scripts/build-skeletonic.mjs",
     "build:all": "npm run build:manifest && npm run build:locales && npm run build:css && npm run build:skeletonic",
+    "dist:responsive": "node scripts/dist/generate-responsive-stocks.mjs",
+    "dist:responsive:check": "node scripts/dist/generate-responsive-stocks.mjs --check",
     "health": "curl -s https://cloudcdn.pro/api/health?deep=1 | jq .",
     "secrets:list": "npx wrangler pages secret list --project-name=cloudcdn-pro",
     "secrets:set": "npx wrangler pages secret put --project-name=cloudcdn-pro",
@@ -27,17 +29,17 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@playwright/test": "1.60.0",
+    "@playwright/test": "1.61.0",
     "@sebastienrousseau/skeletonic-stylus": "2.0.0",
     "@tailwindcss/cli": "4.3.1",
     "@vitest/coverage-v8": "4.1.9",
-    "happy-dom": "20.10.3",
+    "happy-dom": "20.10.6",
     "husky": "9.1.7",
     "tailwindcss": "4.3.1",
     "vitest": "4.1.9"
   },
   "dependencies": {
-    "sharp": "0.35.1"
+    "sharp": "0.35.2"
   },
   "overrides": {
     "vite": "8.0.16"

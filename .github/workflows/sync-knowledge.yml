@@ -6,11 +6,18 @@ on:
       - 'cdn/content/**'
   workflow_dispatch:
 
+# Top-level least-privilege default. The sync job only reads the repo
+# (the actual Vectorize upsert happens server-side at Cloudflare via
+# the CF_API_TOKEN secret — no GitHub permissions needed for that).
+# Closes CodeQL alert actions/missing-workflow-permissions (#71).
+permissions:
+  contents: read
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:

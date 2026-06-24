@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "description": "Pages Functions routing rules — paths under `exclude` skip the 525-line _middleware.js entirely and serve straight from the edge (Pages static asset path), saving Worker invocations and CPU time on the Free-tier daily quota. `include` is the default catch-all; `exclude` wins when both match. Order doesn't matter — Cloudflare evaluates exclude first.\n\nWhat must stay in `include`:\n  - /api/*           — every API endpoint is a Function\n  - /stocks/*        — middleware adds Cache-Tag + analytics tracking (purge-by-tag depends on this; do NOT exclude even though it would save more quota)\n  - /clients/*       — same: Cache-Tag + analytics\n  - /dashboard/*     — has its own _middleware.js\n  - /dist/*          — has its own Functions handler\n  - /{locale}/...    — middleware does i18n routing + canonical-URL redirects\n  - /content/, /api-reference/, /sign-up/, /onboarding/ — locale-fallback routing in middleware\n\nWhat is safe to `exclude` (no middleware side effects, just env.ASSETS.fetch passthrough):\n  - /cdn/*/dist/*    — pre-built JS bundles (stratos, prism, etc.) — pure static\n  - /cdn/shared/*    — language-agnostic CSS/JS/HTML (theme.css, branding/, site-nav.*)\n  - /cdn/sitemap.xml, /cdn/robots.txt — search-engine metadata\n  - /favicon.ico, /favicon.*.png — browser icon requests\n  - /.well-known/*   — standardised public metadata (security.txt, change-password, etc.)\n  - /coverage/*      — vitest coverage report (committed artifact, not user-facing)",
+  "include": ["/*"],
+  "exclude": [
+    "/cdn/*/dist/*",
+    "/cdn/shared/*",
+    "/cdn/sitemap.xml",
+    "/cdn/robots.txt",
+    "/favicon.ico",
+    "/favicon-*.png",
+    "/.well-known/*",
+    "/coverage/*"
+  ]
+}

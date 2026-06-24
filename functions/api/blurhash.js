@@ -29,8 +29,9 @@
 
 import {
   checkRateLimit, errorResponse, log, rateLimitHeaders,
-  hashString, buildCacheKey, cacheGet, cacheSet,
+  hashString, buildCacheKey, cacheGet, cacheSet, headFromGet,
 } from './_shared.js';
+import { matchedBotUa, isAllowedReferer } from './transform.js';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -67,7 +68,18 @@ async function sha256Hex(buf) {
 export async function onRequestGet(context) {
   const { request, env } = context;
 
-  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  // Bot blocklist + Referer guard (PR #108 hardening cohort).
+  const ua = request.headers?.get?.('user-agent') || '';
+  const botMatch = matchedBotUa(ua);
+  if (botMatch) {
+    return errorResponse(403, 'bot_blocked', `User-Agent "${botMatch}" is blocked from this endpoint.`);
+  }
+  const referer = request.headers?.get?.('referer') || '';
+  if (!isAllowedReferer(referer)) {
+    return errorResponse(403, 'hotlink_blocked', 'Off-domain hotlinking of /api/blurhash is not allowed.');
+  }
+
+  const ip = request.headers?.get?.('cf-connecting-ip') || 'unknown';
   const rl = await checkRateLimit(env, `rl:blurhash:${ip}`, RATE_LIMIT_PER_MIN, 60);
   if (!rl.allowed) {
     return errorResponse(429, 'TooManyRequests', `Rate limit exceeded. Maximum ${RATE_LIMIT_PER_MIN} requests per minute per IP.`, { retryAfter: '60', limit: rl.limit });
@@ -136,9 +148,11 @@ export async function onRequestGet(context) {
   });
 }
 
+export const onRequestHead = headFromGet(onRequestGet);
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
-    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Max-Age': '86400' },
+    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS', 'Access-Control-Max-Age': '86400' },
   });
 }

@@ -27,6 +27,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Top-level least-privilege default. Individual jobs that need more
+# (e.g. CodeQL needs security-events: write) declare their own
+# permissions blocks. Closes CodeQL alert
+# actions/missing-workflow-permissions (#72).
+permissions:
+  contents: read
+
 jobs:
   ci:
     uses: sebastienrousseau/pipelines/.github/workflows/node-ci.yml@main

@@ -554,7 +554,7 @@ describe('GET /api/signed', () => {
       expect(res.status).toBe(403);
       const body = await res.json();
       expect(body.error).toBe('Bot blocked');
-      expect(body.userAgent).toBe('gptbot');
+      expect(body.userAgent).toBe('GPTBot');
     });
 
     it('returns 403 for ClaudeBot regardless of signature validity', async () => {

@@ -48,34 +48,99 @@ export function isAllowedReferer(refererHeader) {
   return false;
 }
 
-// Known AI-training + scraper bot User-Agent substrings. Match is
-// case-insensitive, substring (matches "Mozilla/5.0 (compatible;
-// GPTBot/1.2)" etc.). Maintained list — see also
-// https://darkvisitors.com for a fuller registry.
-const BOT_UA_BLOCKLIST = [
-  'gptbot', 'chatgpt-user', 'oai-searchbot',     // OpenAI
-  'claudebot', 'anthropic-ai', 'claude-web',     // Anthropic
-  'perplexitybot', 'perplexity-user',            // Perplexity
-  'google-extended', 'googleother',              // Google AI training (NOT Googlebot)
-  'bytespider', 'bytedance',                     // ByteDance / TikTok
-  'ccbot',                                       // Common Crawl
-  'meta-externalagent', 'facebookbot',           // Meta AI
-  'cohere-ai', 'cohere-training-data-crawler',   // Cohere
-  'youbot',                                      // You.com
-  'amazonbot', 'applebot-extended',              // Amazon, Apple AI training
-  'mistralai-user',                              // Mistral
-  'omgili', 'omgilibot',                         // Webz.io
-  'diffbot',                                     // Diffbot
-  'magpie-crawler',                              // Brandwatch
-  'panscient.com',                               // PanScient
+// Known AI-training + scraper bot User-Agent patterns. Maintained
+// hand-curated list as of 2026-06 — see darkvisitors.com/agents/agents.json
+// for the upstream registry. PR #115 wires a weekly CI sync that opens a
+// follow-up PR when new entries land there.
+//
+// Regex (not substring) so we can use word boundaries on the few patterns
+// that need them. All flags are case-insensitive — UAs vary in case across
+// libraries (GPTBot vs gptbot vs GPTbot etc.).
+//
+// Audit notes:
+//   - Redundant subset patterns intentionally absent (e.g. ChatGPT matches
+//     ChatGPT-User; Perplexity matches PerplexityBot)
+//   - /oBot/i deliberately omitted — matches Robot, Roboto (Google font!),
+//     Lobotomy, and many other false positives
+//   - /Gemini/i, /MetaAI/i, /LLaMA/i, /MicrosoftPreview/i, /Copilot/i
+//     deliberately omitted — not published crawler UAs or risk false-
+//     positive on legitimate Edge / app traffic
+//   - Cloudflare Bot Fight Mode at the WAF layer is the primary defence;
+//     this list is the defense-in-depth second layer that runs inside the
+//     Worker
+export const BLOCKED_UA_PATTERNS = [
+  // OpenAI
+  /GPTBot/i, /ChatGPT/i, /OpenAI/i, /OAI-SearchBot/i,
+
+  // Anthropic
+  /ClaudeBot/i, /Claude-Web/i, /anthropic-ai/i, /anthropic\.com/i,
+
+  // Google AI training (NOT Googlebot — that's allowed for search)
+  /Google-Extended/i, /GoogleOther/i,
+
+  // Perplexity
+  /Perplexity/i,
+
+  // ByteDance / TikTok
+  /Bytespider/i, /Bytedance/i,
+
+  // Meta / Facebook
+  /FacebookBot/i, /Meta-ExternalAgent/i, /Meta-ExternalFetcher/i,
+
+  // Microsoft Bing AI preview (NOT bingbot for search)
+  /BingPreview/i,
+
+  // Apple
+  /Applebot/i,
+
+  // Cohere
+  /Cohere/i, /cohere-ai/i,
+
+  // Amazon
+  /Amazonbot/i,
+
+  // Mistral
+  /mistralai-user/i,
+
+  // Allen Institute (AI2)
+  /AI2Bot/i,
+
+  // Common Crawl
+  /CCBot/i,
+
+  // Diffbot
+  /Diffbot/i,
+
+  // Webz.io
+  /omgili/i, /Webzio-Extended/i,
+
+  // Image dataset builders
+  /ImagesiftBot/i, /img2dataset/i,
+
+  // Huawei AI
+  /PetalBot/i,
+
+  // DuckDuckGo AI
+  /DuckAssistBot/i,
+
+  // Timpi AI
+  /Timpibot/i,
+
+  // iAsk.AI
+  /iaskspider/i,
+
+  // Aggressive SEO / marketing bots that often hammer APIs
+  /AhrefsBot/i, /SemrushBot/i, /MJ12bot/i,
+  /DotBot/i, /BLEXBot/i, /DataForSeoBot/i,
 ];
 
-// Returns the blocklist substring matched, or null if none.
+// Returns the matched pattern's source string (e.g. "GPTBot") for
+// logging and the 403 error message, or null if none matched.
+// Case-insensitive substring match via regex .test().
 export function matchedBotUa(uaHeader) {
   if (!uaHeader) return null;
-  const ua = uaHeader.toLowerCase();
-  for (const needle of BOT_UA_BLOCKLIST) {
-    if (ua.includes(needle)) return needle;
+  for (const pattern of BLOCKED_UA_PATTERNS) {
+    if (pattern.test(uaHeader)) return pattern.source;
   }
   return null;
 }

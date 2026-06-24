@@ -709,43 +709,94 @@ describe('GET /api/transform', () => {
 
   // ── Bot blocklist (Layer 1 defence) ────────────────────────────
   describe('AI-crawler User-Agent blocklist', () => {
+    // Fixtures pair real-world UA strings with the regex source they
+    // should match (regex source = the pattern text without slashes
+    // or flags, e.g. /GPTBot/i → 'GPTBot').
     const blocklistFixtures = [
-      ['GPTBot/1.2 (+https://openai.com/gptbot)', 'gptbot'],
-      ['Mozilla/5.0 (compatible; ClaudeBot/1.0)', 'claudebot'],
-      ['Mozilla/5.0 (compatible; PerplexityBot/1.0)', 'perplexitybot'],
-      ['Bytespider; spider-feedback@bytedance.com', 'bytespider'],
-      ['CCBot/2.0 (https://commoncrawl.org/faq/)', 'ccbot'],
-      ['Mozilla/5.0 (compatible; Google-Extended)', 'google-extended'],
-      ['meta-externalagent/1.1', 'meta-externalagent'],
+      ['GPTBot/1.2 (+https://openai.com/gptbot)',          'GPTBot'],
+      ['Mozilla/5.0 (compatible; ChatGPT-User)',            'ChatGPT'],
+      ['Mozilla/5.0 (compatible; OAI-SearchBot/1.0)',       'OAI-SearchBot'],
+      ['Mozilla/5.0 (compatible; ClaudeBot/1.0)',           'ClaudeBot'],
+      ['Mozilla/5.0 anthropic-ai',                          'anthropic-ai'],
+      ['Mozilla/5.0 (compatible; PerplexityBot/1.0)',       'Perplexity'],
+      ['Bytespider; spider-feedback@bytedance.com',         'Bytespider'],
+      ['CCBot/2.0 (https://commoncrawl.org/faq/)',          'CCBot'],
+      ['Mozilla/5.0 (compatible; Google-Extended)',         'Google-Extended'],
+      ['Mozilla/5.0 (compatible; GoogleOther)',             'GoogleOther'],
+      ['Meta-ExternalAgent/1.1',                            'Meta-ExternalAgent'],
+      ['Mozilla/5.0 (compatible; Meta-ExternalFetcher/1.0)', 'Meta-ExternalFetcher'],
+      ['Mozilla/5.0 (compatible; FacebookBot/1.0)',         'FacebookBot'],
+      ['Mozilla/5.0 (compatible; BingPreview)',             'BingPreview'],
+      ['Mozilla/5.0 (compatible; Applebot/0.1)',            'Applebot'],
+      ['Mozilla/5.0 (compatible; cohere-ai)',               'Cohere'],
+      ['Mozilla/5.0 (compatible; Amazonbot/0.1)',           'Amazonbot'],
+      ['Mozilla/5.0 (compatible; mistralai-user)',          'mistralai-user'],
+      ['Mozilla/5.0 (compatible; AI2Bot)',                  'AI2Bot'],
+      ['Mozilla/5.0 (compatible; Diffbot/1.0)',             'Diffbot'],
+      ['Mozilla/5.0 (compatible; omgili/0.5)',              'omgili'],
+      ['Mozilla/5.0 (compatible; Webzio-Extended)',         'Webzio-Extended'],
+      ['Mozilla/5.0 (compatible; ImagesiftBot)',            'ImagesiftBot'],
+      ['Mozilla/5.0 (compatible; img2dataset)',             'img2dataset'],
+      ['Mozilla/5.0 (compatible; PetalBot)',                'PetalBot'],
+      ['Mozilla/5.0 (compatible; DuckAssistBot)',           'DuckAssistBot'],
+      ['Mozilla/5.0 (compatible; Timpibot)',                'Timpibot'],
+      ['Mozilla/5.0 (compatible; iaskspider/1.0)',          'iaskspider'],
+      ['Mozilla/5.0 (compatible; AhrefsBot/7.0)',           'AhrefsBot'],
+      ['Mozilla/5.0 (compatible; SemrushBot)',              'SemrushBot'],
+      ['Mozilla/5.0 (compatible; MJ12bot/v1.4.8)',          'MJ12bot'],
+      ['Mozilla/5.0 (compatible; DotBot)',                  'DotBot'],
+      ['Mozilla/5.0 (compatible; BLEXBot)',                 'BLEXBot'],
+      ['Mozilla/5.0 (compatible; DataForSeoBot)',           'DataForSeoBot'],
+      ['Mozilla/5.0 (claude-web)',                          'Claude-Web'],
+      ['User-Agent: anthropic.com/scraper',                 'anthropic\\.com'],
     ];
     for (const [ua, expected] of blocklistFixtures) {
-      it(`blocks ${expected} with 403`, async () => {
+      it(`blocks "${expected}" → 403 for UA "${ua.slice(0, 50)}"`, async () => {
         const ctx = makeContext('?url=/x.png', {}, { 'user-agent': ua });
         const res = await onRequestGet(ctx);
         expect(res.status).toBe(403);
         const body = await res.json();
         expect(body.error).toBe('bot_blocked');
-        // legacyErrorJson's `extra.message` spreads as body.message
-        // (lowercase) — body.Message (capital M) is the short error code.
+        // legacyErrorJson's `extra.message` spreads as body.message;
+        // matchedBotUa returns the regex .source which we substring into
+        // the human message.
         expect(body.message).toContain(expected);
       });
     }
 
-    it('matchedBotUa returns the matched substring for blocked UAs', () => {
-      expect(matchedBotUa('Mozilla/5.0 (compatible; GPTBot/1.2)')).toBe('gptbot');
-      expect(matchedBotUa('Mozilla/5.0 ClaudeBot')).toBe('claudebot');
+    it('matchedBotUa returns the regex source for blocked UAs', () => {
+      expect(matchedBotUa('Mozilla/5.0 (compatible; GPTBot/1.2)')).toBe('GPTBot');
+      expect(matchedBotUa('Mozilla/5.0 ClaudeBot')).toBe('ClaudeBot');
     });
 
     it('matchedBotUa returns null for legitimate UAs', () => {
+      // Plain browsers must pass.
       expect(matchedBotUa('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36')).toBeNull();
+      // Googlebot for search is NOT blocked (only Google-Extended/GoogleOther are).
       expect(matchedBotUa('Googlebot/2.1 (+http://www.google.com/bot.html)')).toBeNull();
+      // bingbot for search is NOT blocked (only BingPreview is).
+      expect(matchedBotUa('Mozilla/5.0 (compatible; bingbot/2.0)')).toBeNull();
       expect(matchedBotUa('curl/8.4.0')).toBeNull();
+      // Verify the audit-removed risky patterns DON'T fire:
+      // /oBot/i was removed because it'd match Robot/Roboto. Confirm absence.
+      expect(matchedBotUa('Roboto/1.0 (Google font CDN)')).toBeNull();
+      // /Gemini/i removed — could false-positive on apps named Gemini.
+      expect(matchedBotUa('Gemini Wallet/1.0')).toBeNull();
+      // /Copilot/i removed — risky vs Edge browsers shipping Copilot.
+      expect(matchedBotUa('Mozilla/5.0 Edge/120 Copilot/1.0')).toBeNull();
     });
 
     it('matchedBotUa returns null on null/empty UA', () => {
       expect(matchedBotUa(null)).toBeNull();
       expect(matchedBotUa(undefined)).toBeNull();
       expect(matchedBotUa('')).toBeNull();
+    });
+
+    it('matchedBotUa exports BLOCKED_UA_PATTERNS for sync workflow access', async () => {
+      const mod = await import('../../functions/api/transform.js');
+      expect(Array.isArray(mod.BLOCKED_UA_PATTERNS)).toBe(true);
+      expect(mod.BLOCKED_UA_PATTERNS.length).toBeGreaterThanOrEqual(35);
+      expect(mod.BLOCKED_UA_PATTERNS.every((r) => r instanceof RegExp)).toBe(true);
     });
   });
 

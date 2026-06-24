@@ -109,6 +109,34 @@ jobs:
           path: sbom.cdx.json
           retention-days: 90
 
+  # Verifies every stocks/images/<name>.webp has its full responsive
+  # variant set (-320, -640, -1200, -1920). Catches "added a new image
+  # but forgot to run `npm run dist:responsive` before committing".
+  # Pre-generated variants are the user-facing alternative to
+  # /api/transform — without them, pages fall back to runtime
+  # transforms which were the confirmed source of the 2026-06-23
+  # bandwidth spike.
+  responsive-variants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify every source image has all 4 responsive variants
+        run: npm run dist:responsive:check
+
   accessibility:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -210,9 +238,15 @@ jobs:
 
       - name: Run k6 smoke test (10 VUs, 10s)
         continue-on-error: true
+        # I_KNOW_THIS_HITS_PROD=1 is the explicit opt-in required by
+        # the seatbelt added in scripts/tests/load.k6.js. CI legitimately
+        # needs to verify the production edge — the seatbelt's job is
+        # to catch DEVELOPERS typing `k6 run ...` thinking it's local,
+        # not to block CI.
         run: |
           k6 run \
             -e BASE_URL=https://cloudcdn.pro \
+            -e I_KNOW_THIS_HITS_PROD=1 \
             --vus 10 \
             --duration 10s \
             --summary-trend-stats="avg,min,med,max,p(95),p(99)" \

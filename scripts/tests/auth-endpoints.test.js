@@ -241,6 +241,20 @@ describe('POST /api/auth/signup', () => {
     expect((await res.json()).error.code).toBe('email_exists');
   });
 
+  // PR #111 — per-email signup rate limit defends against enumeration.
+  it('returns 429 rate_limited when the per-email signup cap is hit (enumeration defense)', async () => {
+    // RATE_KV returns '3' for the per-email signup counter — at the cap.
+    const env = freshEnv({
+      RATE_KV: { get: vi.fn(async (k) => k.startsWith('signup-email:') ? '3' : null), put: vi.fn() },
+    });
+    const res = await signupModule.onRequestPost({
+      request: makeRequest({ body: validBody({ email: 'probe@example.com' }) }),
+      env,
+    });
+    expect(res.status).toBe(429);
+    expect((await res.json()).error.code).toBe('rate_limited');
+  });
+
   it('returns 500 internal when batch insert hits a non-UNIQUE error', async () => {
     const env = freshEnv({
       ACCOUNTS_DB: {
@@ -510,5 +524,51 @@ describe('POST /api/auth/password/login', () => {
     expect(json.account.id).toBe('a1');
     const setCookie = res.headers.get('set-cookie');
     expect(setCookie).toContain('cdn_session=');
+  });
+
+  // PR #110 — per-email lockout for distributed credential stuffing.
+  // Independent of source IP: 5 failed attempts on a single email within
+  // any 15-min window locks the account regardless of where the attempts
+  // originated.
+  it('returns 429 after the per-email failure cap is hit (distributed stuffing defense)', async () => {
+    // Mock RATE_KV to return a count at the cap, simulating prior
+    // failed attempts from other IPs.
+    const env = freshEnv({
+      ACCOUNTS_DB: makeD1({
+        first: async () => ({
+          user_id: 'u1', email: 'victim@example.com', name: null,
+          email_verified_at: null, hashed_password: '$argon2id$mock',
+        }),
+      }),
+      AUTH_HASHER: makeHasher({ verifyValid: false }),
+      // login-fail:* key returns a count >= 5 → checkRateLimit !allowed
+      RATE_KV: { get: vi.fn(async (k) => k.startsWith('login-fail:') ? '5' : null), put: vi.fn() },
+    });
+    const res = await loginModule.onRequestPost({
+      request: makeRequest({ body: { email: 'victim@example.com', password: 'wrong-12chars' } }),
+      env,
+    });
+    expect(res.status).toBe(429);
+    expect((await res.json()).error.code).toBe('rate_limited');
+  });
+
+  it('still returns 401 invalid_credentials on the first few failures (under cap)', async () => {
+    const env = freshEnv({
+      ACCOUNTS_DB: makeD1({
+        first: async () => ({
+          user_id: 'u1', email: 'who@example.com', name: null,
+          email_verified_at: null, hashed_password: '$argon2id$mock',
+        }),
+      }),
+      AUTH_HASHER: makeHasher({ verifyValid: false }),
+      // RATE_KV returns '2' for login-fail keys — well under cap of 5
+      RATE_KV: { get: vi.fn(async (k) => k.startsWith('login-fail:') ? '2' : null), put: vi.fn() },
+    });
+    const res = await loginModule.onRequestPost({
+      request: makeRequest({ body: { email: 'who@example.com', password: 'wrong-12chars' } }),
+      env,
+    });
+    expect(res.status).toBe(401);
+    expect((await res.json()).error.code).toBe('invalid_credentials');
   });
 });

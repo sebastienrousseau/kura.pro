@@ -73,6 +73,16 @@ name        = "RATE_LIMITER"
 class_name  = "RateLimiterDO"
 script_name = "cloudcdn-rate-limiter"
 
+# Per-account billable-usage counter, hosted by the standalone
+# cloudcdn-usage-meter Worker (workers/usage-meter/). With this
+# binding present, _quota.js#currentMonthUsageUsd prefers the live
+# DO snapshot over the RATE_KV cache, and _quota.js#recordUsage
+# atomically accumulates per-call USD into the actor.
+[[durable_objects.bindings]]
+name        = "USAGE_METER"
+class_name  = "UsageMeterDO"
+script_name = "cloudcdn-usage-meter"
+
 # Workers Analytics Engine — high-cardinality, low-cost per-request metrics
 # (request count, latency, status, AI neuron spend, cache hit rate).
 # recordMetric() in _shared.js reads from `env.METRICS` — the binding name

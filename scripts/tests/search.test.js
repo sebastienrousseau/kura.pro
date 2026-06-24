@@ -557,4 +557,22 @@ describe('GET /api/search', () => {
     expect(json.results.length).toBeGreaterThan(0);
     expect(put.mock.calls.some((c) => c[0] === 'ai:cb:open')).toBe(true);
   });
+
+  // ── PR #109 defense additions ─────────────────────────────────
+  describe('bot blocklist + Referer guard', () => {
+    it('returns 403 bot_blocked for PerplexityBot', async () => {
+      const ctx = makeCtx('/api/search?q=foo');
+      ctx.request.headers.set('user-agent', 'PerplexityBot/1.0');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 403 hotlink_blocked for off-domain Referer', async () => {
+      const ctx = makeCtx('/api/search?q=foo');
+      ctx.request.headers.set('user-agent', 'Mozilla/5.0');
+      ctx.request.headers.set('referer', 'https://offsite.example/');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+    });
+  });
 });

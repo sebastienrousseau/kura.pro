@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const { onRequestGet, onRequestOptions } = await import('../../functions/api/health.js');
+const { onRequestGet, onRequestHead, onRequestOptions } = await import('../../functions/api/health.js');
 
 function makeAssets(ok = true) {
   return {
@@ -319,5 +319,40 @@ describe('OPTIONS /api/health', () => {
   it('returns 204', async () => {
     const res = await onRequestOptions();
     expect(res.status).toBe(204);
+  });
+
+  it('advertises HEAD in Allow-Methods so the uptime-monitor preflight passes', async () => {
+    const res = await onRequestOptions();
+    expect(res.headers.get('Access-Control-Allow-Methods')).toContain('HEAD');
+  });
+});
+
+describe('HEAD /api/health', () => {
+  // Regression — Pages Functions does NOT auto-alias HEAD to GET.
+  // Without onRequestHead exported, every uptime-monitor probe (most
+  // default to HEAD) returns 404 — false-alarming the service as down
+  // AND consuming a Worker invocation to produce the 404.
+  it('returns the same status code as GET (200 on a healthy service)', async () => {
+    const res = await onRequestHead(makeCtx());
+    expect(res.status).toBe(200);
+  });
+
+  it('returns 503 when a required binding is broken (mirrors GET)', async () => {
+    // `null` (not undefined — undefined triggers the makeCtx default).
+    const res = await onRequestHead(makeCtx({ assets: null }));
+    expect(res.status).toBe(503);
+  });
+
+  it('drops the body per RFC 7231 §4.3.2', async () => {
+    const res = await onRequestHead(makeCtx());
+    const text = await res.text();
+    expect(text).toBe('');
+  });
+
+  it('preserves response headers from GET (Content-Type, CORS, no-store)', async () => {
+    const res = await onRequestHead(makeCtx());
+    expect(res.headers.get('Content-Type')).toBe('application/json');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
+    expect(res.headers.get('Cache-Control')).toContain('no-store');
   });
 });

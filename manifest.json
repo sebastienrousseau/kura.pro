@@ -25784,12 +25784,44 @@
     "size": 633190
   },
   {
-    "name": "sebastien-rousseau.png",
-    "path": "stocks/images/sebastien-rousseau.png",
+    "name": "sebastienrousseau-1200.webp",
+    "path": "stocks/images/sebastienrousseau-1200.webp",
     "project": "stocks",
-    "category": "sebastien-rousseau.png",
-    "format": "png",
-    "size": 25176
+    "category": "sebastienrousseau-1200.webp",
+    "format": "webp",
+    "size": 25958
+  },
+  {
+    "name": "sebastienrousseau-1920.webp",
+    "path": "stocks/images/sebastienrousseau-1920.webp",
+    "project": "stocks",
+    "category": "sebastienrousseau-1920.webp",
+    "format": "webp",
+    "size": 40366
+  },
+  {
+    "name": "sebastienrousseau-320.webp",
+    "path": "stocks/images/sebastienrousseau-320.webp",
+    "project": "stocks",
+    "category": "sebastienrousseau-320.webp",
+    "format": "webp",
+    "size": 4260
+  },
+  {
+    "name": "sebastienrousseau-640.webp",
+    "path": "stocks/images/sebastienrousseau-640.webp",
+    "project": "stocks",
+    "category": "sebastienrousseau-640.webp",
+    "format": "webp",
+    "size": 10780
+  },
+  {
+    "name": "sebastienrousseau.webp",
+    "path": "stocks/images/sebastienrousseau.webp",
+    "project": "stocks",
+    "category": "sebastienrousseau.webp",
+    "format": "webp",
+    "size": 103560
   },
   {
     "name": "shubham-dhage-yKzECK-O9-k-1200.webp",

@@ -105,13 +105,35 @@ describe('Auth Matrix — Public endpoints work with no auth', () => {
     expect(res.status).toBe(200);
   });
 
-  it('auto works unauthenticated', async () => {
+  it('auto returns 401 unauthenticated under STRICT_AUTH (PR #108)', async () => {
+    // /api/auto is no longer public. PR #108 mirrors PR #107's auth
+    // gate on /api/transform — cdn_session cookie OR AccountKey/AccessKey
+    // header required.
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200 }));
+    const ctx = {
+      request: {
+        url: 'https://cloudcdn.pro/api/auto?path=/img/logo',
+        headers: { get: (n) => n.toLowerCase() === 'accept' ? '*/*' : null },
+      },
+      env: { STRICT_AUTH: '1', ACCOUNT_KEY: 'k' },
+    };
+    const res = await autoModule.onRequestGet(ctx);
+    expect(res.status).toBe(401);
+  });
+
+  it('auto returns 200 when AccountKey header matches (PR #108)', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200, headers: { 'Content-Type': 'image/png' } }));
     const ctx = {
       request: {
         url: 'https://cloudcdn.pro/api/auto?path=/img/logo',
-        headers: { get: () => '*/*' },
+        headers: { get: (n) => {
+          const lc = n.toLowerCase();
+          if (lc === 'accept') return '*/*';
+          if (lc === 'accountkey') return 'real-key';
+          return null;
+        } },
       },
+      env: { STRICT_AUTH: '1', ACCOUNT_KEY: 'real-key' },
     };
     const res = await autoModule.onRequestGet(ctx);
     expect(res.status).toBe(200);

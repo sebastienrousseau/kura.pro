@@ -189,6 +189,10 @@ async function handleRequest(context) {
           headers: { 'Content-Type': 'text/html; charset=utf-8', 'Retry-After': '900' },
         });
       }
+      // adr: ADR-10 — failed-login throttle. Acceptable per-event KV
+      // write because failed logins are rare (≪100/day even under attack;
+      // the 5-attempt cap means each IP burns ≤5 KV writes per 15-min
+      // window) and the read-modify-write happens off the hot path.
       await env.RATE_KV.put(loginKey, String(attempts + 1), { expirationTtl: 900 });
     }
 

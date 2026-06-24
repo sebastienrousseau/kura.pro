@@ -2,7 +2,7 @@
  * Insights — Geographic distribution.
  * GET /api/insights/geography?days=7
  */
-import { authenticateAny, checkRateLimit, errorResponse, rateLimitHeaders, CORS_JSON } from '../_shared.js';
+import { authenticateAny, checkRateLimit, errorResponse, rateLimitHeaders, CORS_JSON, CORS_JSON_CACHED_300 } from '../_shared.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -39,7 +39,7 @@ export async function onRequestGet(context) {
     Period: { Days: days },
     Countries: sorted.map(([code, count]) => ({ CountryCode: code, Requests: count })),
     DateFetched: new Date().toISOString(),
-  }), { headers: { ...CORS_JSON, ...rateLimitHeaders(rl) } });
+  }), { headers: { ...CORS_JSON_CACHED_300, ...rateLimitHeaders(rl) } });
 }
 
 export async function onRequestOptions() {

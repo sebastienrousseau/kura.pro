@@ -2,7 +2,7 @@
  * Insights — Error tracking (4xx/5xx).
  * GET /api/insights/errors?days=7
  */
-import { authenticateAny, checkRateLimit, errorResponse, rateLimitHeaders, CORS_JSON } from '../_shared.js';
+import { authenticateAny, checkRateLimit, errorResponse, rateLimitHeaders, CORS_JSON, CORS_JSON_CACHED_60 } from '../_shared.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -53,7 +53,7 @@ export async function onRequestGet(context) {
     Errors: errors,
     Note: errors.length === 0 ? 'Error tracking populates automatically from middleware analytics.' : undefined,
     DateFetched: new Date().toISOString(),
-  }), { headers: { ...CORS_JSON, ...rateLimitHeaders(rl) } });
+  }), { headers: { ...CORS_JSON_CACHED_60, ...rateLimitHeaders(rl) } });
 }
 
 export async function onRequestOptions() {

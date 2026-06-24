@@ -144,8 +144,21 @@ describe('POST /api/assets/process', () => {
   });
 
   it('returns 429 when per-IP rate-limit trips', async () => {
-    const env = freshEnv({ RATE_KV: { get: vi.fn().mockResolvedValue('999'), put: vi.fn() } });
+    // Discriminating mock: rate-limit keys return '999' so the limiter
+    // trips; usage-cache keys return null so the new enforceCap check
+    // is a no-op (cap=0 + 0 usage = allowed).
+    const env = freshEnv({ RATE_KV: { get: vi.fn(async (k) => k.startsWith('usage:') ? null : '999'), put: vi.fn() } });
     expect((await processor.onRequestPost({ request: makeReq({ body: { url: SOURCE } }), env })).status).toBe(429);
+  });
+
+  it('returns 402 when the account has hit its monthly cap', async () => {
+    // The session mock defaults monthly_cap_usd to 0 (degrade-only) —
+    // so any non-zero usage refuses. Seed the usage-cache key with $5.
+    const env = freshEnv({ RATE_KV: { get: vi.fn(async (k) => k.startsWith('usage:') ? '5' : null), put: vi.fn() } });
+    const res = await processor.onRequestPost({ request: makeReq({ body: { url: SOURCE } }), env });
+    expect(res.status).toBe(402);
+    const body = await res.json();
+    expect(body.error.code).toBe('spend_cap_reached');
   });
 
   it('returns 400 on bad JSON', async () => {

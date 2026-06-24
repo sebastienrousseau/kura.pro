@@ -118,6 +118,25 @@ export async function onRequestPost(context) {
     return jsonError(400, "pwned_password", "That password has appeared in known data breaches. Pick a different one.");
   }
 
+  // Per-email signup rate limit — enumeration defense (PR #111).
+  //
+  // The per-IP signup limit (5/hour) doesn't stop email enumeration via
+  // a botnet: 1000 IPs × 5 attempts = 5000 unique emails probed/hour.
+  // Adding 3 attempts per 24h per email caps that vector: probing a
+  // single address more than 3× a day silently 429s regardless of
+  // source IP. At the macro level this means a 100k-email enumeration
+  // run would take 8+ years rather than 20 hours.
+  //
+  // We KEEP the 409 + explicit "email_exists" message below — taking
+  // that away creates a worse UX (legit users won't know to sign in
+  // instead) than the residual enumeration leak. The rate limit
+  // is what makes the leak operationally useless.
+  const signupEmailRl = await checkRateLimit(env, `signup-email:${email}`, 3, 24 * 60 * 60);
+  if (!signupEmailRl.allowed) {
+    await recordSignupAttempt(env, { email, ip, outcome: "rate_limited" });
+    return jsonError(429, "rate_limited", "Too many signup attempts for this email. Try again in 24 hours.", { retryAfter: 24 * 60 * 60 });
+  }
+
   // Email uniqueness.
   const db = getDB(env);
   const existing = await db

@@ -1,8 +1,21 @@
 /**
  * k6 Load Test for CloudCDN Edge Functions
  *
- * Run: k6 run scripts/tests/load.k6.js
- * Override target: k6 run -e BASE_URL=https://cloudcdn.pro scripts/tests/load.k6.js
+ * Run (local — default):
+ *   wrangler pages dev . &        # start a local server on :8788 first
+ *   k6 run scripts/tests/load.k6.js
+ *
+ * Run against production (intentional + dangerous):
+ *   k6 run -e BASE_URL=https://cloudcdn.pro \
+ *          -e I_KNOW_THIS_HITS_PROD=1 \
+ *          scripts/tests/load.k6.js
+ *
+ * The two-env-var requirement is a deliberate seatbelt: this file
+ * peaks at 1,000 VUs / ~40k req/sec for 2 minutes, which is enough
+ * to drain the Free-tier 100k daily request quota in a single run.
+ * The June 22 2026 incident — two spikes of ~50k requests, traced
+ * back to direct `k6 run` invocations against prod — added the
+ * guard; do not remove without the same root-cause story.
  *
  * Stages:
  *   1. Ramp to 100 VUs over 30s (warm-up)
@@ -17,7 +30,17 @@ import { Rate, Trend } from 'k6/metrics';
 const errorRate = new Rate('errors');
 const ttfb = new Trend('ttfb', true);
 
-const BASE = __ENV.BASE_URL || 'https://cloudcdn.pro';
+const BASE = __ENV.BASE_URL || 'http://localhost:8788';
+
+// Refuse to hit production without explicit opt-in. Two-key seatbelt:
+// you must BOTH supply BASE_URL=https://... AND set
+// I_KNOW_THIS_HITS_PROD=1. Passing just one is treated as a typo.
+if (BASE.includes('cloudcdn.pro') && __ENV.I_KNOW_THIS_HITS_PROD !== '1') {
+  throw new Error(
+    'Refusing to run against ' + BASE + ' — this script peaks at 1,000 VUs / ~40k req/sec for 2 minutes and will burn the daily Worker request quota. ' +
+    'If you really mean it, re-run with both `-e BASE_URL=' + BASE + '` AND `-e I_KNOW_THIS_HITS_PROD=1`.'
+  );
+}
 
 export const options = {
   stages: [

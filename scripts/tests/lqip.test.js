@@ -158,4 +158,24 @@ describe('GET /api/lqip', () => {
     expect(res.status).toBe(200);
     expect(kv.put).toHaveBeenCalledWith('rl:lqip:unknown', expect.any(String), expect.any(Object));
   });
+
+  // ── PR #109 defense additions ─────────────────────────────────
+  describe('bot blocklist + Referer guard', () => {
+    it('returns 403 bot_blocked for a known AI crawler UA', async () => {
+      const ctx = makeCtx('?url=/x.svg');
+      ctx.request.headers.set('user-agent', 'GPTBot/1.2');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+      expect((await res.json()).error.code).toBe('bot_blocked');
+    });
+
+    it('returns 403 hotlink_blocked for an off-domain Referer', async () => {
+      const ctx = makeCtx('?url=/x.svg');
+      ctx.request.headers.set('user-agent', 'Mozilla/5.0');
+      ctx.request.headers.set('referer', 'https://evil.com/');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+      expect((await res.json()).error.code).toBe('hotlink_blocked');
+    });
+  });
 });

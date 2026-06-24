@@ -1350,4 +1350,14 @@ describe('POST /api/chat', () => {
       expect(systemPrompt).toMatch(/\n~~~$/);
     });
   });
+
+  // ── PR #109 bot blocklist ─────────────────────────────────────
+  it('returns 403 bot_blocked for a known AI crawler UA', async () => {
+    const ctx = makeContext({ body: { message: 'hello' } });
+    // Add headers (default makeContext omits them).
+    ctx.request.headers = new Headers({ 'user-agent': 'GPTBot/1.2' });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(403);
+    expect((await res.json()).error.code).toBe('bot_blocked');
+  });
 });

@@ -409,7 +409,7 @@ describe('GET /api/auto', () => {
     const ctx = {
       request: new Request('https://cloudcdn.pro/api/auto?path=/../../../etc/passwd'),
     };
-    Object.defineProperty(ctx.request, 'headers', { value: { get: () => '*/*' } });
+    Object.defineProperty(ctx.request, 'headers', { value: { get: (n) => n.toLowerCase() === 'accept' ? '*/*' : null } });
     const res = await onRequestGet(ctx);
     expect(res.status).toBe(400);
     const json = await res.json();
@@ -420,7 +420,7 @@ describe('GET /api/auto', () => {
     const ctx = {
       request: new Request('https://cloudcdn.pro/api/auto?path=/test%00.svg'),
     };
-    Object.defineProperty(ctx.request, 'headers', { value: { get: () => '*/*' } });
+    Object.defineProperty(ctx.request, 'headers', { value: { get: (n) => n.toLowerCase() === 'accept' ? '*/*' : null } });
     const res = await onRequestGet(ctx);
     expect(res.status).toBe(400);
   });
@@ -429,7 +429,7 @@ describe('GET /api/auto', () => {
     const ctx = {
       request: new Request('https://cloudcdn.pro/api/auto?path=//etc/passwd'),
     };
-    Object.defineProperty(ctx.request, 'headers', { value: { get: () => '*/*' } });
+    Object.defineProperty(ctx.request, 'headers', { value: { get: (n) => n.toLowerCase() === 'accept' ? '*/*' : null } });
     const res = await onRequestGet(ctx);
     expect(res.status).toBe(400);
   });
@@ -644,6 +644,101 @@ describe('GET /api/auto', () => {
       const probedUrls = globalThis.fetch.mock.calls.map((c) => c[0]);
       expect(probedUrls.some((u) => u.includes('.avifs'))).toBe(false);
       expect(probedUrls.some((u) => u.includes('.gif'))).toBe(false);
+    });
+  });
+
+  // ── Defense layers added in PR #108 ───────────────────────────
+  describe('defense layers (mirror of /api/transform)', () => {
+    function makeAuthedCtx(queryString, env = {}, headerOverrides = {}) {
+      const headers = new Headers({
+        accept: '*/*',
+        'user-agent': 'Mozilla/5.0 (test browser)',
+        'cf-connecting-ip': '203.0.113.1',
+        accountkey: 'real-key',
+        ...headerOverrides,
+      });
+      return {
+        request: {
+          url: `https://cloudcdn.pro/api/auto${queryString}`,
+          headers,
+        },
+        env: { STRICT_AUTH: '1', ACCOUNT_KEY: 'real-key', ...env },
+      };
+    }
+
+    it('Layer 0: 401 unauthenticated when STRICT_AUTH=1 + no creds', async () => {
+      const ctx = {
+        request: {
+          url: 'https://cloudcdn.pro/api/auto?path=/x',
+          headers: new Headers({ accept: '*/*' }),
+        },
+        env: { STRICT_AUTH: '1', ACCOUNT_KEY: 'real-key' },
+      };
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(401);
+      expect((await res.json()).error).toBe('unauthenticated');
+    });
+
+    it('Layer 1: 403 bot_blocked for a known crawler UA', async () => {
+      const ctx = makeAuthedCtx('?path=/x', {}, { 'user-agent': 'GPTBot/1.0' });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+      expect((await res.json()).error).toBe('bot_blocked');
+    });
+
+    it('Layer 2: 403 hotlink_blocked for an external Referer', async () => {
+      const ctx = makeAuthedCtx('?path=/x', {}, { referer: 'https://evil.com/' });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+      expect((await res.json()).error).toBe('hotlink_blocked');
+    });
+
+    it('Layer 0: 200 with a valid cdn_session cookie + matching D1 row', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue(new Response('img', { status: 200, headers: { 'Content-Type': 'image/png' } }));
+      const now = Math.floor(Date.now() / 1000);
+      const ctx = {
+        request: {
+          url: 'https://cloudcdn.pro/api/auto?path=/x',
+          headers: new Headers({
+            accept: '*/*',
+            'user-agent': 'Mozilla/5.0',
+            'cf-connecting-ip': '203.0.113.1',
+            cookie: 'cdn_session=tok.signature',
+          }),
+        },
+        env: {
+          STRICT_AUTH: '1',
+          ACCOUNT_KEY: 'k',
+          ACCOUNTS_DB: {
+            prepare: vi.fn(() => ({
+              bind: vi.fn(() => ({
+                first: vi.fn().mockResolvedValue({
+                  token_hash: 'h', user_id: 'u1', account_id: 'a1',
+                  expires_at: now + 3600, revoked_at: null,
+                  email: 'a@b.com', name: null, email_verified_at: null,
+                  account_id_full: 'a1', account_name: 'A', plan: 'free', monthly_cap_usd: 0,
+                }),
+                run: vi.fn().mockResolvedValue({ success: true }),
+              })),
+            })),
+            batch: vi.fn().mockResolvedValue([]),
+          },
+        },
+      };
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(200);
+    });
+
+    it('Layer 3: 429 rate_limit_exceeded_minute over 60/min/IP', async () => {
+      const ctx = makeAuthedCtx('?path=/x', {
+        RATE_KV: {
+          get: vi.fn(async (k) => k.startsWith('rl:auto:m:') ? '61' : null),
+          put: vi.fn(),
+        },
+      });
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(429);
+      expect((await res.json()).error).toBe('rate_limit_exceeded_minute');
     });
   });
 });

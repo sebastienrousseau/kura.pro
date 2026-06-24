@@ -197,4 +197,22 @@ describe('GET /api/blurhash', () => {
       expect(res.headers.get('Access-Control-Max-Age')).toBe('86400');
     });
   });
+
+  // ── PR #109 defense additions ─────────────────────────────────
+  describe('bot blocklist + Referer guard', () => {
+    it('returns 403 bot_blocked for ClaudeBot', async () => {
+      const ctx = makeCtx('?url=/x.svg');
+      ctx.request.headers.set('user-agent', 'Mozilla/5.0 (compatible; ClaudeBot)');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 403 hotlink_blocked for an off-domain Referer', async () => {
+      const ctx = makeCtx('?url=/x.svg');
+      ctx.request.headers.set('user-agent', 'Mozilla/5.0');
+      ctx.request.headers.set('referer', 'https://hostile.example/');
+      const res = await onRequestGet(ctx);
+      expect(res.status).toBe(403);
+    });
+  });
 });

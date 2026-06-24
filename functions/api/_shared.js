@@ -200,16 +200,16 @@ export async function hmacVerifyCached(secret, data, signature) {
  * once in Cloudflare Pages env vars alongside the actual keys.
  */
 function strictAuth(env) {
-  return env.STRICT_AUTH === '1' || env.STRICT_AUTH === 'true';
+  return env?.STRICT_AUTH === '1' || env?.STRICT_AUTH === 'true';
 }
 
 export async function authenticateAccess(request, env) {
-  const accessKey = request.headers.get('AccessKey');
+  const accessKey = request.headers?.get?.('AccessKey');
   if (accessKey && env.STORAGE_KEY && accessKey === env.STORAGE_KEY) return true;
 
   const secret = env.DASHBOARD_SECRET || env.DASHBOARD_PASSWORD;
   if (secret) {
-    const cookies = parseCookies(request.headers.get('Cookie'));
+    const cookies = parseCookies(request.headers?.get?.('Cookie'));
     const session = cookies[SESSION_COOKIE];
     if (session) {
       const dot = session.lastIndexOf('.');
@@ -231,8 +231,8 @@ export async function authenticateAccess(request, env) {
 }
 
 export function authenticateAccount(request, env) {
-  const key = request.headers.get('AccountKey');
-  if (!env.ACCOUNT_KEY) return !strictAuth(env);
+  const key = request.headers?.get?.('AccountKey');
+  if (!env?.ACCOUNT_KEY) return !strictAuth(env);
   return key === env.ACCOUNT_KEY;
 }
 
@@ -727,6 +727,31 @@ export const CORS_JSON = {
   'Access-Control-Allow-Origin': '*',
   'Content-Type': 'application/json',
 };
+
+/**
+ * Wrap a GET handler so it can also serve HEAD. Pages Functions does
+ * NOT auto-alias HEAD → GET (verified 2026-06-23 in PR #102). Without
+ * an explicit onRequestHead export, every HEAD probe falls through to
+ * "no handler matched" → 404, which:
+ *   - confuses uptime monitors (Pingdom, UptimeRobot, BetterUptime
+ *     all default to HEAD)
+ *   - still costs a Worker invocation to produce the 404
+ *
+ * Returns a body-less Response with the same status + headers as GET
+ * would have produced, per RFC 7231 §4.3.2. Use as:
+ *
+ *     export const onRequestHead = headFromGet(onRequestGet);
+ */
+export function headFromGet(getHandler) {
+  return async (context) => {
+    const res = await getHandler(context);
+    return new Response(null, {
+      status: res.status,
+      statusText: res.statusText,
+      headers: res.headers,
+    });
+  };
+}
 
 // Same envelope plus a 60-second per-client cache. Use for GET-only
 // endpoints whose payload is identical for the same caller within a

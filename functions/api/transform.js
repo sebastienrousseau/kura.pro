@@ -1,4 +1,5 @@
-import { legacyErrorJson, checkRateLimit } from './_shared.js';
+import { legacyErrorJson, checkRateLimit, authenticateAny, headFromGet } from './_shared.js';
+import { hasAccountsDB, getCurrentSession } from './auth/_lib.js';
 import { addUsageIfBelow } from './usage_meter_do.js';
 
 const MONTHLY_LIMIT = 50000;
@@ -153,6 +154,40 @@ export async function onRequestGet(context) {
   const { USAGE_METER } = context.env;
   const url = new URL(context.request.url);
   const params = url.searchParams;
+
+  // --- Layer 0: authentication required ---
+  //
+  // /api/transform is no longer a public endpoint. Two ways to
+  // authenticate:
+  //   1. cdn_session cookie — set by /api/auth/* (passkey, OAuth,
+  //      email+password). Browser users signed into cloudcdn.pro
+  //      (including the dashboard) get this for free.
+  //   2. AccountKey or AccessKey header — programmatic API users
+  //      using the documented client libraries.
+  //
+  // Public pages no longer reference /api/transform programmatically
+  // (PR #105 + #106 shipped pre-rendered responsive variants under
+  // /stocks/images/ and /clients/**/banners/ for all viewport-sized
+  // images). The only remaining caller is the dashboard's Transform
+  // Playground, which already runs behind a session.
+  //
+  // Behaviour:
+  //   - With cdn_session cookie OR AccountKey/AccessKey: proceed.
+  //   - Without either: 401 unauthenticated.
+  //
+  // This kills the entire bot-attack class for /api/transform: a
+  // crawler with no session + no API key gets 401 in ~50µs (one D1
+  // cookie lookup if cookie present, zero work if absent).
+  let authed = await authenticateAny(context.request, context.env);
+  if (!authed && hasAccountsDB(context.env)) {
+    const session = await getCurrentSession(context.env, context.request);
+    authed = !!session;
+  }
+  if (!authed) {
+    return legacyErrorJson(401, 'unauthenticated', {
+      extra: { message: 'Sign in (cdn_session cookie) or supply an AccountKey/AccessKey header. Public pages should use the pre-generated /stocks/.../-{320,640,1200,1920}.webp variants instead — see /api-reference/.' },
+    });
+  }
 
   // --- Layer 1: known AI-training/scraper bot blocklist ---
   //
@@ -352,12 +387,14 @@ export async function onRequestGet(context) {
   }
 }
 
+export const onRequestHead = headFromGet(onRequestGet);
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
       'Access-Control-Max-Age': '86400',
     },
   });

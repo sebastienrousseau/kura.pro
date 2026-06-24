@@ -70,6 +70,7 @@ export default defineConfig({
         'functions/api/assets/process.js',
         'functions/api/usage_meter_do.js',
         'scripts/migrate-legacy-tokens-to-d1.mjs',
+        'scripts/sync-ua-blocklist.mjs',
         'cdn/en/dist/stratos/stratos.mjs',
         'cdn/shared/theme-boot.js',
         'cdn/shared/theme-toggle.js',

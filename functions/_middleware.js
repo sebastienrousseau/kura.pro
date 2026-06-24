@@ -206,6 +206,11 @@ function withApiReferenceCsp(response) {
   // pre-existing CSP first so the override is the only one on the wire.
   headers.delete("Content-Security-Policy");
   headers.set("Content-Security-Policy", API_REFERENCE_CSP);
+  // Discourage indexing of /api-reference by search engines and most
+  // AI-training crawlers. The OpenAPI spec contains many example URLs
+  // that scrapers extract + hit; cutting indexing at the source is
+  // the cheapest defence. Real users still see the docs normally.
+  headers.set("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,

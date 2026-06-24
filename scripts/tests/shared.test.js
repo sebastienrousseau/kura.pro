@@ -1119,4 +1119,34 @@ describe('Shared utilities', () => {
       expect(isAiQuotaError('quota exhausted')).toBe(true);
     });
   });
+
+  // ── headFromGet (PR #109) ────────────────────────────────────
+  describe('headFromGet', () => {
+    it('returns a function that delegates to GET and drops the body', async () => {
+      const { headFromGet } = await import('../../functions/api/_shared.js');
+      const getHandler = vi.fn().mockResolvedValue(
+        new Response('hello body', {
+          status: 200,
+          headers: { 'Content-Type': 'text/plain', 'X-Custom': 'yes' },
+        }),
+      );
+      const head = headFromGet(getHandler);
+      const ctx = { request: { url: 'https://x/' } };
+      const res = await head(ctx);
+      expect(getHandler).toHaveBeenCalledWith(ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('text/plain');
+      expect(res.headers.get('X-Custom')).toBe('yes');
+      // Per RFC 7231 §4.3.2, HEAD response has no body.
+      expect(await res.text()).toBe('');
+    });
+
+    it('preserves non-2xx statuses from GET (e.g. 401, 404)', async () => {
+      const { headFromGet } = await import('../../functions/api/_shared.js');
+      const getHandler = vi.fn().mockResolvedValue(new Response('nope', { status: 401 }));
+      const head = headFromGet(getHandler);
+      const res = await head({ request: {} });
+      expect(res.status).toBe(401);
+    });
+  });
 });

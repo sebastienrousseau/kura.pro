@@ -7,6 +7,9 @@
  * protected asset from origin with appropriate cache headers.
  */
 
+import { checkRateLimit, headFromGet } from './_shared.js';
+import { matchedBotUa } from './transform.js';
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Content-Type': 'application/json',
@@ -77,17 +80,35 @@ function timingSafeEqual(a, b) {
 }
 
 export async function onRequestGet(context) {
-  const { SIGNED_URL_SECRET, RATE_KV } = context.env;
+  const { SIGNED_URL_SECRET } = context.env;
 
-  // Rate limit: 300 req/min per IP
-  if (RATE_KV) {
-    const ip = context.request.headers.get('cf-connecting-ip') || 'unknown';
-    const key = `rl:signed:${ip}`;
-    const count = parseInt(await RATE_KV.get(key) || '0', 10);
-    if (count >= 300) {
-      return Response.json({ error: 'Rate limit exceeded' }, { status: 429, headers: { ...CORS_HEADERS, 'Retry-After': '60' } });
-    }
-    await RATE_KV.put(key, String(count + 1), { expirationTtl: 60 });
+  // ── Bot blocklist (defense in depth) ──
+  //
+  // The HMAC signature + expiration in the URL is the primary auth
+  // mechanism — /api/signed is intentionally not session-gated
+  // because signed URLs are designed for unauthenticated recipients
+  // (e.g. customer-facing private-asset download links). But if a
+  // signed URL somehow lands in an AI-crawler corpus (leaked in a
+  // public log, scraped from a shared chat, etc.), we'd rather
+  // 403 those crawlers than serve them the protected asset until
+  // the expiration ticks past.
+  const ua = context.request.headers?.get?.('user-agent') || '';
+  const botMatch = matchedBotUa(ua);
+  if (botMatch) {
+    return Response.json(
+      { error: 'Bot blocked', userAgent: botMatch },
+      { status: 403, headers: CORS_HEADERS },
+    );
+  }
+
+  // Rate limit: 300 req/min per IP. Dispatched via checkRateLimit
+  // (DO-preferred, KV-fallback) so this no longer burns a KV write
+  // per request. Headers may be absent in minimal test contexts —
+  // optional chaining keeps the path safe.
+  const ip = context.request.headers?.get?.('cf-connecting-ip') || 'unknown';
+  const rl = await checkRateLimit(context.env, `rl:signed:${ip}`, 300, 60);
+  if (!rl.allowed) {
+    return Response.json({ error: 'Rate limit exceeded' }, { status: 429, headers: { ...CORS_HEADERS, 'Retry-After': '60' } });
   }
 
   if (!SIGNED_URL_SECRET) {
@@ -171,9 +192,11 @@ export async function onRequestGet(context) {
   }
 }
 
+export const onRequestHead = headFromGet(onRequestGet);
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
-    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Max-Age': '86400' },
+    headers: { ...CORS_HEADERS, 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS', 'Access-Control-Max-Age': '86400' },
   });
 }

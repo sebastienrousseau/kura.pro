@@ -18,6 +18,7 @@ function makeContext({ body, env = {} }) {
         get: vi.fn().mockResolvedValue(null),
         put: vi.fn().mockResolvedValue(undefined),
       },
+      ...env,
     },
   };
 }
@@ -84,12 +85,21 @@ describe('POST /api/chat', () => {
 
   // --- Rate limiting ---
   it('returns 429 when monthly limit reached', async () => {
+    // UsageMeterDO.addIfBelow returns { accepted: false } when the
+    // counter would exceed the cap. The previous RATE_KV-based mock
+    // is no longer hit because the production code routes through
+    // the DO (ADR-11 banned the old per-request KV write pattern).
     const ctx = makeContext({
       body: { message: 'hello' },
       env: {
-        RATE_KV: {
-          get: vi.fn().mockResolvedValue('1000'),
-          put: vi.fn(),
+        USAGE_METER: {
+          idFromName: vi.fn(() => 'do-id'),
+          get: vi.fn(() => ({
+            fetch: vi.fn(async () => new Response(
+              JSON.stringify({ accepted: false, units: 1000, period: '2026-06', limit: 1000 }),
+              { status: 200 },
+            )),
+          })),
         },
       },
     });
@@ -110,6 +120,60 @@ describe('POST /api/chat', () => {
         },
         VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
         RATE_KV: null,
+      },
+    });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(200);
+    await readFullStream(res);
+  });
+
+  it('proceeds when USAGE_METER accepts (counts the call toward remaining)', async () => {
+    const stream = makeAIStream(['data: {"response":"yo"}\n\ndata: [DONE]\n\n']);
+    const ctx = makeContext({
+      body: { message: 'hello' },
+      env: {
+        AI: {
+          run: vi.fn()
+            .mockResolvedValueOnce({ data: [[0.1]] })
+            .mockResolvedValueOnce(stream),
+        },
+        VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+        USAGE_METER: {
+          idFromName: vi.fn(() => 'do-id'),
+          get: vi.fn(() => ({
+            fetch: vi.fn(async () => new Response(
+              JSON.stringify({ accepted: true, units: 42, period: '2026-06', limit: 1000 }),
+              { status: 200 },
+            )),
+          })),
+        },
+        METRICS: {
+          writeDataPoint: vi.fn(),
+        },
+      },
+    });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(200);
+    expect(ctx.env.METRICS.writeDataPoint).toHaveBeenCalledWith(expect.objectContaining({
+      indexes: ['chat-query'],
+    }));
+    await readFullStream(res);
+  });
+
+  it('METRICS write errors do not block the request', async () => {
+    const stream = makeAIStream(['data: {"response":"ok"}\n\ndata: [DONE]\n\n']);
+    const ctx = makeContext({
+      body: { message: 'hello' },
+      env: {
+        AI: {
+          run: vi.fn()
+            .mockResolvedValueOnce({ data: [[0.1]] })
+            .mockResolvedValueOnce(stream),
+        },
+        VECTOR_INDEX: { query: vi.fn().mockResolvedValue({ matches: [] }) },
+        METRICS: {
+          writeDataPoint: vi.fn(() => { throw new Error('AE down'); }),
+        },
       },
     });
     const res = await onRequestPost(ctx);
@@ -922,7 +986,15 @@ describe('POST /api/chat', () => {
     const ctx = makeContext({
       body: { message: 'hello' },
       env: {
-        RATE_KV: { get: vi.fn().mockResolvedValue('1000'), put: vi.fn() },
+        USAGE_METER: {
+          idFromName: vi.fn(() => 'do-id'),
+          get: vi.fn(() => ({
+            fetch: vi.fn(async () => new Response(
+              JSON.stringify({ accepted: false, units: 1000, period: '2026-06', limit: 1000 }),
+              { status: 200 },
+            )),
+          })),
+        },
       },
     });
     const res = await onRequestPost(ctx);
@@ -1277,5 +1349,15 @@ describe('POST /api/chat', () => {
       expect(systemPrompt).toMatch(/CONTEXT:\n~~~\n/);
       expect(systemPrompt).toMatch(/\n~~~$/);
     });
+  });
+
+  // ── PR #109 bot blocklist ─────────────────────────────────────
+  it('returns 403 bot_blocked for a known AI crawler UA', async () => {
+    const ctx = makeContext({ body: { message: 'hello' } });
+    // Add headers (default makeContext omits them).
+    ctx.request.headers = new Headers({ 'user-agent': 'GPTBot/1.2' });
+    const res = await onRequestPost(ctx);
+    expect(res.status).toBe(403);
+    expect((await res.json()).error.code).toBe('bot_blocked');
   });
 });

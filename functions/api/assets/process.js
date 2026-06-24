@@ -45,6 +45,13 @@ import {
   hasAccountsDB, getCurrentSession,
   AUTH_CORS, jsonError, authJson,
 } from "../auth/_lib.js";
+import { enforceCap, recordUsage } from "../account/_quota.js";
+
+// Per-call USD cost estimate. Conservative — actual AE-backed numbers
+// will refine this in Phase 3 (Stripe billing). The point is that the
+// cap-enforcement path has real numbers to push through today.
+const COST_PER_PROCESS_USD = 0.0025;
+const COST_PER_EAGER_AI_USD = 0.0040;
 
 const DEFAULT_FORMATS = ["avif", "webp"];
 const VALID_FORMATS = new Set(["avif", "webp", "jxl", "png", "jpeg"]);
@@ -67,6 +74,11 @@ export async function onRequestPost(context) {
   const current = await getCurrentSession(env, request);
   if (!current) return jsonError(401, "unauthenticated", "Sign in first.");
   if (!current.account) return jsonError(403, "no_account", "No account associated with this session.");
+
+  // Cap check BEFORE any billable work. Returns a 402 Response (with
+  // Retry-After) when the account has reached its monthly cap.
+  const refusal = await enforceCap(env, current.account);
+  if (refusal) return refusal;
 
   const ip = request.headers.get("cf-connecting-ip") || null;
   if (ip) {
@@ -133,6 +145,11 @@ export async function onRequestPost(context) {
   }
 
   const signed = await buildSignedUrl(env, request, sourceUrl, ttl);
+
+  // Charge once the work is committed. Fire-and-forget — never let
+  // metering failure block the response.
+  const totalCostUsd = COST_PER_PROCESS_USD + (mode === "eager" ? COST_PER_EAGER_AI_USD : 0);
+  recordUsage(env, current.account.id, totalCostUsd, "assets.process").catch(() => {});
 
   return authJson({
     source: { url: sourceUrl },

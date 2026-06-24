@@ -197,12 +197,27 @@ export async function onRequestGet(context) {
   });
 }
 
+// HEAD = GET with the body discarded. Pages Functions does NOT
+// auto-alias HEAD to GET (verified 2026-06-23) — without this export,
+// `curl -I https://cloudcdn.pro/api/health` returns 404, which makes
+// uptime monitors (Pingdom, UptimeRobot, BetterUptime — all default
+// to HEAD) falsely report the service as down AND still invoke the
+// Worker to produce the 404, so it's a double loss: false alarm +
+// burned request quota for no signal.
+export async function onRequestHead(context) {
+  const res = await onRequestGet(context);
+  return new Response(null, {
+    status: res.status,
+    headers: res.headers,
+  });
+}
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
       'Access-Control-Max-Age': '86400',
     },
   });

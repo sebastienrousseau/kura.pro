@@ -18,6 +18,8 @@
     "build:locales": "node scripts/i18n/build-locales.mjs",
     "build:skeletonic": "node scripts/build-skeletonic.mjs",
     "build:all": "npm run build:manifest && npm run build:locales && npm run build:css && npm run build:skeletonic",
+    "dist:responsive": "node scripts/dist/generate-responsive-stocks.mjs",
+    "dist:responsive:check": "node scripts/dist/generate-responsive-stocks.mjs --check",
     "health": "curl -s https://cloudcdn.pro/api/health?deep=1 | jq .",
     "secrets:list": "npx wrangler pages secret list --project-name=cloudcdn-pro",
     "secrets:set": "npx wrangler pages secret put --project-name=cloudcdn-pro",

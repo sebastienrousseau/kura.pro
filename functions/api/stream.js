@@ -1,4 +1,4 @@
-import { legacyErrorJson } from './_shared.js';
+import { legacyErrorJson, headFromGet } from './_shared.js';
 
 export const SEGMENT_DURATION = 10;
 export const ASSUMED_BITRATE = 2_500_000; // ~2.5 Mbps estimate for source files
@@ -147,3 +147,5 @@ export async function onRequestGet(context) {
     },
   });
 }
+
+export const onRequestHead = headFromGet(onRequestGet);

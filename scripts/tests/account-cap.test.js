@@ -80,6 +80,93 @@ describe('currentMonthUsageUsd', () => {
     const env = { RATE_KV: { get: vi.fn().mockRejectedValue(new Error('down')) } };
     expect(await quotaModule.currentMonthUsageUsd(env, 'a1')).toBe(0);
   });
+
+  // ── USAGE_METER DO preferred path (Phase 2A v2) ───────────────
+
+  function makeUsageMeterBinding(snapshot) {
+    return {
+      USAGE_METER: {
+        idFromName: vi.fn(() => 'do-id'),
+        get: vi.fn(() => ({
+          fetch: vi.fn(async (url) => {
+            if (new URL(url).pathname === '/get') {
+              return new Response(JSON.stringify(snapshot), { status: 200 });
+            }
+            return new Response('{}', { status: 200 });
+          }),
+        })),
+      },
+    };
+  }
+
+  it('prefers USAGE_METER snapshot when binding is present and period matches', async () => {
+    const period = quotaModule.currentBillingPeriod();
+    const env = makeUsageMeterBinding({ units: 4.2, period, lastWriteAt: 9 });
+    expect(await quotaModule.currentMonthUsageUsd(env, 'a1')).toBeCloseTo(4.2);
+  });
+
+  it('falls through to RATE_KV when the USAGE_METER snapshot is from a stale period', async () => {
+    const env = {
+      ...makeUsageMeterBinding({ units: 99, period: '1999-01', lastWriteAt: 1 }),
+      RATE_KV: { get: vi.fn().mockResolvedValue('3.3'), put: vi.fn() },
+    };
+    expect(await quotaModule.currentMonthUsageUsd(env, 'a1')).toBeCloseTo(3.3);
+  });
+
+  it('falls through to RATE_KV when the USAGE_METER DO call throws', async () => {
+    const env = {
+      USAGE_METER: { idFromName: () => 'id', get: () => ({ fetch: () => { throw new Error('rpc down'); } }) },
+      RATE_KV: { get: vi.fn().mockResolvedValue('1.1'), put: vi.fn() },
+    };
+    expect(await quotaModule.currentMonthUsageUsd(env, 'a1')).toBeCloseTo(1.1);
+  });
+});
+
+describe('recordUsage', () => {
+  it('is a no-op when env / accountId / amount is missing or invalid', async () => {
+    await quotaModule.recordUsage(null, 'a', 1);
+    await quotaModule.recordUsage({}, '', 1);
+    await quotaModule.recordUsage({}, 'a', -1);
+    await quotaModule.recordUsage({}, 'a', Number.NaN);
+    // No throw means success.
+    expect(true).toBe(true);
+  });
+
+  it('routes via USAGE_METER when bound', async () => {
+    const stubFetch = vi.fn(async () => new Response(JSON.stringify({ units: 0.01 }), { status: 200 }));
+    const env = {
+      USAGE_METER: {
+        idFromName: vi.fn(() => 'do-id'),
+        get: vi.fn(() => ({ fetch: stubFetch })),
+      },
+    };
+    await quotaModule.recordUsage(env, 'a1', 0.01, 'test');
+    expect(stubFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('routes via RATE_KV when USAGE_METER is absent', async () => {
+    const put = vi.fn();
+    const env = { RATE_KV: { get: vi.fn().mockResolvedValue('1'), put } };
+    await quotaModule.recordUsage(env, 'a1', 0.5, 'test');
+    expect(put).toHaveBeenCalledWith(expect.stringContaining('usage:a1:'), '1.5', expect.any(Object));
+  });
+
+  it('writes a METRICS data point when binding is present', async () => {
+    const writeDataPoint = vi.fn();
+    const env = { METRICS: { writeDataPoint } };
+    await quotaModule.recordUsage(env, 'a1', 0.05, 'pipeline');
+    expect(writeDataPoint).toHaveBeenCalledWith(expect.objectContaining({
+      indexes: ['a1'],
+      blobs: ['pipeline'],
+      doubles: [0.05],
+    }));
+  });
+
+  it('swallows METRICS errors', async () => {
+    const env = { METRICS: { writeDataPoint: () => { throw new Error('boom'); } } };
+    await quotaModule.recordUsage(env, 'a1', 0.05);
+    expect(true).toBe(true);
+  });
 });
 
 describe('buildCapResponse + enforceCap', () => {

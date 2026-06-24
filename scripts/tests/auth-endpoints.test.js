@@ -214,6 +214,27 @@ describe('POST /api/auth/signup', () => {
     );
   });
 
+  // PR #116 — post-success audit/attempt writes fan out via waitUntil
+  // so the response doesn't wait for D1 round-trips. Verify the waitUntil
+  // path is taken when the Pages Functions context exposes it.
+  it('happy path with waitUntil — schedules post-success writes off the response path', async () => {
+    const env = freshEnv();
+    const waitUntil = vi.fn((p) => p); // record + pass through so awaiters work
+    const res = await signupModule.onRequestPost({
+      request: makeRequest({ body: validBody({ email: 'wu@example.com' }) }),
+      env,
+      waitUntil,
+    });
+    expect(res.status).toBe(201);
+    // waitUntil was called exactly once with a Promise — the
+    // Promise.all of the three post-success writes.
+    expect(waitUntil).toHaveBeenCalledTimes(1);
+    expect(waitUntil.mock.calls[0][0]).toBeInstanceOf(Promise);
+    // Let the background promise settle so the test runner doesn't
+    // flag dangling state.
+    await waitUntil.mock.calls[0][0];
+  });
+
   it('marketing consent path inserts the additional consents row', async () => {
     const env = freshEnv();
     const res = await signupModule.onRequestPost({

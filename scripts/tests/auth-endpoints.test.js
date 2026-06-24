@@ -241,6 +241,20 @@ describe('POST /api/auth/signup', () => {
     expect((await res.json()).error.code).toBe('email_exists');
   });
 
+  // PR #111 — per-email signup rate limit defends against enumeration.
+  it('returns 429 rate_limited when the per-email signup cap is hit (enumeration defense)', async () => {
+    // RATE_KV returns '3' for the per-email signup counter — at the cap.
+    const env = freshEnv({
+      RATE_KV: { get: vi.fn(async (k) => k.startsWith('signup-email:') ? '3' : null), put: vi.fn() },
+    });
+    const res = await signupModule.onRequestPost({
+      request: makeRequest({ body: validBody({ email: 'probe@example.com' }) }),
+      env,
+    });
+    expect(res.status).toBe(429);
+    expect((await res.json()).error.code).toBe('rate_limited');
+  });
+
   it('returns 500 internal when batch insert hits a non-UNIQUE error', async () => {
     const env = freshEnv({
       ACCOUNTS_DB: {

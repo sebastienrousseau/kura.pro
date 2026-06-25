@@ -209,9 +209,25 @@ export async function onRequestPost(context) {
   const userAgent = (request.headers.get("user-agent") || "").slice(0, 256);
   const { token, expiresAt } = await mintSession(env, { userId, accountId, ip, userAgent });
 
-  await recordSignupAttempt(env, { email, ip, outcome: "success", score: score.score });
-  await auditEvent(env, { accountId, userId, action: "user.signup", request, meta: { score: score.score, reasons: score.reasons } });
-  await auditEvent(env, { accountId, userId, action: "apikey.create", request, meta: { keyId: apiKey.id, prefix: apiKey.prefix, scopes: apiKey.scopes } });
+  // Post-success bookkeeping — fan out in parallel via waitUntil so
+  // the user-visible response goes out before these D1 writes settle.
+  // Pre-PR #116 these three ran sequentially in the foreground, adding
+  // ~150-300ms of D1 round-trip latency to every successful signup.
+  // The audit log + signup-attempt log are best-effort observability;
+  // a failure to write them must never fail the signup.
+  const postSuccessWrites = Promise.all([
+    recordSignupAttempt(env, { email, ip, outcome: "success", score: score.score }),
+    auditEvent(env, { accountId, userId, action: "user.signup", request, meta: { score: score.score, reasons: score.reasons } }),
+    auditEvent(env, { accountId, userId, action: "apikey.create", request, meta: { keyId: apiKey.id, prefix: apiKey.prefix, scopes: apiKey.scopes } }),
+  ]).catch(() => { /* never crash the response */ });
+  if (typeof context.waitUntil === "function") {
+    context.waitUntil(postSuccessWrites);
+  } else {
+    /* v8 ignore next — local dev / test contexts without waitUntil;
+       fall back to in-band await so the writes still happen, just
+       without the latency win. */
+    await postSuccessWrites;
+  }
 
   // Sign the API-key payload for the one-shot reveal cookie. The actual
   // key value never lands in this JSON response body — only metadata

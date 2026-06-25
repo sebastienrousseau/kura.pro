@@ -15,9 +15,14 @@ const HEX = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'
 const ENCODER = new TextEncoder();
 
 // ── Manifest Cache ──
+// 10-minute TTL — the manifest only changes on deploys, which themselves
+// invalidate the Worker bundle (and thus this in-memory cache) anyway.
+// Previously 30s, which forced an env.ASSETS.fetch every 30 seconds for
+// every PoP serving any `/api/assets*` traffic. At 1909+ paths the parsed
+// JSON is non-trivial, so longer TTL = real CPU saving on a hot path.
 let _manifestCache = null;
 let _manifestCacheTime = 0;
-const MANIFEST_TTL_MS = 30_000;
+const MANIFEST_TTL_MS = 10 * 60 * 1000;
 
 export async function getManifest(env, requestUrl) {
   const now = Date.now();

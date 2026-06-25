@@ -3,30 +3,25 @@ name: Tests
 on:
   push:
     branches: [main]
-    paths:
-      - 'scripts/**'
-      - 'functions/**'
-      - 'vitest.config.js'
-      - 'cdn/dashboard/**'
-      - 'cdn/en/**'
-      - 'cdn/shared/**'
-      - 'package.json'
-      - '.github/workflows/test.yml'
-      # Docs-only paths: included so the 7 required status checks fire
-      # on CHANGELOG/README PRs. Branch protection requires all seven to
-      # report green; if the workflow doesn't trigger, the PR is stuck.
-      - '**/*.md'
+    # paths-ignore (not paths) — branch protection on `main` requires
+    # the 7 contexts produced by this workflow. An allowlist filter
+    # silently strands any PR whose changes don't match (PR #117 stuck
+    # on docs; PR #119 stuck on a generated .d.ts at repo root). Inverting
+    # to a small denylist guarantees every functional change triggers
+    # CI by default — and the few paths below truly cannot affect runtime.
+    paths-ignore:
+      - 'LICENSE'
+      - '.gitignore'
+      - '.editorconfig'
+      - '.vscode/**'
+      - '.idea/**'
   pull_request:
-    paths:
-      - 'scripts/**'
-      - 'functions/**'
-      - 'vitest.config.js'
-      - 'cdn/dashboard/**'
-      - 'cdn/en/**'
-      - 'cdn/shared/**'
-      - 'package.json'
-      - '.github/workflows/test.yml'
-      - '**/*.md'
+    paths-ignore:
+      - 'LICENSE'
+      - '.gitignore'
+      - '.editorconfig'
+      - '.vscode/**'
+      - '.idea/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

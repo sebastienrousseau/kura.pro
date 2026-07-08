@@ -29,17 +29,17 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@playwright/test": "1.61.0",
+    "@playwright/test": "1.61.1",
     "@sebastienrousseau/skeletonic-stylus": "2.0.0",
-    "@tailwindcss/cli": "4.3.1",
-    "@vitest/coverage-v8": "4.1.9",
+    "@tailwindcss/cli": "4.3.2",
+    "@vitest/coverage-v8": "4.1.10",
     "happy-dom": "20.10.6",
     "husky": "9.1.7",
-    "tailwindcss": "4.3.1",
-    "vitest": "4.1.9"
+    "tailwindcss": "4.3.2",
+    "vitest": "4.1.10"
   },
   "dependencies": {
-    "sharp": "0.35.2"
+    "sharp": "0.35.3"
   },
   "overrides": {
     "vite": "8.0.16"

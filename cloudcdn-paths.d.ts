@@ -1481,6 +1481,7 @@ export type CdnPath =
   | "stocks/diagrams/mm1_model_architecture.svg"
   | "stocks/diagrams/qkd-qc-market-value.svg"
   | "stocks/diagrams/rise-of-open-source-ai-models-bar-chart.svg"
+  | "stocks/images/_pr-path-probe.svg"
   | "stocks/images/7eaven-HkA-V2dw9yA-1200.webp"
   | "stocks/images/7eaven-HkA-V2dw9yA-1920.webp"
   | "stocks/images/7eaven-HkA-V2dw9yA-320.webp"

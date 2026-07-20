@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-06T07:35:11.827Z",
+  "generated_at": "2026-07-20T08:52:25.498Z",
   "featured": "stratos",
   "categories": [
     {
@@ -109,7 +109,7 @@
         {
           "type": "pypi",
           "name": "pain001",
-          "version": "0.0.53",
+          "version": "0.0.56",
           "ok": true,
           "page": "https://pypi.org/project/pain001/",
           "error": null
@@ -119,7 +119,7 @@
         "pip": "pip install pain001",
         "pipx": "pipx install pain001"
       },
-      "primary_version": "0.0.53",
+      "primary_version": "0.0.56",
       "primary_registry": "pypi"
     },
     {
@@ -133,7 +133,7 @@
         {
           "type": "pypi",
           "name": "pacs008",
-          "version": "0.0.4",
+          "version": "0.0.7",
           "ok": true,
           "page": "https://pypi.org/project/pacs008/",
           "error": null
@@ -143,7 +143,7 @@
         "pip": "pip install pacs008",
         "pipx": "pipx install pacs008"
       },
-      "primary_version": "0.0.4",
+      "primary_version": "0.0.7",
       "primary_registry": "pypi"
     },
     {
@@ -157,7 +157,7 @@
         {
           "type": "pypi",
           "name": "acmt001",
-          "version": "0.0.1",
+          "version": "0.0.3",
           "ok": true,
           "page": "https://pypi.org/project/acmt001/",
           "error": null
@@ -167,7 +167,7 @@
         "pip": "pip install acmt001",
         "pipx": "pipx install acmt001"
       },
-      "primary_version": "0.0.1",
+      "primary_version": "0.0.3",
       "primary_registry": "pypi"
     },
     {
@@ -205,7 +205,7 @@
         {
           "type": "pypi",
           "name": "acmt001-mcp",
-          "version": "0.0.1",
+          "version": "0.0.5",
           "ok": true,
           "page": "https://pypi.org/project/acmt001-mcp/",
           "error": null
@@ -215,7 +215,7 @@
         "pipx": "pipx install acmt001-mcp",
         "pip": "pip install acmt001-mcp"
       },
-      "primary_version": "0.0.1",
+      "primary_version": "0.0.5",
       "primary_registry": "pypi"
     },
     {
@@ -229,7 +229,7 @@
         {
           "type": "pypi",
           "name": "bankstatementparser",
-          "version": "0.0.10",
+          "version": "0.0.11",
           "ok": true,
           "page": "https://pypi.org/project/bankstatementparser/",
           "error": null
@@ -239,7 +239,7 @@
         "pip": "pip install bankstatementparser",
         "pipx": "pipx install bankstatementparser"
       },
-      "primary_version": "0.0.10",
+      "primary_version": "0.0.11",
       "primary_registry": "pypi"
     },
     {
@@ -569,7 +569,7 @@
         {
           "type": "crates.io",
           "name": "noyalib",
-          "version": "0.0.13",
+          "version": "0.0.15",
           "ok": true,
           "page": "https://crates.io/crates/noyalib",
           "error": null
@@ -578,7 +578,7 @@
       "install": {
         "cargo": "cargo add noyalib"
       },
-      "primary_version": "0.0.13",
+      "primary_version": "0.0.15",
       "primary_registry": "crates.io"
     },
     {
@@ -592,7 +592,7 @@
         {
           "type": "crates.io",
           "name": "noya-cli",
-          "version": "0.0.13",
+          "version": "0.0.15",
           "ok": true,
           "page": "https://crates.io/crates/noya-cli",
           "error": null
@@ -601,7 +601,7 @@
       "install": {
         "cargo install": "cargo install noya-cli"
       },
-      "primary_version": "0.0.13",
+      "primary_version": "0.0.15",
       "primary_registry": "crates.io"
     },
     {
@@ -615,7 +615,7 @@
         {
           "type": "crates.io",
           "name": "noyalib-mcp",
-          "version": "0.0.13",
+          "version": "0.0.15",
           "ok": true,
           "page": "https://crates.io/crates/noyalib-mcp",
           "error": null
@@ -624,7 +624,7 @@
       "install": {
         "cargo install": "cargo install noyalib-mcp"
       },
-      "primary_version": "0.0.13",
+      "primary_version": "0.0.15",
       "primary_registry": "crates.io"
     },
     {
@@ -638,7 +638,7 @@
         {
           "type": "crates.io",
           "name": "noyalib-lsp",
-          "version": "0.0.13",
+          "version": "0.0.15",
           "ok": true,
           "page": "https://crates.io/crates/noyalib-lsp",
           "error": null
@@ -647,7 +647,7 @@
       "install": {
         "cargo install": "cargo install noyalib-lsp"
       },
-      "primary_version": "0.0.13",
+      "primary_version": "0.0.15",
       "primary_registry": "crates.io"
     },
     {
@@ -730,7 +730,7 @@
         {
           "type": "pypi",
           "name": "inclusio",
-          "version": "0.0.5",
+          "version": "0.0.6",
           "ok": true,
           "page": "https://pypi.org/project/inclusio/",
           "error": null
@@ -740,7 +740,7 @@
         "pipx": "pipx install inclusio",
         "pip": "pip install inclusio"
       },
-      "primary_version": "0.0.5",
+      "primary_version": "0.0.6",
       "primary_registry": "pypi"
     },
     {
@@ -1045,7 +1045,7 @@
         {
           "type": "github-releases",
           "repo": "sebastienrousseau/dotfiles",
-          "version": "0.2.510",
+          "version": "0.2.511",
           "ok": true,
           "page": "https://github.com/sebastienrousseau/dotfiles/releases/latest",
           "error": null
@@ -1055,7 +1055,7 @@
         "macos": "curl -fsSL https://raw.githubusercontent.com/sebastienrousseau/dotfiles/main/install.sh | bash",
         "linux": "curl -fsSL https://raw.githubusercontent.com/sebastienrousseau/dotfiles/main/install.sh | bash"
       },
-      "primary_version": "0.2.510",
+      "primary_version": "0.2.511",
       "primary_registry": "github-releases"
     }
   ]

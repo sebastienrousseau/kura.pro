@@ -31,11 +31,11 @@
   "devDependencies": {
     "@playwright/test": "1.61.1",
     "@sebastienrousseau/skeletonic-stylus": "2.0.0",
-    "@tailwindcss/cli": "4.3.2",
+    "@tailwindcss/cli": "4.3.3",
     "@vitest/coverage-v8": "4.1.10",
-    "happy-dom": "20.10.6",
+    "happy-dom": "20.11.0",
     "husky": "9.1.7",
-    "tailwindcss": "4.3.2",
+    "tailwindcss": "4.3.3",
     "vitest": "4.1.10"
   },
   "dependencies": {

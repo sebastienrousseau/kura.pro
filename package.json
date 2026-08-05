@@ -1,6 +1,6 @@
 {
   "name": "cloudcdn.pro",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -29,11 +29,11 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@playwright/test": "1.61.1",
+    "@playwright/test": "1.62.1",
     "@sebastienrousseau/skeletonic-stylus": "2.0.0",
     "@tailwindcss/cli": "4.3.3",
     "@vitest/coverage-v8": "4.1.10",
-    "happy-dom": "20.11.0",
+    "happy-dom": "20.11.1",
     "husky": "9.1.7",
     "tailwindcss": "4.3.3",
     "vitest": "4.1.10"

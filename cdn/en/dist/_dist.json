@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T09:37:25.763Z",
+  "generated_at": "2026-08-10T07:25:30.717Z",
   "featured": "stratos",
   "categories": [
     {
@@ -1045,7 +1045,7 @@
         {
           "type": "github-releases",
           "repo": "sebastienrousseau/dotfiles",
-          "version": "0.2.511",
+          "version": "0.2.516",
           "ok": true,
           "page": "https://github.com/sebastienrousseau/dotfiles/releases/latest",
           "error": null
@@ -1055,7 +1055,7 @@
         "macos": "curl -fsSL https://raw.githubusercontent.com/sebastienrousseau/dotfiles/main/install.sh | bash",
         "linux": "curl -fsSL https://raw.githubusercontent.com/sebastienrousseau/dotfiles/main/install.sh | bash"
       },
-      "primary_version": "0.2.511",
+      "primary_version": "0.2.516",
       "primary_registry": "github-releases"
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T07:25:30.717Z",
+  "generated_at": "2026-08-17T06:12:25.034Z",
   "featured": "stratos",
   "categories": [
     {
@@ -133,7 +133,7 @@
         {
           "type": "pypi",
           "name": "pacs008",
-          "version": "0.0.8",
+          "version": "0.0.9",
           "ok": true,
           "page": "https://pypi.org/project/pacs008/",
           "error": null
@@ -143,7 +143,7 @@
         "pip": "pip install pacs008",
         "pipx": "pipx install pacs008"
       },
-      "primary_version": "0.0.8",
+      "primary_version": "0.0.9",
       "primary_registry": "pypi"
     },
     {
@@ -367,7 +367,7 @@
         {
           "type": "crates.io",
           "name": "ssg",
-          "version": "0.0.48",
+          "version": "0.0.50",
           "ok": true,
           "page": "https://crates.io/crates/ssg",
           "error": null
@@ -379,7 +379,7 @@
         "linux": "curl -sL https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.sh | bash",
         "windows": "irm https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.ps1 | iex"
       },
-      "primary_version": "0.0.48",
+      "primary_version": "0.0.50",
       "primary_registry": "crates.io"
     },
     {
@@ -392,7 +392,7 @@
         {
           "type": "crates.io",
           "name": "html-generator",
-          "version": "0.0.7",
+          "version": "0.0.10",
           "ok": true,
           "page": "https://crates.io/crates/html-generator",
           "error": null
@@ -401,7 +401,7 @@
       "install": {
         "cargo": "cargo add html-generator"
       },
-      "primary_version": "0.0.7",
+      "primary_version": "0.0.10",
       "primary_registry": "crates.io"
     },
     {
@@ -502,7 +502,7 @@
         {
           "type": "crates.io",
           "name": "sitemap-gen",
-          "version": "0.0.3",
+          "version": "0.0.5",
           "ok": true,
           "page": "https://crates.io/crates/sitemap-gen",
           "error": null
@@ -511,7 +511,7 @@
       "install": {
         "cargo": "cargo add sitemap-gen"
       },
-      "primary_version": "0.0.3",
+      "primary_version": "0.0.5",
       "primary_registry": "crates.io"
     },
     {
@@ -569,7 +569,7 @@
         {
           "type": "crates.io",
           "name": "noyalib",
-          "version": "0.0.18",
+          "version": "0.0.23",
           "ok": true,
           "page": "https://crates.io/crates/noyalib",
           "error": null
@@ -578,7 +578,7 @@
       "install": {
         "cargo": "cargo add noyalib"
       },
-      "primary_version": "0.0.18",
+      "primary_version": "0.0.23",
       "primary_registry": "crates.io"
     },
     {
@@ -592,7 +592,7 @@
         {
           "type": "crates.io",
           "name": "noya-cli",
-          "version": "0.0.18",
+          "version": "0.0.23",
           "ok": true,
           "page": "https://crates.io/crates/noya-cli",
           "error": null
@@ -601,7 +601,7 @@
       "install": {
         "cargo install": "cargo install noya-cli"
       },
-      "primary_version": "0.0.18",
+      "primary_version": "0.0.23",
       "primary_registry": "crates.io"
     },
     {
@@ -615,7 +615,7 @@
         {
           "type": "crates.io",
           "name": "noyalib-mcp",
-          "version": "0.0.18",
+          "version": "0.0.23",
           "ok": true,
           "page": "https://crates.io/crates/noyalib-mcp",
           "error": null
@@ -624,7 +624,7 @@
       "install": {
         "cargo install": "cargo install noyalib-mcp"
       },
-      "primary_version": "0.0.18",
+      "primary_version": "0.0.23",
       "primary_registry": "crates.io"
     },
     {
@@ -638,7 +638,7 @@
         {
           "type": "crates.io",
           "name": "noyalib-lsp",
-          "version": "0.0.18",
+          "version": "0.0.23",
           "ok": true,
           "page": "https://crates.io/crates/noyalib-lsp",
           "error": null
@@ -647,7 +647,7 @@
       "install": {
         "cargo install": "cargo install noyalib-lsp"
       },
-      "primary_version": "0.0.18",
+      "primary_version": "0.0.23",
       "primary_registry": "crates.io"
     },
     {
@@ -1045,7 +1045,7 @@
         {
           "type": "github-releases",
           "repo": "sebastienrousseau/dotfiles",
-          "version": "0.2.516",
+          "version": "0.2.519",
           "ok": true,
           "page": "https://github.com/sebastienrousseau/dotfiles/releases/latest",
           "error": null
@@ -1055,7 +1055,7 @@
         "macos": "curl -fsSL https://raw.githubusercontent.com/sebastienrousseau/dotfiles/main/install.sh | bash",
         "linux": "curl -fsSL https://raw.githubusercontent.com/sebastienrousseau/dotfiles/main/install.sh | bash"
       },
-      "primary_version": "0.2.516",
+      "primary_version": "0.2.519",
       "primary_registry": "github-releases"
     }
   ]

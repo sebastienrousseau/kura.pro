@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T06:12:25.034Z",
+  "generated_at": "2026-09-07T06:20:54.032Z",
   "featured": "stratos",
   "categories": [
     {
@@ -109,7 +109,7 @@
         {
           "type": "pypi",
           "name": "pain001",
-          "version": "0.0.59",
+          "version": "0.0.65",
           "ok": true,
           "page": "https://pypi.org/project/pain001/",
           "error": null
@@ -119,7 +119,7 @@
         "pip": "pip install pain001",
         "pipx": "pipx install pain001"
       },
-      "primary_version": "0.0.59",
+      "primary_version": "0.0.65",
       "primary_registry": "pypi"
     },
     {
@@ -133,7 +133,7 @@
         {
           "type": "pypi",
           "name": "pacs008",
-          "version": "0.0.9",
+          "version": "0.0.12",
           "ok": true,
           "page": "https://pypi.org/project/pacs008/",
           "error": null
@@ -143,7 +143,7 @@
         "pip": "pip install pacs008",
         "pipx": "pipx install pacs008"
       },
-      "primary_version": "0.0.9",
+      "primary_version": "0.0.12",
       "primary_registry": "pypi"
     },
     {
@@ -157,7 +157,7 @@
         {
           "type": "pypi",
           "name": "acmt001",
-          "version": "0.0.3",
+          "version": "0.0.9",
           "ok": true,
           "page": "https://pypi.org/project/acmt001/",
           "error": null
@@ -167,7 +167,7 @@
         "pip": "pip install acmt001",
         "pipx": "pipx install acmt001"
       },
-      "primary_version": "0.0.3",
+      "primary_version": "0.0.9",
       "primary_registry": "pypi"
     },
     {
@@ -181,7 +181,7 @@
         {
           "type": "pypi",
           "name": "acmt001-lsp",
-          "version": "0.0.1",
+          "version": "0.0.9",
           "ok": true,
           "page": "https://pypi.org/project/acmt001-lsp/",
           "error": null
@@ -191,7 +191,7 @@
         "pip": "pip install acmt001-lsp",
         "pipx": "pipx install acmt001-lsp"
       },
-      "primary_version": "0.0.1",
+      "primary_version": "0.0.9",
       "primary_registry": "pypi"
     },
     {
@@ -205,7 +205,7 @@
         {
           "type": "pypi",
           "name": "acmt001-mcp",
-          "version": "0.0.6",
+          "version": "0.0.9",
           "ok": true,
           "page": "https://pypi.org/project/acmt001-mcp/",
           "error": null
@@ -215,7 +215,7 @@
         "pipx": "pipx install acmt001-mcp",
         "pip": "pip install acmt001-mcp"
       },
-      "primary_version": "0.0.6",
+      "primary_version": "0.0.9",
       "primary_registry": "pypi"
     },
     {
@@ -229,7 +229,7 @@
         {
           "type": "pypi",
           "name": "bankstatementparser",
-          "version": "0.0.11",
+          "version": "0.0.19",
           "ok": true,
           "page": "https://pypi.org/project/bankstatementparser/",
           "error": null
@@ -239,7 +239,7 @@
         "pip": "pip install bankstatementparser",
         "pipx": "pipx install bankstatementparser"
       },
-      "primary_version": "0.0.11",
+      "primary_version": "0.0.19",
       "primary_registry": "pypi"
     },
     {
@@ -367,7 +367,7 @@
         {
           "type": "crates.io",
           "name": "ssg",
-          "version": "0.0.50",
+          "version": "0.0.56",
           "ok": true,
           "page": "https://crates.io/crates/ssg",
           "error": null
@@ -379,7 +379,7 @@
         "linux": "curl -sL https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.sh | bash",
         "windows": "irm https://github.com/sebastienrousseau/static-site-generator/releases/latest/download/ssg-installer.ps1 | iex"
       },
-      "primary_version": "0.0.50",
+      "primary_version": "0.0.56",
       "primary_registry": "crates.io"
     },
     {
@@ -392,7 +392,7 @@
         {
           "type": "crates.io",
           "name": "html-generator",
-          "version": "0.0.10",
+          "version": "0.0.11",
           "ok": true,
           "page": "https://crates.io/crates/html-generator",
           "error": null
@@ -401,7 +401,7 @@
       "install": {
         "cargo": "cargo add html-generator"
       },
-      "primary_version": "0.0.10",
+      "primary_version": "0.0.11",
       "primary_registry": "crates.io"
     },
     {
@@ -458,7 +458,7 @@
         {
           "type": "crates.io",
           "name": "frontmatter-gen",
-          "version": "0.0.6",
+          "version": "0.0.10",
           "ok": true,
           "page": "https://crates.io/crates/frontmatter-gen",
           "error": null
@@ -467,7 +467,7 @@
       "install": {
         "cargo": "cargo add frontmatter-gen"
       },
-      "primary_version": "0.0.6",
+      "primary_version": "0.0.10",
       "primary_registry": "crates.io"
     },
     {
@@ -524,7 +524,7 @@
         {
           "type": "crates.io",
           "name": "staticdatagen",
-          "version": "0.0.11",
+          "version": "0.0.18",
           "ok": true,
           "page": "https://crates.io/crates/staticdatagen",
           "error": null
@@ -533,7 +533,7 @@
       "install": {
         "cargo": "cargo add staticdatagen"
       },
-      "primary_version": "0.0.11",
+      "primary_version": "0.0.18",
       "primary_registry": "crates.io"
     },
     {
@@ -569,7 +569,7 @@
         {
           "type": "crates.io",
           "name": "noyalib",
-          "version": "0.0.23",
+          "version": "0.0.39",
           "ok": true,
           "page": "https://crates.io/crates/noyalib",
           "error": null
@@ -578,7 +578,7 @@
       "install": {
         "cargo": "cargo add noyalib"
       },
-      "primary_version": "0.0.23",
+      "primary_version": "0.0.39",
       "primary_registry": "crates.io"
     },
     {
@@ -592,7 +592,7 @@
         {
           "type": "crates.io",
           "name": "noya-cli",
-          "version": "0.0.23",
+          "version": "0.0.39",
           "ok": true,
           "page": "https://crates.io/crates/noya-cli",
           "error": null
@@ -601,7 +601,7 @@
       "install": {
         "cargo install": "cargo install noya-cli"
       },
-      "primary_version": "0.0.23",
+      "primary_version": "0.0.39",
       "primary_registry": "crates.io"
     },
     {
@@ -615,7 +615,7 @@
         {
           "type": "crates.io",
           "name": "noyalib-mcp",
-          "version": "0.0.23",
+          "version": "0.0.39",
           "ok": true,
           "page": "https://crates.io/crates/noyalib-mcp",
           "error": null
@@ -624,7 +624,7 @@
       "install": {
         "cargo install": "cargo install noyalib-mcp"
       },
-      "primary_version": "0.0.23",
+      "primary_version": "0.0.39",
       "primary_registry": "crates.io"
     },
     {
@@ -638,7 +638,7 @@
         {
           "type": "crates.io",
           "name": "noyalib-lsp",
-          "version": "0.0.23",
+          "version": "0.0.39",
           "ok": true,
           "page": "https://crates.io/crates/noyalib-lsp",
           "error": null
@@ -647,7 +647,7 @@
       "install": {
         "cargo install": "cargo install noyalib-lsp"
       },
-      "primary_version": "0.0.23",
+      "primary_version": "0.0.39",
       "primary_registry": "crates.io"
     },
     {
@@ -798,7 +798,7 @@
         {
           "type": "crates.io",
           "name": "http-handle",
-          "version": "0.0.5",
+          "version": "0.0.7",
           "ok": true,
           "page": "https://crates.io/crates/http-handle",
           "error": null
@@ -807,7 +807,7 @@
       "install": {
         "cargo": "cargo add http-handle"
       },
-      "primary_version": "0.0.5",
+      "primary_version": "0.0.7",
       "primary_registry": "crates.io"
     },
     {
@@ -908,7 +908,7 @@
         {
           "type": "crates.io",
           "name": "rlg",
-          "version": "0.0.11",
+          "version": "0.0.12",
           "ok": true,
           "page": "https://crates.io/crates/rlg",
           "error": null
@@ -917,7 +917,7 @@
       "install": {
         "cargo": "cargo add rlg"
       },
-      "primary_version": "0.0.11",
+      "primary_version": "0.0.12",
       "primary_registry": "crates.io"
     },
     {
